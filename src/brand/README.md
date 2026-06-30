@@ -36,6 +36,22 @@ Brand values are isolated here, so merges rarely conflict. If a merge does
 conflict, the only affected upstream lines are the `// northsky:`-marked ones -
 `grep -rn "northsky:" .` lists them all.
 
+## Asset status
+
+Branded and in place: the SVG logomark (`assets/Logo.tsx`, rendered by
+`#/view/icons/Logo`), the web pre-React splash (`web/index.html`), the favicon
+(`assets/favicon.png`), and the `bskyweb/static/*` web set (favicons,
+apple-touch-icon, safari-pinned-tab, social cards).
+
+Still needs design assets (left as upstream until provided - do NOT fabricate):
+
+- Full-bleed native splash backgrounds `assets/splash/splash.png` and
+  `splash-dark.png` (distinct light/dark - the original fork reused one icon for
+  both, which is the bug we are avoiding).
+- Native app-icon sets under `assets/app-icons/`.
+- A Northsky wordmark to replace `#/view/icons/Logotype` (only a logomark
+  exists today).
+
 ## Deliberately NOT done
 
 We do not recreate indieapp's generic multi-brand abstraction
