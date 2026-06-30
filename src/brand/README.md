@@ -7,13 +7,14 @@ cheap. See the root `AGENTS.md` for the full fork model and sync strategy.
 
 ## What lives here
 
-- `brand.json` - the single source of truth for primitive brand values (app
-  name, service/feed/embed URLs, colors, web meta). Plain JSON so it can be
-  consumed by both `app.config.js` (CommonJS `require`) and the TypeScript
-  runtime without an interop step.
-- `config.ts` - typed re-export of `brand.json` as `BRAND`. Import from
-  `#/brand/config` in very-early modules (e.g. `src/lib/constants.ts`) and from
-  `#/brand` elsewhere.
+- `brand.json` - identity/meta values (app name, colors, OG/Twitter) as plain
+  JSON, so `app.config.js` (CommonJS `require`) can read them without an interop
+  step.
+- `config.ts` - the `BRAND` object. It merges the `brand.json` identity with the
+  runtime service/feed/embed URLs, which are declared here `as const` so their
+  literal types are preserved (e.g. `typeof BSKY_SERVICE` stays narrow for
+  upstream's ServerInput dialog). Import from `#/brand/config` in very-early
+  modules (e.g. `src/lib/constants.ts`) and from `#/brand` elsewhere.
 - `theme.ts` - Northsky palette/atoms merged onto the ALF themes (added in the
   theme step).
 - `index.ts` - the `#/brand` import surface.

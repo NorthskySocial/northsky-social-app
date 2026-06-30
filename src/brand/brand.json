@@ -1,16 +1,7 @@
 {
   "appName": "Northsky",
-  "baseUrl": "https://northsky.app",
-  "downloadUrl": "https://northsky.app/download",
   "primaryColor": "#0A2A43",
   "themeColor": "#0A2A43",
   "ogSiteName": "Northsky",
-  "twitterHandle": "@northsky",
-  "pdsServiceUrl": "https://northsky.social",
-  "publicAppViewUrl": "https://api.blacksky.community",
-  "publicAppViewDid": "did:web:api.blacksky.community",
-  "embedServiceUrl": "https://embed.northsky.app",
-  "discoverFeedUri": "at://did:plc:23cnpffmuf4vkpsnwhgyvljw/app.bsky.feed.generator/NorthskySocial",
-  "slingshotServiceUrl": "https://slingshot.microcosm.blue",
-  "constellationServiceUrl": "https://constellation.microcosm.blue"
+  "twitterHandle": "@northsky"
 }
