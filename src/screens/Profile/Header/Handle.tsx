@@ -63,6 +63,15 @@ export function ProfileHeaderHandle({
               IS_NATIVE,
             )}
       </Text>
+      {/* northsky: pronouns */}
+      {profile.pronouns && (
+        <View
+          style={[t.atoms.bg_contrast_50, a.rounded_full, a.px_sm, a.py_xs]}>
+          <Text emoji style={[t.atoms.text, a.text_sm, a.font_medium]}>
+            {profile.pronouns}
+          </Text>
+        </View>
+      )}
     </View>
   )
 }

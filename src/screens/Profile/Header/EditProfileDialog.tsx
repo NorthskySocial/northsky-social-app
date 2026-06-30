@@ -25,6 +25,8 @@ import * as Prompt from '#/components/Prompt'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {useSimpleVerificationState} from '#/components/verification'
+// northsky: pronouns field helpers
+import {MAX_PRONOUNS, normalizePronouns} from './pronouns'
 
 export function EditProfileDialog({
   profile,
@@ -111,6 +113,9 @@ function DialogInner({
   const [displayName, setDisplayName] = useState(initialDisplayName)
   const initialDescription = profile.description || ''
   const [description, setDescription] = useState(initialDescription)
+  // northsky: pronouns
+  const initialPronouns = profile.pronouns || ''
+  const [pronouns, setPronouns] = useState(initialPronouns)
   const [userBanner, setUserBanner] = useState<string | undefined | null>(
     profile.banner,
   )
@@ -127,6 +132,7 @@ function DialogInner({
   const dirty =
     displayName !== initialDisplayName ||
     description !== initialDescription ||
+    pronouns !== initialPronouns || // northsky: pronouns
     userAvatar !== profile.avatar ||
     userBanner !== profile.banner
 
@@ -178,6 +184,7 @@ function DialogInner({
         updates: {
           displayName: displayName.trimEnd(),
           description: description.trimEnd(),
+          pronouns: normalizePronouns(pronouns), // northsky: pronouns
         },
         newUserAvatar,
         newUserBanner,
@@ -194,6 +201,7 @@ function DialogInner({
     control,
     displayName,
     description,
+    pronouns, // northsky: pronouns
     newUserAvatar,
     newUserBanner,
     setImageError,
@@ -207,6 +215,11 @@ function DialogInner({
   const descriptionTooLong = isOverMaxGraphemeCount({
     text: description,
     maxCount: MAX_DESCRIPTION,
+  })
+  // northsky: pronouns
+  const pronounsTooLong = isOverMaxGraphemeCount({
+    text: pronouns,
+    maxCount: MAX_PRONOUNS,
   })
 
   const cancelButton = useCallback(
@@ -236,7 +249,8 @@ function DialogInner({
           !dirty ||
           isUpdatingProfile ||
           displayNameTooLong ||
-          descriptionTooLong
+          descriptionTooLong ||
+          pronounsTooLong // northsky: pronouns
         }
         size="small"
         color="primary"
@@ -257,6 +271,7 @@ function DialogInner({
       isUpdatingProfile,
       displayNameTooLong,
       descriptionTooLong,
+      pronounsTooLong, // northsky: pronouns
     ],
   )
 
@@ -380,6 +395,36 @@ function DialogInner({
               <Plural
                 value={MAX_DESCRIPTION}
                 other="Description is too long. The maximum number of characters is #."
+              />
+            </Text>
+          )}
+        </View>
+
+        {/* northsky: pronouns */}
+        <View>
+          <TextField.LabelText>
+            <Trans>Pronouns</Trans>
+          </TextField.LabelText>
+          <TextField.Root isInvalid={pronounsTooLong}>
+            <Dialog.Input
+              defaultValue={pronouns}
+              onChangeText={setPronouns}
+              label={_(msg`Pronouns`)}
+              placeholder={_(msg`e.g. they/them`)}
+              testID="editProfilePronounsInput"
+            />
+          </TextField.Root>
+          {pronounsTooLong && (
+            <Text
+              style={[
+                a.text_sm,
+                a.mt_xs,
+                a.font_semi_bold,
+                {color: t.palette.negative_400},
+              ]}>
+              <Plural
+                value={MAX_PRONOUNS}
+                other="Pronouns is too long. The maximum number of characters is #."
               />
             </Text>
           )}

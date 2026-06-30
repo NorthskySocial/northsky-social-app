@@ -179,6 +179,7 @@ export function useProfileUpdateMutation() {
         } else {
           next.displayName = updates.displayName || undefined
           next.description = updates.description || undefined
+          next.pronouns = updates.pronouns || undefined // northsky: pronouns
           if ('pinnedPost' in updates) {
             next.pinnedPost = updates.pinnedPost
           }
