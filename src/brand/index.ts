@@ -6,3 +6,4 @@
  * the theme (which depends on ALF) before it is needed.
  */
 export {BRAND, type BrandConfig} from './config'
+export {brandThemes} from './theme'

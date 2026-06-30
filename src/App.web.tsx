@@ -68,6 +68,7 @@ import {
   features,
   setupDeviceId,
 } from '#/analytics'
+import {brandThemes} from '#/brand' // northsky: brand theme overrides
 import {
   prefetchLiveEvents,
   Provider as LiveEventsProvider,
@@ -121,7 +122,7 @@ function InnerApp() {
   }, [l])
 
   return (
-    <Alf theme={theme}>
+    <Alf theme={theme} themesOverride={brandThemes}>
       <ThemeProvider theme={theme}>
         <ContextMenuProvider>
           <Splash isReady={isReady && hasCheckedLanding}>
