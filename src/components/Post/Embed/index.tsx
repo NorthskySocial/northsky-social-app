@@ -28,6 +28,8 @@ import {isStandardSiteEmbed} from '#/components/Post/Embed/StandardSiteEmbed/uti
 import {RichText} from '#/components/RichText'
 import {Embed as StarterPackCard} from '#/components/StarterPack/StarterPackCard'
 import {SubtleHover} from '#/components/SubtleHover'
+// northsky: custom-lexicon rendering extension point
+import {CustomRecordRenderer} from '#/features/customRecords/CustomRecordRenderer'
 import * as bsky from '#/types/bsky'
 import {
   type Embed as TEmbed,
@@ -76,7 +78,9 @@ export function Embed({embed: rawEmbed, ...rest}: EmbedProps) {
       )
     }
     default: {
-      return null
+      // northsky: give a registered custom-lexicon renderer a chance before
+      // rendering nothing for an unrecognized embed.
+      return <CustomRecordRenderer embed={rawEmbed} />
     }
   }
 }
