@@ -234,10 +234,10 @@ describe('toNiceDomain', () => {
   const inputs = [
     'https://example.com/index.html',
     'https://bsky.app',
-    'https://bsky.social',
+    'https://northsky.social', // northsky: default service maps to the brand name
     '#123123123',
   ]
-  const outputs = ['example.com', 'bsky.app', 'Bluesky Social', '#123123123']
+  const outputs = ['example.com', 'bsky.app', 'Northsky', '#123123123']
 
   it("displays the url's host in a easily readable manner", () => {
     for (let i = 0; i < inputs.length; i++) {
