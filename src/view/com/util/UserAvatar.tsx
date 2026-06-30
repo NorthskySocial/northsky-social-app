@@ -37,6 +37,7 @@ import {
   compressImage,
   createComposerImage,
 } from '#/state/gallery'
+import {useSlingshotAvatarQuery} from '#/state/queries/slingshot'
 import {unstableCacheProfileView} from '#/state/queries/unstable-profile-cache'
 import {EditImageDialog} from '#/view/com/composer/photos/EditImageDialog'
 import {atoms as a, tokens, useTheme} from '#/alf'
@@ -67,6 +68,7 @@ interface BaseUserAvatarProps {
   shape?: 'circle' | 'square'
   size: number
   avatar?: string | null
+  did?: string // northsky: enables the Slingshot avatar fallback
   live?: boolean
   hideLiveBadge?: boolean
 }
@@ -219,7 +221,8 @@ let UserAvatar = ({
   type = 'user',
   shape: overrideShape,
   size,
-  avatar,
+  avatar: avatarProp,
+  did,
   moderation,
   usePlainRNImage = false,
   onLoad,
@@ -230,6 +233,13 @@ let UserAvatar = ({
   extraAviStyle,
 }: UserAvatarProps): React.ReactNode => {
   const t = useTheme()
+  // northsky: fall back to a PDS-direct avatar via Slingshot when the appview
+  // has not indexed it yet.
+  const {data: slingshotAvatar} = useSlingshotAvatarQuery({
+    did: did ?? '',
+    enabled: !avatarProp && !!did,
+  })
+  const avatar = avatarProp || slingshotAvatar || undefined
   const finalShape = overrideShape ?? (type === 'user' ? 'circle' : 'square')
 
   const aviStyle = useMemo(() => {
@@ -576,6 +586,7 @@ let PreviewableUserAvatar = ({
   const avatarEl = (
     <UserAvatar
       avatar={profile.avatar}
+      did={profile.did} // northsky: enables the Slingshot avatar fallback
       moderation={moderation}
       type={profile.associated?.labeler ? 'labeler' : 'user'}
       live={status.isActive || live}
