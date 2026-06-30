@@ -1,5 +1,7 @@
 // @ts-check
 const pkg = require('./package.json')
+// northsky: brand identity values, shared with the runtime via src/brand/config.ts
+const brand = require('./src/brand/brand.json')
 
 /**
  * @param {import('@expo/config-types').ExpoConfig} _config
@@ -45,7 +47,7 @@ module.exports = function (_config) {
   return {
     expo: {
       version: VERSION,
-      name: 'Bluesky',
+      name: brand.appName, // northsky: brand override
       slug: 'bluesky',
       scheme: 'bluesky',
       owner: 'blueskysocial',
@@ -54,7 +56,7 @@ module.exports = function (_config) {
       },
       icon: './assets/app-icons/ios_icon_default_next.png',
       userInterfaceStyle: 'automatic',
-      primaryColor: '#006AFF',
+      primaryColor: brand.primaryColor, // northsky: brand override
       newArchEnabled: false,
       ios: {
         supportsTablet: false,
