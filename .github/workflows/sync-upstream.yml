@@ -1,0 +1,259 @@
+# northsky: opens a PR syncing this fork with bluesky-social/social-app.
+#
+# It merges upstream/main into a rolling sync branch, auto-resolves the few
+# conflicts we always resolve the same way (see KEEP_OURS), and opens/updates a
+# single PR describing the sync: how many upstream commits and files changed,
+# which of our customized files upstream touched (the conflict-risk surface),
+# the largest incoming changes, and a best-effort typecheck/lint result so the
+# reviewer has less to do.
+#
+# See AGENTS.md "Upstream sync strategy" for the manual equivalent.
+name: Sync upstream
+
+on:
+  schedule:
+    # Every ~4 days. Cron day-of-month resets each month, so runs land on days
+    # 1, 5, 9, 13, 17, 21, 25, 29 (a slightly longer gap at month boundaries).
+    - cron: '0 6 */4 * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+env:
+  UPSTREAM_REMOTE: https://github.com/bluesky-social/social-app.git
+  UPSTREAM_BRANCH: main
+  BASE_BRANCH: main
+  SYNC_BRANCH: automated/upstream-sync
+  # Files we always keep OUR version of on conflict. Only list files we
+  # deliberately own (never upstream code we want to receive).
+  KEEP_OURS: CLAUDE.md
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Fetch upstream
+        run: |
+          set -euo pipefail
+          git config user.name "northsky-sync[bot]"
+          git config user.email "northsky-sync[bot]@users.noreply.github.com"
+          git remote add upstream "$UPSTREAM_REMOTE" 2>/dev/null || \
+            git remote set-url upstream "$UPSTREAM_REMOTE"
+          git fetch --no-tags upstream "$UPSTREAM_BRANCH"
+          git fetch origin "$BASE_BRANCH"
+
+      - name: Check for upstream changes
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          BEHIND=$(git rev-list --count "origin/$BASE_BRANCH..upstream/$UPSTREAM_BRANCH")
+          echo "commits=$BEHIND" >> "$GITHUB_OUTPUT"
+          if [ "$BEHIND" -eq 0 ]; then
+            echo "Fork is already up to date with upstream. Nothing to do."
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Don't clobber an in-progress review: if a sync PR is already open,
+          # leave it alone and let a human land it first.
+          OPEN=$(gh pr list --head "$SYNC_BRANCH" --state open --json number -q '.[0].number' || true)
+          if [ -n "$OPEN" ]; then
+            echo "Sync PR #$OPEN is already open; skipping this run."
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "proceed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Merge upstream and auto-resolve known conflicts
+        id: merge
+        if: steps.check.outputs.proceed == 'true'
+        run: |
+          set -euo pipefail
+          UP_SHA=$(git rev-parse --short "upstream/$UPSTREAM_BRANCH")
+          echo "upstream_sha=$UP_SHA" >> "$GITHUB_OUTPUT"
+
+          git switch -C "$SYNC_BRANCH" "origin/$BASE_BRANCH"
+
+          # Attempt the merge; don't abort on conflicts.
+          set +e
+          git merge --no-ff --no-commit "upstream/$UPSTREAM_BRANCH"
+          set -e
+
+          # Resolve the files we always keep our version of.
+          RESOLVED=""
+          for f in $KEEP_OURS; do
+            if git ls-files -u -- "$f" | grep -q .; then
+              git checkout --ours -- "$f"
+              git add -- "$f"
+              RESOLVED="$RESOLVED $f"
+            fi
+          done
+          echo "auto_resolved=$(echo $RESOLVED | xargs echo)" >> "$GITHUB_OUTPUT"
+
+          # Anything still conflicted is left for the reviewer. We commit the
+          # markers so the branch is pushable and the PR shows exactly what
+          # needs hand-resolution (CI/typecheck below will also flag it).
+          CONFLICTS=$(git diff --name-only --diff-filter=U || true)
+          {
+            echo "conflicts<<EOF"
+            echo "$CONFLICTS"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          if [ -n "$CONFLICTS" ]; then
+            echo "clean=false" >> "$GITHUB_OUTPUT"
+            git add -A
+            git commit --no-verify -m "chore(northsky): sync upstream $(date -u +%Y-%m-%d) ($UP_SHA) [has conflicts]"
+          else
+            echo "clean=true" >> "$GITHUB_OUTPUT"
+            git commit --no-verify -m "chore(northsky): sync upstream $(date -u +%Y-%m-%d) ($UP_SHA)"
+          fi
+
+      # Best-effort verification so the reviewer gets a pass/fail signal even
+      # though token-created PRs don't trigger the normal CI. Never blocks the
+      # PR (continue-on-error); with conflict markers these are expected to fail.
+      - name: Setup Node
+        if: steps.check.outputs.proceed == 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Install deps
+        id: install
+        if: steps.check.outputs.proceed == 'true'
+        continue-on-error: true
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        id: typecheck
+        if: steps.check.outputs.proceed == 'true' && steps.install.outcome == 'success'
+        continue-on-error: true
+        run: pnpm typecheck
+
+      - name: Lint
+        id: lint
+        if: steps.check.outputs.proceed == 'true' && steps.install.outcome == 'success'
+        continue-on-error: true
+        run: pnpm lint
+
+      - name: Build PR body
+        id: body
+        if: steps.check.outputs.proceed == 'true'
+        env:
+          COMMITS: ${{ steps.check.outputs.commits }}
+          UP_SHA: ${{ steps.merge.outputs.upstream_sha }}
+          CLEAN: ${{ steps.merge.outputs.clean }}
+          AUTO_RESOLVED: ${{ steps.merge.outputs.auto_resolved }}
+          CONFLICTS: ${{ steps.merge.outputs.conflicts }}
+          INSTALL_OUTCOME: ${{ steps.install.outcome }}
+          TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
+          LINT_OUTCOME: ${{ steps.lint.outcome }}
+        run: |
+          set -euo pipefail
+          RANGE="origin/$BASE_BRANCH...upstream/$UPSTREAM_BRANCH"
+          UPFILES=$(git diff --name-only "$RANGE" | sort -u)
+          FILE_COUNT=$(printf '%s\n' "$UPFILES" | grep -c . || true)
+
+          # Files upstream changed that we've customized (contain "// northsky:").
+          MARKED=$(git grep -lI "northsky:" "origin/$BASE_BRANCH" -- src app.config.js web bskyweb 2>/dev/null \
+            | sed 's/^[^:]*://' | sort -u || true)
+          RISK=$(comm -12 <(printf '%s\n' "$MARKED") <(printf '%s\n' "$UPFILES") || true)
+
+          # Largest incoming changes by total lines touched.
+          LARGEST=$(git diff --numstat "$RANGE" \
+            | awk '{added=($1=="-"?0:$1); removed=($2=="-"?0:$2); print added+removed"\t"$3}' \
+            | sort -rn | head -10 | awk -F'\t' '{printf "- `%s` (%s lines)\n", $2, $1}')
+
+          mark() {
+            case "$1" in
+              success) echo "✅ pass" ;;
+              skipped|"") echo "⏭️ skipped" ;;
+              *) echo "❌ fail" ;;
+            esac
+          }
+
+          {
+            echo "## Upstream sync"
+            echo
+            echo "Merges \`bluesky-social/social-app@$UP_SHA\` into \`$BASE_BRANCH\`."
+            echo
+            echo "- **Commits:** $COMMITS new upstream commit(s)"
+            echo "- **Files changed:** $FILE_COUNT"
+            if [ "$CLEAN" = "true" ]; then
+              echo "- **Merge:** clean ✅"
+            else
+              echo "- **Merge:** ⚠️ has unresolved conflicts (branch contains conflict markers)"
+            fi
+            echo
+            echo "### Verification (best-effort)"
+            echo "- Install: $(mark "$INSTALL_OUTCOME")"
+            echo "- Typecheck: $(mark "$TYPECHECK_OUTCOME")"
+            echo "- Lint: $(mark "$LINT_OUTCOME")"
+            echo
+            if [ -n "$AUTO_RESOLVED" ]; then
+              echo "### Auto-resolved"
+              for f in $AUTO_RESOLVED; do echo "- \`$f\` (kept our version)"; done
+              echo
+            fi
+            if [ -n "$(printf '%s' "$CONFLICTS" | tr -d '[:space:]')" ]; then
+              echo "### ❌ Resolve before merging"
+              echo "These files still conflict and were committed with markers:"
+              printf '%s\n' "$CONFLICTS" | sed '/^$/d;s/^/- `/;s/$/`/'
+              echo
+            fi
+            if [ -n "$(printf '%s' "$RISK" | tr -d '[:space:]')" ]; then
+              echo "### ⚠️ Review carefully - touches our customizations"
+              echo "Upstream changed files we've customized (\`// northsky:\`). Even if"
+              echo "they merged cleanly, check the interaction:"
+              printf '%s\n' "$RISK" | sed '/^$/d;s/^/- `/;s/$/`/'
+              echo
+            fi
+            echo "### Largest incoming changes"
+            echo "$LARGEST"
+            echo
+            echo "---"
+            echo "_Automated by \`.github/workflows/sync-upstream.yml\`. Rerun via the Actions tab._"
+          } > pr-body.md
+
+          echo "title=chore: sync upstream $(date -u +%Y-%m-%d) ($UP_SHA, $COMMITS commits)" >> "$GITHUB_OUTPUT"
+
+      - name: Push sync branch
+        if: steps.check.outputs.proceed == 'true'
+        run: git push -f origin "$SYNC_BRANCH"
+
+      - name: Open pull request
+        if: steps.check.outputs.proceed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TITLE: ${{ steps.body.outputs.title }}
+        run: |
+          set -euo pipefail
+          # Ensure labels exist (ignore "already exists").
+          gh label create upstream-sync --color 1D76DB --description "Automated upstream sync" 2>/dev/null || true
+          gh label create has-conflicts --color B60205 --description "Sync has unresolved conflicts" 2>/dev/null || true
+
+          LABELS="upstream-sync"
+          if [ "${{ steps.merge.outputs.clean }}" != "true" ]; then
+            LABELS="$LABELS,has-conflicts"
+          fi
+
+          gh pr create \
+            --base "$BASE_BRANCH" \
+            --head "$SYNC_BRANCH" \
+            --title "$TITLE" \
+            --body-file pr-body.md \
+            --label "$LABELS"

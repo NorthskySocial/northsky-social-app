@@ -1,7 +1,7 @@
 # Northsky brand module
 
-This directory is the **owned, contained surface** for Northsky's customization
-of `bluesky-social/social-app`. The goal is to keep brand-specific values here
+This directory is the **owned, contained surface** for Northsky branding. 
+The goal is to keep brand-specific values here
 (in files upstream never touches) so that pulling in upstream changes stays
 cheap. See the root `AGENTS.md` for the full fork model and sync strategy.
 
@@ -61,8 +61,6 @@ Still needs design assets (left as upstream until provided - do NOT fabricate):
 
 ## Deliberately NOT done
 
-We do not recreate indieapp's generic multi-brand abstraction
-(`IndieAppSettings`), the dynamic logo/splash loaders (`logoLoader.ts`,
-`splashAssets.ts`), or the `*.png?url` import scheme. Those spread brand
-awareness across the codebase and carried a splash bug. Branding is direct and
+We do not recreate generic multi-brand abstraction. Those spread brand
+awareness across the codebase and increase risk of bugs. Branding is direct and
 asset-in-place instead.

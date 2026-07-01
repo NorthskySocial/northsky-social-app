@@ -12,7 +12,7 @@ load guidance from a single source of truth.
 
 ## 1. Fork model (read this first)
 
-Northsky is a **thin, additive fork** of `social-app`. The overriding goal is to
+As Northsky is a fork of `social-app` that needs to be kept in sync, the overriding goal is to
 keep upstream merges cheap. That shapes every decision:
 
 > **Every line we change in an upstream file is a future merge conflict.**
@@ -90,20 +90,34 @@ in-flight PRs, then sync, then have remaining branches rebase.
 
 ## 3. Commit format & test policy
 
-**Commit format** — Conventional Commits with a `northsky` scope so our changes
-stay greppable in a history merged with upstream:
+**Fork vs upstream commits** are distinguished by **git ancestry**, not by a
+message convention — the fork's own commits are exactly those in `main` but not
+in `upstream/main`:
+
+```bash
+git log upstream/main..main          # every fork-only commit
+git log upstream/main..main -- path  # fork commits touching a file
+```
+
+This is exact and zero-maintenance, and it's what the sync workflow relies on.
+(To locate the customization *surface* inside files, use the `// northsky:`
+**code** marker — that's separate from commit messages.)
+
+**Commit format** — plain Conventional Commits:
 
 ```
-<type>(northsky): <imperative, lower-case summary>
+<type>: <imperative, lower-case summary>
 
 <body: the WHY — what this customizes and how it stays upstream-mergeable>
 ```
 
 - `type` ∈ `feat | fix | refactor | chore | docs | test | build`.
-- Use the `(northsky)` scope for brand/customization/feature commits; omit it
-  for changes that aren't fork-specific.
-- **Do not add a `Co-Authored-By: Claude` trailer.** When porting work from the
-  old fork, credit the original authors with `Co-Authored-By:` trailers.
+- A `(northsky)` scope is an optional nicety for readability, not required — do
+  not force a `northsky:` marker into messages (it's redundant with ancestry
+  and makes contributing upstream harder).
+- **Credit authors.** When porting work from the old fork, credit the original
+  authors with `Co-Authored-By:` trailers.
+- Open PRs against the `.github/pull_request_template.md` checklist.
 
 **Before every commit, in order:**
 
@@ -133,9 +147,7 @@ stay greppable in a history merged with upstream:
 - No generic multi-brand `IndieAppSettings` abstraction — branding is direct and
   Northsky-specific.
 - No dynamic logo/splash loaders (`logoLoader.ts`, `splashAssets.ts`) and no
-  `*.png?url` import scheme. The old fork's splash commits (8fec31c, f2e8ea8)
-  are intentionally excluded; they made light and dark splash resolve to the
-  same image. Brand the splash via the static `assets/splash/*` + `BrandLogo`.
+  `*.png?url` import scheme. Brand the splash via the static `assets/splash/*` + `BrandLogo`.
 - Full-bleed native splash backgrounds and full app-icon sets still need design
   assets; they are left as upstream until provided (do not fabricate).
 
