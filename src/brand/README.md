@@ -52,6 +52,11 @@ Still needs design assets (left as upstream until provided - do NOT fabricate):
 - Native app-icon sets under `assets/app-icons/`.
 - A Northsky wordmark to replace `#/view/icons/Logotype` (only a logomark
   exists today).
+- A coherent brand background palette. The theme currently overrides only the
+  accent (`primary_500`); a branded background/surface color needs the full ALF
+  `palette.contrast_*` ramp (and the legacy `src/lib/themes.ts` web CSS vars)
+  redefined together, otherwise surfaces mismatch and the background flashes on
+  scroll.
 
 ## Deliberately NOT done
 
