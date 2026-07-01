@@ -8,26 +8,25 @@ type ThemeOverride = {
 }
 
 /**
- * Northsky palette overrides. Only the tokens that differ from the base ALF
- * themes are listed here; everything else is inherited.
- *
- * NOTE: we intentionally only override the accent (`primary_500`), not the
- * background. The app's background comes from a coordinated system - ALF's
- * `palette.contrast_*` ramp plus the legacy `src/lib/themes.ts` that drives the
- * web `--background` CSS vars - so overriding a single `atoms.bg` leaves other
- * surfaces (the scroll container, the web body) on the base color and the
- * background flashes white/base on scroll. A fully branded background needs a
- * coherent palette ramp; see src/brand/README.md.
+ * Northsky palette/atoms overrides. Only the tokens that differ from the base
+ * ALF themes are listed here; everything else is inherited. This matches the
+ * theme the original fork ships (deployed at staging.northsky.app).
  */
 const northskyDark: ThemeOverride = {
   palette: {
     primary_500: '#9A45EC', // primary button background, link text
+  },
+  atoms: {
+    bg: {backgroundColor: '#1F0B35'},
   },
 }
 
 const northskyLight: ThemeOverride = {
   palette: {
     primary_500: '#2AFBBA',
+  },
+  atoms: {
+    bg: {backgroundColor: '#DFE1E3'},
   },
 }
 

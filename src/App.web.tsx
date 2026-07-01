@@ -121,6 +121,17 @@ function InnerApp() {
     })
   }, [l])
 
+  // northsky: sync the document background to the brand theme. The feed scrolls
+  // the document taller than the shell, so without this the browser-default
+  // white body shows through below the fold with a non-white brand background.
+  useEffect(() => {
+    const bg = brandThemes[theme]?.atoms.bg.backgroundColor
+    if (bg) {
+      document.documentElement.style.backgroundColor = bg
+      document.body.style.backgroundColor = bg
+    }
+  }, [theme])
+
   return (
     <Alf theme={theme} themesOverride={brandThemes}>
       <ThemeProvider theme={theme}>
