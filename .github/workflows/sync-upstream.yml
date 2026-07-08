@@ -262,10 +262,20 @@ jobs:
         if: steps.check.outputs.proceed == 'true'
         run: git push -f origin "$SYNC_BRANCH"
 
+      - name: Generate app token for PR creation
+        id: app-token
+        if: steps.check.outputs.proceed == 'true'
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 #v3.2.0
+        with:
+          app-id: 4250178
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+
       - name: Open pull request
         if: steps.check.outputs.proceed == 'true'
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           TITLE: ${{ steps.body.outputs.title }}
         run: |
           set -euo pipefail
