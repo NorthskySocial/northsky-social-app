@@ -68,7 +68,7 @@ jobs:
           fi
           # Don't clobber an in-progress review: if a sync PR is already open,
           # leave it alone and let a human land it first.
-          OPEN=$(gh pr list --head "$SYNC_BRANCH" --state open --json number -q '.[0].number' || true)
+          OPEN=$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$SYNC_BRANCH" --state open --json number -q '.[0].number' || true)
           if [ -n "$OPEN" ]; then
             echo "Sync PR #$OPEN is already open; skipping this run."
             echo "proceed=false" >> "$GITHUB_OUTPUT"
@@ -270,8 +270,8 @@ jobs:
         run: |
           set -euo pipefail
           # Ensure labels exist (ignore "already exists").
-          gh label create upstream-sync --color 1D76DB --description "Automated upstream sync" 2>/dev/null || true
-          gh label create has-conflicts --color B60205 --description "Sync has unresolved conflicts" 2>/dev/null || true
+          gh label create upstream-sync --repo "$GITHUB_REPOSITORY" --color 1D76DB --description "Automated upstream sync" 2>/dev/null || true
+          gh label create has-conflicts --repo "$GITHUB_REPOSITORY" --color B60205 --description "Sync has unresolved conflicts" 2>/dev/null || true
 
           LABELS="upstream-sync"
           if [ "${{ steps.merge.outputs.clean }}" != "true" ]; then
@@ -279,6 +279,7 @@ jobs:
           fi
 
           gh pr create \
+            --repo "$GITHUB_REPOSITORY" \
             --base "$BASE_BRANCH" \
             --head "$SYNC_BRANCH" \
             --title "$TITLE" \
