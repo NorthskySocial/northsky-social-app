@@ -20,7 +20,6 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  workflows: write
 
 concurrency:
   group: sync-upstream
@@ -92,6 +91,24 @@ jobs:
           git merge --no-ff --no-commit "upstream/$UPSTREAM_BRANCH"
           set -e
 
+          # Never take upstream's .github/ changes (workflows, issue
+          # templates, dependabot config, etc). GitHub blocks this token from
+          # pushing changes to workflow files outright, regardless of the
+          # `permissions:` block above, and we maintain our own CI setup that
+          # intentionally diverges from upstream's anyway. --no-overlay makes
+          # the directory match HEAD exactly, which also resolves any
+          # in-progress conflicts under .github/ in our favor.
+          GITHUB_DIR_SKIPPED=$(git diff --name-only HEAD -- .github | sort -u)
+          if [ -n "$GITHUB_DIR_SKIPPED" ]; then
+            git checkout --no-overlay HEAD -- .github
+            git add -A -- .github
+          fi
+          {
+            echo "github_dir_skipped<<EOF"
+            echo "$GITHUB_DIR_SKIPPED"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
           # Resolve the files we always keep our version of.
           RESOLVED=""
           for f in $KEEP_OURS; do
@@ -160,6 +177,7 @@ jobs:
           CLEAN: ${{ steps.merge.outputs.clean }}
           AUTO_RESOLVED: ${{ steps.merge.outputs.auto_resolved }}
           CONFLICTS: ${{ steps.merge.outputs.conflicts }}
+          GITHUB_DIR_SKIPPED: ${{ steps.merge.outputs.github_dir_skipped }}
           INSTALL_OUTCOME: ${{ steps.install.outcome }}
           TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
           LINT_OUTCOME: ${{ steps.lint.outcome }}
@@ -208,6 +226,14 @@ jobs:
             if [ -n "$AUTO_RESOLVED" ]; then
               echo "### Auto-resolved"
               for f in $AUTO_RESOLVED; do echo "- \`$f\` (kept our version)"; done
+              echo
+            fi
+            if [ -n "$(printf '%s' "$GITHUB_DIR_SKIPPED" | tr -d '[:space:]')" ]; then
+              echo "### ⏭️ .github/ changes skipped (kept ours)"
+              echo "This token can't push workflow file changes, so upstream's"
+              echo "\`.github/\` changes are always dropped from the sync. Review these"
+              echo "manually if they look worth porting over by hand:"
+              printf '%s\n' "$GITHUB_DIR_SKIPPED" | sed '/^$/d;s/^/- `/;s/$/`/'
               echo
             fi
             if [ -n "$(printf '%s' "$CONFLICTS" | tr -d '[:space:]')" ]; then
