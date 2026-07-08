@@ -1,8 +1,8 @@
 name: Sync to internal repo
 
-on:
-  push:
-    branches: [main]
+# on:
+#   push:
+#     branches: [main]
 
 # The push to the internal repo uses the app token below, not the GITHUB_TOKEN
 permissions:

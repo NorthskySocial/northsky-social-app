@@ -1,8 +1,8 @@
 name: Nightly Update Source Languages
-on:
-  schedule:
-    - cron: "0 2 * * *" # run at 2 AM UTC
-  workflow_dispatch:
+# on:
+#   schedule:
+#     - cron: "0 2 * * *" # run at 2 AM UTC
+#   workflow_dispatch:
 
 jobs:
   extract-languages:
