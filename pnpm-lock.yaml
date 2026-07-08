@@ -1,202 +1,3 @@
----
-lockfileVersion: '9.0'
-
-importers:
-
-  .:
-    configDependencies: {}
-    packageManagerDependencies:
-      '@pnpm/exe':
-        specifier: 11.10.0
-        version: 11.10.0
-      pnpm:
-        specifier: 11.10.0
-        version: 11.10.0
-
-packages:
-
-  '@pnpm/exe@11.10.0':
-    resolution: {integrity: sha512-mrmfi2C7LpZkyq0voKKye6MzrK8/K7tYQRiSB/jqOiwnFtQxxcA3xGTY9cEsrGpNl2ClPecQofLuj+BO8AIsxw==}
-    hasBin: true
-
-  '@pnpm/linux-arm64@11.10.0':
-    resolution: {integrity: sha512-NbvDeUfs0SJuli9OPvgVvmnlbo2DvJ861XGXKrzgLu5AuTnLDLXgbZEEUd8mJ5I0YNrqOVXSWVfWEqiAazWzPA==}
-    cpu: [arm64]
-    os: [linux]
-
-  '@pnpm/linux-x64@11.10.0':
-    resolution: {integrity: sha512-kdgb8BXZ/3XQ0x2cOmgLmsij7+SUIqd1bcV6OZhdGzQiDrOY6FAPrR+Y2Bp+NjrrhjzMHVm5pZrrmdeC67ymSQ==}
-    cpu: [x64]
-    os: [linux]
-
-  '@pnpm/linuxstatic-arm64@11.10.0':
-    resolution: {integrity: sha512-JE1WrSyKGvqGQgWzqrMXn//ehedpiRax3hi1oP+v6mhvcnlJD1lpfXsjSfIFl9weTWC5KVtFbxSNKbKWfP+v6g==}
-    cpu: [arm64]
-    os: [linux]
-    libc: [musl]
-
-  '@pnpm/linuxstatic-x64@11.10.0':
-    resolution: {integrity: sha512-1TBZVRkWb78GnsusIfVgwz20MOOW0fyehW+qLL3MxE9vT0IedNWsAhe3KWXgEvtC4M7NtMt55uQQJm+1egwBkA==}
-    cpu: [x64]
-    os: [linux]
-    libc: [musl]
-
-  '@pnpm/macos-arm64@11.10.0':
-    resolution: {integrity: sha512-94AVpPixBqyNT6SHYvIKFb1bfaHR5vxBzZsiFJahNSlGkgyPrgzmcqDiloZ/Jl+zxJd8L5PU1ddP0Q9PZnRqlA==}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@pnpm/win-arm64@11.10.0':
-    resolution: {integrity: sha512-g2Ymnq+LgVyZaWsGBQSlpIcBCOOxyLky2UX+kTwGiIXnj6k/xXqZR0ZJLuxeiGNh/CVmhftOqokpyJNzyj8kng==}
-    cpu: [arm64]
-    os: [win32]
-
-  '@pnpm/win-x64@11.10.0':
-    resolution: {integrity: sha512-kCHYZudUEBjrEchgnJUnNHCdvLXpUZun2z0rMAeP5DymsaXwEVvVzGj220iR/NyhgDocJUmgtTKtwL/ejL785Q==}
-    cpu: [x64]
-    os: [win32]
-
-  '@reflink/reflink-darwin-arm64@0.1.19':
-    resolution: {integrity: sha512-ruy44Lpepdk1FqDz38vExBY/PVUsjxZA+chd9wozjUH9JjuDT/HEaQYA6wYN9mf041l0yLVar6BCZuWABJvHSA==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@reflink/reflink-darwin-x64@0.1.19':
-    resolution: {integrity: sha512-By85MSWrMZa+c26TcnAy8SDk0sTUkYlNnwknSchkhHpGXOtjNDUOxJE9oByBnGbeuIE1PiQsxDG3Ud+IVV9yuA==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [darwin]
-
-  '@reflink/reflink-linux-arm64-gnu@0.1.19':
-    resolution: {integrity: sha512-7P+er8+rP9iNeN+bfmccM4hTAaLP6PQJPKWSA4iSk2bNvo6KU6RyPgYeHxXmzNKzPVRcypZQTpFgstHam6maVg==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [linux]
-    libc: [glibc]
-
-  '@reflink/reflink-linux-arm64-musl@0.1.19':
-    resolution: {integrity: sha512-37iO/Dp6m5DDaC2sf3zPtx/hl9FV3Xze4xoYidrxxS9bgP3S8ALroxRK6xBG/1TtfXKTvolvp+IjrUU6ujIGmA==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [linux]
-    libc: [musl]
-
-  '@reflink/reflink-linux-x64-gnu@0.1.19':
-    resolution: {integrity: sha512-jbI8jvuYCaA3MVUdu8vLoLAFqC+iNMpiSuLbxlAgg7x3K5bsS8nOpTRnkLF7vISJ+rVR8W+7ThXlXlUQ93ulkw==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [linux]
-    libc: [glibc]
-
-  '@reflink/reflink-linux-x64-musl@0.1.19':
-    resolution: {integrity: sha512-e9FBWDe+lv7QKAwtKOt6A2W/fyy/aEEfr0g6j/hWzvQcrzHCsz07BNQYlNOjTfeytrtLU7k449H1PI95jA4OjQ==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [linux]
-    libc: [musl]
-
-  '@reflink/reflink-win32-arm64-msvc@0.1.19':
-    resolution: {integrity: sha512-09PxnVIQcd+UOn4WAW73WU6PXL7DwGS6wPlkMhMg2zlHHG65F3vHepOw06HFCq+N42qkaNAc8AKIabWvtk6cIQ==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [win32]
-
-  '@reflink/reflink-win32-x64-msvc@0.1.19':
-    resolution: {integrity: sha512-E//yT4ni2SyhwP8JRjVGWr3cbnhWDiPLgnQ66qqaanjjnMiu3O/2tjCPQXlcGc/DEYofpDc9fvhv6tALQsMV9w==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [win32]
-
-  '@reflink/reflink@0.1.19':
-    resolution: {integrity: sha512-DmCG8GzysnCZ15bres3N5AHCmwBwYgp0As6xjhQ47rAUTUXxJiK+lLUxaGsX3hd/30qUpVElh05PbGuxRPgJwA==}
-    engines: {node: '>= 10'}
-
-  detect-libc@2.1.2:
-    resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
-    engines: {node: '>=8'}
-
-  pnpm@11.10.0:
-    resolution: {integrity: sha512-C3+LmAYAMZBMAX46QesYehbUDuuCm5XE+MsDaBdh/Eq1PdIZEVubRH9NzhoFohR2RGHn03AzkqnzL5URzoyGyA==}
-    engines: {node: '>=22.13'}
-    hasBin: true
-
-snapshots:
-
-  '@pnpm/exe@11.10.0':
-    dependencies:
-      '@reflink/reflink': 0.1.19
-      detect-libc: 2.1.2
-    optionalDependencies:
-      '@pnpm/linux-arm64': 11.10.0
-      '@pnpm/linux-x64': 11.10.0
-      '@pnpm/linuxstatic-arm64': 11.10.0
-      '@pnpm/linuxstatic-x64': 11.10.0
-      '@pnpm/macos-arm64': 11.10.0
-      '@pnpm/win-arm64': 11.10.0
-      '@pnpm/win-x64': 11.10.0
-
-  '@pnpm/linux-arm64@11.10.0':
-    optional: true
-
-  '@pnpm/linux-x64@11.10.0':
-    optional: true
-
-  '@pnpm/linuxstatic-arm64@11.10.0':
-    optional: true
-
-  '@pnpm/linuxstatic-x64@11.10.0':
-    optional: true
-
-  '@pnpm/macos-arm64@11.10.0':
-    optional: true
-
-  '@pnpm/win-arm64@11.10.0':
-    optional: true
-
-  '@pnpm/win-x64@11.10.0':
-    optional: true
-
-  '@reflink/reflink-darwin-arm64@0.1.19':
-    optional: true
-
-  '@reflink/reflink-darwin-x64@0.1.19':
-    optional: true
-
-  '@reflink/reflink-linux-arm64-gnu@0.1.19':
-    optional: true
-
-  '@reflink/reflink-linux-arm64-musl@0.1.19':
-    optional: true
-
-  '@reflink/reflink-linux-x64-gnu@0.1.19':
-    optional: true
-
-  '@reflink/reflink-linux-x64-musl@0.1.19':
-    optional: true
-
-  '@reflink/reflink-win32-arm64-msvc@0.1.19':
-    optional: true
-
-  '@reflink/reflink-win32-x64-msvc@0.1.19':
-    optional: true
-
-  '@reflink/reflink@0.1.19':
-    optionalDependencies:
-      '@reflink/reflink-darwin-arm64': 0.1.19
-      '@reflink/reflink-darwin-x64': 0.1.19
-      '@reflink/reflink-linux-arm64-gnu': 0.1.19
-      '@reflink/reflink-linux-arm64-musl': 0.1.19
-      '@reflink/reflink-linux-x64-gnu': 0.1.19
-      '@reflink/reflink-linux-x64-musl': 0.1.19
-      '@reflink/reflink-win32-arm64-msvc': 0.1.19
-      '@reflink/reflink-win32-x64-msvc': 0.1.19
-
-  detect-libc@2.1.2: {}
-
-  pnpm@11.10.0: {}
-
----
 lockfileVersion: '9.0'
 
 settings:
@@ -215,27 +16,69 @@ overrides:
   react-native-screens: 4.24.0
 
 patchedDependencies:
-  '@sentry/react-native@6.20.0': 1d48e4d5178f5684eb33262299e7eed283bf9601f79b9ae1af63a7f607d3483a
-  expo-age-range@0.2.18: c325225749993424461eeece1d97a99b19c00da2ebc958a73c12e4eca0c39306
-  expo-glass-effect@55.0.8: 6c9fa5b104e53b87df4e17b320acb3b94d12ac90c0101190045dd620681efff0
-  expo-haptics@15.0.8: b33910ba2753c4eccdc885b449e6e33aa90b9cefa75ca8639762a26013141410
-  expo-image-picker@17.0.11: 47b28f6ddb8bcaa6483f8714c82daaa0001122f2b0dac6c05d19e98a61a6ceab
-  expo-image@3.0.11: 6d46ffac33426c5285777da5bf5f88c68c8ce27290595dfa65f38c478930c2c4
-  expo-media-library@18.2.1: 2b84c17999bb0c977eaef7fa8ac297f7074d91c94fb63726b42d2a277b26b39a
-  expo-modules-core@3.0.30: 952fb1c8cb6dc8a0d8ef4e1114942a341d89b025e011f1acfff788929997346e
-  expo-notifications@0.32.17: a45a8dcf3d8c4b5df4ee0e62bc79b755fcf9d28ca51a6f685b85830bf4afc2e5
-  expo-updates@29.0.17: 04f28cb005b770e9ae8f0065eab96e43cbb1e58107f5f6ad1bdd18f6deb66487
-  react-native-compressor@1.13.0: 58379dfaace6ced8590cb341c77f2ca8099dfa8f7df6297032ec51de767a9925
-  react-native-date-picker@5.0.13: f2a6697da7a7ca79b4f39efda142eee1b82db6de3aa5010ad4bd59df41fe2ce1
-  react-native-drawer-layout@4.2.3: 74f2c043cc22ab87054f219e7c7373a509b779b18bfa79d27e7d051d73355130
-  react-native-keyboard-controller@1.21.8: ac52bf7502ff3ad34a8594b5e1a916b96bf87a2523b6abc87c31f03607d52271
-  react-native-pager-view@6.8.0: 0979d6fe1e2fa43b2784cc0b5e0ff0117d53b53423e85ee5855eefdc41a00108
-  react-native-reanimated@3.19.1: 97a1967f37a4213fbab59e1fd59a1bf859b5efc79af5e1b528a47fe488e6c5d6
-  react-native-svg@15.12.1: 31401fa6ff01498773afb51a7b066821c471eb3e71b0764a10017938beed49e9
-  react-native-uitextview@1.4.0: 62de26caadfc39d1bdff204cdc03a705c0cd343999825e06d8c0c120de06cc99
-  react-native-view-shot@4.0.3: a2457dc30a82cc8c21f371a6f860d9396d450a2a1b4265b1a4ee13bdb24d3268
-  react-native@0.81.5: 2656ac6deb71b92a4df4af4593d13ace6a5740936432e5e7e8ef32bc3cd05194
-  sonner-native@0.21.0: 4bcd0da0fec32e943460e6e788a9e4adf601b507d2dfd0c8246a6c8c74d8f638
+  '@sentry/react-native@6.20.0':
+    hash: 1d48e4d5178f5684eb33262299e7eed283bf9601f79b9ae1af63a7f607d3483a
+    path: patches/@sentry__react-native@6.20.0.patch
+  expo-age-range@0.2.18:
+    hash: c325225749993424461eeece1d97a99b19c00da2ebc958a73c12e4eca0c39306
+    path: patches/expo-age-range@0.2.18.patch
+  expo-glass-effect@55.0.8:
+    hash: 6c9fa5b104e53b87df4e17b320acb3b94d12ac90c0101190045dd620681efff0
+    path: patches/expo-glass-effect@55.0.8.patch
+  expo-haptics@15.0.8:
+    hash: b33910ba2753c4eccdc885b449e6e33aa90b9cefa75ca8639762a26013141410
+    path: patches/expo-haptics@15.0.8.patch
+  expo-image-picker@17.0.11:
+    hash: 47b28f6ddb8bcaa6483f8714c82daaa0001122f2b0dac6c05d19e98a61a6ceab
+    path: patches/expo-image-picker@17.0.11.patch
+  expo-image@3.0.11:
+    hash: 6d46ffac33426c5285777da5bf5f88c68c8ce27290595dfa65f38c478930c2c4
+    path: patches/expo-image@3.0.11.patch
+  expo-media-library@18.2.1:
+    hash: 2b84c17999bb0c977eaef7fa8ac297f7074d91c94fb63726b42d2a277b26b39a
+    path: patches/expo-media-library@18.2.1.patch
+  expo-modules-core@3.0.30:
+    hash: 952fb1c8cb6dc8a0d8ef4e1114942a341d89b025e011f1acfff788929997346e
+    path: patches/expo-modules-core@3.0.30.patch
+  expo-notifications@0.32.17:
+    hash: a45a8dcf3d8c4b5df4ee0e62bc79b755fcf9d28ca51a6f685b85830bf4afc2e5
+    path: patches/expo-notifications@0.32.17.patch
+  expo-updates@29.0.17:
+    hash: 04f28cb005b770e9ae8f0065eab96e43cbb1e58107f5f6ad1bdd18f6deb66487
+    path: patches/expo-updates@29.0.17.patch
+  react-native-compressor@1.13.0:
+    hash: 58379dfaace6ced8590cb341c77f2ca8099dfa8f7df6297032ec51de767a9925
+    path: patches/react-native-compressor@1.13.0.patch
+  react-native-date-picker@5.0.13:
+    hash: f2a6697da7a7ca79b4f39efda142eee1b82db6de3aa5010ad4bd59df41fe2ce1
+    path: patches/react-native-date-picker@5.0.13.patch
+  react-native-drawer-layout@4.2.3:
+    hash: 74f2c043cc22ab87054f219e7c7373a509b779b18bfa79d27e7d051d73355130
+    path: patches/react-native-drawer-layout@4.2.3.patch
+  react-native-keyboard-controller@1.21.8:
+    hash: ac52bf7502ff3ad34a8594b5e1a916b96bf87a2523b6abc87c31f03607d52271
+    path: patches/react-native-keyboard-controller@1.21.8.patch
+  react-native-pager-view@6.8.0:
+    hash: 0979d6fe1e2fa43b2784cc0b5e0ff0117d53b53423e85ee5855eefdc41a00108
+    path: patches/react-native-pager-view@6.8.0.patch
+  react-native-reanimated@3.19.1:
+    hash: 97a1967f37a4213fbab59e1fd59a1bf859b5efc79af5e1b528a47fe488e6c5d6
+    path: patches/react-native-reanimated@3.19.1.patch
+  react-native-svg@15.12.1:
+    hash: 31401fa6ff01498773afb51a7b066821c471eb3e71b0764a10017938beed49e9
+    path: patches/react-native-svg@15.12.1.patch
+  react-native-uitextview@1.4.0:
+    hash: 62de26caadfc39d1bdff204cdc03a705c0cd343999825e06d8c0c120de06cc99
+    path: patches/react-native-uitextview@1.4.0.patch
+  react-native-view-shot@4.0.3:
+    hash: a2457dc30a82cc8c21f371a6f860d9396d450a2a1b4265b1a4ee13bdb24d3268
+    path: patches/react-native-view-shot@4.0.3.patch
+  react-native@0.81.5:
+    hash: 2656ac6deb71b92a4df4af4593d13ace6a5740936432e5e7e8ef32bc3cd05194
+    path: patches/react-native@0.81.5.patch
+  sonner-native@0.21.0:
+    hash: 4bcd0da0fec32e943460e6e788a9e4adf601b507d2dfd0c8246a6c8c74d8f638
+    path: patches/sonner-native@0.21.0.patch
 
 importers:
 
@@ -7135,8 +6978,7 @@ packages:
       variants:
         - resolution:
             archive: tarball
-            bin:
-              node: bin/node
+            bin: bin/node
             integrity: sha256-ZGOiNzn2sjAOvsXM1gJ14TjjhY/Br8bo+bxOT2pLdvo=
             type: binary
             url: https://nodejs.org/download/release/v24.18.0/node-v24.18.0-aix-ppc64.tar.gz
@@ -7145,8 +6987,7 @@ packages:
               os: aix
         - resolution:
             archive: tarball
-            bin:
-              node: bin/node
+            bin: bin/node
             integrity: sha256-4al+FMmcgD6WxzOUAyguoFpJnDL42D3v6e9exm+XntE=
             type: binary
             url: https://nodejs.org/download/release/v24.18.0/node-v24.18.0-darwin-arm64.tar.gz
@@ -7155,8 +6996,7 @@ packages:
               os: darwin
         - resolution:
             archive: tarball
-            bin:
-              node: bin/node
+            bin: bin/node
             integrity: sha256-39Db0+chUDQ033tyBecZ9hs6OjGyvPlym4uR/qJA8IA=
             type: binary
             url: https://nodejs.org/download/release/v24.18.0/node-v24.18.0-darwin-x64.tar.gz
@@ -7165,8 +7005,7 @@ packages:
               os: darwin
         - resolution:
             archive: tarball
-            bin:
-              node: bin/node
+            bin: bin/node
             integrity: sha256-a0SEwhkCdBdd+aqPKOLXWKgZyxwf5qtIHi+VtGOrhQg=
             type: binary
             url: https://nodejs.org/download/release/v24.18.0/node-v24.18.0-linux-arm64.tar.gz
@@ -7175,8 +7014,7 @@ packages:
               os: linux
         - resolution:
             archive: tarball
-            bin:
-              node: bin/node
+            bin: bin/node
             integrity: sha256-/hM4ly95KDxrwh5h2/RXa76MBa3tKZnUHIZDrTAmUUI=
             type: binary
             url: https://nodejs.org/download/release/v24.18.0/node-v24.18.0-linux-ppc64le.tar.gz
@@ -7185,8 +7023,7 @@ packages:
               os: linux
         - resolution:
             archive: tarball
-            bin:
-              node: bin/node
+            bin: bin/node
             integrity: sha256-Nx68E5RfwWlJPnUvLdr6+rbs2My0Ubz/RuCfacXdjHo=
             type: binary
             url: https://nodejs.org/download/release/v24.18.0/node-v24.18.0-linux-s390x.tar.gz
@@ -7195,8 +7032,7 @@ packages:
               os: linux
         - resolution:
             archive: tarball
-            bin:
-              node: bin/node
+            bin: bin/node
             integrity: sha256-eDEwmElj23upy9AQierywu+wVcfBaTyUMXS5Z7MFDLg=
             type: binary
             url: https://nodejs.org/download/release/v24.18.0/node-v24.18.0-linux-x64.tar.gz
@@ -7205,8 +7041,7 @@ packages:
               os: linux
         - resolution:
             archive: zip
-            bin:
-              node: node.exe
+            bin: node.exe
             integrity: sha256-8nRmmtuTsf0Pv48h/QeGCencyEMz1PJxjS3eP5oWGgE=
             prefix: node-v24.18.0-win-arm64
             type: binary
@@ -7216,8 +7051,7 @@ packages:
               os: win32
         - resolution:
             archive: zip
-            bin:
-              node: node.exe
+            bin: node.exe
             integrity: sha256-CuaEBrQtdyVmHal5sUA+yZJtogXGdwgn8zqsnY8m6CE=
             prefix: node-v24.18.0-win-x64
             type: binary
@@ -7225,28 +7059,6 @@ packages:
           targets:
             - cpu: x64
               os: win32
-        - resolution:
-            archive: tarball
-            bin:
-              node: bin/node
-            integrity: sha256-scbC3DG0bdj7IyL0/nWwfndcUSC8NyUd7uoo9SnUVns=
-            type: binary
-            url: https://unofficial-builds.nodejs.org/download/release/v24.18.0/node-v24.18.0-linux-arm64-musl.tar.gz
-          targets:
-            - cpu: arm64
-              os: linux
-              libc: musl
-        - resolution:
-            archive: tarball
-            bin:
-              node: bin/node
-            integrity: sha256-6lhAmRHhQexrGdkXjvotkYWhMpUAWxy/VSGzFX7tHZU=
-            type: binary
-            url: https://unofficial-builds.nodejs.org/download/release/v24.18.0/node-v24.18.0-linux-x64-musl.tar.gz
-          targets:
-            - cpu: x64
-              os: linux
-              libc: musl
     version: 24.18.0
     hasBin: true
 
@@ -8054,7 +7866,7 @@ packages:
       react-native: '*'
 
   react-native-progress@https://codeload.github.com/bluesky-social/react-native-progress/tar.gz/5a372f4f2ce5feb26f4f47b6a4d187ab9b923ab4:
-    resolution: {gitHosted: true, integrity: sha512-gDJJirvdhK5uUuI2OkiuleTbmeCyjkf1G6kPd4HAMc1pW8pUUeA0wKyPxZaI+s9htw8IDH6mFlmBB1ob8QMB4g==, tarball: https://codeload.github.com/bluesky-social/react-native-progress/tar.gz/5a372f4f2ce5feb26f4f47b6a4d187ab9b923ab4}
+    resolution: {tarball: https://codeload.github.com/bluesky-social/react-native-progress/tar.gz/5a372f4f2ce5feb26f4f47b6a4d187ab9b923ab4}
     version: 5.0.0
     peerDependencies:
       react-native-svg: '*'
