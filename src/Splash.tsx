@@ -175,7 +175,7 @@ export function Splash(props: React.PropsWithChildren<Props>) {
   const logoAnimations =
     reduceMotion === true ? reducedLogoAnimation : logoAnimation
   // special off-spec color for dark mode
-  const logoBg = isDarkMode ? '#0F1824' : '#fff'
+  const logoBg = isDarkMode ? '#1F0B35' : '#fff' // northsky: brand ink
 
   return (
     <View style={{flex: 1}} onLayout={onLayout}>

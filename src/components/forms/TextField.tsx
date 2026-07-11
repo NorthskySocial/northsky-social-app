@@ -281,7 +281,9 @@ export function createInput(Component: typeof TextInput) {
             a.z_10,
             a.absolute,
             a.inset_0,
-            {borderRadius: 10},
+            // northsky: pill chrome for single-line inputs, softer 20px for
+            // multiline text areas (composer, etc.)
+            rest.multiline ? a.rounded_lg : a.rounded_full,
             t.atoms.bg_contrast_50,
             {borderColor: 'transparent', borderWidth: 1},
             ctx.hovered ? chromeHover : {},

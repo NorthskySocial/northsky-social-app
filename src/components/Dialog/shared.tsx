@@ -40,8 +40,10 @@ export function Header({
         a.border_b,
         t.atoms.border_contrast_medium,
         t.atoms.bg,
-        {borderTopLeftRadius: a.rounded_md.borderRadius},
-        {borderTopRightRadius: a.rounded_md.borderRadius},
+        // northsky: match the 32px dialog container / bottom-sheet corners
+        // (rounded_xl) so the sticky header's top corners don't under-round
+        {borderTopLeftRadius: a.rounded_xl.borderRadius},
+        {borderTopRightRadius: a.rounded_xl.borderRadius},
         style,
       ]}>
       {renderLeft && (

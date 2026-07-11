@@ -336,9 +336,10 @@ export function AddMembersFlow({
             a.relative,
             web(a.pt_lg),
             native(a.pt_4xl),
+            // northsky: match 32px dialog/sheet corners
             android({
-              borderTopLeftRadius: a.rounded_md.borderRadius,
-              borderTopRightRadius: a.rounded_md.borderRadius,
+              borderTopLeftRadius: a.rounded_xl.borderRadius,
+              borderTopRightRadius: a.rounded_xl.borderRadius,
             }),
             a.px_lg,
             a.border_b,

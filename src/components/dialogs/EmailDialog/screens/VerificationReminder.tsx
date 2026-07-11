@@ -45,8 +45,9 @@ export function VerificationReminder({
             a.pt_md,
             t.atoms.bg_contrast_100,
             {
-              borderTopLeftRadius: a.rounded_md.borderRadius,
-              borderTopRightRadius: a.rounded_md.borderRadius,
+              // northsky: match 32px dialog/sheet corners
+              borderTopLeftRadius: a.rounded_xl.borderRadius,
+              borderTopRightRadius: a.rounded_xl.borderRadius,
             },
           ]}>
           <GradientFill gradient={tokens.gradients.primary} />

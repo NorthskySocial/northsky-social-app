@@ -21,6 +21,7 @@ import {ArrowLeft_Stroke2_Corner0_Rounded as ArrowLeft} from '#/components/icons
 import {HEADER_SLOT_SIZE} from '#/components/Layout'
 import {createPortalGroup} from '#/components/Portal'
 import {P, Text} from '#/components/Typography'
+import {DisplayText} from '#/brand' // northsky: MuseoModerno display title
 import {IS_ANDROID, IS_INTERNAL, IS_WEB} from '#/env'
 
 const ONBOARDING_COL_WIDTH = 420
@@ -234,11 +235,9 @@ export function OnboardingTitleText({
   children,
   style,
 }: React.PropsWithChildren<TextStyleProp>) {
-  return (
-    <Text style={[a.text_3xl, a.font_bold, a.leading_snug, style]}>
-      {children}
-    </Text>
-  )
+  // northsky: onboarding titles render in the MuseoModerno display face.
+  // DisplayText supplies text_3xl + the brand italic 600 weight.
+  return <DisplayText style={[a.leading_snug, style]}>{children}</DisplayText>
 }
 
 export function OnboardingDescriptionText({

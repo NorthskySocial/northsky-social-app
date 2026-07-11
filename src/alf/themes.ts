@@ -1,44 +1,39 @@
-import {
-  createThemes,
-  DEFAULT_PALETTE,
-  DEFAULT_SUBDUED_PALETTE,
-} from '@bsky.app/alf'
-
-const DEFAULT_THEMES = createThemes({
-  defaultPalette: DEFAULT_PALETTE,
-  subduedPalette: DEFAULT_SUBDUED_PALETTE,
-})
+// northsky: re-point ALF themes at the brand palettes. Imported directly from
+// `#/brand/theme` (not the `#/brand` barrel, which pulls in config.ts). This
+// rebrands every consumer of `#/alf/themes`, including the legacy `usePalette`
+// files and the theme-color meta tag, not just the ALF provider.
+import {brandThemes} from '#/brand/theme'
 
 export const themes = {
-  lightPalette: DEFAULT_THEMES.light.palette,
-  darkPalette: DEFAULT_THEMES.dark.palette,
-  dimPalette: DEFAULT_THEMES.dim.palette,
-  light: DEFAULT_THEMES.light,
-  dark: DEFAULT_THEMES.dark,
-  dim: DEFAULT_THEMES.dim,
+  lightPalette: brandThemes.light.palette,
+  darkPalette: brandThemes.dark.palette,
+  dimPalette: brandThemes.dim.palette,
+  light: brandThemes.light,
+  dark: brandThemes.dark,
+  dim: brandThemes.dim,
 }
 
 /**
  * @deprecated use ALF and access palette from `useTheme()`
  */
-export const lightPalette = DEFAULT_THEMES.light.palette
+export const lightPalette = brandThemes.light.palette
 /**
  * @deprecated use ALF and access palette from `useTheme()`
  */
-export const darkPalette = DEFAULT_THEMES.dark.palette
+export const darkPalette = brandThemes.dark.palette
 /**
  * @deprecated use ALF and access palette from `useTheme()`
  */
-export const dimPalette = DEFAULT_THEMES.dim.palette
+export const dimPalette = brandThemes.dim.palette
 /**
  * @deprecated use ALF and access theme from `useTheme()`
  */
-export const light = DEFAULT_THEMES.light
+export const light = brandThemes.light
 /**
  * @deprecated use ALF and access theme from `useTheme()`
  */
-export const dark = DEFAULT_THEMES.dark
+export const dark = brandThemes.dark
 /**
  * @deprecated use ALF and access theme from `useTheme()`
  */
-export const dim = DEFAULT_THEMES.dim
+export const dim = brandThemes.dim

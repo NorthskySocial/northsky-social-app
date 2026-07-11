@@ -1,5 +1,11 @@
 import {type FontVariant, type TextStyle} from 'react-native'
 
+// northsky: brand fonts (Geist body + MuseoModerno display sentinel)
+import {
+  applyDisplayFont,
+  GEIST_ANDROID_MAP,
+  NS_DISPLAY_FONT,
+} from '#/brand/fonts'
 import {IS_ANDROID, IS_WEB} from '#/env'
 import {type Device, device} from '#/storage'
 
@@ -38,25 +44,18 @@ export function setFontFamily(fontFamily: Device['fontFamily']) {
  * Unused fonts are commented out, but the files are there if we need them.
  */
 export function applyFonts(style: TextStyle, fontFamily: 'system' | 'theme') {
+  // northsky: brand display text opts in via the NS_DISPLAY_FONT sentinel;
+  // route it to MuseoModerno regardless of the theme/system font setting.
+  if (style.fontFamily === NS_DISPLAY_FONT) {
+    applyDisplayFont(style)
+    return
+  }
   if (fontFamily === 'theme') {
     if (IS_ANDROID) {
+      // northsky: Geist static cuts replace Inter (Geist ships no italic cut,
+      // so the Inter italic-suffix branch is dropped).
       style.fontFamily =
-        {
-          400: 'Inter-Regular',
-          500: 'Inter-Medium',
-          600: 'Inter-SemiBold',
-          700: 'Inter-Bold',
-          800: 'Inter-Bold',
-          900: 'Inter-Bold',
-        }[String(style.fontWeight || '400')] || 'Inter-Regular'
-
-      if (style.fontStyle === 'italic') {
-        if (style.fontFamily === 'Inter-Regular') {
-          style.fontFamily = 'Inter-Italic'
-        } else {
-          style.fontFamily += 'Italic'
-        }
-      }
+        GEIST_ANDROID_MAP[String(style.fontWeight || '400')] || 'Geist-Regular'
 
       /*
        * These are not supported on Android and actually break the styling.
@@ -64,11 +63,9 @@ export function applyFonts(style: TextStyle, fontFamily: 'system' | 'theme') {
       delete style.fontWeight
       delete style.fontStyle
     } else {
-      style.fontFamily = 'InterVariable'
-
-      if (style.fontStyle === 'italic') {
-        style.fontFamily += 'Italic'
-      }
+      // northsky: Geist variable body font; keep fontStyle so web synthesizes
+      // oblique (Geist has no italic cut).
+      style.fontFamily = 'Geist'
     }
 
     if (IS_WEB) {
@@ -77,7 +74,8 @@ export function applyFonts(style: TextStyle, fontFamily: 'system' | 'theme') {
     }
 
     /**
-     * Disable contextual alternates and emoji overrides in Inter
+     * northsky: disable contextual alternates and emoji overrides in the body
+     * font (Geist; upstream targeted Inter)
      * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant}
      */
     if (IS_WEB) {

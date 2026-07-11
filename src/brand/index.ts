@@ -6,4 +6,7 @@
  * the theme (which depends on ALF) before it is needed.
  */
 export {BRAND, type BrandConfig} from './config'
+export {GradientPill} from './GradientPill'
+export {BOING, SQUISH_SPRING, SquishyPressable} from './motion'
 export {brandThemes} from './theme'
+export {DisplayText} from './typography'

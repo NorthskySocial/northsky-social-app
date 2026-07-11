@@ -18,14 +18,15 @@ export const defaultTheme: Theme = {
       link: lightPalette.primary_500,
       border: lightPalette.contrast_100,
     },
+    // northsky: brand primary ramp (replaces legacy colors.blue*)
     primary: {
-      background: colors.blue3,
-      backgroundLight: colors.blue2,
+      background: lightPalette.primary_500,
+      backgroundLight: lightPalette.primary_400,
       text: colors.white,
-      textLight: colors.blue0,
-      textInverted: colors.blue3,
-      link: colors.blue0,
-      border: colors.blue4,
+      textLight: lightPalette.primary_100,
+      textInverted: lightPalette.primary_500,
+      link: lightPalette.primary_100,
+      border: lightPalette.primary_600,
     },
     secondary: {
       background: colors.green3,
@@ -285,7 +286,7 @@ export const darkTheme: Theme = {
     },
     primary: {
       ...defaultTheme.palette.primary,
-      textInverted: colors.blue2,
+      textInverted: darkPalette.primary_400, // northsky: brand primary ramp
     },
     secondary: {
       ...defaultTheme.palette.secondary,

@@ -31,7 +31,7 @@ export function Group({children, multiple, ...props}: GroupProps) {
         style={[
           a.w_full,
           a.flex_row,
-          a.rounded_sm,
+          a.rounded_full, // northsky: pill group (overflow_hidden clips ends)
           a.overflow_hidden,
           t.atoms.border_contrast_low,
           {borderWidth: 1},

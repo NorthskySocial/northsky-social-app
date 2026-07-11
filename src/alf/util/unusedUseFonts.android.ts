@@ -9,13 +9,12 @@ import {useFonts} from 'expo-font'
  */
 export function DO_NOT_USE() {
   return useFonts({
-    'Inter-Regular': require('../../../assets/fonts/inter/Inter-Regular.otf'),
-    'Inter-Italic': require('../../../assets/fonts/inter/Inter-Italic.otf'),
-    'Inter-Medium': require('../../../assets/fonts/inter/Inter-Medium.otf'),
-    'Inter-MediumItalic': require('../../../assets/fonts/inter/Inter-MediumItalic.otf'),
-    'Inter-SemiBold': require('../../../assets/fonts/inter/Inter-SemiBold.otf'),
-    'Inter-SemiBoldItalic': require('../../../assets/fonts/inter/Inter-SemiBoldItalic.otf'),
-    'Inter-Bold': require('../../../assets/fonts/inter/Inter-Bold.otf'),
-    'Inter-BoldItalic': require('../../../assets/fonts/inter/Inter-BoldItalic.otf'),
+    // northsky: Geist body + MuseoModerno display static cuts replace Inter.
+    'Geist-Regular': require('../../../assets/fonts/geist/Geist-Regular.ttf'),
+    'Geist-Medium': require('../../../assets/fonts/geist/Geist-Medium.ttf'),
+    'Geist-SemiBold': require('../../../assets/fonts/geist/Geist-SemiBold.ttf'),
+    'Geist-Bold': require('../../../assets/fonts/geist/Geist-Bold.ttf'),
+    'MuseoModerno-SemiBold': require('../../../assets/fonts/museomoderno/MuseoModerno-SemiBold.ttf'),
+    'MuseoModerno-SemiBoldItalic': require('../../../assets/fonts/museomoderno/MuseoModerno-SemiBoldItalic.ttf'),
   })
 }

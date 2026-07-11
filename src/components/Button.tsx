@@ -24,6 +24,7 @@ import {
 import {atoms as a, flatten, select, useTheme} from '#/alf'
 import {type Props as SVGIconProps} from '#/components/icons/common'
 import {Text} from '#/components/Typography'
+import {SquishyPressable} from '#/brand/motion' // northsky: spring press feedback
 
 /**
  * The `Button` component, and some extensions of it like `Link` are intended
@@ -278,11 +279,20 @@ export const Button = forwardRef<View, ButtonProps>(
           }
         } else if (color === 'negative') {
           if (!disabled) {
+            // northsky: darker reds for AA contrast with the white label (dark/dim ramps are inverted)
             baseStyles.push({
-              backgroundColor: t.palette.negative_500,
+              backgroundColor: select(t.name, {
+                light: t.palette.negative_600,
+                dark: t.palette.negative_400,
+                dim: t.palette.negative_300,
+              }),
             })
             hoverStyles.push({
-              backgroundColor: t.palette.negative_600,
+              backgroundColor: select(t.name, {
+                light: t.palette.negative_700,
+                dark: t.palette.negative_300,
+                dim: t.palette.negative_200,
+              }),
             })
           } else {
             baseStyles.push({
@@ -571,10 +581,25 @@ export const Button = forwardRef<View, ButtonProps>(
       [state, variant, color, size, shape, disabled],
     )
 
+    // northsky: give styled buttons (those that set `color` or an explicit
+    // `variant`) the spring "squish" feedback. Callers that pass an explicit
+    // `PressableComponent` override keep it untouched. Default-Pressable
+    // buttons always render `SquishyPressable` (with `squish` gating the
+    // animation) rather than switching component TYPE on `color`/`variant`,
+    // so toggling those props on a mounted Button never remounts its subtree.
+    const usesDefaultPressable = PressableComponent === Pressable
+    const ResolvedPressableComponent = usesDefaultPressable
+      ? SquishyPressable
+      : PressableComponent
+    const squishProps: {squish?: boolean} = usesDefaultPressable
+      ? {squish: Boolean(color || variantProp)}
+      : {}
+
     return (
-      <PressableComponent
+      <ResolvedPressableComponent
         role="button"
         accessibilityHint={undefined} // optional
+        {...squishProps}
         {...rest}
         // @ts-ignore - this will always be a pressable
         ref={ref}
@@ -605,7 +630,7 @@ export const Button = forwardRef<View, ButtonProps>(
         <Context.Provider value={context}>
           {typeof children === 'function' ? children(context) : children}
         </Context.Provider>
-      </PressableComponent>
+      </ResolvedPressableComponent>
     )
   },
 )
@@ -625,7 +650,8 @@ export function useSharedButtonTextStyles() {
     if (variant === 'solid') {
       if (color === 'primary') {
         if (!disabled) {
-          baseStyles.push({color: t.palette.white})
+          // northsky: label readable on brand accent (= white in light, ink in dark/dim)
+          baseStyles.push({color: t.atoms.text_inverted.color})
         } else {
           baseStyles.push({
             color: select(t.name, {

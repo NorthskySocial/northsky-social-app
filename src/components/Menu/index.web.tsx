@@ -205,7 +205,7 @@ export function Outer({
         className="dropdown-menu-transform-origin dropdown-menu-constrain-size">
         <View
           style={[
-            a.rounded_sm,
+            a.rounded_lg, // northsky: 20px dropdown corners
             a.p_xs,
             a.border,
             t.name === 'light' ? t.atoms.bg : t.atoms.bg_contrast_25,

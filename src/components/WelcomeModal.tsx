@@ -157,7 +157,8 @@ export function WelcomeModal({control}: WelcomeModalProps) {
                     color="primary"
                     style={{
                       width: 200,
-                      backgroundColor: '#006AFF',
+                      // northsky: brand purple (static light surface)
+                      backgroundColor: '#9A45EC',
                     }}>
                     <ButtonText>
                       <Trans>Create account</Trans>
@@ -173,7 +174,11 @@ export function WelcomeModal({control}: WelcomeModalProps) {
                     hoverStyle={[a.bg_transparent]}>
                     {({hovered}) => (
                       <ButtonText
-                        style={[hovered && [a.underline], {color: '#006AFF'}]}>
+                        style={[
+                          hovered && [a.underline],
+                          // northsky: brand purple (static light surface)
+                          {color: '#9A45EC'},
+                        ]}>
                         <Trans>Explore the app</Trans>
                       </ButtonText>
                     )}
@@ -197,7 +202,8 @@ export function WelcomeModal({control}: WelcomeModalProps) {
                         style={[
                           a.font_medium,
                           {
-                            color: '#006AFF',
+                            // northsky: brand purple (static light surface)
+                            color: '#9A45EC',
                             fontSize: undefined,
                           },
                           signInLinkHovered && a.underline,
