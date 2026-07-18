@@ -324,7 +324,11 @@ export function QuoteEmbed({
         linkDisabled
       />
       {moderation ? (
-        <PostAlerts modui={moderation.ui('contentView')} style={[a.py_xs]} />
+        <PostAlerts
+          post={quote}
+          modui={moderation.ui('contentView')}
+          style={[a.py_xs]}
+        />
       ) : null}
       {richText ? (
         <RichText
