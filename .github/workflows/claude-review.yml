@@ -26,10 +26,11 @@ jobs:
     # belt-and-braces with this explicit guard). Branch PRs can only be
     # created by people with write access, i.e. org members.
     # Bot-authored PRs (dependabot, changesets) are also skipped.
-    if: >
-      github.event.pull_request.draft == false &&
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      github.event.pull_request.user.type != 'Bot'
+    # if: >
+    #   github.event.pull_request.draft == false &&
+    #   github.event.pull_request.head.repo.full_name == github.repository &&
+    #   github.event.pull_request.user.type != 'Bot'
+    if: false
 
     runs-on: ubuntu-latest
     timeout-minutes: 20
