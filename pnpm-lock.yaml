@@ -215,71 +215,6 @@ overrides:
   react-native-screens: 4.24.0
 
 patchedDependencies:
-<<<<<<< HEAD
-  '@sentry/react-native@6.20.0':
-    hash: 1d48e4d5178f5684eb33262299e7eed283bf9601f79b9ae1af63a7f607d3483a
-    path: patches/@sentry__react-native@6.20.0.patch
-  expo-age-range@0.2.18:
-    hash: c325225749993424461eeece1d97a99b19c00da2ebc958a73c12e4eca0c39306
-    path: patches/expo-age-range@0.2.18.patch
-  expo-glass-effect@55.0.8:
-    hash: 6c9fa5b104e53b87df4e17b320acb3b94d12ac90c0101190045dd620681efff0
-    path: patches/expo-glass-effect@55.0.8.patch
-  expo-haptics@15.0.8:
-    hash: b33910ba2753c4eccdc885b449e6e33aa90b9cefa75ca8639762a26013141410
-    path: patches/expo-haptics@15.0.8.patch
-  expo-image-picker@17.0.11:
-    hash: 47b28f6ddb8bcaa6483f8714c82daaa0001122f2b0dac6c05d19e98a61a6ceab
-    path: patches/expo-image-picker@17.0.11.patch
-  expo-image@3.0.11:
-    hash: 6d46ffac33426c5285777da5bf5f88c68c8ce27290595dfa65f38c478930c2c4
-    path: patches/expo-image@3.0.11.patch
-  expo-media-library@18.2.1:
-    hash: 2b84c17999bb0c977eaef7fa8ac297f7074d91c94fb63726b42d2a277b26b39a
-    path: patches/expo-media-library@18.2.1.patch
-  expo-modules-core@3.0.30:
-    hash: 952fb1c8cb6dc8a0d8ef4e1114942a341d89b025e011f1acfff788929997346e
-    path: patches/expo-modules-core@3.0.30.patch
-  expo-notifications@0.32.17:
-    hash: a45a8dcf3d8c4b5df4ee0e62bc79b755fcf9d28ca51a6f685b85830bf4afc2e5
-    path: patches/expo-notifications@0.32.17.patch
-  expo-updates@29.0.17:
-    hash: 04f28cb005b770e9ae8f0065eab96e43cbb1e58107f5f6ad1bdd18f6deb66487
-    path: patches/expo-updates@29.0.17.patch
-  react-native-compressor@1.13.0:
-    hash: 58379dfaace6ced8590cb341c77f2ca8099dfa8f7df6297032ec51de767a9925
-    path: patches/react-native-compressor@1.13.0.patch
-  react-native-date-picker@5.0.13:
-    hash: f2a6697da7a7ca79b4f39efda142eee1b82db6de3aa5010ad4bd59df41fe2ce1
-    path: patches/react-native-date-picker@5.0.13.patch
-  react-native-drawer-layout@4.2.3:
-    hash: 74f2c043cc22ab87054f219e7c7373a509b779b18bfa79d27e7d051d73355130
-    path: patches/react-native-drawer-layout@4.2.3.patch
-  react-native-keyboard-controller@1.21.8:
-    hash: ac52bf7502ff3ad34a8594b5e1a916b96bf87a2523b6abc87c31f03607d52271
-    path: patches/react-native-keyboard-controller@1.21.8.patch
-  react-native-pager-view@6.8.0:
-    hash: 0979d6fe1e2fa43b2784cc0b5e0ff0117d53b53423e85ee5855eefdc41a00108
-    path: patches/react-native-pager-view@6.8.0.patch
-  react-native-reanimated@3.19.1:
-    hash: 97a1967f37a4213fbab59e1fd59a1bf859b5efc79af5e1b528a47fe488e6c5d6
-    path: patches/react-native-reanimated@3.19.1.patch
-  react-native-svg@15.12.1:
-    hash: 31401fa6ff01498773afb51a7b066821c471eb3e71b0764a10017938beed49e9
-    path: patches/react-native-svg@15.12.1.patch
-  react-native-uitextview@1.4.0:
-    hash: 62de26caadfc39d1bdff204cdc03a705c0cd343999825e06d8c0c120de06cc99
-    path: patches/react-native-uitextview@1.4.0.patch
-  react-native-view-shot@4.0.3:
-    hash: a2457dc30a82cc8c21f371a6f860d9396d450a2a1b4265b1a4ee13bdb24d3268
-    path: patches/react-native-view-shot@4.0.3.patch
-  react-native@0.81.5:
-    hash: 2656ac6deb71b92a4df4af4593d13ace6a5740936432e5e7e8ef32bc3cd05194
-    path: patches/react-native@0.81.5.patch
-  sonner-native@0.21.0:
-    hash: 4bcd0da0fec32e943460e6e788a9e4adf601b507d2dfd0c8246a6c8c74d8f638
-    path: patches/sonner-native@0.21.0.patch
-=======
   '@sentry/expo-upload-sourcemaps@8.18.0': 2368e1e1986165e7ead3c60017b78b2f9ade1b6a6b2f5ad27cd428608c6f12ae
   expo-age-range@0.2.18: c325225749993424461eeece1d97a99b19c00da2ebc958a73c12e4eca0c39306
   expo-glass-effect@55.0.8: 6c9fa5b104e53b87df4e17b320acb3b94d12ac90c0101190045dd620681efff0
@@ -301,7 +236,6 @@ patchedDependencies:
   react-native-view-shot@4.0.3: a2457dc30a82cc8c21f371a6f860d9396d450a2a1b4265b1a4ee13bdb24d3268
   react-native@0.81.5: 2656ac6deb71b92a4df4af4593d13ace6a5740936432e5e7e8ef32bc3cd05194
   sonner-native@0.21.0: 4bcd0da0fec32e943460e6e788a9e4adf601b507d2dfd0c8246a6c8c74d8f638
->>>>>>> upstream/main
 
 importers:
 
@@ -7775,7 +7709,7 @@ packages:
       react-native: '*'
 
   react-native-progress@https://codeload.github.com/bluesky-social/react-native-progress/tar.gz/5a372f4f2ce5feb26f4f47b6a4d187ab9b923ab4:
-    resolution: {tarball: https://codeload.github.com/bluesky-social/react-native-progress/tar.gz/5a372f4f2ce5feb26f4f47b6a4d187ab9b923ab4}
+    resolution: {gitHosted: true, tarball: https://codeload.github.com/bluesky-social/react-native-progress/tar.gz/5a372f4f2ce5feb26f4f47b6a4d187ab9b923ab4}
     version: 5.0.0
     peerDependencies:
       react-native-svg: '*'
