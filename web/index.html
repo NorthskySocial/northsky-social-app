@@ -18,7 +18,8 @@
     <link rel="preconnect" href="https://go.bsky.app">
     <title>%WEB_TITLE%</title>
 
-    <link rel="preload" as="font" type="font/woff2" href="/static/media/InterVariable.c504db5c06caaf7cdfba.woff2" crossorigin>
+    <!-- northsky: preload Geist body font (webpack-hashed filename) -->
+    <link rel="preload" as="font" type="font/woff2" href="/static/media/Geist-Variable.c5aefc5d145b5333adad.woff2" crossorigin>
     <link rel="stylesheet" href="/static/style.css">
 
     <style>
@@ -29,17 +30,25 @@
        *
        * THIS NEEDS TO BE DUPLICATED IN `bskyweb/templates/base.html`
        */
+      /* northsky: brand web fonts (Geist body + MuseoModerno display). Webpack-hashed filenames - regenerate both shells after any font-binary change. */
       @font-face {
-        font-family: 'InterVariable';
-        src: url(/static/media/InterVariable.c504db5c06caaf7cdfba.woff2) format('woff2');
-        font-weight: 300 1000;
+        font-family: 'Geist';
+        src: url(/static/media/Geist-Variable.c5aefc5d145b5333adad.woff2) format('woff2');
+        font-weight: 100 900;
         font-style: normal;
         font-display: swap;
       }
       @font-face {
-        font-family: 'InterVariableItalic';
-        src: url(/static/media/InterVariable-Italic.01dcbad1bac635f9c9cd.woff2) format('woff2');
-        font-weight: 300 1000;
+        font-family: 'MuseoModerno';
+        src: url(/static/media/MuseoModerno-Variable.e9768c9f95f32d05362b.woff2) format('woff2');
+        font-weight: 100 900;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'MuseoModerno';
+        src: url(/static/media/MuseoModerno-Italic-Variable.18a09d17c1aac133031f.woff2) format('woff2');
+        font-weight: 100 900;
         font-style: italic;
         font-display: swap;
       }
@@ -47,7 +56,8 @@
       body {
         margin: 0px;
         padding: 0px;
-        font-family: InterVariable, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Liberation Sans', Helvetica, Arial, sans-serif;
+        /* northsky: Geist body font */
+        font-family: Geist, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Liberation Sans', Helvetica, Arial, sans-serif;
         text-rendering: optimizeLegibility;
         /* Platform-specific reset */
         -webkit-overflow-scrolling: touch;
@@ -57,17 +67,21 @@
         -ms-overflow-style: scrollbar;
         font-synthesis-weight: none;
       }
+      /* northsky: brand theme vars (keep this block identical in web/index.html and bskyweb/templates/base.html) */
+      /* --background = contrast_0, --backgroundLight = contrast_100, --text = contrast_1000, --link = primary_500; source: src/brand/palette.ts */
       :root {
-        --text: black;
+        --text: #1F0B35;
         --background: white;
-        --backgroundLight: #e2e7ee;
+        --backgroundLight: #E1DFF0;
+        --link: #9A45EC;
       }
       @media (prefers-color-scheme: dark) {
         :root {
           color-scheme: dark;
           --text: white;
-          --background: black;
-          --backgroundLight: #232e3e;
+          --background: #1F0B35;
+          --backgroundLight: #3A2559;
+          --link: #2AFFBA;
         }
       }
       html,
@@ -82,27 +96,30 @@
       html.theme--light body,
       html.theme--light #root {
         background-color: white;
-        --text: black;
+        --text: #1F0B35;
         --background: white;
-        --backgroundLight: #DCE2EA;
+        --backgroundLight: #E1DFF0;
+        --link: #9A45EC;
       }
       html.theme--dark,
       html.theme--dark body,
       html.theme--dark #root {
         color-scheme: dark;
-        background-color: black;
+        background-color: #1F0B35;
         --text: white;
-        --background: black;
-        --backgroundLight: #232E3E;
+        --background: #1F0B35;
+        --backgroundLight: #3A2559;
+        --link: #2AFFBA;
       }
       html.theme--dim,
       html.theme--dim body,
       html.theme--dim #root {
         color-scheme: dark;
-        background-color: #151D28;
+        background-color: #2B1548;
         --text: white;
-        --background: #151D28;
-        --backgroundLight: #2C3A4E;
+        --background: #2B1548;
+        --backgroundLight: #4E3B66;
+        --link: #4BE6B3;
       }
       #splash {
         display: flex;

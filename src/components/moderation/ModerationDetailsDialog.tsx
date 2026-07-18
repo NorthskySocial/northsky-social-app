@@ -245,8 +245,9 @@ function ModerationDetailsDialogInner({
             !IS_NATIVE && t.atoms.bg_contrast_25,
             t.atoms.border_contrast_low,
             {
-              borderBottomLeftRadius: a.rounded_md.borderRadius,
-              borderBottomRightRadius: a.rounded_md.borderRadius,
+              // northsky: match 32px dialog/sheet corners
+              borderBottomLeftRadius: a.rounded_xl.borderRadius,
+              borderBottomRightRadius: a.rounded_xl.borderRadius,
             },
           ]}>
           {modcause.source.type === 'user' ? (

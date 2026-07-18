@@ -9,7 +9,10 @@ import {useFonts} from 'expo-font'
  */
 export function DO_NOT_USE() {
   return useFonts({
-    InterVariable: require('../../../assets/fonts/inter/InterVariable.woff2'),
-    'InterVariable-Italic': require('../../../assets/fonts/inter/InterVariable-Italic.woff2'),
+    // northsky: brand fonts (Geist body + MuseoModerno display) replace Inter;
+    // requiring the woff2s makes webpack emit them to /static/media/.
+    Geist: require('../../../assets/fonts/geist/Geist-Variable.woff2'),
+    MuseoModerno: require('../../../assets/fonts/museomoderno/MuseoModerno-Variable.woff2'),
+    'MuseoModerno-Italic': require('../../../assets/fonts/museomoderno/MuseoModerno-Italic-Variable.woff2'),
   })
 }

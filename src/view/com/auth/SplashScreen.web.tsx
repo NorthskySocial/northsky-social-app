@@ -19,7 +19,7 @@ import {Button, ButtonText} from '#/components/Button'
 import {TimesLarge_Stroke2_Corner0_Rounded as TimesIcon} from '#/components/icons/Times'
 import * as Layout from '#/components/Layout'
 import {InlineLinkText} from '#/components/Link'
-import {Text} from '#/components/Typography'
+import {DisplayText} from '#/brand' // northsky: MuseoModerno display headline
 
 export const SplashScreen = ({
   onDismiss,
@@ -91,14 +91,15 @@ export const SplashScreen = ({
                 </View>
               )}
 
-              <Text
+              {/* northsky: brand display face; keep text_md sizing for this surface */}
+              <DisplayText
                 style={[
                   a.text_md,
                   a.font_semi_bold,
                   t.atoms.text_contrast_medium,
                 ]}>
                 <Trans>What's up?</Trans>
-              </Text>
+              </DisplayText>
             </View>
 
             <View

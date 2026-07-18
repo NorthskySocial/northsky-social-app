@@ -195,7 +195,7 @@ export function Inner({
         // note: flatten is required for some reason -sfn
         style={flatten([
           a.relative,
-          a.rounded_md,
+          a.rounded_xl, // northsky: 32px dialog corners
           a.w_full,
           a.border,
           t.atoms.bg,

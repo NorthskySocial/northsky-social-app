@@ -4,11 +4,28 @@ import {atoms as baseAtoms} from '@bsky.app/alf'
 import {CARD_ASPECT_RATIO} from '#/lib/constants'
 import {native, platform, web} from '#/alf/util/platform'
 import * as Layout from '#/components/Layout'
+import {radius} from '#/brand/shape' // northsky: brand pill radii
 
 const EXP_CURVE = 'cubic-bezier(0.16, 1, 0.3, 1)'
 
 export const atoms = {
   ...baseAtoms,
+
+  /*
+   * northsky: brand pill radii. The package atoms bake in the upstream
+   * `borderRadius` values (md 12, lg 16, xl 20), so re-derive these three from
+   * the brand radius (16/20/32). `rounded_sm/xs/full` match upstream and are
+   * left untouched.
+   */
+  rounded_md: {
+    borderRadius: radius.md,
+  },
+  rounded_lg: {
+    borderRadius: radius.lg,
+  },
+  rounded_xl: {
+    borderRadius: radius.xl,
+  },
 
   h_full_vh: web({
     height: '100vh',

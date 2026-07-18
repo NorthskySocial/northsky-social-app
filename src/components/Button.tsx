@@ -21,9 +21,13 @@ import {
   type ViewStyle,
 } from 'react-native'
 
-import {atoms as a, flatten, select, useTheme} from '#/alf'
+import {atoms as a, flatten, select, tokens, useTheme, web} from '#/alf'
+import {GradientFill} from '#/components/GradientFill' // northsky: primary-CTA gradient
 import {type Props as SVGIconProps} from '#/components/icons/common'
 import {Text} from '#/components/Typography'
+import {PRIMARY_GRADIENT_CSS} from '#/brand/gradients' // northsky: web CSS gradient fill (no per-button expo LinearGradient node)
+import {SquishyPressable} from '#/brand/motion' // northsky: spring press feedback
+import {IS_WEB} from '#/env' // northsky: native-only GradientFill gate
 
 /**
  * The `Button` component, and some extensions of it like `Link` are intended
@@ -165,6 +169,11 @@ export const Button = forwardRef<View, ButtonProps>(
       variant = 'solid'
     }
 
+    // northsky: enabled solid-primary buttons are painted by the brand gradient
+    // (GradientFill under the children) instead of a flat primary_500 fill.
+    const isSolidPrimaryFill =
+      variant === 'solid' && color === 'primary' && !disabled
+
     const t = useTheme()
     const [state, setState] = useState({
       pressed: false,
@@ -245,12 +254,11 @@ export const Button = forwardRef<View, ButtonProps>(
       if (variant === 'solid') {
         if (color === 'primary') {
           if (!disabled) {
-            baseStyles.push({
-              backgroundColor: t.palette.primary_500,
-            })
-            hoverStyles.push({
-              backgroundColor: t.palette.primary_600,
-            })
+            // northsky: no flat backgroundColor - the brand gradient is painted
+            // by a GradientFill rendered under the children (see render). Clip it
+            // to the pill with overflow_hidden. Hover feedback is the
+            // SquishyPressable scale, so there is no hover backgroundColor.
+            baseStyles.push(a.overflow_hidden)
           } else {
             baseStyles.push({
               backgroundColor: t.palette.primary_200,
@@ -278,11 +286,20 @@ export const Button = forwardRef<View, ButtonProps>(
           }
         } else if (color === 'negative') {
           if (!disabled) {
+            // northsky: darker reds for AA contrast with the white label (dark/dim ramps are inverted)
             baseStyles.push({
-              backgroundColor: t.palette.negative_500,
+              backgroundColor: select(t.name, {
+                light: t.palette.negative_600,
+                dark: t.palette.negative_400,
+                dim: t.palette.negative_300,
+              }),
             })
             hoverStyles.push({
-              backgroundColor: t.palette.negative_600,
+              backgroundColor: select(t.name, {
+                light: t.palette.negative_700,
+                dark: t.palette.negative_300,
+                dim: t.palette.negative_200,
+              }),
             })
           } else {
             baseStyles.push({
@@ -571,10 +588,25 @@ export const Button = forwardRef<View, ButtonProps>(
       [state, variant, color, size, shape, disabled],
     )
 
+    // northsky: give styled buttons (those that set `color` or an explicit
+    // `variant`) the spring "squish" feedback. Callers that pass an explicit
+    // `PressableComponent` override keep it untouched. Default-Pressable
+    // buttons always render `SquishyPressable` (with `squish` gating the
+    // animation) rather than switching component TYPE on `color`/`variant`,
+    // so toggling those props on a mounted Button never remounts its subtree.
+    const usesDefaultPressable = PressableComponent === Pressable
+    const ResolvedPressableComponent = usesDefaultPressable
+      ? SquishyPressable
+      : PressableComponent
+    const squishProps: {squish?: boolean} = usesDefaultPressable
+      ? {squish: Boolean(color || variantProp)}
+      : {}
+
     return (
-      <PressableComponent
+      <ResolvedPressableComponent
         role="button"
         accessibilityHint={undefined} // optional
+        {...squishProps}
         {...rest}
         // @ts-ignore - this will always be a pressable
         ref={ref}
@@ -591,6 +623,10 @@ export const Button = forwardRef<View, ButtonProps>(
           a.justify_center,
           a.curve_continuous,
           baseStyles,
+          // northsky: web paints the primary-CTA gradient as a CSS backgroundImage
+          // (clipped by the pill's border-radius) - no expo LinearGradient DOM node
+          // or onLayout double-render per button. web() no-ops on native.
+          isSolidPrimaryFill && web({backgroundImage: PRIMARY_GRADIENT_CSS}),
           style,
           ...(state.hovered || state.pressed
             ? [hoverStyles, hoverStyleProp]
@@ -602,10 +638,22 @@ export const Button = forwardRef<View, ButtonProps>(
         onHoverOut={onHoverOut}
         onFocus={onFocus}
         onBlur={onBlur}>
+        {/* northsky: brand gradient CTA fill. Native renders a GradientFill node
+            behind the label (zIndex -1, clipped by overflow_hidden); web paints
+            the same gradient as a CSS backgroundImage on the pressable (see style
+            above) so high-cardinality lists (Follow buttons) add no extra DOM node
+            or onLayout re-render per button - matching the node-free CSS trick used
+            for menus/dialogs/nav. */}
+        {isSolidPrimaryFill && !IS_WEB && (
+          <GradientFill
+            gradient={tokens.gradients.primary}
+            style={{zIndex: -1}}
+          />
+        )}
         <Context.Provider value={context}>
           {typeof children === 'function' ? children(context) : children}
         </Context.Provider>
-      </PressableComponent>
+      </ResolvedPressableComponent>
     )
   },
 )
@@ -625,7 +673,18 @@ export function useSharedButtonTextStyles() {
     if (variant === 'solid') {
       if (color === 'primary') {
         if (!disabled) {
-          baseStyles.push({color: t.palette.white})
+          // northsky: white label on the brand gradient CTA fill, in every theme
+          // (matches the pronouns app - white on magenta->mint). The mint tail of
+          // the ramp is near-white (~1.3:1 vs white) and even the mid periwinkle
+          // stop is ~3.3:1, both below the 4.5:1 AA threshold for these
+          // normal-weight labels, so add a soft ink text-shadow scrim to keep
+          // white legible across the whole gradient.
+          baseStyles.push({
+            color: t.palette.white,
+            textShadowColor: 'rgba(31, 11, 53, 0.45)',
+            textShadowOffset: {width: 0, height: 1},
+            textShadowRadius: 3,
+          })
         } else {
           baseStyles.push({
             color: select(t.name, {

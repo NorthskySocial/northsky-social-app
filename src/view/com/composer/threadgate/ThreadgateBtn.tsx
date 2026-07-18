@@ -23,6 +23,7 @@ import {Earth_Stroke2_Corner0_Rounded as EarthIcon} from '#/components/icons/Glo
 import {Group3_Stroke2_Corner0_Rounded as GroupIcon} from '#/components/icons/Group'
 import * as Tooltip from '#/components/Tooltip'
 import {useAnalytics} from '#/analytics'
+import {GradientPill} from '#/brand/GradientPill' // northsky: gradient-ring control
 import {IS_NATIVE} from '#/env'
 import {useThreadgateNudged} from '#/storage/hooks/threadgate-nudged'
 
@@ -142,19 +143,26 @@ export function ThreadgateBtn({
         onVisibleChange={onDismissTooltip}
         position="top">
         <Tooltip.Target>
-          <Button
-            color={showTooltip ? 'primary_subtle' : 'secondary'}
-            size="small"
-            testID="openReplyGateButton"
-            onPress={onPress}
-            label={label}
-            accessibilityHint={l`Opens a dialog to choose who can interact with this post`}>
-            <ButtonIcon icon={anyoneCanInteract ? EarthIcon : GroupIcon} />
-            <ButtonText numberOfLines={1} maxFontSizeMultiplier={2}>
-              {label}
-            </ButtonText>
-            <ButtonIcon icon={TinyChevronIcon} size="2xs" />
-          </Button>
+          {/* northsky: frame the interaction control in the signature gradient
+              ring pill; the Button keeps its own press/a11y behavior. Clip the
+              interior so the Button's spring press-squish (scaleX 1.1) and its
+              opaque secondary/primary_subtle fill stay inside the ring instead
+              of momentarily painting over its left/right edges on press. */}
+          <GradientPill style={{overflow: 'hidden'}}>
+            <Button
+              color={showTooltip ? 'primary_subtle' : 'secondary'}
+              size="small"
+              testID="openReplyGateButton"
+              onPress={onPress}
+              label={label}
+              accessibilityHint={l`Opens a dialog to choose who can interact with this post`}>
+              <ButtonIcon icon={anyoneCanInteract ? EarthIcon : GroupIcon} />
+              <ButtonText numberOfLines={1} maxFontSizeMultiplier={2}>
+                {label}
+              </ButtonText>
+              <ButtonIcon icon={TinyChevronIcon} size="2xs" />
+            </Button>
+          </GradientPill>
         </Tooltip.Target>
         <Tooltip.BubbleText
           label={l`Psst! You can edit who can interact with this post.`}>

@@ -75,11 +75,11 @@ a[role='link'][data-no-underline='1']:hover {
   pointer-events: none;
 }
 .ProseMirror .mention {
-  color: #0085ff;
+  color: var(--link, #9a45ec); /* northsky: brand link color */
 }
 .ProseMirror a,
 .ProseMirror .autolink {
-  color: #0085ff;
+  color: var(--link, #9a45ec); /* northsky: brand link color */
 }
 /* OLLIE: TODO -- this is not accessible */
 /* Remove focus state on inputs */

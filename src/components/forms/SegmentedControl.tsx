@@ -113,7 +113,7 @@ export function Root<T extends string>({
         a.relative,
         a.flex_row,
         t.atoms.bg_contrast_50,
-        {borderRadius: 14},
+        a.rounded_full, // northsky: pill track
         a.curve_continuous,
         a.p_xs,
         style,
@@ -256,12 +256,12 @@ function Slider({x, width}: {x: number; width: number}) {
         a.absolute,
         a.curve_continuous,
         t.atoms.bg,
+        a.rounded_full, // northsky: pill thumb matches the track
         {
           top: 4,
           bottom: 4,
           left: 0,
           width,
-          borderRadius: 10,
         },
         // TODO: new arch supports boxShadow on native
         // in the meantime this is an attempt to get close

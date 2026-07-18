@@ -196,7 +196,7 @@ module.exports = function (_config) {
         adaptiveIcon: {
           foregroundImage: './assets/icon-android-foreground.png',
           monochromeImage: './assets/icon-android-monochrome.png',
-          backgroundColor: '#006AFF',
+          backgroundColor: brand.themeColor, // northsky: brand ink
         },
         googleServicesFile: './google-services.json',
         package: 'xyz.blueskyweb.app',
@@ -288,7 +288,7 @@ module.exports = function (_config) {
           'expo-notifications',
           {
             icon: './assets/icon-android-notification.png',
-            color: '#1185fe',
+            color: brand.primaryColor, // northsky: brand accent
             sounds: PLATFORM === 'ios' ? ['assets/dm.aiff'] : ['assets/dm.mp3'],
           },
         ],
@@ -311,18 +311,19 @@ module.exports = function (_config) {
         [
           'expo-font',
           {
+            // northsky: brand fonts (Geist body + MuseoModerno display) replace Inter
             fonts: [
-              './assets/fonts/inter/InterVariable.woff2',
-              './assets/fonts/inter/InterVariable-Italic.woff2',
-              // Android only
-              './assets/fonts/inter/Inter-Regular.otf',
-              './assets/fonts/inter/Inter-Italic.otf',
-              './assets/fonts/inter/Inter-Medium.otf',
-              './assets/fonts/inter/Inter-MediumItalic.otf',
-              './assets/fonts/inter/Inter-SemiBold.otf',
-              './assets/fonts/inter/Inter-SemiBoldItalic.otf',
-              './assets/fonts/inter/Inter-Bold.otf',
-              './assets/fonts/inter/Inter-BoldItalic.otf',
+              // Variable woff2 (iOS + web)
+              './assets/fonts/geist/Geist-Variable.woff2',
+              './assets/fonts/museomoderno/MuseoModerno-Variable.woff2',
+              './assets/fonts/museomoderno/MuseoModerno-Italic-Variable.woff2',
+              // Android only (static cuts)
+              './assets/fonts/geist/Geist-Regular.ttf',
+              './assets/fonts/geist/Geist-Medium.ttf',
+              './assets/fonts/geist/Geist-SemiBold.ttf',
+              './assets/fonts/geist/Geist-Bold.ttf',
+              './assets/fonts/museomoderno/MuseoModerno-SemiBold.ttf',
+              './assets/fonts/museomoderno/MuseoModerno-SemiBoldItalic.ttf',
             ],
           },
         ],
@@ -331,22 +332,22 @@ module.exports = function (_config) {
           {
             ios: {
               enableFullScreenImage_legacy: true, // iOS only
-              backgroundColor: '#006AFF', // primary_500
+              backgroundColor: '#FFFFFF', // northsky: brand light splash
               image: './assets/splash/splash.png',
               resizeMode: 'cover',
               dark: {
                 enableFullScreenImage_legacy: true, // iOS only
-                backgroundColor: '#002861', // primary_900
+                backgroundColor: brand.themeColor, // northsky: brand ink
                 image: './assets/splash/splash-dark.png',
                 resizeMode: 'cover',
               },
             },
             android: {
-              backgroundColor: '#006AFF', // primary_500
+              backgroundColor: brand.primaryColor, // northsky: brand accent (white logo needs a tinted bg)
               image: './assets/splash/android-splash-logo-white.png',
               imageWidth: 102, // even division of 306px
               dark: {
-                backgroundColor: '#002861', // primary_900
+                backgroundColor: brand.themeColor, // northsky: brand ink
                 image: './assets/splash/android-splash-logo-white.png',
                 imageWidth: 102,
               },

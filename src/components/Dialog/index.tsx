@@ -176,7 +176,9 @@ export function Outer({
     <BottomSheet
       ref={ref}
       // device-bezel radius when undefined
-      cornerRadius={IS_LIQUID_GLASS ? undefined : 20}
+      // northsky: brand xl radius (32px) for bottom-sheet corners, matching
+      // the web dialog's a.rounded_xl
+      cornerRadius={IS_LIQUID_GLASS ? undefined : tokens.borderRadius.xl}
       backgroundColor={t.atoms.bg.backgroundColor}
       {...nativeOptions}
       onSnapPointChange={onSnapPointChange}

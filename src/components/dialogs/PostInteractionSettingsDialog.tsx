@@ -52,6 +52,7 @@ import {Loader} from '#/components/Loader'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
+import {gradientBorderWeb} from '#/brand/gradients' // northsky: gradient-ring dialog frame
 import {IS_IOS} from '#/env'
 
 export type PostInteractionSettingsFormProps = {
@@ -110,11 +111,19 @@ export function PostInteractionSettingsControlledDialog({
 
 function DialogInner(props: Omit<PostInteractionSettingsFormProps, 'control'>) {
   const {_} = useLingui()
+  const t = useTheme()
 
   return (
     <Dialog.ScrollableInner
       label={_(msg`Edit post interaction settings`)}
-      style={[web({maxWidth: 400}), a.w_full]}>
+      // northsky: 2px magenta->mint gradient ring on this dialog's frame (web
+      // CSS trick, layered over Dialog.Inner's 32px corner -> interior 30). No-op
+      // on native, where the sheet keeps its native chrome.
+      style={[
+        web({maxWidth: 400}),
+        a.w_full,
+        gradientBorderWeb(t.atoms.bg.backgroundColor),
+      ]}>
       <Header />
       <PostInteractionSettingsForm {...props} />
       <Dialog.Close />
@@ -165,6 +174,7 @@ export function PostInteractionSettingsDialogControlledInner(
 ) {
   const ax = useAnalytics()
   const {_} = useLingui()
+  const t = useTheme()
   const {currentAccount} = useSession()
   const [isSaving, setIsSaving] = useState(false)
 
@@ -264,7 +274,12 @@ export function PostInteractionSettingsDialogControlledInner(
   return (
     <Dialog.ScrollableInner
       label={_(msg`Edit post interaction settings`)}
-      style={[web({maxWidth: 400}), a.w_full]}>
+      // northsky: gradient ring on this dialog's frame (web only, see DialogInner)
+      style={[
+        web({maxWidth: 400}),
+        a.w_full,
+        gradientBorderWeb(t.atoms.bg.backgroundColor),
+      ]}>
       {isLoading ? (
         <View
           style={[

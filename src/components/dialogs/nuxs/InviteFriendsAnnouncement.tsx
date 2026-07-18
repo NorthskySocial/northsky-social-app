@@ -99,8 +99,9 @@ function Announcement({
               a.relative,
               a.overflow_hidden,
               {
-                borderTopLeftRadius: a.rounded_md.borderRadius,
-                borderTopRightRadius: a.rounded_md.borderRadius,
+                // northsky: match 32px dialog/sheet corners
+                borderTopLeftRadius: a.rounded_xl.borderRadius,
+                borderTopRightRadius: a.rounded_xl.borderRadius,
               },
             ]}>
             {/* The image is the full header background; the tag sits on top of it. */}

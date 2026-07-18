@@ -62,7 +62,7 @@ export function Outer({children}: {children: React.ReactNode}) {
       style={[
         a.flex_1,
         a.p_lg,
-        a.rounded_md,
+        a.rounded_full, // northsky: stadium pill toast
         a.border,
         a.flex_row,
         a.gap_sm,

@@ -12,7 +12,7 @@ import {atoms as a, useBreakpoints, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
 import {useGlobalDialogsControlContext} from '#/components/dialogs/Context'
-import {Text} from '#/components/Typography'
+import {DisplayText} from '#/brand' // northsky: MuseoModerno display tagline
 import {IS_NATIVE} from '#/env'
 
 export function SigninDialog() {
@@ -61,7 +61,8 @@ function SigninDialogInner({}: {control: Dialog.DialogOuterProps['control']}) {
           </View>
         </View>
 
-        <Text
+        {/* northsky: brand display face; keep text_lg sizing for this tagline */}
+        <DisplayText
           style={[
             a.text_lg,
             a.text_center,
@@ -76,7 +77,7 @@ function SigninDialogInner({}: {control: Dialog.DialogOuterProps['control']}) {
           <Trans>
             Sign in or create your account to join the conversation!
           </Trans>
-        </Text>
+        </DisplayText>
 
         <View style={[a.flex_col, a.gap_md]}>
           <Button

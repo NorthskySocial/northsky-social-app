@@ -18,7 +18,7 @@ import {unstableCacheProfileView} from '#/state/queries/profile'
 import {useSession} from '#/state/session'
 import {Link} from '#/view/com/util/Link'
 import {PostMeta} from '#/view/com/util/PostMeta'
-import {atoms as a, useTheme} from '#/alf'
+import {atoms as a, tokens, useTheme} from '#/alf'
 import {useInteractionState} from '#/components/hooks/useInteractionState'
 import {GalleryBleed} from '#/components/images/Gallery'
 import {ContentHider} from '#/components/moderation/ContentHider'
@@ -28,6 +28,7 @@ import {isStandardSiteEmbed} from '#/components/Post/Embed/StandardSiteEmbed/uti
 import {RichText} from '#/components/RichText'
 import {Embed as StarterPackCard} from '#/components/StarterPack/StarterPackCard'
 import {SubtleHover} from '#/components/SubtleHover'
+import {GradientRing} from '#/brand/GradientRing' // northsky: gradient-ring quote frame
 // northsky: custom-lexicon rendering extension point
 import {CustomRecordRenderer} from '#/features/customRecords/CustomRecordRenderer'
 import * as bsky from '#/types/bsky'
@@ -356,45 +357,63 @@ export function QuoteEmbed({
     </>
   )
 
+  const frame = (
+    <ContentHider
+      modui={moderation?.ui('contentList')}
+      style={style}
+      activeStyle={[a.p_md, a.pt_sm]}
+      childContainerStyle={[a.pt_sm]}>
+      {({active}) => (
+        <>
+          {!active && !linkDisabled && (
+            <SubtleHover
+              native
+              hover={hover || pressed}
+              style={[a.rounded_md]}
+            />
+          )}
+          {linkDisabled ? (
+            <View style={[!active && a.p_md]} pointerEvents="none">
+              {contents}
+            </View>
+          ) : (
+            <Link
+              style={[!active && a.p_md]}
+              hoverStyle={t.atoms.border_contrast_high}
+              href={itemHref}
+              title={itemTitle}
+              onBeforePress={onBeforePress}
+              onPressIn={onPressIn}
+              onPressOut={onPressOut}>
+              {contents}
+            </Link>
+          )}
+        </>
+      )}
+    </ContentHider>
+  )
+
   return (
     <GalleryBleed>
       <View
         style={[viewContext !== PostEmbedViewContext.ChatMessage && a.mt_sm]}
         onPointerEnter={linkDisabled ? undefined : onPointerEnter}
         onPointerLeave={linkDisabled ? undefined : onPointerLeave}>
-        <ContentHider
-          modui={moderation?.ui('contentList')}
-          style={[a.rounded_md, a.border, t.atoms.border_contrast_low, style]}
-          activeStyle={[a.p_md, a.pt_sm]}
-          childContainerStyle={[a.pt_sm]}>
-          {({active}) => (
-            <>
-              {!active && !linkDisabled && (
-                <SubtleHover
-                  native
-                  hover={hover || pressed}
-                  style={[a.rounded_md]}
-                />
-              )}
-              {linkDisabled ? (
-                <View style={[!active && a.p_md]} pointerEvents="none">
-                  {contents}
-                </View>
-              ) : (
-                <Link
-                  style={[!active && a.p_md]}
-                  hoverStyle={t.atoms.border_contrast_high}
-                  href={itemHref}
-                  title={itemTitle}
-                  onBeforePress={onBeforePress}
-                  onPressIn={onPressIn}
-                  onPressOut={onPressOut}>
-                  {contents}
-                </Link>
-              )}
-            </>
-          )}
-        </ContentHider>
+        {/* northsky: 2px magenta->mint gradient ring replaces the hairline quote
+            frame border. Outer radius 16 (rounded_md), interior 14; the interior
+            View is overflow-clipped and sits on t.atoms.bg, masking the gradient
+            everywhere but the 2px ring. In a DM message bubble the quote already
+            inherits the bubble's rounded/squared frame plus a border_0 override,
+            so skip the ring there and let the caller's style drive the frame. */}
+        {viewContext === PostEmbedViewContext.ChatMessage ? (
+          frame
+        ) : (
+          <GradientRing
+            radius={tokens.borderRadius.md}
+            style={a.overflow_hidden}>
+            {frame}
+          </GradientRing>
+        )}
       </View>
     </GalleryBleed>
   )

@@ -18,11 +18,8 @@ type Props = {
 } & Omit<SvgProps, 'style'>
 
 /**
- * Northsky brand logomark.
- *
- * Renders the brand gradient by default. Pass a solid `fill` (e.g. "#fff") to
- * render a monochrome version for use on colored backgrounds, matching the
- * behavior callers expect from the upstream Bluesky `Logo`.
+ * Northsky logomark. Renders the brand gradient by default; pass a solid
+ * `fill` (e.g. "#fff") for a monochrome version on colored backgrounds.
  */
 export const BrandLogo = forwardRef(function BrandLogoImpl(props: Props, ref) {
   const {fill, style, ...rest} = props

@@ -85,6 +85,7 @@ import {Text} from '#/components/Typography'
 import {useAgeAssurance} from '#/ageAssurance'
 import {useAnalytics} from '#/analytics'
 import {type Events} from '#/analytics/metrics/types'
+import {navItemHoverWash} from '#/brand/gradients' // northsky: nav hover wash
 import {useActorStatus} from '#/features/liveNow'
 import {router} from '#/routes'
 import {PlatformInfo} from '../../../../modules/expo-bluesky-swiss-army'
@@ -454,7 +455,9 @@ function NavItem({
         a.outline_inset_1,
         a.transition_color,
       ]}
-      hoverStyle={t.atoms.bg_contrast_25}
+      // northsky: low-emphasis brand gradient wash on hover (pill-shaped via the
+      // item's own rounded_full) in place of the flat bg_contrast_25 tint.
+      hoverStyle={navItemHoverWash}
       // @ts-expect-error the function signature differs on web -prf
       onPress={onPressWrapped}
       href={href}
@@ -499,7 +502,7 @@ function NavItem({
                 {
                   top: '-10%',
                   left: count.length === 1 ? 12 : 8,
-                  backgroundColor: t.palette.primary_500,
+                  backgroundColor: t.palette.primary_400, // northsky: softer unread accent
                   color: t.palette.white,
                   lineHeight: a.text_sm.fontSize,
                   paddingHorizontal: 4,
@@ -517,7 +520,7 @@ function NavItem({
               a.rounded_full,
               a.z_20,
               {
-                backgroundColor: t.palette.primary_500,
+                backgroundColor: t.palette.primary_400, // northsky: softer unread accent
                 width: 8,
                 height: 8,
                 right: -2,

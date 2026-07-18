@@ -708,7 +708,7 @@ function MenuItem({icon, label, count, bold, onPress}: MenuItemProps) {
                       right: count.length === 1 ? 6 : 0,
                       paddingHorizontal: 4,
                       paddingVertical: 1,
-                      backgroundColor: t.palette.primary_500,
+                      backgroundColor: t.palette.primary_400, // northsky: softer unread accent
                     },
                   ]}>
                   <Text
