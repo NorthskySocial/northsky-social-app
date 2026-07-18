@@ -1,8 +1,8 @@
 name: Sync to internal repo
 
-# on:
-#   push:
-#     branches: [main]
+on:
+  push:
+    branches: [main]
 
 # The push to the internal repo uses the app token below, not the GITHUB_TOKEN
 permissions:
@@ -11,7 +11,7 @@ permissions:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    if: github.repository == 'bluesky-social/social-app'
+    if: false
     steps:
       - name: Checkout public repo
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0

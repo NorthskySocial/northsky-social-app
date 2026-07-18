@@ -1,9 +1,9 @@
 name: build-and-push-bskyweb-aws
-# on:
-#   workflow_dispatch:
-#   push:
-#     branches:
-#       - main
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 env:
   REGISTRY: ${{ secrets.AWS_ECR_REGISTRY_USEAST2_PACKAGES_REGISTRY }}
@@ -13,7 +13,7 @@ env:
 
 jobs:
   bskyweb-container-aws:
-    if: github.repository == 'bluesky-social/social-app'
+    if: false
     runs-on: ubuntu-latest
     permissions:
       contents: read
