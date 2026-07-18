@@ -155,9 +155,7 @@ export function ThreadgateBtn({
               testID="openReplyGateButton"
               onPress={onPress}
               label={label}
-              accessibilityHint={_(
-                msg`Opens a dialog to choose who can interact with this post`,
-              )}>
+              accessibilityHint={l`Opens a dialog to choose who can interact with this post`}>
               <ButtonIcon icon={anyoneCanInteract ? EarthIcon : GroupIcon} />
               <ButtonText numberOfLines={1} maxFontSizeMultiplier={2}>
                 {label}
