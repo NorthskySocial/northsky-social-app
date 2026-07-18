@@ -1,20 +1,16 @@
 name: build-and-push-bskyweb-ghcr
-# on:
-#   push:
-#     branches:
-#       - main
-#       - jake/bskyweb-additions
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
 env:
   REGISTRY: ghcr.io
-  USERNAME: ${{ github.actor }}
-  PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-
-  # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   bskyweb-container-ghcr:
-    if: github.repository == 'bluesky-social/social-app'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -32,8 +28,8 @@ jobs:
         uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ env.USERNAME }}
-          password: ${{ env.PASSWORD }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract Docker metadata
         id: meta
@@ -55,3 +51,33 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy_app:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    needs: bskyweb-container-ghcr
+    steps:
+      - name: Trigger release through webhook
+        uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # v4.0.1
+        with:
+          token: ${{ secrets.DEPLOYMENT_WEBHOOK_TOKEN }}
+          repository: ${{ secrets.DEPLOYMENT_WEBHOOK_REPOSITORY }}
+          event-type: restart-northsky-social-app
+
+  notify_deployment:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    needs: deploy_app
+    steps:
+      - name: Wait for successful deployment
+        run: sleep 30s
+
+      - name: Notify Discord of successful deployment
+        uses: rjstone/discord-webhook-notify@c2597273488aeda841dd1e891321952b51f7996f # v2.2.1
+        with:
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+          severity: info
+          username: 'Github Actions deployment'
+          title: 'Northsky Social App deployment successful!'
+          description: 'Latest Northsky Social App build has been deployed successfully!'
+          details: 'Commit: ${{ github.event.head_commit.message }}'
