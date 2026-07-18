@@ -1,10 +1,10 @@
 ---
 name: Nightly Build
 
-# on:
-#   schedule:
-#     - cron: "10 2 * * *" # run at 2:10 AM UTC, after the nightly i18n job
-#   workflow_dispatch:
+on:
+  schedule:
+    - cron: "10 2 * * *" # run at 2:10 AM UTC, after the nightly i18n job
+  workflow_dispatch:
 
 # Deploys happen via EAS using EXPO_TOKEN; the GITHUB_TOKEN only checks out code
 permissions:
@@ -16,7 +16,7 @@ jobs:
   # (advanced by the record job below, only after both builds succeed).
   prepare:
     name: Prepare release notes
-    if: github.repository == 'bluesky-social/social-app'
+    if: false
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -73,6 +73,7 @@ jobs:
 
   ios:
     name: Nightly iOS Build
+    if: false
     needs: [prepare]
     uses: ./.github/workflows/build-submit-ios.yml
     with:
@@ -82,6 +83,7 @@ jobs:
 
   android:
     name: Nightly Android Build
+    if: false
     needs: [prepare]
     # build-submit-android.yml contains an attachToRelease job that requests contents: write.
     # That job is skipped for nightly (it needs a production tag build), but GitHub statically
@@ -95,6 +97,7 @@ jobs:
 
   notify-ios:
     name: Notify Slack of iOS nightly
+    if: false
     needs: [prepare, ios]
     runs-on: ubuntu-latest
     steps:
@@ -125,6 +128,7 @@ jobs:
 
   notify-android:
     name: Notify Slack of Android nightly
+    if: false
     needs: [prepare, android]
     runs-on: ubuntu-latest
     steps:
@@ -157,6 +161,7 @@ jobs:
   # roll into the next successful nightly's notes rather than being silently dropped.
   record:
     name: Record nightly commit
+    if: false
     needs: [ios, android]
     runs-on: ubuntu-latest
     steps:
