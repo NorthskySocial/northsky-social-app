@@ -76,6 +76,11 @@ jobs:
           fi
           echo "proceed=true" >> "$GITHUB_OUTPUT"
 
+        if: steps.check.outputs.proceed == 'true'
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 #v7.0.0
+        with:
+          node-version: '24'
+
       - name: Merge upstream and auto-resolve known conflicts
         id: merge
         if: steps.check.outputs.proceed == 'true'
@@ -120,6 +125,28 @@ jobs:
           done
           echo "auto_resolved=$(echo $RESOLVED | xargs echo)" >> "$GITHUB_OUTPUT"
 
+          # pnpm-lock.yaml conflicts are never worth hand-resolving: take
+          # upstream's side as the starting point and let pnpm reconcile it
+          # against the merged manifests. Only safe when the manifests the
+          # lockfile derives from are themselves conflict-free.
+          LOCK_REGENERATED=false
+          if git ls-files -u -- pnpm-lock.yaml | grep -q .; then
+            if git ls-files -u -- package.json pnpm-workspace.yaml | grep -q .; then
+              echo "pnpm-lock.yaml conflicts but so do its manifests; leaving for the reviewer."
+            else
+              git checkout --theirs -- pnpm-lock.yaml
+              corepack enable
+              if pnpm install --lockfile-only; then
+                git add -- pnpm-lock.yaml
+                LOCK_REGENERATED=true
+              else
+                echo "Lockfile regeneration failed; restoring conflict markers."
+                git checkout --merge -- pnpm-lock.yaml || true
+              fi
+            fi
+          fi
+          echo "lock_regenerated=$LOCK_REGENERATED" >> "$GITHUB_OUTPUT"
+
           # Anything still conflicted is left for the reviewer. We commit the
           # markers so the branch is pushable and the PR shows exactly what
           # needs hand-resolution (CI/typecheck below will also flag it).
@@ -142,12 +169,6 @@ jobs:
       # Best-effort verification so the reviewer gets a pass/fail signal even
       # though token-created PRs don't trigger the normal CI. Never blocks the
       # PR (continue-on-error); with conflict markers these are expected to fail.
-      - name: Setup Node
-        if: steps.check.outputs.proceed == 'true'
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 #v7.0.0
-        with:
-          node-version: '24'
-
       - name: Install deps
         id: install
         if: steps.check.outputs.proceed == 'true'
@@ -176,6 +197,7 @@ jobs:
           UP_SHA: ${{ steps.merge.outputs.upstream_sha }}
           CLEAN: ${{ steps.merge.outputs.clean }}
           AUTO_RESOLVED: ${{ steps.merge.outputs.auto_resolved }}
+          LOCK_REGENERATED: ${{ steps.merge.outputs.lock_regenerated }}
           CONFLICTS: ${{ steps.merge.outputs.conflicts }}
           GITHUB_DIR_SKIPPED: ${{ steps.merge.outputs.github_dir_skipped }}
           INSTALL_OUTCOME: ${{ steps.install.outcome }}
@@ -223,9 +245,12 @@ jobs:
             echo "- Typecheck: $(mark "$TYPECHECK_OUTCOME")"
             echo "- Lint: $(mark "$LINT_OUTCOME")"
             echo
-            if [ -n "$AUTO_RESOLVED" ]; then
+            if [ -n "$AUTO_RESOLVED" ] || [ "$LOCK_REGENERATED" = "true" ]; then
               echo "### Auto-resolved"
               for f in $AUTO_RESOLVED; do echo "- \`$f\` (kept our version)"; done
+              if [ "$LOCK_REGENERATED" = "true" ]; then
+                echo "- \`pnpm-lock.yaml\` (regenerated with pnpm from the merged manifests)"
+              fi
               echo
             fi
             if [ -n "$(printf '%s' "$GITHUB_DIR_SKIPPED" | tr -d '[:space:]')" ]; then
