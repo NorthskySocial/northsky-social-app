@@ -238,11 +238,11 @@ jobs:
       - name: 📎 Attach APK to GitHub Release
         id: attach
         if: ${{ steps.release-check.outputs.exists == 'true' }}
-        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3.0.1
-        with:
-          tag_name: ${{ github.ref_name }}
-          files: Bluesky-${{ needs.build.outputs.package-version }}.apk
-          fail_on_unmatched_files: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release upload "$TAG" "Bluesky-${{ needs.build.outputs.package-version }}.apk" --clobber
 
       - name: 🔔 Notify Slack of Release Attachment
         if: ${{ steps.release-check.outputs.exists == 'true' }}
