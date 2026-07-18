@@ -1,15 +1,15 @@
 /**
- * Northsky brand gradients.
- *
- * Same shape and keys as upstream's `gradients` in `@bsky.app/alf` /
- * `src/alf/tokens.ts` (each entry is `{values: [pos, hex][], hover_value}`), so
- * the consumers (`components/icons/common.tsx`, `components/GradientFill.tsx`,
- * `components/LinearGradientBackground.tsx`, `VerificationReminder.tsx`) need no
- * changes. Colors are the Northsky spectrum: the signature magenta->mint
- * (`primary`) plus a family of brand-tinted variants.
- *
- * `as const` preserves the narrow tuple types the consumers cast against.
+ * Same shape/keys as upstream's `gradients` (`@bsky.app/alf` /
+ * `src/alf/tokens.ts`) so consumers need no changes. `primary` is the
+ * signature magenta->mint; the rest are brand-tinted variants. `as const`
+ * preserves the narrow tuple types consumers cast against.
  */
+import {type ColorValue} from 'react-native'
+import {utils} from '@bsky.app/alf'
+
+import {web} from '#/alf/util/platform'
+import {NORTHSKY_LIGHT_PALETTE} from '#/brand/palette'
+
 export const gradients = {
   primary: {
     values: [
@@ -76,3 +76,49 @@ export const gradients = {
     hover_value: '#6B2FA4',
   },
 } as const
+
+/** expo-linear-gradient wants `colors`/`locations` as separate parallel arrays. */
+export function splitGradientStops(
+  values: readonly (readonly [number, string])[],
+): {
+  colors: [ColorValue, ColorValue, ...ColorValue[]]
+  locations: [number, number, ...number[]]
+} {
+  return {
+    colors: values.map(([, color]) => color) as [
+      ColorValue,
+      ColorValue,
+      ...ColorValue[],
+    ],
+    locations: values.map(([location]) => location) as [
+      number,
+      number,
+      ...number[],
+    ],
+  }
+}
+
+export const PRIMARY_GRADIENT_CSS = `linear-gradient(135deg, ${gradients.primary.values
+  .map(([pos, hex]) => `${hex} ${Math.round(pos * 100)}%`)
+  .join(', ')})`
+
+/** `background` shorthand is required: `padding-box`/`border-box` are invalid in `background-image`. */
+export function gradientBorderWeb(bgColor: string, width = 2) {
+  return web({
+    background: `linear-gradient(${bgColor}, ${bgColor}) padding-box, ${PRIMARY_GRADIENT_CSS} border-box`,
+    borderWidth: width,
+    borderColor: 'transparent',
+    borderStyle: 'solid',
+  })
+}
+
+const navWashStops = gradients.primary.values
+export const navItemHoverWash = {
+  backgroundColor: utils.alpha(NORTHSKY_LIGHT_PALETTE.primary_500, 0.1),
+  ...web({
+    backgroundImage: `linear-gradient(135deg, ${utils.alpha(
+      navWashStops[0][1],
+      0.12,
+    )}, ${utils.alpha(navWashStops[navWashStops.length - 1][1], 0.12)})`,
+  }),
+}

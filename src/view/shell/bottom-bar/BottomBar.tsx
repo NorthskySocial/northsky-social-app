@@ -419,7 +419,7 @@ function Btn({
           style={[
             styles.notificationCount,
             a.rounded_full,
-            {backgroundColor: t.palette.primary_500},
+            {backgroundColor: t.palette.primary_400}, // northsky: softer unread accent
           ]}>
           <Text
             style={styles.notificationCountLabel}
@@ -429,7 +429,8 @@ function Btn({
         </View>
       ) : hasNew ? (
         <View
-          style={[styles.hasNewBadge, {backgroundColor: t.palette.primary_500}]}
+          // northsky: softer unread accent
+          style={[styles.hasNewBadge, {backgroundColor: t.palette.primary_400}]}
         />
       ) : null}
     </PressableScale>

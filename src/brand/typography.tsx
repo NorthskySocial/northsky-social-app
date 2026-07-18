@@ -1,16 +1,8 @@
 /**
- * Northsky brand typography.
- *
- * `DisplayText` renders MuseoModerno italic display copy for hero surfaces
- * (onboarding titles, the logged-out splash headline). It is a thin wrapper
- * around the app's `Text` that stamps only the `NS_DISPLAY_FONT` sentinel;
- * `applyFonts` (via `normalizeTextStyles`) intercepts it and `applyDisplayFont`
- * resolves the real MuseoModerno family together with the brand weight/italic
- * (600 / italic). Font scaling still runs (it happens before `applyFonts`), so
- * display text respects the user's size preference.
- *
- * The baked-in `text_3xl` is a default - callers can override the size by
- * passing their own text atom in `style` (it lands after and wins).
+ * MuseoModerno italic display text for hero surfaces (onboarding, splash
+ * headline). Stamps the `NS_DISPLAY_FONT` sentinel that `applyFonts`
+ * intercepts and `applyDisplayFont` resolves to the real font/weight/italic.
+ * `text_3xl` is just a default - pass your own text atom in `style` to override.
  */
 import {type TextStyle} from 'react-native'
 

@@ -1,15 +1,11 @@
 import identity from './brand.json'
 
 /**
- * Northsky brand configuration. This is the single source of truth for all
- * brand-specific identity, service, and feed values, so the surrounding
- * upstream files stay as close to `bluesky-social/social-app` as possible and
- * upstream merges stay cheap. See `src/brand/README.md`.
- *
- * Identity values live in `brand.json` because `app.config.js` (CommonJS) reads
- * them via `require` without a TS/ESM interop step. Runtime values are declared
- * here `as const` so consumers that depend on their literal types keep working
- * (e.g. `typeof BSKY_SERVICE` in upstream's ServerInput dialog).
+ * Single source of truth for brand identity, service, and feed values. See
+ * `src/brand/README.md`. Identity lives in `brand.json` since `app.config.js`
+ * (CommonJS) needs it via `require`; runtime values are `as const` here so
+ * consumers relying on literal types keep working (e.g. upstream's
+ * ServerInput dialog).
  */
 export const BRAND = {
   ...identity,

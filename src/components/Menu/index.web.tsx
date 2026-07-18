@@ -31,6 +31,7 @@ import {
 } from '#/components/Menu/types'
 import {Portal} from '#/components/Portal'
 import {Text} from '#/components/Typography'
+import {gradientBorderWeb} from '#/brand/gradients' // northsky: gradient-ring dropdown
 
 export {type DialogControlProps as MenuControlProps} from '#/components/Dialog'
 
@@ -207,10 +208,15 @@ export function Outer({
           style={[
             a.rounded_lg, // northsky: 20px dropdown corners
             a.p_xs,
-            a.border,
-            t.name === 'light' ? t.atoms.bg : t.atoms.bg_contrast_25,
+            // northsky: 2px magenta->mint gradient ring in place of the hairline
+            // border (padding-box fill + border-box gradient). No extra DOM node,
+            // so Radix's positioning/measure of Content is untouched. Interior
+            // radius resolves to 18 (20 outer - 2 ring).
+            gradientBorderWeb(
+              (t.name === 'light' ? t.atoms.bg : t.atoms.bg_contrast_25)
+                .backgroundColor,
+            ),
             t.atoms.shadow_md,
-            t.atoms.border_contrast_low,
             a.overflow_auto,
             !reduceMotionEnabled && a.zoom_fade_in,
             style,

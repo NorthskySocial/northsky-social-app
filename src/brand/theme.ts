@@ -1,15 +1,8 @@
 /**
- * Northsky brand themes.
- *
- * Built with ALF's `createTheme` directly from the three hand-authored brand
- * palettes (`palette.ts`) rather than upstream's `createThemes`, because
- * upstream forces `dark = invertPalette(light)` - which can't express the
- * Northsky purple-in-light / mint-in-dark accent or a distinct hand-authored
- * dim.
- *
- * `src/alf/themes.ts` re-points ALF's `themes` at these (one tagged edit), so
- * every consumer - ALF, the legacy `usePalette` files, the theme-color meta tag
- * - picks up the brand automatically.
+ * Built with ALF's `createTheme` directly from the three brand palettes,
+ * rather than upstream's `createThemes` (which forces `dark =
+ * invertPalette(light)` and can't express purple-in-light / mint-in-dark).
+ * `src/alf/themes.ts` re-points at `brandThemes` so all consumers pick it up.
  */
 import {createTheme, type Theme, utils} from '@bsky.app/alf'
 
@@ -20,11 +13,11 @@ import {
 } from './palette'
 
 /**
- * Rebuild the five `shadow_*` atoms to the pronouns shadow language. `soft`
- * opacity covers xs/sm/md, `strong` covers lg/xl. The `boxShadow` strings match
- * upstream's format (`@bsky.app/alf/dist/themes.js`). Natively we set an opaque
- * `shadowColor` plus an explicit `shadowOpacity`; the alpha'd colors are used
- * only inside the web `boxShadow` strings.
+ * Rebuilds the five `shadow_*` atoms to the brand shadow language: `soft`
+ * opacity covers xs/sm/md, `strong` covers lg/xl. `boxShadow` format matches
+ * upstream (`@bsky.app/alf/dist/themes.js`); native gets an opaque
+ * `shadowColor` + `shadowOpacity` instead, since alpha'd colors are only used
+ * in the web boxShadow strings.
  */
 function applyShadows(
   theme: Theme,
@@ -106,11 +99,7 @@ const dim = applyShadows(
   0.55,
 )
 
-/**
- * Brand themes. Shape matches upstream `createThemes` plus the deprecated
- * `*Palette` accessors, so `src/alf/themes.ts`, `src/brand/index.ts`,
- * `App.tsx`, and `App.web.tsx` need no changes.
- */
+/** Shape matches upstream `createThemes`'s output, so consumers need no changes. */
 export const brandThemes = {
   light,
   dark,

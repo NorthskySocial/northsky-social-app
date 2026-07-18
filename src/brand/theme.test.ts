@@ -8,12 +8,9 @@ import {
 } from './palette'
 import {brandThemes} from './theme'
 
-// northsky: applyShadows (theme.ts) re-hardcodes the five shadow_* boxShadow
-// geometry strings that ALF's createTheme also emits, swapping only the color
-// so the brand can use an ink/deeper base and a two-tier soft/strong opacity
-// that createTheme's single shadowOpacity option cannot express. ALF exports no
-// geometry constant to import, so this test fails loudly if an upstream bump
-// changes the shadow geometry, forcing us to re-sync the copied strings.
+// applyShadows (theme.ts) re-hardcodes createTheme's shadow_* boxShadow geometry
+// (ALF exports no constant for it), swapping only the color. This fails loudly
+// if an upstream bump changes that geometry, so we know to re-sync it.
 const SHADOW_ATOMS = [
   'shadow_xs',
   'shadow_sm',

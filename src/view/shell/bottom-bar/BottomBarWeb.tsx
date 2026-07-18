@@ -328,7 +328,7 @@ const NavItem: React.FC<{
           style={[
             styles.notificationCount,
             styles.notificationCountWeb,
-            {backgroundColor: t.palette.primary_500},
+            {backgroundColor: t.palette.primary_400}, // northsky: softer unread accent
           ]}
           aria-label={_(
             msg`${plural(notificationCount, {
@@ -340,7 +340,8 @@ const NavItem: React.FC<{
         </View>
       ) : hasNew ? (
         <View
-          style={[styles.hasNewBadge, {backgroundColor: t.palette.primary_500}]}
+          // northsky: softer unread accent
+          style={[styles.hasNewBadge, {backgroundColor: t.palette.primary_400}]}
         />
       ) : null}
     </Link>

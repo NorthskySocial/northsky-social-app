@@ -1,41 +1,23 @@
 /**
- * Northsky brand palettes.
+ * The three ALF `Palette` objects (light/dark/dim), hand-authored to the
+ * Northsky design language. Dark is authored pre-inverted (`contrast_0` is
+ * the background) since these feed `createTheme` directly, not
+ * `invertPalette`; dim is a distinct softer dark, not a copy of dark.
  *
- * Three complete ALF `Palette` objects, hand-authored to the Northsky design
- * language (see `webapp/src/styles/theme.css` in northsky-pronouns):
- *
- * - **light**: white background, ink (`#1F0B35`) text, periwinkle-tinted grays,
- *   purple (`#9A45EC`) accent.
- * - **dark**: ink background, `#2B1548` raised surface, mint (`#2AFFBA`) accent.
- *   Authored pre-inverted (`contrast_0` is the darkest / the background) because
- *   we build these with `createTheme` directly rather than `invertPalette`.
- * - **dim**: a *distinct*, softer dark (lighter `#2B1548` base, lower contrast,
- *   softened mint), not a copy of dark.
- *
- * The `Palette` type makes any missing ramp key a compile error, which is why
- * every key is spelled out below.
- *
- * Provenance of the non-brand ramps:
- * - `positive_*` and the five static keys (white/black/pink/yellow/like) are
- *   derived directly from the package (`DEFAULT_PALETTE` /
- *   `DEFAULT_SUBDUED_PALETTE` / `invertPalette`) rather than copied, so they
- *   can never drift from upstream green: light = `DEFAULT_PALETTE`, dark =
- *   `invertPalette(DEFAULT_PALETTE)`, dim =
- *   `invertPalette(DEFAULT_SUBDUED_PALETTE)`.
- * - `negative_*` are the Northsky error red `#E5484D` expanded to a full ramp
- *   (dark = the light ramp reversed; dim = an independently softened ramp).
+ * `positive_*` and the static keys (white/black/pink/yellow/like) are pulled
+ * live from the package (`DEFAULT_PALETTE`/`DEFAULT_SUBDUED_PALETTE`/
+ * `invertPalette`) so they never drift from upstream green. `negative_*` is
+ * the Northsky error red expanded to a full ramp.
  */
 import {type Palette} from '@bsky.app/alf'
-// northsky: pull the copied ramps straight from the package so they cannot
-// drift. `invertPalette`/`DEFAULT_*` are not re-exported from the package root,
-// so we reach into the `palette` module directly.
+// northsky: not re-exported from the package root, so reach into `palette` directly.
 import {
   DEFAULT_PALETTE,
   DEFAULT_SUBDUED_PALETTE,
   invertPalette,
 } from '@bsky.app/alf/dist/palette'
 
-// The five theme-invariant keys, taken verbatim from the package.
+// Theme-invariant keys, taken verbatim from the package.
 const STATIC = {
   white: DEFAULT_PALETTE.white,
   black: DEFAULT_PALETTE.black,
@@ -44,8 +26,6 @@ const STATIC = {
   like: DEFAULT_PALETTE.like,
 }
 
-// The 13 positive_* keys of a package palette, so success states follow
-// upstream green.
 type PositiveRamp = Pick<
   Palette,
   | 'positive_25'
