@@ -1,19 +1,15 @@
-# northsky: opens a PR syncing this fork with bluesky-social/social-app.
+# northsky: syncs this fork with bluesky-social/social-app.
 #
-# It merges upstream/main into a rolling sync branch, auto-resolves the few
-# conflicts we always resolve the same way (see KEEP_OURS), and opens/updates a
-# single PR describing the sync: how many upstream commits and files changed,
-# which of our customized files upstream touched (the conflict-risk surface),
-# the largest incoming changes, and a best-effort typecheck/lint result so the
-# reviewer has less to do.
+# Merges upstream/main into a rolling sync branch, auto-resolves the conflicts
+# we always resolve the same way, and opens a PR summarizing the sync plus a
+# best-effort verification result.
 #
-# See AGENTS.md "Upstream sync strategy" for the manual equivalent.
+# Manual equivalent: AGENTS.md "Upstream sync strategy".
 name: Sync upstream
 
 on:
   schedule:
-    # Every ~4 days. Cron day-of-month resets each month, so runs land on days
-    # 1, 5, 9, 13, 17, 21, 25, 29 (a slightly longer gap at month boundaries).
+    # Days 1, 5, 9, 13, 17, 21, 25, 29 of each month.
     - cron: '0 6 */4 * *'
   workflow_dispatch: {}
 
@@ -30,8 +26,7 @@ env:
   UPSTREAM_BRANCH: main
   BASE_BRANCH: main
   SYNC_BRANCH: automated/upstream-sync
-  # Files we always keep OUR version of on conflict. Only list files we
-  # deliberately own (never upstream code we want to receive).
+  # Files we always keep OUR version of on conflict.
   KEEP_OURS: CLAUDE.md
 
 jobs:
@@ -66,8 +61,7 @@ jobs:
             echo "proceed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          # Don't clobber an in-progress review: if a sync PR is already open,
-          # leave it alone and let a human land it first.
+          # Skip if a sync PR is already open, so review isn't clobbered.
           OPEN=$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$SYNC_BRANCH" --state open --json number -q '.[0].number' || true)
           if [ -n "$OPEN" ]; then
             echo "Sync PR #$OPEN is already open; skipping this run."
@@ -76,8 +70,7 @@ jobs:
           fi
           echo "proceed=true" >> "$GITHUB_OUTPUT"
 
-      # Node/pnpm are needed during the merge step to regenerate the lockfile
-      # on conflict, and again afterwards for best-effort verification.
+      # For lockfile regeneration during the merge, and verification after.
       - name: Setup Node
         if: steps.check.outputs.proceed == 'true'
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 #v7.0.0
@@ -99,17 +92,16 @@ jobs:
           git merge --no-ff --no-commit "upstream/$UPSTREAM_BRANCH"
           set -e
 
-          # Never take upstream's .github/ changes (workflows, issue
-          # templates, dependabot config, etc). GitHub blocks this token from
-          # pushing changes to workflow files outright, regardless of the
-          # `permissions:` block above, and we maintain our own CI setup that
-          # intentionally diverges from upstream's anyway. --no-overlay makes
-          # the directory match HEAD exactly, which also resolves any
-          # in-progress conflicts under .github/ in our favor.
+          # Always keep our .github/ - the token can't push workflow changes
+          # and our CI diverges from upstream's. reset+checkout+clean rather
+          # than `git checkout HEAD -- .github`, which can't resolve the
+          # modify/delete conflicts that skipping produces, and to drop
+          # upstream's new files before the `git add -A` below picks them up.
           GITHUB_DIR_SKIPPED=$(git diff --name-only HEAD -- .github | sort -u)
           if [ -n "$GITHUB_DIR_SKIPPED" ]; then
-            git checkout --no-overlay HEAD -- .github
-            git add -A -- .github
+            git reset -q -- .github
+            git checkout -f -- .github
+            git clean -fdq -- .github
           fi
           {
             echo "github_dir_skipped<<EOF"
@@ -128,10 +120,8 @@ jobs:
           done
           echo "auto_resolved=$(echo $RESOLVED | xargs echo)" >> "$GITHUB_OUTPUT"
 
-          # pnpm-lock.yaml conflicts are never worth hand-resolving: take
-          # upstream's side as the starting point and let pnpm reconcile it
-          # against the merged manifests. Only safe when the manifests the
-          # lockfile derives from are themselves conflict-free.
+          # Take upstream's lockfile and let pnpm reconcile it against the
+          # merged manifests. Only safe if those manifests merged cleanly.
           LOCK_REGENERATED=false
           if git ls-files -u -- pnpm-lock.yaml | grep -q .; then
             if git ls-files -u -- package.json pnpm-workspace.yaml | grep -q .; then
@@ -150,9 +140,8 @@ jobs:
           fi
           echo "lock_regenerated=$LOCK_REGENERATED" >> "$GITHUB_OUTPUT"
 
-          # Anything still conflicted is left for the reviewer. We commit the
-          # markers so the branch is pushable and the PR shows exactly what
-          # needs hand-resolution (CI/typecheck below will also flag it).
+          # Commit remaining conflicts with their markers, so the branch is
+          # pushable and the PR can list what needs hand-resolution.
           CONFLICTS=$(git diff --name-only --diff-filter=U || true)
           {
             echo "conflicts<<EOF"
@@ -169,9 +158,8 @@ jobs:
             git commit --no-verify -m "chore(northsky): sync upstream $(date -u +%Y-%m-%d) ($UP_SHA)"
           fi
 
-      # Best-effort verification so the reviewer gets a pass/fail signal even
-      # though token-created PRs don't trigger the normal CI. Never blocks the
-      # PR (continue-on-error); with conflict markers these are expected to fail.
+      # Best-effort verification - token-created PRs don't trigger normal CI.
+      # continue-on-error throughout: a failure still opens the PR.
       - name: Install deps
         id: install
         if: steps.check.outputs.proceed == 'true'
@@ -180,13 +168,9 @@ jobs:
           corepack enable
           pnpm install --frozen-lockfile
 
-      # `src/locale/locales/**/messages.ts` is generated and gitignored, so a
-      # fresh checkout has none. Without it every `./locales/*/messages` import
-      # is untyped, and typecheck/lint drown in TS2307 + no-unsafe-member-access
-      # errors that have nothing to do with the sync - a false red that trains
-      # reviewers to ignore this section. `lint.yml` compiles first for the same
-      # reason; `intl:compile` (not `intl:build`) so we never rewrite the .po
-      # sources that just came in from upstream.
+      # Compile the gitignored message catalogs, otherwise typecheck and lint
+      # fail on every missing `./locales/*/messages` import. intl:compile, not
+      # intl:build, to leave upstream's incoming .po files alone.
       - name: Compile i18n
         id: i18n
         if: steps.check.outputs.proceed == 'true' && steps.install.outcome == 'success'
