@@ -180,17 +180,36 @@ jobs:
           corepack enable
           pnpm install --frozen-lockfile
 
+      # `src/locale/locales/**/messages.ts` is generated and gitignored, so a
+      # fresh checkout has none. Without it every `./locales/*/messages` import
+      # is untyped, and typecheck/lint drown in TS2307 + no-unsafe-member-access
+      # errors that have nothing to do with the sync - a false red that trains
+      # reviewers to ignore this section. `lint.yml` compiles first for the same
+      # reason; `intl:compile` (not `intl:build`) so we never rewrite the .po
+      # sources that just came in from upstream.
+      - name: Compile i18n
+        id: i18n
+        if: steps.check.outputs.proceed == 'true' && steps.install.outcome == 'success'
+        continue-on-error: true
+        run: pnpm intl:compile
+
       - name: Typecheck
         id: typecheck
-        if: steps.check.outputs.proceed == 'true' && steps.install.outcome == 'success'
+        if: steps.check.outputs.proceed == 'true' && steps.i18n.outcome == 'success'
         continue-on-error: true
         run: pnpm typecheck
 
       - name: Lint
         id: lint
-        if: steps.check.outputs.proceed == 'true' && steps.install.outcome == 'success'
+        if: steps.check.outputs.proceed == 'true' && steps.i18n.outcome == 'success'
         continue-on-error: true
         run: pnpm lint
+
+      - name: Test
+        id: test
+        if: steps.check.outputs.proceed == 'true' && steps.i18n.outcome == 'success'
+        continue-on-error: true
+        run: pnpm test
 
       - name: Build PR body
         id: body
@@ -204,8 +223,10 @@ jobs:
           CONFLICTS: ${{ steps.merge.outputs.conflicts }}
           GITHUB_DIR_SKIPPED: ${{ steps.merge.outputs.github_dir_skipped }}
           INSTALL_OUTCOME: ${{ steps.install.outcome }}
+          I18N_OUTCOME: ${{ steps.i18n.outcome }}
           TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
           LINT_OUTCOME: ${{ steps.lint.outcome }}
+          TEST_OUTCOME: ${{ steps.test.outcome }}
         run: |
           set -euo pipefail
           RANGE="origin/$BASE_BRANCH...upstream/$UPSTREAM_BRANCH"
@@ -245,8 +266,10 @@ jobs:
             echo
             echo "### Verification (best-effort)"
             echo "- Install: $(mark "$INSTALL_OUTCOME")"
+            echo "- Compile i18n: $(mark "$I18N_OUTCOME")"
             echo "- Typecheck: $(mark "$TYPECHECK_OUTCOME")"
             echo "- Lint: $(mark "$LINT_OUTCOME")"
+            echo "- Test: $(mark "$TEST_OUTCOME")"
             echo
             if [ -n "$AUTO_RESOLVED" ] || [ "$LOCK_REGENERATED" = "true" ]; then
               echo "### Auto-resolved"
