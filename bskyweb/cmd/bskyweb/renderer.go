@@ -8,9 +8,18 @@ import (
 	"io"
 	"path/filepath"
 
+	"github.com/bluesky-social/social-app/bskyweb/brand"
 	"github.com/flosch/pongo2/v6"
 	"github.com/labstack/echo/v4"
 )
+
+// northsky: brand identity available to every template, so no template has to
+// hardcode the brand name
+func applyBrandGlobals(globals pongo2.Context) {
+	globals["appName"] = brand.AppName
+	globals["ogSiteName"] = brand.OgSiteName
+	globals["twitterHandle"] = brand.TwitterHandle
+}
 
 type RendererLoader struct {
 	prefix string
@@ -48,8 +57,12 @@ type Renderer struct {
 }
 
 func NewRenderer(prefix string, fs *embed.FS, debug bool) *Renderer {
+	set := pongo2.NewSet(prefix, NewRendererLoader(prefix, fs))
+	// northsky: keep brand values out of the templates themselves
+	applyBrandGlobals(set.Globals)
+	applyBrandGlobals(pongo2.Globals)
 	return &Renderer{
-		TemplateSet: pongo2.NewSet(prefix, NewRendererLoader(prefix, fs)),
+		TemplateSet: set,
 		Debug:       debug,
 	}
 }

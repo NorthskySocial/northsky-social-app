@@ -2,14 +2,14 @@
 
 {% block head_title %}
 {%- if profileView -%}
-  @{{ profileView.Handle }} on Bluesky
+  @{{ profileView.Handle }} on {{ appName }}
 {%- else -%}
-  Bluesky
+  {{ appName }}
 {%- endif -%}
 {% endblock %}
 
 {% block html_head_extra -%}
-  <meta property="og:site_name" content="Bluesky Social">
+  <meta property="og:site_name" content="{{ ogSiteName }}">
   <meta property="og:type" content="profile">
 {%- if requestURI %}
   {% if canonicalURL %}
@@ -56,7 +56,7 @@
     <meta property="og:description" content="This profile requires authentication to view.">
     <meta property="twitter:description" content="This profile requires authentication to view.">
   {% endif %}
-  
+
   {%- if profileJSONLD %}
   <script type="application/ld+json">{{ profileJSONLD|safe }}</script>
   {% endif -%}

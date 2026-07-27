@@ -9,7 +9,7 @@
   -->
   <link rel="preconnect" href="https://bsky.social">
   <link rel="preconnect" href="https://go.bsky.app">
-  <title>{%- block head_title -%}Bluesky{%- endblock -%}</title>
+  <title>{%- block head_title -%}{{ appName }}{%- endblock -%}</title>
 
   <!-- Hello Humans! API docs at https://atproto.com -->
 
@@ -155,12 +155,12 @@
   <!-- northsky: brand accent -->
   <link rel="mask-icon" href="{{ staticCDNHost }}/static/safari-pinned-tab.svg" color="#9A45EC">
   <meta name="theme-color">
-  <meta name="application-name" content="Bluesky">
+  <meta name="application-name" content="{{ appName }}">
   <meta name="generator" content="bskyweb">
   {% if noindex %}<meta name="robots" content="noindex{% if nofollow %}, nofollow{% endif %}">{% endif %}
-  <meta property="og:site_name" content="Bluesky Social">
+  <meta property="og:site_name" content="{{ ogSiteName }}">
   <meta property="og:logo" content="{{ favicon }}">
-  <meta name="twitter:site" content="@bluesky" />
+  <meta name="twitter:site" content="{{ twitterHandle }}" />
   <link type="application/activity+json" href="" />
 
   {% block html_head_extra -%}{%- endblock %}
