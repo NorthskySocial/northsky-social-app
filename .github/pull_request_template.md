@@ -18,8 +18,7 @@ and upstream sync strategy.
       visually).
 - [ ] Gates pass locally: `pnpm typecheck`, `pnpm lint`, `pnpm prettier`,
       `pnpm test`.
-- [ ] No `Co-Authored-By: Claude` trailer; original fork authors credited where
-      code was ported.
+- [ ] AI assisted code has been reviewed by a human
 
 <!--
 Upstream sync PRs are opened automatically by
