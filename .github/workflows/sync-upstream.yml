@@ -331,4 +331,5 @@ jobs:
             --head "$SYNC_BRANCH" \
             --title "$TITLE" \
             --body-file pr-body.md \
-            --label "$LABELS"
+            --label "$LABELS" \
+            --reviewer "Ashex"
