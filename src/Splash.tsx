@@ -14,12 +14,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
-<<<<<<< HEAD
 import {type SvgProps} from 'react-native-svg'
-=======
-import Svg, {Path, type SvgProps} from 'react-native-svg'
 import {scheduleOnRN} from 'react-native-worklets'
->>>>>>> upstream/main
 import {Image} from 'expo-image'
 import * as SplashScreen from 'expo-splash-screen'
 

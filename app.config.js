@@ -56,12 +56,7 @@ module.exports = function (_config) {
       },
       icon: './assets/app-icons/ios_icon_default_next.png',
       userInterfaceStyle: 'automatic',
-<<<<<<< HEAD
       primaryColor: brand.primaryColor, // northsky: brand override
-      newArchEnabled: false,
-=======
-      primaryColor: '#006AFF',
->>>>>>> upstream/main
       ios: {
         supportsTablet: false,
         bundleIdentifier: 'xyz.blueskyweb.app',
