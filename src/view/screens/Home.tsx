@@ -3,7 +3,7 @@ import {ActivityIndicator, StyleSheet} from 'react-native'
 import {withSpring} from 'react-native-reanimated'
 import {useFocusEffect} from '@react-navigation/native'
 
-import {PROD_DEFAULT_FEED} from '#/lib/constants'
+import {DISCOVER_FEED_URI, PROD_DEFAULT_FEED} from '#/lib/constants'
 import {useNonReactiveCallback} from '#/lib/hooks/useNonReactiveCallback'
 import {useOTAUpdates} from '#/lib/hooks/useOTAUpdates'
 import {useSetTitle} from '#/lib/hooks/useSetTitle'
@@ -335,7 +335,8 @@ function HomeScreenReady({
         testID="customFeedPage"
         isPageFocused
         isPageAdjacent={false}
-        feed={`feedgen|${PROD_DEFAULT_FEED('whats-hot')}`}
+        // northsky: the logged-out (PWI) home must render the brand discover feed
+        feed={`feedgen|${DISCOVER_FEED_URI}`}
         renderEmptyState={renderCustomFeedEmptyState}
         feedInfo={pinnedFeedInfos[0]}
       />
