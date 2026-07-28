@@ -1,4 +1,6 @@
+import {BRAND} from '#/brand/config'
+
 export function bskyTitle(page: string, unreadCountLabel?: string) {
   const unreadPrefix = unreadCountLabel ? `(${unreadCountLabel}) ` : ''
-  return `${unreadPrefix}${page} — Bluesky`
+  return `${unreadPrefix}${page} — ${BRAND.appName}`
 }
