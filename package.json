@@ -1,6 +1,6 @@
 {
   "name": "bsky.app",
-  "version": "1.129.1",
+  "version": "1.130.0",
   "private": true,
   "engines": {
     "node": ">=24.18.0"
@@ -82,8 +82,8 @@
     "intl:compile": "lingui compile",
     "intl:compile-if-needed": "is-ci || [ -f src/locale/locales/en/messages.ts ] || pnpm intl:compile",
     "intl:pull": "crowdin download translations --verbose -b main",
-    "intl:push": "crowdin push translations --verbose -b main",
     "intl:push-sources": "crowdin push sources --verbose -b main",
+    "intl:dangerously-push-translations": "crowdin push translations --verbose -b main",
     "intl:release": "pnpm intl:pull && pnpm intl:extract:all",
     "nuke": "rm -rf ./node_modules && rm -rf ./ios && rm -rf ./android",
     "update-extensions": "bash scripts/updateExtensions.sh",
@@ -231,7 +231,7 @@
     "react-native-keyboard-controller": "^1.21.8",
     "react-native-mmkv": "^3.3.3",
     "react-native-pager-view": "6.8.0",
-    "react-native-progress": "bluesky-social/react-native-progress",
+    "react-native-progress": "^5.0.1",
     "react-native-qrcode-styled": "^0.3.3",
     "react-native-reanimated": "~4.3.2",
     "react-native-safe-area-context": "~5.6.0",
