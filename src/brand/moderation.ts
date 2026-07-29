@@ -16,17 +16,23 @@ const BLUESKY_TOS: HostTermsOfService = {
   tosUrl: 'https://bsky.social/about/support/tos',
 }
 
-const KNOWN_HOSTS: Record<string, HostTermsOfService> = {
-  'northsky.social': {
-    name: 'Northsky Social',
-    tosUrl: BRAND.termsOfServiceUrl,
-  },
-  'blacksky.social': {
-    name: 'Blacksky',
-    tosUrl: 'https://blackskyweb.xyz/about/support/tos/',
-  },
-  'bsky.social': BLUESKY_TOS,
-}
+const KNOWN_HOSTS = new Map<string, HostTermsOfService>([
+  [
+    'northsky.social',
+    {
+      name: 'Northsky Social',
+      tosUrl: BRAND.termsOfServiceUrl,
+    },
+  ],
+  [
+    'blacksky.social',
+    {
+      name: 'Blacksky',
+      tosUrl: 'https://blackskyweb.xyz/about/support/tos/',
+    },
+  ],
+  ['bsky.social', BLUESKY_TOS],
+])
 
 /**
  * Resolve the operator name and ToS URL for the given account service URL.
@@ -38,7 +44,7 @@ export function getHostTermsOfService(
   if (serviceUrl) {
     try {
       const host = new URL(serviceUrl).hostname
-      const known = KNOWN_HOSTS[host]
+      const known = KNOWN_HOSTS.get(host)
       if (known) {
         return known
       }

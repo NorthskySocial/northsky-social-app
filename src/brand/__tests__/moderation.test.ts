@@ -31,6 +31,18 @@ describe('getHostTermsOfService', () => {
     expect(result.name).toBe('Bluesky Social')
   })
 
+  it('falls back for prototype-key hostnames instead of leaking Object.prototype', () => {
+    for (const url of [
+      'https://__proto__/',
+      'https://constructor/',
+      'https://hasownproperty/',
+    ]) {
+      const result = getHostTermsOfService(url)
+      expect(result.name).toBe('Bluesky Social')
+      expect(result.tosUrl).toBe('https://bsky.social/about/support/tos')
+    }
+  })
+
   it('falls back for missing or unparseable service URLs', () => {
     expect(getHostTermsOfService(undefined).name).toBe('Bluesky Social')
     expect(getHostTermsOfService('not a url').name).toBe('Bluesky Social')
