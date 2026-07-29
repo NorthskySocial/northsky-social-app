@@ -9,7 +9,10 @@ import {
 import {Plural, Trans, useLingui} from '@lingui/react/macro'
 
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
-import {useTrendingSettings} from '#/state/preferences/trending'
+import {
+  useTrendingSettings,
+  useTrendingSettingsApi,
+} from '#/state/preferences/trending'
 import {useGetTrendsQuery} from '#/state/queries/trending/useGetTrendsQuery'
 import {useTrendingConfig} from '#/state/service-config'
 import {LoadingPlaceholder} from '#/view/com/util/LoadingPlaceholder'
@@ -18,8 +21,10 @@ import {atoms as a, useGutters, useTheme, type ViewStyleProp} from '#/alf'
 import {AvatarStack} from '#/components/AvatarStack'
 import {Trending3_Stroke2_Corner1_Rounded as TrendingIcon} from '#/components/icons/Trending'
 import {Link} from '#/components/Link'
+import * as Prompt from '#/components/Prompt'
 import {RichText} from '#/components/RichText'
 import {SubtleHover} from '#/components/SubtleHover'
+import {useTrendingTopicSeen} from '#/components/TrendingTopics'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import * as ModuleHeader from '../components/ModuleHeader'
@@ -36,6 +41,9 @@ export function ExploreTrendingTopics() {
 
 function Inner() {
   const ax = useAnalytics()
+  const {t: l} = useLingui()
+  const trendingPrompt = Prompt.usePromptControl()
+  const {setTrendingDisabled} = useTrendingSettingsApi()
   const {data: trending, error, isLoading, isRefetching} = useGetTrendsQuery()
   const noTopics = !isLoading && !error && !trending?.trends?.length
   const showLoading = isLoading || isRefetching
@@ -43,42 +51,62 @@ function Inner() {
   if (!showLoading && (error || !trending?.trends || noTopics)) return null
 
   return (
-    <View style={[a.pb_md]}>
-      <ModuleHeader.Container bottomBorder>
-        <ModuleHeader.Icon icon={TrendingIcon} size="md" />
-        <ModuleHeader.TitleText>
-          <Trans>Trending</Trans>
-        </ModuleHeader.TitleText>
-      </ModuleHeader.Container>
-      {showLoading
-        ? Array.from({length: TOPIC_COUNT}).map((__, i) => (
-            <TrendingTopicRowSkeleton key={i} />
-          ))
-        : trending?.trends.map((trend, index) => (
-            <TrendRow
-              key={trend.link}
-              trend={trend}
-              rank={index + 1}
-              onPress={() => {
-                ax.metric('trendingTopic:click', {
-                  context: 'explore',
-                  recId: trending.recId,
-                })
-              }}
-            />
-          ))}
-    </View>
+    <>
+      <View style={[a.pb_md]}>
+        <ModuleHeader.Container bottomBorder>
+          <ModuleHeader.Icon icon={TrendingIcon} size="md" />
+          <ModuleHeader.TitleText>
+            <Trans>Trending</Trans>
+          </ModuleHeader.TitleText>
+          <ModuleHeader.EllipsisButton
+            label={l`Trending options`}
+            onPress={() => trendingPrompt.open()}
+          />
+        </ModuleHeader.Container>
+        {showLoading
+          ? Array.from({length: TOPIC_COUNT}).map((__, i) => (
+              <TrendingTopicRowSkeleton key={i} />
+            ))
+          : trending?.trends.map((trend, index) => (
+              <TrendRow
+                key={trend.link}
+                trend={trend}
+                rank={index + 1}
+                recId={trending.recId}
+                onPress={() => {
+                  ax.metric('trendingTopic:click', {
+                    context: 'explore',
+                    recId: trending.recId,
+                  })
+                }}
+              />
+            ))}
+      </View>
+
+      <Prompt.Basic
+        control={trendingPrompt}
+        title={l`Hide trending topics?`}
+        description={l`You can update this later from your settings.`}
+        confirmButtonCta={l`Hide`}
+        onConfirm={() => {
+          ax.metric('trendingTopics:hide', {context: 'explore:trending'})
+          setTrendingDisabled(true)
+        }}
+      />
+    </>
   )
 }
 
 export function TrendRow({
   trend,
   rank,
+  recId,
   children,
   onPress,
 }: ViewStyleProp & {
   trend: AppBskyUnspeccedDefs.TrendView
   rank: number
+  recId?: string
   children?: React.ReactNode
   onPress?: () => void
 }) {
@@ -88,6 +116,7 @@ export function TrendRow({
 
   const actors = useModerateTrendingActors(trend.actors)
   const formattedPostCount = formatCount(i18n, trend.postCount)
+  useTrendingTopicSeen('explore', recId)
 
   const description = useMemo(() => {
     if (!trend.description) return
@@ -112,7 +141,7 @@ export function TrendRow({
           <View style={[gutters, a.w_full, a.flex_row, a.py_md, a.gap_sm]}>
             <Text
               style={[
-                a.text_sm,
+                a.text_md,
                 a.font_medium,
 
                 t.atoms.text_contrast_low,
@@ -126,7 +155,7 @@ export function TrendRow({
             </Text>
             <View style={[a.flex_1, a.gap_2xs]}>
               <Text
-                style={[a.text_sm, a.font_semi_bold, a.leading_snug]}
+                style={[a.text_md, a.font_semi_bold, a.leading_snug]}
                 numberOfLines={1}>
                 {trend.displayName}
               </Text>
