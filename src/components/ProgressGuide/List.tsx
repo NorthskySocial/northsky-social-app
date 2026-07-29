@@ -112,7 +112,7 @@ export function ProgressGuideList({style}: {style?: StyleProp<ViewStyle>}) {
               current={guide.numFollows + 1}
               total={7 + 1}
               title={l`Follow 7 accounts`}
-              subtitle={l`Bluesky is better with friends!`}
+              subtitle={l`Northsky is better with friends!`}
             />
           </>
         )}

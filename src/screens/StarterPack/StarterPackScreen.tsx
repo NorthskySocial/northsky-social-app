@@ -475,7 +475,7 @@ function Header({
           {richText ? <RichText value={richText} style={[a.text_md]} /> : null}
           {!hasSession ? (
             <Button
-              label={_(msg`Join Bluesky`)}
+              label={_(msg`Join Northsky`)}
               onPress={() => {
                 setActiveStarterPack({
                   uri: starterPack.uri,
@@ -485,7 +485,8 @@ function Header({
               color="primary"
               size="large">
               <ButtonText style={[a.text_lg]}>
-                <Trans>Join Bluesky</Trans>
+                {/* northsky: brand identity */}
+                <Trans>Join Northsky</Trans>
               </ButtonText>
             </Button>
           ) : null}
@@ -506,7 +507,7 @@ function Header({
                     value={starterPack.joinedAllTimeCount || 0}
                     other="# people have"
                   />{' '}
-                  joined Bluesky via this starter pack!
+                  joined Northsky via this starter pack!
                 </Trans>
               </Text>
             </View>

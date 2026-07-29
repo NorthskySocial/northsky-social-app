@@ -206,13 +206,14 @@ function LandingScreenLoaded({
             <RichText value={descriptionRt} style={[a.text_md]} />
           ) : null}
           <View style={[a.gap_sm]}>
+            {/* northsky: brand identity */}
             <Button
-              label={_(msg`Join Bluesky`)}
+              label={_(msg`Join Northsky`)}
               onPress={onJoinPress}
               color="primary"
               size="large">
               <ButtonText style={[a.text_lg]}>
-                <Trans>Join Bluesky</Trans>
+                <Trans>Join Northsky</Trans>
               </ButtonText>
             </Button>
             <View style={[a.flex_row, a.align_center, a.gap_xs]}>
@@ -326,11 +327,12 @@ function LandingScreenLoaded({
       <Prompt.Outer control={androidDialogControl}>
         <Prompt.Content>
           <Prompt.TitleText>
-            <Trans>Download Bluesky</Trans>
+            {/* northsky: brand identity */}
+            <Trans>Download Northsky</Trans>
           </Prompt.TitleText>
           <Prompt.DescriptionText>
             <Trans>
-              The experience is better in the app. Download Bluesky now and
+              The experience is better in the app. Download Northsky now and
               we'll pick back up where you left off.
             </Trans>
           </Prompt.DescriptionText>

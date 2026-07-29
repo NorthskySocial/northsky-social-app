@@ -110,7 +110,8 @@ export const SplashScreen = ({
                 onPress={onPressCreateAccount}
                 label={_(msg`Create new account`)}
                 accessibilityHint={_(
-                  msg`Opens flow to create a new Bluesky account`,
+                  // northsky: brand identity in a11y hint
+                  msg`Opens flow to create a new Northsky account`,
                 )}
                 size="large"
                 variant="solid"
@@ -124,7 +125,8 @@ export const SplashScreen = ({
                 onPress={onPressSignin}
                 label={_(msg`Sign in`)}
                 accessibilityHint={_(
-                  msg`Opens flow to sign in to your existing Bluesky account`,
+                  // northsky: brand identity in a11y hint
+                  msg`Opens flow to sign in to your existing Northsky account`,
                 )}
                 size="large"
                 variant="solid"

@@ -190,7 +190,7 @@ export function GroupChatsAnnouncement() {
               icon={ChainLinkIcon}
               titleText={<Trans>Add people with a link</Trans>}
               descriptionText={
-                <Trans>Post it to Bluesky or share anywhere.</Trans>
+                <Trans>Post it to Northsky or share anywhere.</Trans>
               }
             />
             <Feature
