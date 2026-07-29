@@ -24,6 +24,9 @@ export const BRAND = {
   communityGuidelinesUrl:
     'https://northskysocial.com/posts/community-guidelines',
   supportPageUrl: 'https://tally.so/r/yPN6k6',
+  aboutUrl: 'https://northskysocial.com/posts/about',
+  blogUrl: 'https://northskysocial.com/profile/posts',
+  supportUsUrl: 'https://northskysocial.com/profile/products',
   discoverFeedUri:
     'at://did:plc:23cnpffmuf4vkpsnwhgyvljw/app.bsky.feed.generator/NorthskySocial',
   slingshotServiceUrl: 'https://slingshot.microcosm.blue',

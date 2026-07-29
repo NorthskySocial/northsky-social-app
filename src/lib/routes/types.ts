@@ -75,6 +75,7 @@ export type CommonNavigatorParams = {
   AboutSettings: undefined
   AppIconSettings: undefined
   FindContactsSettings: undefined
+  AiSettings: undefined // northsky: AI preferences screen
   InviteScanner: undefined
   Search: SearchParams
   Hashtag: {tag: string; author?: string}
