@@ -98,7 +98,7 @@ export const SplashScreen = ({
                   a.font_semi_bold,
                   t.atoms.text_contrast_medium,
                 ]}>
-                <Trans>What's up?</Trans>
+                <Trans>Welcome to safer skies!</Trans>
               </DisplayText>
             </View>
 
@@ -166,21 +166,22 @@ function Footer() {
         a.flex_1,
         t.atoms.border_contrast_medium,
       ]}>
+      {/* northsky: footer links point to Northsky pages */}
       <InlineLinkText
-        label={_(msg`Learn more about Bluesky`)}
-        to="https://bsky.social">
-        <Trans>Business</Trans>
+        label={_(msg`Learn more about Northsky`)}
+        to="https://northskysocial.com/posts/about">
+        <Trans>About</Trans>
       </InlineLinkText>
       <InlineLinkText
-        label={_(msg`Read the Bluesky blog`)}
-        to="https://bsky.social/about/blog">
-        <Trans>Blog</Trans>
+        label={_(msg`Read the latest Northsky updates`)}
+        to="https://northskysocial.com/profile/posts">
+        <Trans>Updates</Trans>
       </InlineLinkText>
       <InlineLinkText
-        label={_(msg`See jobs at Bluesky`)}
-        to="https://bsky.social/about/join">
-        <Trans comment="Link to a page with job openings at Bluesky">
-          Jobs
+        label={_(msg`Support Northsky`)}
+        to="https://northskysocial.com/profile/products">
+        <Trans comment="Link to a page where users can support Northsky">
+          Support Us
         </Trans>
       </InlineLinkText>
 
