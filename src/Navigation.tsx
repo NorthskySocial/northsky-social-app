@@ -104,6 +104,8 @@ import {AboutSettingsScreen} from '#/screens/Settings/AboutSettings'
 import {AccessibilitySettingsScreen} from '#/screens/Settings/AccessibilitySettings'
 import {AccountSettingsScreen} from '#/screens/Settings/AccountSettings'
 import {ActivityPrivacySettingsScreen} from '#/screens/Settings/ActivityPrivacySettings'
+// northsky: AI preferences screen
+import {AiSettingsScreen} from '#/screens/Settings/AiSettings'
 import {AppearanceSettingsScreen} from '#/screens/Settings/AppearanceSettings'
 import {AppIconSettingsScreen} from '#/screens/Settings/AppIconSettings'
 import {AppPasswordsScreen} from '#/screens/Settings/AppPasswords'
@@ -388,6 +390,15 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         getComponent={() => AccessibilitySettingsScreen}
         options={{
           title: title(msg`Accessibility Settings`),
+          requireAuth: true,
+        }}
+      />
+      {/* northsky: AI preferences screen */}
+      <Stack.Screen
+        name="AiSettings"
+        getComponent={() => AiSettingsScreen}
+        options={{
+          title: title(msg`AI Preferences`),
           requireAuth: true,
         }}
       />
