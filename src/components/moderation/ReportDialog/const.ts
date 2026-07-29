@@ -3,10 +3,11 @@ import {
   ToolsOzoneReportDefs as OzoneReportDefs,
 } from '@atproto/api'
 
+import {webLinks} from '#/lib/constants'
 import {type ParsedReportSubject} from '#/components/moderation/ReportDialog/types'
 
-export const DMCA_LINK = 'https://bsky.social/about/support/copyright'
-export const SUPPORT_PAGE = 'https://bsky.social/about/support'
+export const DMCA_LINK = webLinks.copyright // northsky: brand override
+export const SUPPORT_PAGE = webLinks.support // northsky: brand override
 
 export const NEW_TO_OLD_REASON_MAPPING: Record<string, string> = {}
 

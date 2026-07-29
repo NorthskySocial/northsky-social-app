@@ -15,17 +15,24 @@ const BSKY_TRUSTED_HOSTS = [
   'bsky\\.social',
   'blueskyweb\\.xyz',
   'blueskyweb\\.zendesk\\.com',
+  // northsky: trust brand-operated hosts
+  'northsky\\.app',
+  'northsky\\.social',
+  'northskysocial\\.com',
   ...(__DEV__ ? ['localhost:19006', 'localhost:8100'] : []),
 ]
 
 /*
  * This will allow any BSKY_TRUSTED_HOSTS value by itself or with a subdomain.
  * It will also allow relative paths like /profile as well as #.
+ *
+ * The trailing boundary is required so a trusted host cannot be used as a
+ * prefix of an attacker-controlled domain, e.g. bsky.app.attacker.com.
  */
 const TRUSTED_REGEX = new RegExp(
-  `^(http(s)?://(([\\w-]+\\.)?${BSKY_TRUSTED_HOSTS.join(
-    '|([\\w-]+\\.)?',
-  )})|/|#)`,
+  `^(http(s)?://(${BSKY_TRUSTED_HOSTS.map(host => `([\\w-]+\\.)?${host}`).join(
+    '|',
+  )})([/?#]|$)|/|#)`,
 )
 
 export function isValidDomain(str: string): boolean {

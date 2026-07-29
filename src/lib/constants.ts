@@ -12,8 +12,7 @@ export const BSKY_SERVICE = BRAND.pdsServiceUrl // northsky: brand override
 export const BSKY_SERVICE_DID = 'did:web:bsky.social'
 export const PUBLIC_BSKY_SERVICE = BRAND.publicAppViewUrl // northsky: brand override
 export const DEFAULT_SERVICE = BSKY_SERVICE
-const HELP_DESK_LANG = 'en-us'
-export const HELP_DESK_URL = `https://blueskyweb.zendesk.com/hc/${HELP_DESK_LANG}`
+export const HELP_DESK_URL = BRAND.helpUrl // northsky: brand override
 export const CHAT_SERVICE = 'https://api.bsky.chat'
 export const EMBED_SERVICE = BRAND.embedServiceUrl // northsky: brand override
 export const EMBED_SCRIPT = `${EMBED_SERVICE}/static/embed.js`
@@ -41,7 +40,7 @@ export const DISCOVER_DEBUG_DIDS: Record<string, true> = {
   'did:plc:2dzyut5lxna5ljiaasgeuffz': true, // darrin.bsky.team
 }
 
-const BASE_FEEDBACK_FORM_URL = `${HELP_DESK_URL}/requests/new`
+const BASE_FEEDBACK_FORM_URL = BRAND.feedbackUrl // northsky: brand override
 export function FEEDBACK_FORM_URL({
   email,
   handle,
@@ -49,14 +48,15 @@ export function FEEDBACK_FORM_URL({
   email?: string
   handle?: string
 }): string {
-  let str = BASE_FEEDBACK_FORM_URL
+  // northsky: URL API keeps params valid for brand URLs with hash routes
+  const url = new URL(BASE_FEEDBACK_FORM_URL)
   if (email) {
-    str += `?tf_anonymous_requester_email=${encodeURIComponent(email)}`
+    url.searchParams.set('tf_anonymous_requester_email', email)
     if (handle) {
-      str += `&tf_17205412673421=${encodeURIComponent(handle)}`
+      url.searchParams.set('tf_17205412673421', handle)
     }
   }
-  return str
+  return url.toString()
 }
 
 export const MAX_DISPLAY_NAME = 64
@@ -258,8 +258,10 @@ export const BLUESKY_NOTIF_SERVICE_HEADERS = {
 }
 
 export const webLinks = {
-  tos: `https://bsky.social/about/support/tos`,
-  privacy: `https://bsky.social/about/support/privacy-policy`,
-  community: `https://bsky.social/about/support/community-guidelines`,
+  tos: BRAND.termsOfServiceUrl, // northsky: brand override
+  privacy: BRAND.privacyPolicyUrl, // northsky: brand override
+  community: BRAND.communityGuidelinesUrl, // northsky: brand override
+  copyright: BRAND.copyrightPolicyUrl, // northsky: brand override
+  support: BRAND.supportPageUrl, // northsky: brand override
   communityDeprecated: `https://bsky.social/about/support/community-guidelines-deprecated`,
 }
