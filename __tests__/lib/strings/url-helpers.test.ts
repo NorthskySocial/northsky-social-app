@@ -172,6 +172,14 @@ describe('isTrustedUrl', () => {
     ['https://docs.google.com', false],
     ['https://google.com/#', false],
     ['https://blueskywebxzendesk.com', false],
+    ['https://bsky.app.attacker.com', false],
+    ['https://bsky.app.attacker.com/profile', false],
+    ['https://northsky.app.attacker.com', false],
+    ['https://bsky.app@attacker.com', false],
+    ['https://bsky.appattacker.com', false],
+    ['https://northsky.app', true],
+    ['https://northsky.social/blog', true],
+    ['https://northskysocial.com', true],
   ]
 
   it.each(cases)('given input uri %p, returns %p', (str, expected) => {
