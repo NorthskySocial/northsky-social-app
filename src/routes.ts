@@ -63,6 +63,7 @@ export const router = new Router<AllNavigatableRoutes>({
   NotificationSettings: '/settings/notifications',
   ActivityNotificationSettings: '/settings/notifications/activity',
   FindContactsSettings: '/settings/find-contacts',
+  AiSettings: '/settings/ai', // northsky: AI preferences screen
   // support
   Support: '/support',
   PrivacyPolicy: '/support/privacy',
