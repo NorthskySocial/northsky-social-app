@@ -19,7 +19,7 @@ import {Button, ButtonText} from '#/components/Button'
 import {TimesLarge_Stroke2_Corner0_Rounded as TimesIcon} from '#/components/icons/Times'
 import * as Layout from '#/components/Layout'
 import {InlineLinkText} from '#/components/Link'
-import {DisplayText} from '#/brand' // northsky: MuseoModerno display headline
+import {BRAND, DisplayText} from '#/brand' // northsky: brand links + display headline
 
 export const SplashScreen = ({
   onDismiss,
@@ -110,7 +110,7 @@ export const SplashScreen = ({
                 onPress={onPressCreateAccount}
                 label={_(msg`Create new account`)}
                 accessibilityHint={_(
-                  msg`Opens flow to create a new Bluesky account`,
+                  msg`Opens flow to create a new Northsky account`,
                 )}
                 size="large"
                 variant="solid"
@@ -124,7 +124,7 @@ export const SplashScreen = ({
                 onPress={onPressSignin}
                 label={_(msg`Sign in`)}
                 accessibilityHint={_(
-                  msg`Opens flow to sign in to your existing Bluesky account`,
+                  msg`Opens flow to sign in to your existing Northsky account`,
                 )}
                 size="large"
                 variant="solid"
@@ -166,22 +166,17 @@ function Footer() {
         a.flex_1,
         t.atoms.border_contrast_medium,
       ]}>
+      {/* northsky: brand footer links, sourced from BRAND */}
       <InlineLinkText
-        label={_(msg`Learn more about Bluesky`)}
-        to="https://bsky.social">
-        <Trans>Business</Trans>
+        label={_(msg`Learn more about Northsky`)}
+        to={BRAND.aboutUrl}>
+        <Trans>About</Trans>
       </InlineLinkText>
-      <InlineLinkText
-        label={_(msg`Read the Bluesky blog`)}
-        to="https://bsky.social/about/blog">
+      <InlineLinkText label={_(msg`Read the Northsky blog`)} to={BRAND.blogUrl}>
         <Trans>Blog</Trans>
       </InlineLinkText>
-      <InlineLinkText
-        label={_(msg`See jobs at Bluesky`)}
-        to="https://bsky.social/about/join">
-        <Trans comment="Link to a page with job openings at Bluesky">
-          Jobs
-        </Trans>
+      <InlineLinkText label={_(msg`Support Northsky`)} to={BRAND.supportUsUrl}>
+        <Trans>Support Us</Trans>
       </InlineLinkText>
 
       <View style={a.flex_1} />
