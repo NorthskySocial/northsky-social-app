@@ -123,7 +123,7 @@ export function LINK_META_PROXY(_serviceUrl: string) {
   return PROD_LINK_META_PROXY
 }
 
-export const STATUS_PAGE_URL = 'https://status.bsky.app/'
+export const STATUS_PAGE_URL = 'https://status.northsky.social/'
 
 // Hitslop constants
 export const createHitslop = (size: number): Insets => ({
@@ -258,8 +258,9 @@ export const BLUESKY_NOTIF_SERVICE_HEADERS = {
 }
 
 export const webLinks = {
-  tos: `https://bsky.social/about/support/tos`,
-  privacy: `https://bsky.social/about/support/privacy-policy`,
-  community: `https://bsky.social/about/support/community-guidelines`,
-  communityDeprecated: `https://bsky.social/about/support/community-guidelines-deprecated`,
+  // northsky: brand policy links
+  tos: `https://northskysocial.com/posts/terms-of-service`,
+  privacy: `https://northskysocial.com/posts/privacy-policy`,
+  community: `https://northskysocial.com/posts/community-guidelines`,
+  communityDeprecated: `https://northskysocial.com/posts/community-guidelines`,
 }

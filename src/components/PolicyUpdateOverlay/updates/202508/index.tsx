@@ -27,12 +27,14 @@ export function Content({state}: {state: PolicyUpdateState}) {
   const links = {
     terms: {
       overridePresentation: false,
-      to: `https://bsky.social/about/support/tos`,
+      // northsky: brand policy link
+      to: `https://northskysocial.com/posts/terms-of-service`,
       label: _(msg`Terms of Service`),
     },
     privacy: {
       overridePresentation: false,
-      to: `https://bsky.social/about/support/privacy-policy`,
+      // northsky: brand policy link
+      to: `https://northskysocial.com/posts/privacy-policy`,
       label: _(msg`Privacy Policy`),
     },
     copyright: {
@@ -42,7 +44,8 @@ export function Content({state}: {state: PolicyUpdateState}) {
     },
     guidelines: {
       overridePresentation: false,
-      to: `https://bsky.social/about/support/community-guidelines`,
+      // northsky: brand community guidelines link
+      to: `https://northskysocial.com/posts/community-guidelines`,
       label: _(msg`Community Guidelines`),
     },
     blog: {

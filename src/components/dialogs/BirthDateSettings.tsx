@@ -177,7 +177,7 @@ function BirthdayInner({
           <Trans>
             You must be at least 13 years old to use Bluesky. Read our{' '}
             <SimpleInlineLinkText
-              to="https://bsky.social/about/support/tos"
+              to="https://northskysocial.com/posts/terms-of-service"
               label={l`Terms of Service`}>
               Terms of Service
             </SimpleInlineLinkText>{' '}
