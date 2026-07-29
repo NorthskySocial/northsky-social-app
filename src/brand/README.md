@@ -22,7 +22,9 @@ upstream sync don't turn into a nightmare.
   the `NS_DISPLAY_FONT` sentinel that `src/alf/fonts.ts` resolves.
 - `typography.tsx` - `DisplayText`, the brand display component.
 - `index.ts` - the `#/brand` import surface.
-- `assets/` - brand SVGs and brand-only images.
+- `assets/` - brand SVGs and brand-only images (`Logo.tsx` logomark,
+  `Logotype.tsx` wordmark; `#/view/icons/Logo|Logotype|Logomark` delegate
+  here).
 
 ## How branding reaches the app
 
@@ -49,4 +51,3 @@ Still needs design assets (left as upstream - do not fabricate):
 - Native splash backgrounds `assets/splash/splash.png` / `splash-dark.png`
   (need distinct light/dark art).
 - Native app-icon sets under `assets/app-icons/`.
-- A Northsky wordmark (`#/view/icons/Logotype`) - only a logomark exists.

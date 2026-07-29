@@ -1,42 +1,43 @@
+import {forwardRef} from 'react'
+import {type TextProps} from 'react-native'
 import Svg, {Path, type PathProps, type SvgProps} from 'react-native-svg'
 
-import {useTheme} from '#/alf'
+/**
+ * Tight bounds of the "northsky" letter glyphs extracted from
+ * branding/Logo/Northsky-Horizontal-Black.svg (viewBox 0 0 1024 325.55).
+ */
+const VIEWBOX = '321 97 642 141'
+const ratio = 141 / 642
 
-// northsky: full horizontal lockup (logomark + wordmark) from
-// branding/Logo/Northsky-Horizontal-Black.svg, cropped to content bounds
-const ratio = 160 / 907
+/** Brand ink, matching the "Btext" wordmark variants. */
+const BRAND_INK = '#1f0b35'
 
-export function LogomarkWithType({
-  fill,
-  ...rest
-}: {fill?: PathProps['fill']} & SvgProps) {
-  const t = useTheme()
-  const size = parseInt(`${rest.width || 32}`)
-  const pathFill = fill || t.atoms.text.color
+type Props = {
+  fill?: PathProps['fill']
+  style?: TextProps['style']
+} & Omit<SvgProps, 'style'>
+
+/**
+ * Northsky wordmark ("northsky" in the brand script). Pass a solid `fill`
+ * to match the surrounding surface; defaults to the brand ink color.
+ */
+export const BrandLogotype = forwardRef(function BrandLogotypeImpl(
+  props: Props,
+  ref,
+) {
+  const {fill, style, ...rest} = props
+  // @ts-ignore width may be a string or number
+  const size = parseInt(rest.width || 32, 10)
+  const pathFill = fill || BRAND_INK
 
   return (
     <Svg
       fill="none"
-      viewBox="56 79 907 160"
+      // @ts-ignore ref typing on Svg is loose
+      ref={ref}
+      viewBox={VIEWBOX}
       {...rest}
-      width={size}
-      height={Number(size) * ratio}>
-      <Path
-        fill={pathFill}
-        d="M110.51,236.11l57.35-38.83,25.46,24,16.57-12,38.92,26.38a102.41,102.41,0,0,0,11.77-29.16C247,202,233.8,196.39,221.38,191.08c-20.46-8.73-39.75-17-53.5-17-12.56,0-15.08,4-18.79,11.59-3.55,7.29-8,16.37-29.44,16.37-17.13,0-33.73-6.31-51.29-13-3.6-1.37-7.29-2.77-11.07-4.15a102.42,102.42,0,0,0,15.13,51.89l19.25-13.11Z"
-      />
-      <Path
-        fill={pathFill}
-        d="M114.6,157.22c11.32,0,13.6-3.66,17-10.67,3.26-6.82,7.31-15.3,27.06-15.3,15.81,0,32.6,7,52,15.11,15.78,6.58,33.08,13.77,50.81,17.21a102.41,102.41,0,0,0-13.55-34.76c-23-1.27-42.55-9.14-60-16.17-14.07-5.67-27.34-11-38.55-11-9.88,0-11.9,3.32-14.88,9.67-2.82,6-6.7,14.32-24.93,14.32-9.33,0-19.12-2.85-29.72-7A103.06,103.06,0,0,0,65.6,142.29l5.2,2.13C86.9,151,102.07,157.22,114.6,157.22Z"
-      />
-      <Path
-        fill={pathFill}
-        d="M119.65,195.45c12.91,0,15.47-4,19.23-11.73,3.52-7.23,7.9-16.23,29-16.23,17.17,0,36.86,8.41,59.65,18.15,11,4.7,22.65,9.67,34.46,13.8a101.53,101.53,0,0,0,.57-28.78c-20.78-3.34-40.26-11.44-57.92-18.8-17.27-7.2-33.54-14-46-14-11.23,0-13.49,3.64-16.83,10.63-3.27,6.84-7.34,15.34-27.19,15.34-15.83,0-32.32-6.75-49.78-13.91L63,149.16a102.75,102.75,0,0,0-5.55,28.13c5.76,2,11.29,4.12,16.65,6.15C91,189.89,105.61,195.45,119.65,195.45Z"
-      />
-      <Path
-        fill={pathFill}
-        d="M124.24,109.39C127.08,103.32,131,95,149.36,95c14.46,0,29,5.87,44.48,12.09,14.79,6,31.24,12.56,49.28,14.62a103,103,0,0,0-158.21-9c9.27,3.65,17.74,6.24,24.64,6.24C119.3,119,121.2,115.88,124.24,109.39Z"
-      />
+      style={[{width: size, height: size * ratio}, style]}>
       <Path
         fill={pathFill}
         d="M391.15,207.22a24.93,24.93,0,0,1-12.63-3.07,20.89,20.89,0,0,1-8.18-8.39,25.56,25.56,0,0,1-2.84-12.19,30,30,0,0,1,.22-3.51c.14-1.26.31-2.52.51-3.79l7.15-45.54a11.32,11.32,0,0,0,.37-2.41c0-.93.07-1.73.07-2.41a11.86,11.86,0,0,0-12.26-12.12,15.21,15.21,0,0,0-7.23,1.75,16.14,16.14,0,0,0-5.47,4.75,15.61,15.61,0,0,0-2.78,7.22l-12.11,78H322l11.83-76.19a39.79,39.79,0,0,1,5.4-15,26.07,26.07,0,0,1,10.51-9.49A34,34,0,0,1,365,101.53a27.11,27.11,0,0,1,13.21,3.07,21.41,21.41,0,0,1,8.61,8.39,24.52,24.52,0,0,1,3,12.19c0,1.07-.05,2.17-.14,3.28a30.47,30.47,0,0,1-.44,3.14L381.8,178c-.09.88-.19,1.78-.29,2.7a22.64,22.64,0,0,0-.14,2.41c0,3.7,1.09,6.59,3.28,8.69a11.28,11.28,0,0,0,8.1,3.13A15.1,15.1,0,0,0,400,193.2a16.48,16.48,0,0,0,5.54-4.81,15.56,15.56,0,0,0,2.85-7.16l12.12-77.95h14l-11.82,76.06a36.68,36.68,0,0,1-5.48,15,27.33,27.33,0,0,1-10.73,9.56A33.85,33.85,0,0,1,391.15,207.22Z"
@@ -71,4 +72,4 @@ export function LogomarkWithType({
       />
     </Svg>
   )
-}
+})
