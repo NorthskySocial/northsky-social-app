@@ -15,6 +15,15 @@ export const BRAND = {
   publicAppViewUrl: 'https://api.blacksky.community',
   publicAppViewDid: 'did:web:api.blacksky.community',
   embedServiceUrl: 'https://embed.northsky.app',
+  helpUrl: 'https://tally.so/r/yPN6k6',
+  feedbackUrl:
+    'https://userinput.app/#/s/did:plc:23cnpffmuf4vkpsnwhgyvljw/3mrrtpve7ab2f',
+  privacyPolicyUrl: 'https://northskysocial.com/posts/privacy-policy',
+  termsOfServiceUrl: 'https://northskysocial.com/posts/terms-of-service',
+  copyrightPolicyUrl: 'https://bsky.social/about/support/copyright',
+  communityGuidelinesUrl:
+    'https://northskysocial.com/posts/community-guidelines',
+  supportPageUrl: 'https://tally.so/r/yPN6k6',
   discoverFeedUri:
     'at://did:plc:23cnpffmuf4vkpsnwhgyvljw/app.bsky.feed.generator/NorthskySocial',
   slingshotServiceUrl: 'https://slingshot.microcosm.blue',
