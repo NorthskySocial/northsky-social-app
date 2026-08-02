@@ -11,6 +11,13 @@ upstream sync don't turn into a nightmare.
   declared `as const` to keep literal types (e.g. for upstream's ServerInput
   dialog). Import from `#/brand/config` in early modules like
   `src/lib/constants.ts`, otherwise from `#/brand`.
+- `moderation.ts` - known-PDS-host table (operator name, terms of service,
+  moderation service DID) behind `getHostModerationInfo` /
+  `getHostModServiceHeaders`. A takedown is issued by the account's own host,
+  so the Takendown screen attributes it and routes appeals accordingly, falling
+  back to Bluesky for unknown hosts. Keys are `new URL(account.service).hostname`
+  and every `modServiceDid` must expose an `#atproto_labeler` service in its DID
+  document - verify both before adding a host.
 - `palette.ts` - the three ALF `Palette` objects (light/dark/dim): purple
   accent in light, mint in dark, a distinct softer dim.
 - `theme.ts` - builds `light`/`dark`/`dim` via ALF's `createTheme` (not

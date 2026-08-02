@@ -1,54 +1,69 @@
+import {BSKY_LABELER_DID, type Did} from '@atproto/api'
+
 import {BRAND} from './config'
 
 /**
  * A takedown is issued by the user's hosting provider (their PDS), which is
- * not necessarily Northsky
- * This maps known PDS hosts to the operator name and terms of
- * service to show on the Takendown screen.
+ * not necessarily Northsky, and an appeal has to reach that provider's own
+ * moderation service rather than Bluesky's. This maps known PDS hosts to the
+ * operator name, terms of service, and moderation service used by the
+ * Takendown screen.
  */
-export interface HostTermsOfService {
+export interface HostModerationInfo {
+  /** Operator name, shown to the user. */
   name: string
   tosUrl: string
+  modServiceDid: Did
 }
 
-const BLUESKY_TOS: HostTermsOfService = {
+const BLUESKY: HostModerationInfo = {
   name: 'Bluesky Social',
   tosUrl: 'https://bsky.social/about/support/tos',
+  modServiceDid: BSKY_LABELER_DID,
 }
 
-const KNOWN_HOSTS = new Map<string, HostTermsOfService>([
+/** Keyed by lower-case PDS hostname, i.e. `new URL(account.service).hostname`. */
+const KNOWN_HOSTS = new Map<string, HostModerationInfo>([
   [
     'northsky.social',
     {
       name: 'Northsky Social',
       tosUrl: BRAND.termsOfServiceUrl,
+      modServiceDid: 'did:plc:p2cxrw3ank4dzs55mpm6ohq4',
     },
   ],
   [
-    'blacksky.social',
+    /* `blacksky.social` has no DNS record; the PDS is served from blacksky.app */
+    'blacksky.app',
     {
       name: 'Blacksky',
-      tosUrl: 'https://blackskyweb.xyz/about/support/tos/',
+      tosUrl: 'https://www.blackskyweb.xyz/about/support/tos',
+      modServiceDid: 'did:plc:d2mkddsbmnrgr3domzg5qexf',
     },
   ],
-  ['bsky.social', BLUESKY_TOS],
+  ['bsky.social', BLUESKY],
 ])
 
 /**
- * Resolve the operator name and ToS URL for the given account service URL.
- * Unknown or unparseable hosts fall back to the Bluesky terms of service.
+ * Resolve the operator of the given account service URL. Unknown or
+ * unparseable hosts fall back to Bluesky.
  */
-export function getHostTermsOfService(
+export function getHostModerationInfo(
   serviceUrl: string | undefined,
-): HostTermsOfService {
+): HostModerationInfo {
   if (serviceUrl) {
     try {
-      const host = new URL(serviceUrl).hostname
+      const host = new URL(serviceUrl).hostname.toLowerCase()
       const known = KNOWN_HOSTS.get(host)
       if (known) {
         return known
       }
     } catch {}
   }
-  return BLUESKY_TOS
+  return BLUESKY
+}
+
+export function getHostModServiceHeaders(serviceUrl: string | undefined) {
+  const {modServiceDid} = getHostModerationInfo(serviceUrl)
+  return {'atproto-proxy': `${modServiceDid}#atproto_labeler`}
 }

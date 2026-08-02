@@ -9,10 +9,7 @@ import {Trans} from '@lingui/react/macro'
 import {useMutation} from '@tanstack/react-query'
 import {countGraphemes} from 'unicode-segmenter/grapheme'
 
-import {
-  BLUESKY_MOD_SERVICE_HEADERS,
-  MAX_REPORT_REASON_GRAPHEME_LENGTH,
-} from '#/lib/constants'
+import {MAX_REPORT_REASON_GRAPHEME_LENGTH} from '#/lib/constants'
 import {cleanError} from '#/lib/strings/errors'
 import {useAgent, useSession, useSessionApi} from '#/state/session'
 import {CharProgress} from '#/view/com/composer/char-progress/CharProgress'
@@ -24,7 +21,10 @@ import {SimpleInlineLinkText} from '#/components/Link'
 import {Loader} from '#/components/Loader'
 import {P, Text} from '#/components/Typography'
 // northsky: takedowns come from the account's PDS, which may not be Northsky
-import {getHostTermsOfService} from '#/brand/moderation'
+import {
+  getHostModerationInfo,
+  getHostModServiceHeaders,
+} from '#/brand/moderation'
 import {IS_WEB} from '#/env'
 
 const COL_WIDTH = 400
@@ -40,7 +40,7 @@ export function Takendown() {
   const [isAppealling, setIsAppealling] = useState(false)
   const [reason, setReason] = useState('')
   // northsky: attribute the takedown to the operator of the user's PDS
-  const hostTos = getHostTermsOfService(currentAccount?.service)
+  const host = getHostModerationInfo(currentAccount?.service)
 
   const reasonGraphemeLength = countGraphemes(reason)
   const isOverMaxLength =
@@ -65,7 +65,8 @@ export function Takendown() {
         },
         {
           encoding: 'application/json',
-          headers: BLUESKY_MOD_SERVICE_HEADERS,
+          // northsky: appeal to the mod service of the account's own PDS
+          headers: getHostModServiceHeaders(currentAccount.service),
         },
       )
     },
@@ -214,10 +215,10 @@ export function Takendown() {
                 <Trans>
                   Your account was found to be in violation of the{' '}
                   <SimpleInlineLinkText
-                    label={_(msg`${hostTos.name} Terms of Service`)}
-                    to={hostTos.tosUrl}
+                    label={_(msg`${host.name} Terms of Service`)}
+                    to={host.tosUrl}
                     style={[a.text_md, a.leading_snug]}>
-                    {hostTos.name} Terms of Service
+                    {host.name} Terms of Service
                   </SimpleInlineLinkText>
                   . You have been sent an email outlining the specific violation
                   and suspension period, if applicable. You can appeal this
