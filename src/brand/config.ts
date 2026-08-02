@@ -24,6 +24,7 @@ export const BRAND = {
   communityGuidelinesUrl:
     'https://northskysocial.com/posts/community-guidelines',
   supportPageUrl: 'https://tally.so/r/yPN6k6',
+  nciiReportFormUrl: 'https://forms.bsky.app/f/ncii',
   aboutUrl: 'https://northskysocial.com/posts/about',
   blogUrl: 'https://northskysocial.com/profile/posts',
   supportUsUrl: 'https://northskysocial.com/profile/products',
