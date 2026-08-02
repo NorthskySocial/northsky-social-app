@@ -8,6 +8,7 @@ import {type ParsedReportSubject} from '#/components/moderation/ReportDialog/typ
 
 export const DMCA_LINK = webLinks.copyright // northsky: brand override
 export const SUPPORT_PAGE = webLinks.support // northsky: brand override
+export const NCII_FORM = webLinks.ncii // northsky: brand override
 
 export const NEW_TO_OLD_REASON_MAPPING: Record<string, string> = {}
 

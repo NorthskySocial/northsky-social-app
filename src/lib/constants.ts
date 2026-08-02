@@ -263,5 +263,6 @@ export const webLinks = {
   community: BRAND.communityGuidelinesUrl, // northsky: brand override
   copyright: BRAND.copyrightPolicyUrl, // northsky: brand override
   support: BRAND.supportPageUrl, // northsky: brand override
+  ncii: BRAND.nciiReportFormUrl, // northsky: brand override
   communityDeprecated: `https://bsky.social/about/support/community-guidelines-deprecated`,
 }
