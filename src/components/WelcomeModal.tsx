@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react'
 import {Pressable, View} from 'react-native'
 import {ImageBackground} from 'expo-image'
+import {LinearGradient} from 'expo-linear-gradient'
 import {Trans, useLingui} from '@lingui/react/macro'
 import {FocusGuards, FocusScope} from 'radix-ui/internal'
 
@@ -12,6 +13,8 @@ import {type WelcomeModalControl} from '#/components/hooks/useWelcomeModal.share
 import {TimesLarge_Stroke2_Corner0_Rounded as XIcon} from '#/components/icons/Times'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
+import {BRAND, DisplayText} from '#/brand'
+import {NORTHSKY_DARK_PALETTE} from '#/brand/palette'
 
 const welcomeModalBg = require('../../assets/images/welcome-modal-bg.jpg')
 
@@ -82,7 +85,8 @@ export function WelcomeModal({control}: WelcomeModalProps) {
               maxHeight: 600,
               width: '90%',
               height: '90%',
-              backgroundColor: '#C0DCF0',
+              // northsky: background color so text is readable when image hasn't loaded
+              backgroundColor: NORTHSKY_DARK_PALETTE.contrast_0,
             },
             a.rounded_lg,
             a.overflow_hidden,
@@ -92,7 +96,19 @@ export function WelcomeModal({control}: WelcomeModalProps) {
             source={welcomeModalBg}
             style={[a.flex_1, a.justify_center]}
             contentFit="cover">
-            <View style={[a.gap_2xl, a.align_center, a.p_4xl]}>
+            {/* northsky: scrim so text stays readable over the aurora */}
+            <LinearGradient
+              colors={[
+                'rgba(31, 11, 53, 0.60)',
+                'rgba(31, 11, 53, 0.40)',
+                'rgba(31, 11, 53, 0.00)',
+              ]}
+              locations={[0, 0.55, 1]}
+              style={[a.absolute, a.inset_0]}
+            />
+            {/* northsky: move content up so it doesn't overlap too much with trees */}
+            <View
+              style={[a.gap_2xl, a.align_center, a.p_4xl, {paddingBottom: 96}]}>
               <View
                 style={[
                   a.flex_row,
@@ -103,48 +119,28 @@ export function WelcomeModal({control}: WelcomeModalProps) {
                 ]}>
                 <View style={[a.flex_row, a.align_center, a.gap_xs]}>
                   <Logo allowVariants={false} width={26} />
-                  <Text
+                  {/* northsky: brand display font, white for contrast */}
+                  <DisplayText
                     style={[
                       a.text_2xl,
-                      a.font_semi_bold,
                       a.user_select_none,
-                      {color: '#354358', letterSpacing: -0.5},
+                      {color: NORTHSKY_DARK_PALETTE.contrast_1000},
                     ]}>
-                    Bluesky
-                  </Text>
+                    {BRAND.appName}
+                  </DisplayText>
                 </View>
               </View>
-              <View
-                style={[
-                  a.gap_sm,
-                  a.align_center,
-                  a.pt_5xl,
-                  a.pb_3xl,
-                  a.mt_2xl,
-                ]}>
-                <Text
+              <View style={[a.gap_sm, a.align_center, a.pt_2xl, a.pb_xl]}>
+                {/* northsky: brand display font */}
+                <DisplayText
                   style={[
                     gtMobile ? a.text_4xl : a.text_3xl,
-                    a.font_semi_bold,
                     a.text_center,
-                    {color: '#354358'},
-                    web({
-                      backgroundImage:
-                        'linear-gradient(180deg, #313F54 0%, #667B99 83.65%, rgba(102, 123, 153, 0.50) 100%)',
-                      backgroundClip: 'text',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      color: 'transparent',
-                      lineHeight: 1.2,
-                      letterSpacing: -0.5,
-                    }),
+                    {color: NORTHSKY_DARK_PALETTE.primary_500},
+                    web({lineHeight: 1.2}),
                   ]}>
-                  <Trans>Real people.</Trans>
-                  {'\n'}
-                  <Trans>Real conversations.</Trans>
-                  {'\n'}
-                  <Trans>Social media you control.</Trans>
-                </Text>
+                  <Trans>Welcome to safer skies!</Trans>
+                </DisplayText>
               </View>
               <View style={[a.gap_md, a.align_center]}>
                 <View>
@@ -174,8 +170,8 @@ export function WelcomeModal({control}: WelcomeModalProps) {
                       <ButtonText
                         style={[
                           hovered && [a.underline],
-                          // northsky: brand purple (static light surface)
-                          {color: '#9A45EC'},
+                          // northsky: dark-theme primary for contrast over background image
+                          {color: NORTHSKY_DARK_PALETTE.primary_500},
                         ]}>
                         <Trans>Explore the app</Trans>
                       </ButtonText>
@@ -187,7 +183,11 @@ export function WelcomeModal({control}: WelcomeModalProps) {
                     style={[
                       a.text_md,
                       a.text_center,
-                      {color: '#405168', lineHeight: 24},
+                      // northsky: static white for contrast over background image
+                      {
+                        color: NORTHSKY_DARK_PALETTE.contrast_1000,
+                        lineHeight: 24,
+                      },
                     ]}>
                     <Trans>Already have an account?</Trans>{' '}
                     <Pressable
@@ -201,8 +201,8 @@ export function WelcomeModal({control}: WelcomeModalProps) {
                         style={[
                           a.font_medium,
                           {
-                            // northsky: brand purple (static light surface)
-                            color: '#9A45EC',
+                            // northsky: dark-theme primary for contrast over background image
+                            color: NORTHSKY_DARK_PALETTE.primary_500,
                             fontSize: undefined,
                           },
                           signInLinkHovered && a.underline,
@@ -237,7 +237,8 @@ export function WelcomeModal({control}: WelcomeModalProps) {
                 <XIcon
                   size="md"
                   style={{
-                    color: '#354358',
+                    // northsky: static white for contrast over background image
+                    color: NORTHSKY_DARK_PALETTE.contrast_1000,
                     opacity: hovered || pressed || focused ? 1 : 0.7,
                   }}
                 />
