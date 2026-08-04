@@ -335,9 +335,18 @@ function SubmitButton({
         onPress={onPress}
         disabled={disabled}>
         {loading ? (
-          <Loader size="md" fill={t.palette.white} style={[a.mb_2xs]} />
+          // northsky: fill color to match message text
+          <Loader
+            size="md"
+            fill={disabled ? t.palette.white : t.palette.contrast_0}
+            style={[a.mb_2xs]}
+          />
         ) : (
-          <PaperPlaneIcon size="md" fill={t.palette.white} style={[a.mb_2xs]} />
+          <PaperPlaneIcon
+            size="md"
+            fill={disabled ? t.palette.white : t.palette.contrast_0}
+            style={[a.mb_2xs]}
+          />
         )}
       </Pressable>
     </GlassView>

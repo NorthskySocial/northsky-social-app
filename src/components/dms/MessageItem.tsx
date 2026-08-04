@@ -569,7 +569,8 @@ let MessageItem = ({
                         value={rt}
                         style={[
                           a.text_md,
-                          isFromSelf && {color: t.palette.white},
+                          // northsky: text color for improved contrast ratio in dark mode
+                          isFromSelf && {color: t.palette.contrast_0},
                           // Emoji-only: add top leading to avoid clipping the
                           // glyph, then pull the bottom up by the same amount so
                           // the glyph bottom-aligns with the avatar instead of
@@ -889,12 +890,13 @@ function ReplyQuote({
       ? createSanitizedDisplayName(senderProfile)
       : null
 
-  const tintColor = isFromSelf ? t.palette.white : t.atoms.text.color
+  // northsky: contrast_0 instead of white, matching the bubble text color
+  const tintColor = isFromSelf ? t.palette.contrast_0 : t.atoms.text.color
   const subtleColor = isFromSelf
-    ? t.palette.white
+    ? t.palette.contrast_0
     : t.atoms.text_contrast_high.color
   const borderColor = isFromSelf
-    ? utils.alpha(t.palette.white, 0.5)
+    ? utils.alpha(t.palette.contrast_0, 0.5)
     : t.atoms.border_contrast_high.borderColor
 
   let text: string
