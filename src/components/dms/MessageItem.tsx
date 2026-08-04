@@ -239,7 +239,8 @@ let MessageItem = ({
   const bubbleColor = isFromSelf
     ? isPending
       ? pendingColor
-      : t.palette.primary_500
+      : // northsky: primary_500 is too bright in dark mode
+        t.palette.primary_400
     : t.palette.contrast_50
   const highlightColor = isFromSelf
     ? t.palette.primary_300

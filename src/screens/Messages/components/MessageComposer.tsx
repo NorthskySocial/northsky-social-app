@@ -313,11 +313,13 @@ function SubmitButton({
       isInteractive
       glassEffectStyle="regular"
       style={[a.rounded_full]}
-      tintColor={disabled ? t.palette.contrast_100 : t.palette.primary_500}
+      // northsky: primary_500 is too bright in dark mode
+      tintColor={disabled ? t.palette.contrast_100 : t.palette.primary_400}
       fallbackStyle={{
         backgroundColor: disabled
           ? t.palette.contrast_100
-          : t.palette.primary_500,
+          : // northsky: primary_500 is too bright in dark mode
+            t.palette.primary_400,
       }}>
       <Pressable
         accessibilityRole="button"
