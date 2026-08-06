@@ -1,5 +1,5 @@
 import {createContext, useCallback, useContext, useMemo, useState} from 'react'
-import {type Theme, type ThemeName, utils as baseUtils} from '@bsky.app/alf'
+import {type ThemeName, utils as baseUtils} from '@bsky.app/alf'
 
 import {
   computeFontScaleMultiplier,
@@ -15,9 +15,10 @@ import {
   lighten,
   rgbToHex,
 } from '#/alf/util/colorGeneration'
+import {type NorthskyTheme as Theme} from '#/brand/theme'
 import {type Device} from '#/storage'
 
-export {type TextStyleProp, type Theme, type ViewStyleProp} from '@bsky.app/alf'
+export {type TextStyleProp, type ViewStyleProp} from '@bsky.app/alf'
 export {atoms} from '#/alf/atoms'
 export * from '#/alf/breakpoints'
 export * from '#/alf/fonts'
@@ -26,6 +27,7 @@ export * from '#/alf/util/flatten'
 export * from '#/alf/util/platform'
 export * from '#/alf/util/themeSelector'
 export * from '#/alf/util/useGutters'
+export {type NorthskyTheme as Theme} from '#/brand/theme'
 export const utils = {
   ...baseUtils,
   rgbToHex,

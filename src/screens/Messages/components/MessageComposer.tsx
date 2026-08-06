@@ -307,17 +307,20 @@ function SubmitButton({
 }) {
   const {t: l} = useLingui()
   const t = useTheme()
+  // northsky: match the message bubble color for the current user's own messages.
+  const sendColor =
+    t.name === 'dark' || t.name === 'dim'
+      ? t.palette.brand_blue
+      : t.palette.primary_500
 
   return (
     <GlassView
       isInteractive
       glassEffectStyle="regular"
       style={[a.rounded_full]}
-      tintColor={disabled ? t.palette.contrast_100 : t.palette.primary_500}
+      tintColor={disabled ? t.palette.contrast_100 : sendColor}
       fallbackStyle={{
-        backgroundColor: disabled
-          ? t.palette.contrast_100
-          : t.palette.primary_500,
+        backgroundColor: disabled ? t.palette.contrast_100 : sendColor,
       }}>
       <Pressable
         accessibilityRole="button"

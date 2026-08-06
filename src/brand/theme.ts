@@ -10,7 +10,11 @@ import {
   NORTHSKY_DARK_PALETTE,
   NORTHSKY_DIM_PALETTE,
   NORTHSKY_LIGHT_PALETTE,
+  type NorthskyPalette,
 } from './palette'
+
+// northsky: theme type with our custom palette
+export type NorthskyTheme = Omit<Theme, 'palette'> & {palette: NorthskyPalette}
 
 /**
  * Rebuilds the five `shadow_*` atoms to the brand shadow language: `soft`
@@ -20,11 +24,11 @@ import {
  * in the web boxShadow strings.
  */
 function applyShadows(
-  theme: Theme,
+  theme: NorthskyTheme,
   base: string,
   soft: number,
   strong: number,
-): Theme {
+): NorthskyTheme {
   const s = utils.alpha(base, soft)
   const l = utils.alpha(base, strong)
   return {
@@ -71,7 +75,7 @@ const light = applyShadows(
     scheme: 'light',
     name: 'light',
     palette: NORTHSKY_LIGHT_PALETTE,
-  }),
+  }) as NorthskyTheme,
   NORTHSKY_LIGHT_PALETTE.contrast_1000,
   0.12,
   0.2,
@@ -82,7 +86,7 @@ const dark = applyShadows(
     scheme: 'dark',
     name: 'dark',
     palette: NORTHSKY_DARK_PALETTE,
-  }),
+  }) as NorthskyTheme,
   NORTHSKY_DARK_PALETTE.black,
   0.4,
   0.55,
@@ -93,7 +97,7 @@ const dim = applyShadows(
     scheme: 'dark',
     name: 'dim',
     palette: NORTHSKY_DIM_PALETTE,
-  }),
+  }) as NorthskyTheme,
   NORTHSKY_DIM_PALETTE.black,
   0.4,
   0.55,

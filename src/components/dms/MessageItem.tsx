@@ -235,12 +235,18 @@ let MessageItem = ({
     (isInMiddleOfCluster || isLastInCluster)
 
   const pendingColor = t.palette.primary_300
+  // northsky: override chat bubble colors in dark mode
+  const isDarkOrDim = t.name === 'dark' || t.name === 'dim'
 
   const bubbleColor = isFromSelf
     ? isPending
       ? pendingColor
-      : t.palette.primary_500
-    : t.palette.contrast_50
+      : isDarkOrDim
+        ? t.palette.brand_blue
+        : t.palette.primary_500
+    : isDarkOrDim
+      ? t.palette.brand_purple
+      : t.palette.contrast_50
   const highlightColor = isFromSelf
     ? t.palette.primary_300
     : t.palette.primary_100
