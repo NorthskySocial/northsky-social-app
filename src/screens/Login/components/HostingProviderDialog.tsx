@@ -13,6 +13,7 @@ import {Globe_Stroke2_Corner0_Rounded as Globe} from '#/components/icons/Globe'
 import {InlineLinkText} from '#/components/Link'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
+import {BRAND} from '#/brand/config'
 
 type SegmentedControlOptions = 'automatic' | 'manual'
 
@@ -181,8 +182,8 @@ function DialogInner({
               {isEmail ? (
                 <Trans>
                   Your hosting provider can’t be detected from an email address,
-                  so the default Bluesky service will be used. Enter your
-                  username instead, or set your provider manually.
+                  so the default {BRAND.appName} service will be used. Enter
+                  your username instead, or set your provider manually.
                 </Trans>
               ) : (
                 <Trans>
@@ -234,8 +235,9 @@ function DialogInner({
             nativeID="dialog-description"
             style={[t.atoms.text_contrast_medium, a.text_sm, a.leading_snug]}>
             <Trans>
-              Bluesky is an open network where you can choose your hosting
-              provider. If you're a developer, you can host your own server.
+              {BRAND.appName} is an open network where you can choose your
+              hosting provider. If you're a developer, you can host your own
+              server.
             </Trans>{' '}
             <InlineLinkText
               label={l`Learn more about self hosting your PDS.`}
