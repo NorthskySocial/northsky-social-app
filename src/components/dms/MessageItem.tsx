@@ -574,7 +574,10 @@ let MessageItem = ({
                         value={rt}
                         style={[
                           a.text_md,
-                          isFromSelf && {color: t.palette.white},
+                          // northsky: purple text in dark mode for sufficient contrast ratio
+                          isDarkOrDim
+                            ? {color: t.palette.contrast_0}
+                            : isFromSelf && {color: t.palette.white},
                           // Emoji-only: add top leading to avoid clipping the
                           // glyph, then pull the bottom up by the same amount so
                           // the glyph bottom-aligns with the avatar instead of
@@ -894,12 +897,17 @@ function ReplyQuote({
       ? createSanitizedDisplayName(senderProfile)
       : null
 
-  const tintColor = isFromSelf ? t.palette.white : t.atoms.text.color
-  const subtleColor = isFromSelf
-    ? t.palette.white
-    : t.atoms.text_contrast_high.color
-  const borderColor = isFromSelf
-    ? utils.alpha(t.palette.white, 0.5)
+  // northsky: purple text in dark mode for sufficient contrast ratio
+  const isDarkOrDim = t.name === 'dark' || t.name === 'dim'
+  const ownTextColor = isDarkOrDim
+    ? t.palette.contrast_0
+    : isFromSelf
+      ? t.palette.white
+      : undefined
+  const tintColor = ownTextColor ?? t.atoms.text.color
+  const subtleColor = ownTextColor ?? t.atoms.text_contrast_high.color
+  const borderColor = ownTextColor
+    ? utils.alpha(ownTextColor, 0.5)
     : t.atoms.border_contrast_high.borderColor
 
   let text: string
