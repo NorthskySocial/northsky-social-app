@@ -234,10 +234,11 @@ function DialogInner({
           <Text
             nativeID="dialog-description"
             style={[t.atoms.text_contrast_medium, a.text_sm, a.leading_snug]}>
+            {/* northsky: make description more accurate */}
             <Trans>
-              {BRAND.appName} is an open network where you can choose your
-              hosting provider. If you're a developer, you can host your own
-              server.
+              {BRAND.appName} is built on AT Protocol, which is an open network
+              where you can choose your hosting provider. If you're a developer,
+              you can host your own server.
             </Trans>{' '}
             <InlineLinkText
               label={l`Learn more about self hosting your PDS.`}
