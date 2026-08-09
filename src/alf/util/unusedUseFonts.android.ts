@@ -14,6 +14,7 @@ export function DO_NOT_USE() {
     'Geist-Medium': require('../../../assets/fonts/geist/Geist-Medium.ttf'),
     'Geist-SemiBold': require('../../../assets/fonts/geist/Geist-SemiBold.ttf'),
     'Geist-Bold': require('../../../assets/fonts/geist/Geist-Bold.ttf'),
+    'Geist-Italic': require('../../../assets/fonts/geist/Geist-Italic.ttf'),
     'MuseoModerno-SemiBold': require('../../../assets/fonts/museomoderno/MuseoModerno-SemiBold.ttf'),
     'MuseoModerno-SemiBoldItalic': require('../../../assets/fonts/museomoderno/MuseoModerno-SemiBoldItalic.ttf'),
   })

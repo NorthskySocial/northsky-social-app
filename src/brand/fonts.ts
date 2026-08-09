@@ -1,8 +1,29 @@
 import {type TextStyle} from 'react-native'
 
-import {IS_WEB} from '#/env'
+import {IS_ANDROID, IS_WEB} from '#/env'
 
 export const NS_DISPLAY_FONT = 'NorthskyDisplay'
+
+/**
+ * Body italic family. Geist ships no italic cut, so the variable italic in
+ * `assets/fonts/geist/Geist-Italic.ttf` is registered as its own family.
+ * Browsers synthesize oblique from the upright face, but native cannot, so this
+ * is only applied off-web.
+ */
+export const GEIST_ITALIC_FONT = 'Geist-Italic'
+
+/**
+ * Monospace family for rendered code (inline code and fenced blocks). A full
+ * fallback stack on web; a single system family on native, since RN
+ * `fontFamily` does not accept CSS-style fallback lists. `applyFonts` preserves
+ * this verbatim - see the guard there - so the body font does not clobber it
+ * and leave code in a proportional typeface.
+ */
+export const MONOSPACE_FONT_FAMILY = IS_WEB
+  ? 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", "Roboto Mono", monospace'
+  : IS_ANDROID
+    ? 'monospace'
+    : 'Menlo'
 
 /** Android has no variable Geist - maps CSS weights onto the static cuts in `assets/fonts/geist/`. */
 export const GEIST_ANDROID_MAP: Record<string, string> = {
