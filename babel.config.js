@@ -41,5 +41,19 @@ module.exports = function (api) {
 
       'react-native-worklets/plugin', // NOTE: this plugin MUST be last
     ],
+    overrides: [
+      // northsky: Jest runs without --experimental-vm-modules, so a real
+      // `import()` throws. Compile it to require() for the lazily loaded
+      // syntax highlighter. Scoped to that directory on purpose - applying the
+      // transform repo-wide breaks ESM interop for packages like nanoid.
+      ...(api.env('test')
+        ? [
+            {
+              test: /src[\\/]lib[\\/]code[\\/]/,
+              plugins: ['@babel/plugin-transform-dynamic-import'],
+            },
+          ]
+        : []),
+    ],
   }
 }

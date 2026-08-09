@@ -1,12 +1,23 @@
-import {useMemo} from 'react'
-import {type StyleProp, type TextStyle} from 'react-native'
+import {type ReactNode, useMemo} from 'react'
+import {type StyleProp, type TextStyle, View} from 'react-native'
 import {AppBskyRichtextFacet, RichText as RichTextAPI} from '@atproto/api'
 
+// northsky: Markdown-style code and emphasis in post text
+import {
+  hasFormatting,
+  type RichTextItem,
+  segmentsWithCode,
+} from '#/lib/code/ranges'
 import {toShortUrl} from '#/lib/strings/url-helpers'
 import {atoms as a, flatten, type TextStyleProp} from '#/alf'
 import {isOnlyEmoji} from '#/alf/typography'
 import {InlineLinkText, type LinkProps} from '#/components/Link'
 import {ProfileHoverCard} from '#/components/ProfileHoverCard'
+import {
+  type CodePart,
+  codePart,
+  emphasisTextStyle,
+} from '#/components/RichTextCode'
 import {RichTextTag} from '#/components/RichTextTag'
 import {Text, type TextProps} from '#/components/Typography'
 
@@ -22,6 +33,12 @@ export type RichTextProps = TextStyleProp &
     numberOfLines?: number
     disableLinks?: boolean
     enableTags?: boolean
+    /**
+     * northsky: render Markdown-style formatting in the text - inline `code`,
+     * fenced ```lang\n...``` blocks, and emphasis. Opt-in; enabled for post
+     * bodies. See `#/components/RichTextCode`.
+     */
+    enableCode?: boolean
     authorHandle?: string
     onLinkPress?: LinkProps['onPress']
     interactiveStyle?: StyleProp<TextStyle>
@@ -47,6 +64,7 @@ export function RichText({
   disableLinks,
   selectable,
   enableTags = false,
+  enableCode = false,
   authorHandle,
   onLinkPress,
   interactiveStyle,
@@ -71,7 +89,82 @@ export function RichText({
 
   const {text, facets} = richText
 
-  if (!facets?.length) {
+  // northsky: fast guard - only run the formatting pipeline when the post
+  // actually contains a marker. Plain posts (the overwhelming majority) render
+  // exactly as before.
+  const codeActive = enableCode && hasFormatting(text)
+  // Fenced blocks render as <View> panels only in full views. When the text is
+  // line-clamped (feed previews, quote embeds), keep them inline so
+  // `numberOfLines` still works - a block <View> can't be truncated by a parent
+  // <Text>, and a nested scroll would fight the feed's own gesture.
+  const blockMode = codeActive && !numberOfLines
+
+  // northsky: assemble parts into the final tree. With no block parts this is
+  // the single <Text> we've always rendered. With a block (a fenced code
+  // <View>, which can't live inside a <Text>), group consecutive inline parts
+  // into <Text> runs and emit blocks as siblings inside a wrapping <View>.
+  const renderParts = (parts: CodePart[]): ReactNode => {
+    if (!parts.some(p => p.block)) {
+      return (
+        <Text
+          emoji
+          selectable={selectable}
+          testID={testID}
+          style={plainStyles}
+          numberOfLines={numberOfLines}
+          onLayout={onLayout}
+          onTextLayout={onTextLayout}
+          // @ts-ignore web only -prf
+          dataSet={WORD_WRAP}>
+          {parts.map(p => p.node)}
+        </Text>
+      )
+    }
+    const out: ReactNode[] = []
+    let run: ReactNode[] = []
+    let runKey = 0
+    const flushRun = () => {
+      if (run.length === 0) return
+      const children = run
+      out.push(
+        <Text
+          key={`run${runKey}`}
+          emoji
+          selectable={selectable}
+          style={plainStyles}
+          // @ts-ignore web only -prf
+          dataSet={WORD_WRAP}>
+          {children}
+        </Text>,
+      )
+      runKey++
+      run = []
+    }
+    for (const part of parts) {
+      if (part.block) {
+        flushRun()
+        out.push(part.node)
+      } else {
+        run.push(part.node)
+      }
+    }
+    flushRun()
+    // NOTE: posts with a fenced block in a full view render as a <View
+    // testID={testID}> wrapping <Text> runs, rather than the usual single
+    // <Text testID={testID}>. testID stays on the wrapper, but the structure
+    // differs - E2E/a11y logic that assumes postText is one Text node with
+    // concatenated children will see a different shape for such posts.
+    // onLayout is forwarded (View supports it); onTextLayout is Text-only, so
+    // it's dropped on this path - only reached in full views (!numberOfLines),
+    // where no post-body caller relies on it for height measurement.
+    return (
+      <View testID={testID} style={a.flex_1} onLayout={onLayout}>
+        {out}
+      </View>
+    )
+  }
+
+  if (!facets?.length && !codeActive) {
     if (isOnlyEmoji(text)) {
       const flattenedStyle = flatten(style) ?? {}
       const fontSize =
@@ -106,10 +199,46 @@ export function RichText({
     )
   }
 
-  const els = []
+  const parts: CodePart[] = []
   let key = 0
+  // northsky: with formatting active, code and emphasis are resolved over the
+  // full text before facets, so a fence containing a link stays a fence. See
+  // `#/lib/code/ranges`. Otherwise this is upstream's plain segment walk.
   // N.B. must access segments via `richText.segments`, not via destructuring
-  for (const segment of richText.segments()) {
+  const items: RichTextItem[] = codeActive
+    ? segmentsWithCode(richText)
+    : Array.from(richText.segments(), segment => ({
+        kind: 'segment' as const,
+        segment,
+      }))
+
+  for (const item of items) {
+    if (item.kind === 'code') {
+      parts.push(codePart(item.token, `c${key}`, blockMode, selectable))
+      key++
+      continue
+    }
+
+    // northsky: emphasis is a style overlay, so it composes with whatever the
+    // segment renders as - a bolded link is still a link.
+    const emphasis = emphasisTextStyle(item.style)
+
+    if (item.kind === 'text') {
+      parts.push({
+        block: false,
+        node: emphasis ? (
+          <Text key={key} emoji style={emphasis}>
+            {item.text}
+          </Text>
+        ) : (
+          item.text
+        ),
+      })
+      key++
+      continue
+    }
+
+    const segment = item.segment
     const link = segment.link
     const mention = segment.mention
     const tag = segment.tag
@@ -120,40 +249,46 @@ export function RichText({
         AppBskyRichtextFacet.validateMention(mention).success) &&
       !disableLinks
     ) {
-      els.push(
-        <ProfileHoverCard key={key} did={mention.did}>
-          <InlineLinkText
-            selectable={selectable}
-            to={`/profile/${mention.did}`}
-            style={interactiveStyles}
-            // @ts-ignore TODO
-            dataSet={WORD_WRAP}
-            shouldProxy={shouldProxyLinks}
-            onPress={onLinkPress}>
-            {segment.text}
-          </InlineLinkText>
-        </ProfileHoverCard>,
-      )
+      parts.push({
+        block: false,
+        node: (
+          <ProfileHoverCard key={key} did={mention.did}>
+            <InlineLinkText
+              selectable={selectable}
+              to={`/profile/${mention.did}`}
+              style={[interactiveStyles, emphasis]}
+              // @ts-ignore TODO
+              dataSet={WORD_WRAP}
+              shouldProxy={shouldProxyLinks}
+              onPress={onLinkPress}>
+              {segment.text}
+            </InlineLinkText>
+          </ProfileHoverCard>
+        ),
+      })
     } else if (link && AppBskyRichtextFacet.validateLink(link).success) {
       const isValidLink = URL_REGEX.test(link.uri)
       if (!isValidLink || disableLinks) {
-        els.push(toShortUrl(segment.text))
+        parts.push({block: false, node: toShortUrl(segment.text)})
       } else {
-        els.push(
-          <InlineLinkText
-            selectable={selectable}
-            key={key}
-            to={link.uri}
-            style={interactiveStyles}
-            // @ts-ignore TODO
-            dataSet={WORD_WRAP}
-            shareOnLongPress
-            shouldProxy={shouldProxyLinks}
-            onPress={onLinkPress}
-            emoji>
-            {toShortUrl(segment.text)}
-          </InlineLinkText>,
-        )
+        parts.push({
+          block: false,
+          node: (
+            <InlineLinkText
+              selectable={selectable}
+              key={key}
+              to={link.uri}
+              style={[interactiveStyles, emphasis]}
+              // @ts-ignore TODO
+              dataSet={WORD_WRAP}
+              shareOnLongPress
+              shouldProxy={shouldProxyLinks}
+              onPress={onLinkPress}
+              emoji>
+              {toShortUrl(segment.text)}
+            </InlineLinkText>
+          ),
+        })
       }
     } else if (
       !disableLinks &&
@@ -161,33 +296,32 @@ export function RichText({
       tag &&
       AppBskyRichtextFacet.validateTag(tag).success
     ) {
-      els.push(
-        <RichTextTag
-          key={key}
-          display={segment.text}
-          tag={tag.tag}
-          textStyle={interactiveStyles}
-          authorHandle={authorHandle}
-        />,
-      )
+      parts.push({
+        block: false,
+        node: (
+          <RichTextTag
+            key={key}
+            display={segment.text}
+            tag={tag.tag}
+            textStyle={[interactiveStyles, emphasis]}
+            authorHandle={authorHandle}
+          />
+        ),
+      })
     } else {
-      els.push(segment.text)
+      parts.push({
+        block: false,
+        node: emphasis ? (
+          <Text key={key} emoji style={emphasis}>
+            {segment.text}
+          </Text>
+        ) : (
+          segment.text
+        ),
+      })
     }
     key++
   }
 
-  return (
-    <Text
-      emoji
-      selectable={selectable}
-      testID={testID}
-      style={plainStyles}
-      numberOfLines={numberOfLines}
-      onLayout={onLayout}
-      onTextLayout={onTextLayout}
-      // @ts-ignore web only -prf
-      dataSet={WORD_WRAP}>
-      {els}
-    </Text>
-  )
+  return renderParts(parts)
 }
