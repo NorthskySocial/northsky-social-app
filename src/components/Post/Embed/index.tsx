@@ -31,6 +31,8 @@ import {Embed as StarterPackCard} from '#/components/StarterPack/StarterPackCard
 import {SubtleHover} from '#/components/SubtleHover'
 import {GradientRing} from '#/brand/GradientRing' // northsky: gradient-ring quote frame
 // northsky: custom-lexicon rendering extension point
+// northsky: rich rendering for recognized external links (e.g. Tangled snippets)
+import {matchCustomEmbed} from '#/features/customEmbeds/registry'
 import {CustomRecordRenderer} from '#/features/customRecords/CustomRecordRenderer'
 import * as bsky from '#/types/bsky'
 import {
@@ -129,6 +131,23 @@ function MediaEmbed({
               link={embed.view.external}
               onOpen={rest.onOpen}
               style={rest.style}
+            />
+          </ContentHider>
+        )
+      }
+      // northsky: let a registered handler upgrade a recognized link (e.g. a
+      // Tangled code snippet) into a rich card before falling through to the
+      // default link preview.
+      const customEmbed = matchCustomEmbed(embed.view.external)
+      if (customEmbed) {
+        return (
+          <ContentHider
+            modui={rest.moderation?.ui('contentMedia')}
+            activeStyle={[a.mt_sm]}>
+            <customEmbed.Component
+              view={embed.view.external}
+              onOpen={rest.onOpen}
+              style={[a.mt_sm, rest.style]}
             />
           </ContentHider>
         )
