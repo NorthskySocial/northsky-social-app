@@ -11,7 +11,7 @@ jest.mock('../tangledString/TangledStringPreview', () => ({
   TangledStringPreview: () => null,
 }))
 
-import {matchCustomEmbed} from '../registry'
+import {matchCustomEmbed, matchCustomEmbedPreview} from '../registry'
 import {tangledStringHandler} from '../tangledString'
 
 function external(uri: string): AppBskyEmbedExternal.ViewExternal {
@@ -39,5 +39,35 @@ describe('matchCustomEmbed', () => {
     expect(
       matchCustomEmbed(external('https://tangled.org/strings/a.test/rkey/raw')),
     ).toBeNull()
+  })
+})
+
+describe('matchCustomEmbedPreview', () => {
+  it('prefers a declared Preview over the full card', () => {
+    const Preview = matchCustomEmbedPreview(
+      external('https://tangled.org/strings/a.test/rkey'),
+    )
+    expect(Preview).toBe(tangledStringHandler.Preview)
+    expect(Preview).not.toBe(tangledStringHandler.Component)
+  })
+
+  it('returns null for an unmatched link so the composer keeps its link card', () => {
+    expect(
+      matchCustomEmbedPreview(external('https://example.com/post')),
+    ).toBeNull()
+  })
+
+  it('falls back to the full card for a handler with no Preview', () => {
+    jest.isolateModules(() => {
+      const Component = () => null
+      jest.doMock('../tangledString', () => ({
+        tangledStringHandler: {match: () => true, Component},
+      }))
+      /* eslint-disable-next-line @typescript-eslint/no-require-imports */
+      const registry = require('../registry') as typeof import('../registry')
+      expect(
+        registry.matchCustomEmbedPreview(external('https://any.test')),
+      ).toBe(Component)
+    })
   })
 })
