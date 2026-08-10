@@ -1,4 +1,5 @@
 import {View} from 'react-native'
+import {plural} from '@lingui/core/macro'
 import {Plural, Trans, useLingui} from '@lingui/react/macro'
 
 import {atoms as a, useTheme} from '#/alf'
@@ -35,7 +36,9 @@ export function AgeConfirmationFields({
     <View style={[a.gap_lg]} testID="ageConfirmationFields">
       <Question
         testID="ageConfirmMinAccessAge"
-        label={l`Are you ${MIN_ACCESS_AGE} years of age or older?`}
+        label={plural(MIN_ACCESS_AGE, {
+          other: 'Are you # years of age or older?',
+        })}
         value={toAnswer(value.isOverMinAccessAge)}
         onChange={answer => {
           const isOverMinAccessAge = answer === 'yes'
