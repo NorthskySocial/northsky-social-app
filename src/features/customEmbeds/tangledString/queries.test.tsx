@@ -69,6 +69,45 @@ describe('useTangledStringQuery', () => {
     await waitFor(() => expect(result.current.isError).toBe(true))
   })
 
+  it.each([
+    ['no contents', {}],
+    ['a numeric contents', {contents: 1}],
+    ['an object contents', {contents: {}}],
+    ['a null value', null],
+  ])('errors on a record with %s', async (_case, value) => {
+    // The card splits contents into lines, so an unreadable record must not
+    // reach it. It becomes the query's error state instead.
+    resolveMiniDoc.mockResolvedValue({did: DID})
+    getRecordByUri.mockResolvedValue({value})
+
+    const {result} = render({actor: 'usagi.test', rkey: 'broken'})
+
+    await waitFor(() => expect(result.current.isError).toBe(true))
+  })
+
+  it('accepts an empty snippet', async () => {
+    resolveMiniDoc.mockResolvedValue({did: DID})
+    getRecordByUri.mockResolvedValue({value: {contents: ''}})
+
+    const {result} = render({actor: 'usagi.test', rkey: 'empty'})
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(result.current.data?.value).toEqual({contents: ''})
+  })
+
+  it('drops a non-string filename rather than failing the read', async () => {
+    // Losing the filename costs language detection, not the snippet.
+    resolveMiniDoc.mockResolvedValue({did: DID})
+    getRecordByUri.mockResolvedValue({
+      value: {contents: 'moon prism power', filename: 42},
+    })
+
+    const {result} = render({actor: 'usagi.test', rkey: 'odd'})
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(result.current.data?.value).toEqual({contents: 'moon prism power'})
+  })
+
   it('does not fetch when disabled', () => {
     render({actor: 'usagi.test', rkey: 'rkey', enabled: false})
 

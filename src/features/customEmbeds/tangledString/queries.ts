@@ -2,7 +2,11 @@ import {useQuery} from '@tanstack/react-query'
 
 import {getRecordByUri, resolveMiniDoc} from '#/lib/slingshot/client'
 import {STALE} from '#/state/queries'
-import {STRING_COLLECTION, type TangledStringValue} from './lexicon'
+import {
+  parseTangledStringValue,
+  STRING_COLLECTION,
+  type TangledStringValue,
+} from './lexicon'
 
 export type TangledStringData = {
   did: string
@@ -43,7 +47,10 @@ export function useTangledStringQuery({
       )
       if (!record) throw new Error('snippet not found')
 
-      return {did, value: record.value}
+      const value = parseTangledStringValue(record.value)
+      if (!value) throw new Error('snippet is not a readable string record')
+
+      return {did, value}
     },
     staleTime: STALE.MINUTES.FIVE,
   })

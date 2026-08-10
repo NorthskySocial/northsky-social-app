@@ -50,11 +50,10 @@ export function TangledStringEmbed({
   // author costs no fetch here and an edited profile invalidates everywhere.
   // Best-effort: the snippet still renders without a byline.
   const {data: author} = useProfileQuery({did: query.data?.did})
-  // An empty snippet is a valid record, so distinguish it from a record that
-  // never loaded - only the latter is an error.
-  const hasContents = value?.contents !== undefined
+  // The query rejects a record it cannot render, so a success always carries a
+  // string here. An empty snippet is a valid record and renders as empty code.
   const code = value?.contents ?? ''
-  const lineCount = hasContents ? code.split('\n').length : 0
+  const lineCount = value ? code.split('\n').length : 0
   const canExpand = lineCount > PREVIEW_LINES
 
   return (
@@ -67,7 +66,7 @@ export function TangledStringEmbed({
         <View style={[a.py_lg, a.align_center]}>
           <Loader size="md" />
         </View>
-      ) : query.isError || !hasContents ? (
+      ) : query.isError || !value ? (
         <View style={[a.px_md, a.py_md]}>
           <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
             <Trans>Couldn't load this snippet.</Trans>
@@ -88,7 +87,7 @@ export function TangledStringEmbed({
         </View>
       )}
 
-      {hasContents ? <Divider /> : null}
+      {value ? <Divider /> : null}
 
       {(author || lineCount > 0) && (
         // Two flexible columns so the expand button stays centred between them.
