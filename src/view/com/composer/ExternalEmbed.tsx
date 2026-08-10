@@ -18,7 +18,7 @@ import {isStandardSiteEmbed} from '#/components/Post/Embed/StandardSiteEmbed/uti
 import {Embed as StarterPackEmbed} from '#/components/StarterPack/StarterPackCard'
 import {Text} from '#/components/Typography'
 // northsky: custom embed handlers (e.g. Tangled code snippets)
-import {matchCustomEmbed} from '#/features/customEmbeds/registry'
+import {matchCustomEmbedPreview} from '#/features/customEmbeds/registry'
 import {type Gif} from '#/features/gifPicker/types'
 
 export const ExternalEmbedGif = ({
@@ -99,9 +99,8 @@ export const ExternalEmbedLink = ({
           description: data.description || '',
           thumb: data.thumb?.source.path,
         }
-        const custom = matchCustomEmbed(externalView)
-        if (custom) {
-          const CustomPreview = custom.Preview ?? custom.Component
+        const CustomPreview = matchCustomEmbedPreview(externalView)
+        if (CustomPreview) {
           return <CustomPreview view={externalView} />
         }
         if (data.view && isStandardSiteEmbed(data.view.external)) {
