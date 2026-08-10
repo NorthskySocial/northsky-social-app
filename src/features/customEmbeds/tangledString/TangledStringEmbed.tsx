@@ -5,6 +5,7 @@ import {Plural, Trans, useLingui} from '@lingui/react/macro'
 import {PREVIEW_LINES, SCROLL_LINES} from '#/lib/code/theme'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
+import {useProfileQuery} from '#/state/queries/profile'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
 import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
@@ -45,7 +46,10 @@ export function TangledStringEmbed({
     enabled: !!ref,
   })
   const value = query.data?.value
-  const author = query.data?.author
+  // Shares the app-wide profile cache, so a feed that already rendered this
+  // author costs no fetch here and an edited profile invalidates everywhere.
+  // Best-effort: the snippet still renders without a byline.
+  const {data: author} = useProfileQuery({did: query.data?.did})
   // An empty snippet is a valid record, so distinguish it from a record that
   // never loaded - only the latter is an error.
   const hasContents = value?.contents !== undefined
