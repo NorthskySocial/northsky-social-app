@@ -34,6 +34,7 @@ import {Ticket_Stroke2_Corner0_Rounded as TicketIcon} from '#/components/icons/T
 import {createStaticClick, InlineLinkText} from '#/components/Link'
 import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
+import {BRAND} from '#/brand/config'
 import {IS_IOS, IS_NATIVE} from '#/env'
 import {ConfirmHostingProviderDialog} from './components/ConfirmHostingProviderDialog'
 import {HostingProviderDialog} from './components/HostingProviderDialog'
@@ -654,7 +655,7 @@ function HostingProviderIndicator({
         {state.status === 'detected' || state.status === 'overridden' ? (
           <Trans>Hosting provider: {toNiceHostingUrl(state.pdsUrl)}</Trans>
         ) : state.status === 'email' ? (
-          <Trans>Hosting provider: Bluesky</Trans>
+          <Trans>Hosting provider: {BRAND.appName}</Trans>
         ) : (
           <Trans>Hosting provider</Trans>
         )}

@@ -235,13 +235,18 @@ let MessageItem = ({
     (isInMiddleOfCluster || isLastInCluster)
 
   const pendingColor = t.palette.primary_300
+  // northsky: override chat bubble colors in dark mode
+  const isDarkOrDim = t.name === 'dark' || t.name === 'dim'
 
   const bubbleColor = isFromSelf
     ? isPending
       ? pendingColor
-      : // northsky: primary_500 is too bright in dark mode
-        t.palette.primary_400
-    : t.palette.contrast_50
+      : isDarkOrDim
+        ? t.palette.brand_blue
+        : t.palette.primary_500
+    : isDarkOrDim
+      ? t.palette.brand_purple
+      : t.palette.contrast_50
   const highlightColor = isFromSelf
     ? t.palette.primary_300
     : t.palette.primary_100
@@ -569,8 +574,10 @@ let MessageItem = ({
                         value={rt}
                         style={[
                           a.text_md,
-                          // northsky: text color for improved contrast ratio in dark mode
-                          isFromSelf && {color: t.palette.contrast_0},
+                          // northsky: purple text in dark mode for sufficient contrast ratio
+                          isDarkOrDim
+                            ? {color: t.palette.contrast_0}
+                            : isFromSelf && {color: t.palette.white},
                           // Emoji-only: add top leading to avoid clipping the
                           // glyph, then pull the bottom up by the same amount so
                           // the glyph bottom-aligns with the avatar instead of
@@ -890,13 +897,17 @@ function ReplyQuote({
       ? createSanitizedDisplayName(senderProfile)
       : null
 
-  // northsky: contrast_0 instead of white, matching the bubble text color
-  const tintColor = isFromSelf ? t.palette.contrast_0 : t.atoms.text.color
-  const subtleColor = isFromSelf
+  // northsky: purple text in dark mode for sufficient contrast ratio
+  const isDarkOrDim = t.name === 'dark' || t.name === 'dim'
+  const ownTextColor = isDarkOrDim
     ? t.palette.contrast_0
-    : t.atoms.text_contrast_high.color
-  const borderColor = isFromSelf
-    ? utils.alpha(t.palette.contrast_0, 0.5)
+    : isFromSelf
+      ? t.palette.white
+      : undefined
+  const tintColor = ownTextColor ?? t.atoms.text.color
+  const subtleColor = ownTextColor ?? t.atoms.text_contrast_high.color
+  const borderColor = ownTextColor
+    ? utils.alpha(ownTextColor, 0.5)
     : t.atoms.border_contrast_high.borderColor
 
   let text: string

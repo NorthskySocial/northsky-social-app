@@ -307,19 +307,20 @@ function SubmitButton({
 }) {
   const {t: l} = useLingui()
   const t = useTheme()
+  // northsky: match the message bubble color for the current user's own messages.
+  const sendColor =
+    t.name === 'dark' || t.name === 'dim'
+      ? t.palette.brand_blue
+      : t.palette.primary_500
 
   return (
     <GlassView
       isInteractive
       glassEffectStyle="regular"
       style={[a.rounded_full]}
-      // northsky: primary_500 is too bright in dark mode
-      tintColor={disabled ? t.palette.contrast_100 : t.palette.primary_400}
+      tintColor={disabled ? t.palette.contrast_100 : sendColor}
       fallbackStyle={{
-        backgroundColor: disabled
-          ? t.palette.contrast_100
-          : // northsky: primary_500 is too bright in dark mode
-            t.palette.primary_400,
+        backgroundColor: disabled ? t.palette.contrast_100 : sendColor,
       }}>
       <Pressable
         accessibilityRole="button"
@@ -335,18 +336,9 @@ function SubmitButton({
         onPress={onPress}
         disabled={disabled}>
         {loading ? (
-          // northsky: fill color to match message text
-          <Loader
-            size="md"
-            fill={disabled ? t.palette.white : t.palette.contrast_0}
-            style={[a.mb_2xs]}
-          />
+          <Loader size="md" fill={t.palette.white} style={[a.mb_2xs]} />
         ) : (
-          <PaperPlaneIcon
-            size="md"
-            fill={disabled ? t.palette.white : t.palette.contrast_0}
-            style={[a.mb_2xs]}
-          />
+          <PaperPlaneIcon size="md" fill={t.palette.white} style={[a.mb_2xs]} />
         )}
       </Pressable>
     </GlassView>
