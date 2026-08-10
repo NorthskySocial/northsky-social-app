@@ -97,8 +97,13 @@ export function CodeBlock({
                   // The parent Text sets MONO_FONT, but each nested Text
                   // re-applies a font family, so repeat it here or the span
                   // reverts to the body UI font.
+                  //
+                  // `emoji` belongs on the span, not the parent: the emoji
+                  // handling only walks string children and does not recurse,
+                  // and the record's text lives here.
                   <Text
                     key={i}
+                    emoji
                     style={{
                       color: colorForScope(span.scope, colors),
                       fontFamily: MONO_FONT,
