@@ -68,6 +68,7 @@ function InlineCode({value}: {value: string}) {
   const t = useTheme()
   return (
     <Text
+      emoji
       style={[
         a.rounded_xs,
         {

@@ -83,6 +83,7 @@ export function CodeBlock({
             {idx + 1}
           </Text>
           <Text
+            emoji
             // @ts-ignore web only -prf
             dataSet={WORD_WRAP}
             style={[
