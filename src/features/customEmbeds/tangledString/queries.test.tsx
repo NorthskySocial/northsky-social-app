@@ -8,13 +8,6 @@ jest.mock('#/lib/slingshot/client', () => ({
   resolveMiniDoc: jest.fn(),
 }))
 
-const mockGetProfile = jest.fn()
-jest.mock('#/state/session', () => ({
-  useAgent: () => ({
-    getProfile: (...args: unknown[]) => mockGetProfile(...args),
-  }),
-}))
-
 const {getRecordByUri, resolveMiniDoc} = jest.requireMock(
   '#/lib/slingshot/client',
 ) as {
@@ -23,7 +16,6 @@ const {getRecordByUri, resolveMiniDoc} = jest.requireMock(
 }
 
 const DID = 'did:plc:usagi'
-const PROFILE = {did: DID, handle: 'usagi.test', displayName: 'Usagi'}
 
 function wrapper({children}: {children: React.ReactNode}) {
   const client = new QueryClient({
@@ -41,18 +33,18 @@ beforeEach(() => {
 })
 
 describe('useTangledStringQuery', () => {
-  it('resolves the actor and returns the record with its author', async () => {
+  it('resolves the actor and returns the record', async () => {
     resolveMiniDoc.mockResolvedValue({did: DID})
     getRecordByUri.mockResolvedValue({value: {contents: 'moon prism power'}})
-    mockGetProfile.mockResolvedValue({data: PROFILE})
 
     const {result} = render({actor: 'usagi.test', rkey: 'rkey'})
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    // No author: the byline reads the shared profile cache instead, so this
+    // query must not carry a second copy of the profile.
     expect(result.current.data).toEqual({
       did: DID,
       value: {contents: 'moon prism power'},
-      author: PROFILE,
     })
     expect(getRecordByUri).toHaveBeenCalledWith(
       `at://${DID}/sh.tangled.string/rkey`,
@@ -71,23 +63,10 @@ describe('useTangledStringQuery', () => {
   it('errors when the record is missing', async () => {
     resolveMiniDoc.mockResolvedValue({did: DID})
     getRecordByUri.mockResolvedValue(undefined)
-    mockGetProfile.mockResolvedValue({data: PROFILE})
 
     const {result} = render({actor: 'usagi.test', rkey: 'gone'})
 
     await waitFor(() => expect(result.current.isError).toBe(true))
-  })
-
-  it('still returns the snippet when the profile lookup fails', async () => {
-    resolveMiniDoc.mockResolvedValue({did: DID})
-    getRecordByUri.mockResolvedValue({value: {contents: 'sailor say'}})
-    mockGetProfile.mockRejectedValue(new Error('appview down'))
-
-    const {result} = render({actor: 'usagi.test', rkey: 'rkey'})
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true))
-    expect(result.current.data?.value).toEqual({contents: 'sailor say'})
-    expect(result.current.data?.author).toBeUndefined()
   })
 
   it('does not fetch when disabled or when the ref is empty', () => {
