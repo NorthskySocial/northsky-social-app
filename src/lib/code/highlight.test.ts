@@ -1,6 +1,7 @@
 import {beforeAll, describe, expect, it} from '@jest/globals'
 
 import {
+  _resetHighlightCache,
   highlightToLines,
   isHighlighterReady,
   languageFromFilename,
@@ -103,5 +104,48 @@ describe('highlightToLines once loaded', () => {
     const a = highlightToLines('const cached = 1', 'typescript')
     const b = highlightToLines('const cached = 1', 'typescript')
     expect(b).toBe(a)
+  })
+
+  it('preserves text past the auto-detection sample', () => {
+    // Longer than AUTO_DETECT_SAMPLE, so the language is chosen from a prefix
+    // and the whole file highlighted with the winner.
+    const code = 'def greet():\n    return 1\n'.repeat(200)
+    const lines = highlightToLines(code)
+    const rebuilt = lines.map(l => l.map(s => s.value).join('')).join('\n')
+    expect(rebuilt).toBe(code)
+  })
+})
+
+describe('highlight cache bounds', () => {
+  beforeAll(async () => {
+    await expect(loadHighlighter()).resolves.toBe(true)
+  })
+
+  beforeEach(() => {
+    _resetHighlightCache()
+  })
+
+  it('does not retain a single oversized snippet', () => {
+    // Over the per-entry cap: cheaper to redo on the rare re-render than to
+    // hold, and caching it would evict most of everything else.
+    const big = 'const x = 1\n'.repeat(3_500)
+    const a = highlightToLines(big, 'typescript')
+    const b = highlightToLines(big, 'typescript')
+    expect(b).not.toBe(a)
+    expect(b).toEqual(a)
+  })
+
+  it('evicts by total size rather than entry count', () => {
+    const first = highlightToLines('const first = 1', 'typescript')
+    expect(highlightToLines('const first = 1', 'typescript')).toBe(first)
+
+    // ~24KB each, so this passes the character budget well before it would
+    // have hit any plausible entry-count limit.
+    const filler = 'const y = 2\n'.repeat(2_000)
+    for (let i = 0; i < 24; i++) {
+      highlightToLines(`${filler}// ${i}`, 'typescript')
+    }
+
+    expect(highlightToLines('const first = 1', 'typescript')).not.toBe(first)
   })
 })

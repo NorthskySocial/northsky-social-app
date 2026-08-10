@@ -44,8 +44,15 @@ export function CodeBlock({
   const t = useTheme()
   const codeBg = {backgroundColor: useCodePanelColor()}
 
-  const allLines = useHighlightedLines(code, languageFromFilename(filename))
-  const lines = maxLines ? allLines.slice(0, maxLines) : allLines
+  // Highlight only what is rendered. Collapsed, this is a handful of lines out
+  // of a file that may run to thousands, and highlighting is synchronous work
+  // on the render path. Expanding re-highlights the whole file.
+  //
+  // A prefix can tokenize differently from the full file - an unterminated
+  // block comment being the obvious case - which is acceptable for a preview
+  // that exists to show roughly what the snippet looks like.
+  const source = maxLines ? code.split('\n', maxLines).join('\n') : code
+  const lines = useHighlightedLines(source, languageFromFilename(filename))
   const gutterWidth = String(lines.length).length
 
   // Long lines wrap to the card width rather than scrolling horizontally - a
