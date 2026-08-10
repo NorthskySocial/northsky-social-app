@@ -4,6 +4,8 @@ import {type FontVariant, type TextStyle} from 'react-native'
 import {
   applyDisplayFont,
   GEIST_ANDROID_MAP,
+  GEIST_ITALIC_FONT,
+  MONOSPACE_FONT_FAMILY,
   NS_DISPLAY_FONT,
 } from '#/brand/fonts'
 import {IS_ANDROID, IS_WEB} from '#/env'
@@ -50,17 +52,33 @@ export function applyFonts(style: TextStyle, fontFamily: 'system' | 'theme') {
     applyDisplayFont(style)
     return
   }
+  // northsky: preserve an explicitly requested monospace family (code blocks);
+  // the branches below would otherwise overwrite it with the body font.
+  if (style.fontFamily === MONOSPACE_FONT_FAMILY) return
   if (fontFamily === 'theme') {
     if (IS_ANDROID) {
-      // northsky: Geist static cuts replace Inter (Geist ships no italic cut,
-      // so the Inter italic-suffix branch is dropped).
-      style.fontFamily =
-        GEIST_ANDROID_MAP[String(style.fontWeight || '400')] || 'Geist-Regular'
+      if (style.fontStyle === 'italic') {
+        // northsky: Our Geist font is missing italic so we have a separate file
+        // causing conflicts because now the families match so we load it directly
+        style.fontFamily = GEIST_ITALIC_FONT
+        delete style.fontStyle
+      } else {
+        // northsky: Geist static cuts replace Inter. The family name carries
+        // the weight here, so fontWeight would only double-apply.
+        style.fontFamily =
+          GEIST_ANDROID_MAP[String(style.fontWeight || '400')] ||
+          'Geist-Regular'
 
-      /*
-       * These are not supported on Android and actually break the styling.
-       */
-      delete style.fontWeight
+        /*
+         * These are not supported on Android and actually break the styling.
+         */
+        delete style.fontWeight
+        delete style.fontStyle
+      }
+    } else if (!IS_WEB && style.fontStyle === 'italic') {
+      // northsky: iOS cannot synthesize oblique from the upright face the way
+      // browsers do, so italic uses the dedicated family and drops the flag.
+      style.fontFamily = GEIST_ITALIC_FONT
       delete style.fontStyle
     } else {
       // northsky: Geist variable body font; keep fontStyle so web synthesizes

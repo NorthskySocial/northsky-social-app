@@ -230,6 +230,8 @@ function PostInner({
                 <View style={[a.mb_2xs]}>
                   <RichText
                     enableTags
+                    // northsky: Markdown-style code and emphasis in post bodies
+                    enableCode
                     testID="postText"
                     value={richText}
                     numberOfLines={limitLines ? MAX_POST_LINES : undefined}

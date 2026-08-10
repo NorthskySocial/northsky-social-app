@@ -420,6 +420,9 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
               {richText?.text ? (
                 <RichText
                   enableTags
+                  // northsky: Markdown-style code and emphasis in post bodies.
+                  enableCode
+                  fullView
                   selectable
                   value={richText}
                   style={[a.flex_1, a.text_lg]}

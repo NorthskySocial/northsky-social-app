@@ -316,6 +316,10 @@ module.exports = function (_config) {
               './assets/fonts/geist/Geist-Variable.woff2',
               './assets/fonts/museomoderno/MuseoModerno-Variable.woff2',
               './assets/fonts/museomoderno/MuseoModerno-Italic-Variable.woff2',
+              // Native italic. Geist ships no italic cut, and native cannot
+              // synthesize oblique the way browsers do, so the italic axis is
+              // shipped as its own family (`Geist-Italic`) for emphasis spans.
+              './assets/fonts/geist/Geist-Italic.ttf',
               // Android only (static cuts)
               './assets/fonts/geist/Geist-Regular.ttf',
               './assets/fonts/geist/Geist-Medium.ttf',
