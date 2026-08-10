@@ -36,11 +36,35 @@ needs no separate rule for that answer.
 | Surface | Behavior |
 | --- | --- |
 | Signup, `src/screens/Signup/StepInfo/` | Replaces the date field. The answers set `state.dateOfBirth`, so all existing validation and `createAccount` are untouched. |
-| First sign-in, `AgeConfirmationDialog` | Asks once when an account has no declared age. Accounts created in this app already answered at signup and never see it. |
+| First sign-in, `AgeConfirmationScreen` | Blocks the app when an account has no declared age. Accounts created in this app already answered at signup and never see it. |
 | Settings, account, birthdate | Unchanged. The date picker stays, so a person can still correct an exact age. |
 
-App password sessions never see the dialog, because `setPersonalDetails`
-rejects them and the person would have no way to answer.
+## The gate
+
+`gate.ts` decides which screen the shell shows. `resolveAgeConfirmationGate` is
+pure and holds every rule, so the decision is tested without rendering. The
+`useAgeConfirmationGate` hook reads the inputs and both shells call it in
+`Shell()`, next to the age assurance `NoAccessScreen` check.
+
+| Result | Meaning |
+| --- | --- |
+| `none` | The account reaches the router. |
+| `confirm` | `AgeConfirmationScreen` blocks until the answers save. |
+| `appPasswordNotice` | `AppPasswordNoticeScreen` blocks until the person accepts the limits. |
+
+Three rules are worth knowing:
+
+- **A declared age from another service counts.** The read behind the gate
+  (`src/ageAssurance/data.tsx:365-372`) turns the `isOverAge13/16/18` flags a PDS
+  derives into a birthdate, so an account that declared an age elsewhere passes
+  straight through and is never asked.
+- **A failed or pending read opens the gate.** Blocking on a network error would
+  lock an account out of the app. The failure is logged at warn and the next
+  successful read applies the gate.
+- **App Password sessions cannot answer.** `setPersonalDetails` rejects them, so
+  they get a notice that states the limits (adult content hidden, group chat
+  invites off) with a choice to continue or sign out. The acceptance is stored
+  per account in `ageConfirmationNoticeAckAt`, so it is asked once.
 
 ## Known limit
 

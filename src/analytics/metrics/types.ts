@@ -48,6 +48,8 @@ export type Events = {
       | 'Deactivated'
       | 'Takendown'
       | 'AgeAssuranceNoAccessScreen'
+      // northsky: the sign out link on the age confirmation gate.
+      | 'AgeConfirmationGate'
     scope: 'current' | 'every'
   }
   'notifications:openApp': {

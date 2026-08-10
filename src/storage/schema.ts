@@ -90,6 +90,14 @@ export type Account = {
    */
   birthdateLastUpdatedAt?: string
 
+  /**
+   * northsky: the ISO date string of when this account accepted the age
+   * confirmation notice for App Password sessions. An App Password cannot
+   * write personal details, so the account accepts the limits instead of
+   * answering the age questions.
+   */
+  ageConfirmationNoticeAckAt?: string
+
   lastSelectedHomeFeed?: string
 
   /**
