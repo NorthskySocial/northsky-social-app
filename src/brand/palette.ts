@@ -17,13 +17,24 @@ import {
   invertPalette,
 } from '@bsky.app/alf/dist/palette'
 
-// Theme-invariant keys, taken verbatim from the package.
+// northsky: upstream `Palette` is a plain type alias which can't be
+// extended via declaration merging, so we need to define our own type
+export type NorthskyPalette = Palette & {
+  brand_blue: string
+  brand_purple: string
+}
+
+// Theme-invariant keys
 const STATIC = {
+  // Taken verbatim from the package.
   white: DEFAULT_PALETTE.white,
   black: DEFAULT_PALETTE.black,
   pink: DEFAULT_PALETTE.pink,
   yellow: DEFAULT_PALETTE.yellow,
   like: DEFAULT_PALETTE.like,
+  // Northsky colors
+  brand_blue: '#59B2CF',
+  brand_purple: '#7780DC',
 }
 
 type PositiveRamp = Pick<
@@ -61,7 +72,7 @@ function pickPositive(p: Palette): PositiveRamp {
   }
 }
 
-export const NORTHSKY_LIGHT_PALETTE: Palette = {
+export const NORTHSKY_LIGHT_PALETTE: NorthskyPalette = {
   ...STATIC,
 
   contrast_0: '#FFFFFF',
@@ -112,7 +123,7 @@ export const NORTHSKY_LIGHT_PALETTE: Palette = {
   negative_975: '#460E17',
 }
 
-export const NORTHSKY_DARK_PALETTE: Palette = {
+export const NORTHSKY_DARK_PALETTE: NorthskyPalette = {
   ...STATIC,
 
   contrast_0: '#1F0B35',
@@ -164,7 +175,7 @@ export const NORTHSKY_DARK_PALETTE: Palette = {
   negative_975: '#FEF6F6',
 }
 
-export const NORTHSKY_DIM_PALETTE: Palette = {
+export const NORTHSKY_DIM_PALETTE: NorthskyPalette = {
   ...STATIC,
 
   contrast_0: '#2B1548',
