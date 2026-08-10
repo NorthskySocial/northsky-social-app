@@ -100,6 +100,14 @@ describe('highlightToLines once loaded', () => {
     expect(rebuilt).toBe('%%% not a language %%%')
   })
 
+  it('does not auto-detect when the given language is unknown', () => {
+    // This is valid Python, so auto-detection would scope it. An explicit
+    // label the grammars do not know must stay plain instead of being
+    // painted with some other language's scopes.
+    const lines = highlightToLines('def greet():\n    return 1', 'not-a-lang')
+    expect(lines.flat().every(s => s.scope === undefined)).toBe(true)
+  })
+
   it('returns a cached result on repeat calls', () => {
     const a = highlightToLines('const cached = 1', 'typescript')
     const b = highlightToLines('const cached = 1', 'typescript')

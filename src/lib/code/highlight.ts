@@ -228,8 +228,13 @@ export function highlightToLines(rawCode: string, language?: string): Line[] {
   })
   let tree: Root
   try {
-    if (language && lowlight.registered(language)) {
-      tree = lowlight.highlight(language, code)
+    if (language) {
+      // An explicit label that no grammar claims stays plain. Auto-detection
+      // here would paint the block with an unrelated language's scopes, which
+      // is worse than no highlighting at all.
+      tree = lowlight.registered(language)
+        ? lowlight.highlight(language, code)
+        : plainTree()
     } else if (code.length <= AUTO_DETECT_SAMPLE) {
       tree = lowlight.highlightAuto(code, {subset: AUTO_SUBSET})
     } else {
