@@ -156,11 +156,21 @@ export function unsafeGetAndComputeAgeAssurance({did}: {did: string}) {
   const geolocation = device.get(['mergedGeolocation'])
 
   if (!geolocation || !config || !state || !requiredData) {
+    /*
+     * northsky: with age assurance off the account has full access, so a cache
+     * miss must not hold it at safe. The configured policy decides the access,
+     * not the presence of cached data.
+     */
     return {
-      state: {
-        status: AgeAssuranceStatus.Unknown,
-        access: AgeAssuranceAccess.Safe,
-      },
+      state: AGE_ASSURANCE_ENABLED
+        ? {
+            status: AgeAssuranceStatus.Unknown,
+            access: AgeAssuranceAccess.Safe,
+          }
+        : {
+            status: AgeAssuranceStatus.Assured,
+            access: AgeAssuranceAccess.Full,
+          },
     }
   }
 
