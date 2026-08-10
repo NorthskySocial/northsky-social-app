@@ -1,16 +1,12 @@
-import {type AppBskyActorDefs} from '@atproto/api'
 import {useQuery} from '@tanstack/react-query'
 
 import {getRecordByUri, resolveMiniDoc} from '#/lib/slingshot/client'
 import {STALE} from '#/state/queries'
-import {useAgent} from '#/state/session'
 import {STRING_COLLECTION, type TangledStringValue} from './lexicon'
 
 export type TangledStringData = {
   did: string
   value: TangledStringValue
-  /** Owner profile, best-effort (the card still renders without it). */
-  author?: AppBskyActorDefs.ProfileViewDetailed
 }
 
 /**
@@ -19,9 +15,11 @@ export type TangledStringData = {
  *
  * A PDS only serves records for repos it hosts and the snippet rarely lives on
  * the viewer's PDS, so the read goes through Slingshot, which already handles
- * identity resolution and cross-PDS record fetching for this app. The author
- * profile comes from the appview for the byline and is allowed to fail without
- * blocking the snippet.
+ * identity resolution and cross-PDS record fetching for this app.
+ *
+ * The owner's profile is deliberately not fetched here: the byline reads it
+ * through `useProfileQuery`, so it shares the app-wide `['profile', did]` cache
+ * instead of hiding a second copy behind this key.
  */
 export function useTangledStringQuery({
   actor,
@@ -32,7 +30,6 @@ export function useTangledStringQuery({
   rkey: string
   enabled?: boolean
 }) {
-  const agent = useAgent()
   return useQuery<TangledStringData>({
     queryKey: ['tangledString', actor, rkey],
     enabled: enabled && !!actor && !!rkey,
@@ -41,16 +38,12 @@ export function useTangledStringQuery({
       if (!miniDoc) throw new Error(`could not resolve ${actor}`)
       const {did} = miniDoc
 
-      const [record, author] = await Promise.all([
-        getRecordByUri(`at://${did}/${STRING_COLLECTION}/${rkey}`),
-        agent
-          .getProfile({actor: did})
-          .then(r => r.data)
-          .catch(() => undefined),
-      ])
+      const record = await getRecordByUri(
+        `at://${did}/${STRING_COLLECTION}/${rkey}`,
+      )
       if (!record) throw new Error('snippet not found')
 
-      return {did, value: record.value, author}
+      return {did, value: record.value}
     },
     staleTime: STALE.MINUTES.FIVE,
   })
