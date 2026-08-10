@@ -31,20 +31,20 @@ The Authenticated Transfer Protocol ("AT Protocol" or "atproto") is a decentrali
 
 The analytics, metrics, and feature-gate pipelines inherited from upstream are
 **disabled**. Northsky does not operate those backends, and this fork does not
-send data to Bluesky's.
+send telemetry to Bluesky's backends.
 
 
 ## Contributions
 
 > [!NOTE]
-> While we do accept contributions, we prioritize high quality issues and pull requests. Adhering to the below guidelines will ensure a more timely review.
+> While we do accept contributions, we prioritize high-quality issues and pull requests. Adhering to the below guidelines will ensure a more timely review.
 
 **Guidelines:**
 
 - Check for existing issues before filing a new one please.
 - Open an issue and give some time for discussion before submitting a PR.
 - Keep changes scoped. Every line we change in a file we share with upstream is a future merge conflict, so prefer the extension points described in [AGENTS.md](./AGENTS.md).
-- Open PRs against the [pull request template](./.github/pull_request_template.md) checklist.
+- When you open a pull request, use the [pull request template](./.github/pull_request_template.md) and complete its checklist.
 
 ## Forking guidelines
 
