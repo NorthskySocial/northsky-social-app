@@ -48,6 +48,20 @@ describe('parseTangledString', () => {
     ).toBeNull()
   })
 
+  it('returns null when the actor decodes to a path separator', () => {
+    // The regex sees one segment, but decoding puts the separator back, so the
+    // actor is not an actor. Claiming this link would start a doomed query.
+    expect(
+      parseTangledString('https://tangled.org/strings/usagi%2Fchibiusa/rkey'),
+    ).toBeNull()
+  })
+
+  it('still decodes an escape that is not a separator', () => {
+    expect(
+      parseTangledString('https://tangled.org/strings/did%3Aplc%3Ausagi/rkey'),
+    ).toEqual({actor: 'did:plc:usagi', rkey: 'rkey'})
+  })
+
   it('is case insensitive on the host', () => {
     expect(
       parseTangledString('HTTPS://Tangled.ORG/strings/a.test/rkey'),

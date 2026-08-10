@@ -24,11 +24,18 @@ export function parseTangledString(url: string): TangledStringRef | null {
   if (!actor || !rkey) return null
   // This runs during render via the embed registry, so a malformed escape must
   // not throw - fall through to the default link card instead.
+  let decoded: string
   try {
-    return {actor: decodeURIComponent(actor), rkey}
+    decoded = decodeURIComponent(actor)
   } catch {
     return null
   }
+  // The regex accepts the actor as one path segment, but decoding can put a
+  // separator back: `alice%2Fother` becomes `alice/other`, which is not an
+  // actor. Reject it here rather than let the registry claim the link and
+  // start a query that can only fail.
+  if (decoded.includes('/')) return null
+  return {actor: decoded, rkey}
 }
 
 export function isTangledStringUrl(url: string): boolean {
