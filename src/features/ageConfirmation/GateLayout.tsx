@@ -1,4 +1,3 @@
-import {useCallback} from 'react'
 import {ScrollView, View} from 'react-native'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {Trans, useLingui} from '@lingui/react/macro'
@@ -27,7 +26,7 @@ export function GateLayout({children}: {children: React.ReactNode}) {
   const insets = useSafeAreaInsets()
   const {logoutCurrentAccount} = useSessionApi()
 
-  const onPressLogout = useCallback(() => {
+  function onPressLogout() {
     if (IS_WEB) {
       /*
        * The navigator is about to unmount, so it cannot push the new URL in
@@ -37,7 +36,7 @@ export function GateLayout({children}: {children: React.ReactNode}) {
       history.pushState(null, '', '/')
     }
     logoutCurrentAccount('AgeConfirmationGate')
-  }, [logoutCurrentAccount])
+  }
 
   return (
     <>
