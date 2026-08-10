@@ -42,7 +42,10 @@ export function emphasisTextStyle(
 ): TextStyle | undefined {
   if (!style) return undefined
   return {
-    ...(style.bold ? {fontWeight: '600' as const} : null),
+    // 700, not 600: Geist registers Regular, Bold and Italic under one family
+    // name, so a 600 request has no upright face to match and font matching
+    // (fontconfig on Linux, CoreText on iOS) can return the italic cut instead.
+    ...(style.bold ? {fontWeight: '700' as const} : null),
     ...(style.italic ? {fontStyle: 'italic' as const} : null),
     ...(style.strike ? {textDecorationLine: 'line-through' as const} : null),
   }
