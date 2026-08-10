@@ -4,6 +4,8 @@ import {
   ADULT_AGE,
   birthdateFromAgeConfirmation,
   isAgeConfirmationComplete,
+  withLegalAdultAnswer,
+  withMinAccessAgeAnswer,
 } from '#/features/ageConfirmation/util'
 
 /*
@@ -48,6 +50,41 @@ describe('isAgeConfirmationComplete', () => {
         isLegalAdult: false,
       }),
     ).toBe(true)
+  })
+})
+
+describe('withMinAccessAgeAnswer', () => {
+  it('keeps the adult answer after a yes', () => {
+    expect(
+      withMinAccessAgeAnswer(
+        {isOverMinAccessAge: true, isLegalAdult: true},
+        true,
+      ),
+    ).toEqual({isOverMinAccessAge: true, isLegalAdult: true})
+  })
+
+  /*
+   * A person under the minimum age never sees the adult question, so a stale
+   * answer must not survive the change.
+   */
+  it('clears the adult answer after a no', () => {
+    expect(
+      withMinAccessAgeAnswer(
+        {isOverMinAccessAge: true, isLegalAdult: true},
+        false,
+      ),
+    ).toEqual({isOverMinAccessAge: false, isLegalAdult: undefined})
+  })
+})
+
+describe('withLegalAdultAnswer', () => {
+  it('sets the adult answer and keeps the minimum age answer', () => {
+    expect(
+      withLegalAdultAnswer(
+        {isOverMinAccessAge: true, isLegalAdult: undefined},
+        false,
+      ),
+    ).toEqual({isOverMinAccessAge: true, isLegalAdult: false})
   })
 })
 

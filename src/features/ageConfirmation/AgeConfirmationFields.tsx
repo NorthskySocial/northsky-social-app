@@ -7,6 +7,10 @@ import * as SegmentedControl from '#/components/forms/SegmentedControl'
 import {Text} from '#/components/Typography'
 import {MIN_ACCESS_AGE} from '#/ageAssurance/const'
 import {type AgeConfirmation} from '#/features/ageConfirmation/types'
+import {
+  withLegalAdultAnswer,
+  withMinAccessAgeAnswer,
+} from '#/features/ageConfirmation/util'
 
 type Answer = 'yes' | 'no' | 'unset'
 
@@ -41,12 +45,7 @@ export function AgeConfirmationFields({
         })}
         value={toAnswer(value.isOverMinAccessAge)}
         onChange={answer => {
-          const isOverMinAccessAge = answer === 'yes'
-          onChange({
-            isOverMinAccessAge,
-            // A person under the minimum age never answers the adult question.
-            isLegalAdult: isOverMinAccessAge ? value.isLegalAdult : undefined,
-          })
+          onChange(withMinAccessAgeAnswer(value, answer === 'yes'))
         }}>
         <QuestionText>
           <Plural
@@ -62,10 +61,7 @@ export function AgeConfirmationFields({
           label={l`Are you legally considered an adult in the country and/or state where you live?`}
           value={toAnswer(value.isLegalAdult)}
           onChange={answer => {
-            onChange({
-              isOverMinAccessAge: value.isOverMinAccessAge,
-              isLegalAdult: answer === 'yes',
-            })
+            onChange(withLegalAdultAnswer(value, answer === 'yes'))
           }}>
           <QuestionText>
             <Trans>

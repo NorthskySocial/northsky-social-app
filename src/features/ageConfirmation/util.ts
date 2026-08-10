@@ -24,6 +24,34 @@ export function isAgeConfirmationComplete({
 }
 
 /**
+ * Applies an answer to the minimum age question. A No clears the adult
+ * answer, because a person under the minimum age never answers that question.
+ */
+export function withMinAccessAgeAnswer(
+  current: AgeConfirmation,
+  isOverMinAccessAge: boolean,
+): AgeConfirmation {
+  return {
+    isOverMinAccessAge,
+    isLegalAdult: isOverMinAccessAge ? current.isLegalAdult : undefined,
+  }
+}
+
+/**
+ * Applies an answer to the adult question. The minimum age answer stays as it
+ * is, because the question only appears after a Yes to it.
+ */
+export function withLegalAdultAnswer(
+  current: AgeConfirmation,
+  isLegalAdult: boolean,
+): AgeConfirmation {
+  return {
+    isOverMinAccessAge: current.isOverMinAccessAge,
+    isLegalAdult,
+  }
+}
+
+/**
  * Converts the answers into the birthdate the rest of the app already reads.
  *
  * The app has no way to store a boolean age declaration. `DeclaredAgePref` in
