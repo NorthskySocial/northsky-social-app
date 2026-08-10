@@ -7,6 +7,7 @@ import {
 
 import {getAge} from '#/lib/strings/time'
 import {useSession} from '#/state/session'
+import {AGE_ASSURANCE_ENABLED} from '#/ageAssurance/const'
 import {
   getConfigFromCache,
   getDeviceSignalsFromCacheForRegion,
@@ -37,7 +38,7 @@ import {device} from '#/storage'
  * server state before computing access based on AA config from the server +
  * geolocation and other data.
  */
-function computeAgeAssuranceState({
+export function computeAgeAssuranceState({
   hasSession,
   geolocation,
   config,
@@ -60,6 +61,17 @@ function computeAgeAssuranceState({
     return {
       status: AgeAssuranceStatus.Unknown,
       access: AgeAssuranceAccess.Safe,
+    }
+
+  /*
+   * northsky: age assurance is off, so give the account full access. This
+   * check goes after the logged-out check on purpose. Logged-out visitors keep
+   * their safe moderation defaults, which are not an age assurance rule.
+   */
+  if (!AGE_ASSURANCE_ENABLED)
+    return {
+      status: AgeAssuranceStatus.Assured,
+      access: AgeAssuranceAccess.Full,
     }
 
   /**

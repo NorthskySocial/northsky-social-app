@@ -11,6 +11,7 @@ import {getAge} from '#/lib/strings/time'
 import {regionName} from '#/locale/helpers'
 import {DEFAULT_LOGGED_OUT_LABEL_PREFERENCES} from '#/state/queries/preferences/const'
 import {
+  ADULT_AGE_GATE_ENABLED,
   AGE_ASSURANCE_PLATFORM,
   DEVICE_SIGNALS_SUPPORTED,
   FALLBACK_REGION_CONFIG,
@@ -309,9 +310,13 @@ export function computeAgeAssuranceFlags({
 }): AgeAssuranceFlags {
   const isAgeRestricted = state.access !== AgeAssuranceAccess.Full
   const chatDisabled = isAgeRestricted
-  const isDeclaredUnderAdultAge = metadata?.declaredAge
-    ? metadata.declaredAge < 18
-    : true
+  /*
+   * northsky: with the adult age gate off, the declared age must not gate
+   * adult content or group chat. An account with no declared age counts as
+   * under age, which is the upstream default.
+   */
+  const isDeclaredUnderAdultAge =
+    ADULT_AGE_GATE_ENABLED && (metadata?.declaredAge ?? 0) < 18
   const groupChatDisabled = chatDisabled || isDeclaredUnderAdultAge
   const isOverRegionMinAccessAge = metadata?.declaredAge
     ? metadata.declaredAge >= regionConfig.minAccessAge

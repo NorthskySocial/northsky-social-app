@@ -23,13 +23,15 @@ import {createStaticClick, SimpleInlineLinkText} from '#/components/Link'
 import {Loader} from '#/components/Loader'
 import {usePreemptivelyCompleteActivePolicyUpdate} from '#/components/PolicyUpdateOverlay/usePreemptivelyCompleteActivePolicyUpdate'
 import * as Toast from '#/components/Toast'
-import {MIN_ACCESS_AGE} from '#/ageAssurance/const'
+import {ADULT_AGE_GATE_ENABLED, MIN_ACCESS_AGE} from '#/ageAssurance/const'
 import {
   isUnderAge,
   useAgeAssuranceRegionConfigWithFallback,
 } from '#/ageAssurance/util'
 import {useAnalytics} from '#/analytics'
 import {IS_NATIVE} from '#/env'
+import {AgeConfirmationFields} from '#/features/ageConfirmation/AgeConfirmationFields'
+import {isAgeConfirmationComplete} from '#/features/ageConfirmation/util'
 import {
   useDeviceGeolocationApi,
   useIsDeviceGeolocationGranted,
@@ -107,6 +109,21 @@ export function StepInfo({
 
     if (!isOverRegionMinAccessAge) {
       return
+    }
+
+    /*
+     * northsky: the date field starts at a default date, so the age questions
+     * need an explicit answer before the step can continue.
+     */
+    if (
+      ADULT_AGE_GATE_ENABLED &&
+      !isAgeConfirmationComplete(state.ageConfirmation)
+    ) {
+      return dispatch({
+        type: 'setError',
+        value: l`Please answer the age questions.`,
+        field: 'date-of-birth',
+      })
     }
 
     if (state.serviceDescription?.inviteCodeRequired && !inviteCode) {
@@ -282,25 +299,35 @@ export function StepInfo({
                 />
               </TextField.Root>
             </View>
-            <View>
-              <DateField.LabelText>
-                <Trans>Your birth date</Trans>
-              </DateField.LabelText>
-              <DateField.DateField
-                testID="date"
-                inputRef={birthdateInputRef}
-                value={state.dateOfBirth}
-                onChangeDate={date => {
-                  dispatch({
-                    type: 'setDateOfBirth',
-                    value: sanitizeDate(new Date(date)),
-                  })
-                }}
-                label={l`Date of birth`}
-                accessibilityHint={l`Select your date of birth`}
-                maximumDate={new Date()}
+            {/* northsky: the adult age gate asks two questions instead of a date. */}
+            {ADULT_AGE_GATE_ENABLED ? (
+              <AgeConfirmationFields
+                value={state.ageConfirmation}
+                onChange={value =>
+                  dispatch({type: 'setAgeConfirmation', value})
+                }
               />
-            </View>
+            ) : (
+              <View>
+                <DateField.LabelText>
+                  <Trans>Your birth date</Trans>
+                </DateField.LabelText>
+                <DateField.DateField
+                  testID="date"
+                  inputRef={birthdateInputRef}
+                  value={state.dateOfBirth}
+                  onChangeDate={date => {
+                    dispatch({
+                      type: 'setDateOfBirth',
+                      value: sanitizeDate(new Date(date)),
+                    })
+                  }}
+                  label={l`Date of birth`}
+                  accessibilityHint={l`Select your date of birth`}
+                  maximumDate={new Date()}
+                />
+              </View>
+            )}
 
             <View style={[a.gap_sm]}>
               <Policies serviceDescription={state.serviceDescription} />
@@ -313,7 +340,7 @@ export function StepInfo({
                       <Admonition.Text>
                         <Plural
                           value={aaRegionConfig.minAccessAge}
-                          other="You must be # years of age or older to create an account in your region."
+                          other="You must be # years of age or older to create an account."
                         />
                       </Admonition.Text>
                       {IS_NATIVE &&

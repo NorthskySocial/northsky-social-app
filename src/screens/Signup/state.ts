@@ -14,6 +14,11 @@ import {getAge} from '#/lib/strings/time'
 import {useSessionApi} from '#/state/session'
 import {useOnboardingDispatch} from '#/state/shell'
 import {type AnalyticsContextType, useAnalytics} from '#/analytics'
+import {
+  type AgeConfirmation,
+  EMPTY_AGE_CONFIRMATION,
+} from '#/features/ageConfirmation/types'
+import {birthdateFromAgeConfirmation} from '#/features/ageConfirmation/util'
 
 export type ServiceDescription = ComAtprotoServerDescribeServer.OutputSchema
 
@@ -50,6 +55,8 @@ export type SignupState = {
   serviceDescription?: ServiceDescription
   userDomain: string
   dateOfBirth: Date
+  // northsky: answers to the age questions that replace the date field.
+  ageConfirmation: AgeConfirmation
   email: string
   password: string
   inviteCode: string
@@ -78,6 +85,8 @@ export type SignupAction =
   | {type: 'setEmail'; value: string}
   | {type: 'setPassword'; value: string}
   | {type: 'setDateOfBirth'; value: Date}
+  // northsky: see the `setAgeConfirmation` case for how this sets the date.
+  | {type: 'setAgeConfirmation'; value: AgeConfirmation}
   | {type: 'setInviteCode'; value: string}
   | {type: 'setHandle'; value: string}
   | {type: 'setError'; value: string; field?: ErrorField}
@@ -97,6 +106,7 @@ export const initialState: SignupState = {
   serviceDescription: undefined,
   userDomain: '',
   dateOfBirth: DEFAULT_DATE,
+  ageConfirmation: EMPTY_AGE_CONFIRMATION,
   email: '',
   password: '',
   handle: '',
@@ -181,6 +191,20 @@ export function reducer(s: SignupState, a: SignupAction): SignupState {
     }
     case 'setDateOfBirth': {
       next.dateOfBirth = a.value
+      break
+    }
+    /*
+     * northsky: the age questions replace the date field, but the rest of
+     * signup still reads `dateOfBirth`. Derive a birthdate from the answers so
+     * the existing checks and `createAccount` need no change. A person who
+     * denies the minimum age gets a birthdate below it, which blocks the step.
+     */
+    case 'setAgeConfirmation': {
+      next.ageConfirmation = a.value
+      const birthdate = birthdateFromAgeConfirmation(a.value)
+      if (birthdate) {
+        next.dateOfBirth = birthdate
+      }
       break
     }
     case 'setInviteCode': {
