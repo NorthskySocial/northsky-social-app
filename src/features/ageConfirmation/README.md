@@ -55,9 +55,9 @@ pure and holds every rule, so the decision is tested without rendering. The
 Three rules are worth knowing:
 
 - **A declared age from another service counts.** The read behind the gate
-  (`src/ageAssurance/data.tsx:365-372`) turns the `isOverAge13/16/18` flags a PDS
-  derives into a birthdate, so an account that declared an age elsewhere passes
-  straight through and is never asked.
+  (`getOtherRequiredData` in `src/ageAssurance/data.tsx`) turns the
+  `isOverAge13/16/18` flags a PDS derives into a birthdate, so an account that
+  declared an age elsewhere passes straight through and is never asked.
 - **A failed or pending read opens the gate.** Blocking on a network error would
   lock an account out of the app. The failure is logged at warn and the next
   successful read applies the gate.
