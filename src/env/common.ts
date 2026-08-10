@@ -94,8 +94,10 @@ export const METRICS_API_HOST: string =
 /**
  * Growthbook API host
  */
+// northsky: an empty metrics host gives an empty gate host, not a relative `/gb`
 export const GROWTHBOOK_API_HOST: string =
-  process.env.EXPO_PUBLIC_GROWTHBOOK_API_HOST || `${METRICS_API_HOST}/gb`
+  process.env.EXPO_PUBLIC_GROWTHBOOK_API_HOST ||
+  (METRICS_API_HOST ? `${METRICS_API_HOST}/gb` : '')
 
 /**
  * Growthbook client key
