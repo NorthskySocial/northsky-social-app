@@ -8,6 +8,7 @@ import {Logger} from '#/logger'
 import {Features} from '#/analytics/features/types'
 import {getNavigationMetadata, type Metadata} from '#/analytics/metadata'
 import * as env from '#/env'
+import {TELEMETRY_ENABLED} from '#/features/telemetry'
 
 export {Features} from '#/analytics/features/types'
 
@@ -49,20 +50,28 @@ export const features = new GrowthBook({
  * fully initialized if it takes longer than `TIMEOUT_INIT` to initialize. In
  * that case, we may see a flash of uncustomized content until the
  * initialization completes.
+ *
+ * northsky: while telemetry is off, the app fetches no gates. The promise
+ * still resolves, because `App.<platform>.tsx` awaits it before it boots.
  */
-export const init = features.init({timeout: TIMEOUT_INIT}).then(res => {
-  if (!res.success) {
-    logger.warn('GrowthBook initialization failed or timed out', {
-      source: res.source,
-      safeMessage: res.error?.toString(),
+export const init = TELEMETRY_ENABLED
+  ? features.init({timeout: TIMEOUT_INIT}).then(res => {
+      if (!res.success) {
+        logger.warn('GrowthBook initialization failed or timed out', {
+          source: res.source,
+          safeMessage: res.error?.toString(),
+        })
+      }
     })
-  }
-})
+  : Promise.resolve()
 
 /**
  * Refresh feature gates from GrowthBook.
  */
 export async function refresh({strategy}: {strategy: FeatureFetchStrategy}) {
+  // northsky: see `src/features/telemetry`
+  if (!TELEMETRY_ENABLED) return
+
   await features.refreshFeatures({
     timeout:
       strategy === 'prefer-low-latency'

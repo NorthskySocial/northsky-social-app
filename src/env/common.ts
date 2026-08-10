@@ -87,8 +87,9 @@ export const CHAT_PROXY_DID: Did =
 /**
  * Metrics API host
  */
+// northsky: no default host, so no build can send events to Bluesky
 export const METRICS_API_HOST: string =
-  process.env.EXPO_PUBLIC_METRICS_API_HOST || 'https://events.bsky.app'
+  process.env.EXPO_PUBLIC_METRICS_API_HOST || ''
 
 /**
  * Growthbook API host
@@ -99,8 +100,9 @@ export const GROWTHBOOK_API_HOST: string =
 /**
  * Growthbook client key
  */
+// northsky: no default key, so no build can read Bluesky's feature gates
 export const GROWTHBOOK_CLIENT_KEY: string =
-  process.env.EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY || 'sdk-7gkUkGy9wguUjyFe'
+  process.env.EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY || ''
 
 /**
  * Sentry DSN for telemetry

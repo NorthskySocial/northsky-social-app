@@ -1,3 +1,4 @@
+import {onAppStateChange} from '#/lib/appState'
 import {MetricsClient} from './client'
 
 let appStateCallback: (state: string) => void
@@ -172,5 +173,24 @@ describe('MetricsClient', () => {
     await jest.advanceTimersByTimeAsync(0)
 
     expect(fetchRequests).toHaveLength(1)
+  })
+
+  it('sends nothing when disabled', async () => {
+    const client = new MetricsClient<TestEvents>({enabled: false})
+    client.maxBatchSize = 2
+
+    // More events than maxBatchSize, which would flush an enabled client
+    for (let i = 0; i < 5; i++) {
+      client.track('click', {button: `btn-${i}`})
+    }
+
+    await jest.advanceTimersByTimeAsync(0)
+    expect(fetchMock).not.toHaveBeenCalled()
+
+    // A disabled client never starts, so it registers no flush interval and
+    // no app state listener
+    await jest.advanceTimersByTimeAsync(10_000)
+    expect(fetchMock).not.toHaveBeenCalled()
+    expect(onAppStateChange).not.toHaveBeenCalled()
   })
 })
