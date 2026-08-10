@@ -155,11 +155,43 @@ function toLines(spans: Span[]): Line[] {
 
 // Highlighting is pure in (code, language) and runs on the feed render path (a
 // post with a fenced block re-highlights on every theme/layout/selection
-// change). Cache results so repeated renders are a map lookup. Bounded with
-// simple LRU eviction so long-lived sessions don't grow unbounded. Returned
-// arrays are shared - callers must treat them as read-only.
-const CACHE_MAX = 128
+// change). Cache results so repeated renders are a map lookup. Returned arrays
+// are shared - callers must treat them as read-only.
+//
+// Bounded by characters, not by entry count: a key is a whole source file and
+// the Line[] value holds one object per span, several times the source size in
+// heap. Capping at 128 entries would let a session that scrolled past 128 large
+// snippets retain tens of megabytes for its lifetime.
+// Enough of a file to tell TypeScript from Python; scoring the whole thing buys
+// no accuracy on a snippet that is all one language anyway.
+const AUTO_DETECT_SAMPLE = 2048
+
+const CACHE_MAX_CHARS = 512 * 1024
+// A single snippet larger than this is cheaper to re-highlight on the rare
+// re-render than to keep, and caching one would evict most of everything else.
+const CACHE_MAX_ENTRY_CHARS = 32 * 1024
 const cache = new Map<string, Line[]>()
+let cacheChars = 0
+
+// The key is `${language} ${code}`, so its length tracks the entry's weight
+// closely enough to budget against without a second bookkeeping map.
+function remember(key: string, lines: Line[]): void {
+  if (key.length > CACHE_MAX_ENTRY_CHARS) return
+  cache.set(key, lines)
+  cacheChars += key.length
+  while (cacheChars > CACHE_MAX_CHARS) {
+    const oldest = cache.keys().next().value
+    if (oldest === undefined) break
+    cache.delete(oldest)
+    cacheChars -= oldest.length
+  }
+}
+
+/** Visible for testing. */
+export function _resetHighlightCache(): void {
+  cache.clear()
+  cacheChars = 0
+}
 
 /** Splits `code` into unscoped lines - what renders before the grammars load. */
 export function plainLines(rawCode: string): Line[] {
@@ -190,25 +222,35 @@ export function highlightToLines(rawCode: string, language?: string): Line[] {
   }
 
   const {lowlight, AUTO_SUBSET} = grammars
+  const plainTree = (): Root => ({
+    type: 'root',
+    children: [{type: 'text', value: code}],
+  })
   let tree: Root
   try {
-    tree =
-      language && lowlight.registered(language)
-        ? lowlight.highlight(language, code)
-        : lowlight.highlightAuto(code, {subset: AUTO_SUBSET})
+    if (language && lowlight.registered(language)) {
+      tree = lowlight.highlight(language, code)
+    } else if (code.length <= AUTO_DETECT_SAMPLE) {
+      tree = lowlight.highlightAuto(code, {subset: AUTO_SUBSET})
+    } else {
+      // Auto-detection scores every candidate grammar over the whole input,
+      // roughly an order of magnitude dearer than highlighting with a known
+      // language. Decide the language from a prefix, then highlight once.
+      const detected = lowlight.highlightAuto(
+        code.slice(0, AUTO_DETECT_SAMPLE),
+        {subset: AUTO_SUBSET},
+      ).data?.language
+      tree = detected ? lowlight.highlight(detected, code) : plainTree()
+    }
   } catch {
     // Unknown language or highlighter error: render as plain text.
-    tree = {type: 'root', children: [{type: 'text', value: code}]}
+    tree = plainTree()
   }
 
   const spans: Span[] = []
   flatten(tree.children, undefined, spans)
   const lines = toLines(spans)
 
-  cache.set(key, lines)
-  if (cache.size > CACHE_MAX) {
-    const oldest = cache.keys().next().value
-    if (oldest !== undefined) cache.delete(oldest)
-  }
+  remember(key, lines)
   return lines
 }
