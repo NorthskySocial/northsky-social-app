@@ -17,6 +17,8 @@ import {StandardSiteEmbed} from '#/components/Post/Embed/StandardSiteEmbed'
 import {isStandardSiteEmbed} from '#/components/Post/Embed/StandardSiteEmbed/utils'
 import {Embed as StarterPackEmbed} from '#/components/StarterPack/StarterPackCard'
 import {Text} from '#/components/Typography'
+// northsky: custom embed handlers (e.g. Tangled code snippets)
+import {matchCustomEmbed} from '#/features/customEmbeds/registry'
 import {type Gif} from '#/features/gifPicker/types'
 
 export const ExternalEmbedGif = ({
@@ -89,6 +91,19 @@ export const ExternalEmbedLink = ({
   const linkComponent = useMemo(() => {
     if (data) {
       if (data.type === 'external') {
+        // northsky: give a custom embed handler first refusal, so a link that
+        // will post as a rich card previews as one instead of a plain link.
+        const externalView = {
+          uri,
+          title: data.title || uri,
+          description: data.description || '',
+          thumb: data.thumb?.source.path,
+        }
+        const custom = matchCustomEmbed(externalView)
+        if (custom) {
+          const CustomPreview = custom.Preview ?? custom.Component
+          return <CustomPreview view={externalView} />
+        }
         if (data.view && isStandardSiteEmbed(data.view.external)) {
           return (
             <StandardSiteEmbed

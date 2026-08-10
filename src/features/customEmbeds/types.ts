@@ -22,7 +22,7 @@ export type CustomEmbedComponentProps = {
  * upstream classifies as unknown.
  */
 export type CustomEmbedHandler = {
-  id: string
   match: (view: AppBskyEmbedExternal.ViewExternal) => boolean
   Component: ComponentType<CustomEmbedComponentProps>
+  Preview?: ComponentType<CustomEmbedComponentProps>
 }

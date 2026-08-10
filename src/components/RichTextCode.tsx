@@ -13,15 +13,15 @@
 import {type ReactNode} from 'react'
 import {ScrollView, type TextStyle, View} from 'react-native'
 
+import {CodeSpans} from '#/lib/code/CodeSpans'
 import {type EmphasisStyle} from '#/lib/code/emphasis'
 import {languageFromName} from '#/lib/code/highlight'
 import {type CodeToken} from '#/lib/code/parse'
 import {
   CODE_LINE_HEIGHT,
-  colorForScope,
+  CODE_PADDING_Y,
   MONO_FONT,
   SCROLL_LINES,
-  useCodeColors,
   useCodePanelColor,
 } from '#/lib/code/theme'
 import {useHighlightedLines} from '#/lib/code/useHighlighter'
@@ -32,11 +32,24 @@ import {Text} from '#/components/Typography'
 /** A part of a text run: either inline (lives in a `<Text>`) or a block. */
 export type CodePart = {block: boolean; node: ReactNode}
 
-// a.py_sm above and below the rendered code. Used to size the capped viewport
-// so it lands on a whole row boundary.
-const PADDING_Y = 8
+/** Plain text, wrapped in a `<Text>` only when emphasis applies to it. */
+export function textPart(
+  text: string,
+  key: number,
+  emphasis: TextStyle | undefined,
+): CodePart {
+  return {
+    block: false,
+    node: emphasis ? (
+      <Text key={key} emoji style={emphasis}>
+        {text}
+      </Text>
+    ) : (
+      text
+    ),
+  }
+}
 
-/** Maps emphasis flags onto text styles. Undefined when nothing is set. */
 export function emphasisTextStyle(
   style: EmphasisStyle | undefined,
 ): TextStyle | undefined {
@@ -68,9 +81,7 @@ function InlineCode({value}: {value: string}) {
   )
 }
 
-/** Renders highlighted lines as nested colored `<Text>` (newline-separated). */
 function HighlightedLines({value, lang}: {value: string; lang?: string}) {
-  const colors = useCodeColors()
   const lines = useHighlightedLines(value, languageFromName(lang))
   return (
     <>
@@ -78,18 +89,7 @@ function HighlightedLines({value, lang}: {value: string; lang?: string}) {
         // Each nested Text re-applies a font family, so set MONO_FONT on every
         // level - otherwise the inner spans revert to the body UI font.
         <Text key={i} style={{fontFamily: MONO_FONT}}>
-          {line.length === 0
-            ? ' '
-            : line.map((span, j) => (
-                <Text
-                  key={j}
-                  style={{
-                    color: colorForScope(span.scope, colors),
-                    fontFamily: MONO_FONT,
-                  }}>
-                  {span.value}
-                </Text>
-              ))}
+          <CodeSpans line={line} />
           {i < lines.length - 1 ? '\n' : null}
         </Text>
       ))}
@@ -148,7 +148,9 @@ function FencedCodeBlock({
     <View
       style={[a.rounded_sm, a.my_xs, a.overflow_hidden, {backgroundColor: bg}]}>
       <ScrollView
-        style={{maxHeight: SCROLL_LINES * CODE_LINE_HEIGHT + PADDING_Y * 2}}
+        style={{
+          maxHeight: SCROLL_LINES * CODE_LINE_HEIGHT + CODE_PADDING_Y * 2,
+        }}
         nestedScrollEnabled
         showsVerticalScrollIndicator>
         <View style={[a.px_md, a.py_sm]}>
