@@ -44,6 +44,7 @@ export function TangledStringPreview({
           <Divider />
           <View style={[a.flex_row, a.align_center, a.px_md, a.py_xs]}>
             <Text
+              emoji
               numberOfLines={1}
               style={[a.text_sm, t.atoms.text_contrast_medium, a.flex_1]}>
               {byline}
