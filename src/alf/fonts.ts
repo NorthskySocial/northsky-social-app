@@ -57,19 +57,24 @@ export function applyFonts(style: TextStyle, fontFamily: 'system' | 'theme') {
   if (style.fontFamily === MONOSPACE_FONT_FAMILY) return
   if (fontFamily === 'theme') {
     if (IS_ANDROID) {
-      // northsky: Geist static cuts replace Inter. Geist ships no italic cut,
-      // so italic routes to the separate variable italic family instead.
-      style.fontFamily =
-        style.fontStyle === 'italic'
-          ? GEIST_ITALIC_FONT
-          : GEIST_ANDROID_MAP[String(style.fontWeight || '400')] ||
-            'Geist-Regular'
+      if (style.fontStyle === 'italic') {
+        // northsky: Our Geist font is missing italic so we have a separate file
+        // causing conflicts because now the families match so we load it directly
+        style.fontFamily = GEIST_ITALIC_FONT
+        delete style.fontStyle
+      } else {
+        // northsky: Geist static cuts replace Inter. The family name carries
+        // the weight here, so fontWeight would only double-apply.
+        style.fontFamily =
+          GEIST_ANDROID_MAP[String(style.fontWeight || '400')] ||
+          'Geist-Regular'
 
-      /*
-       * These are not supported on Android and actually break the styling.
-       */
-      delete style.fontWeight
-      delete style.fontStyle
+        /*
+         * These are not supported on Android and actually break the styling.
+         */
+        delete style.fontWeight
+        delete style.fontStyle
+      }
     } else if (!IS_WEB && style.fontStyle === 'italic') {
       // northsky: iOS cannot synthesize oblique from the upright face the way
       // browsers do, so italic uses the dedicated family and drops the flag.

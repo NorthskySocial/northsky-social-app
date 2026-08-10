@@ -34,11 +34,19 @@ export type RichTextProps = TextStyleProp &
     disableLinks?: boolean
     enableTags?: boolean
     /**
-     * northsky: render Markdown-style formatting in the text - inline `code`,
-     * fenced ```lang\n...``` blocks, and emphasis. Opt-in; enabled for post
-     * bodies. See `#/components/RichTextCode`.
+     * northsky: render Markdown-style formatting in the text - inline `code`
+     * See `#/components/RichTextCode`.
      */
     enableCode?: boolean
+    /**
+     * northsky: this is the single, full post view rather than a row in a list.
+     * Only then may a fenced block render as a scrollable `<View>` panel; inside
+     * a feed or thread list its nested scroll would fight the list's own
+     * gesture. Callers declare this - it cannot be inferred from
+     * `numberOfLines`, which is undefined for any post short enough to escape
+     * clamping.
+     */
+    fullView?: boolean
     authorHandle?: string
     onLinkPress?: LinkProps['onPress']
     interactiveStyle?: StyleProp<TextStyle>
@@ -65,6 +73,7 @@ export function RichText({
   selectable,
   enableTags = false,
   enableCode = false,
+  fullView = false,
   authorHandle,
   onLinkPress,
   interactiveStyle,
@@ -90,14 +99,9 @@ export function RichText({
   const {text, facets} = richText
 
   // northsky: fast guard - only run the formatting pipeline when the post
-  // actually contains a marker. Plain posts (the overwhelming majority) render
-  // exactly as before.
+  // actually contains a marker.
   const codeActive = enableCode && hasFormatting(text)
-  // Fenced blocks render as <View> panels only in full views. When the text is
-  // line-clamped (feed previews, quote embeds), keep them inline so
-  // `numberOfLines` still works - a block <View> can't be truncated by a parent
-  // <Text>, and a nested scroll would fight the feed's own gesture.
-  const blockMode = codeActive && !numberOfLines
+  const blockMode = codeActive && fullView && !numberOfLines
 
   // northsky: assemble parts into the final tree. With no block parts this is
   // the single <Text> we've always rendered. With a block (a fenced code
@@ -202,9 +206,8 @@ export function RichText({
   const parts: CodePart[] = []
   let key = 0
   // northsky: with formatting active, code and emphasis are resolved over the
-  // full text before facets, so a fence containing a link stays a fence. See
-  // `#/lib/code/ranges`. Otherwise this is upstream's plain segment walk.
-  // N.B. must access segments via `richText.segments`, not via destructuring
+  // full text before facets, so a fence containing a link stays a fence.
+  // See `#/lib/code/ranges`.
   const items: RichTextItem[] = codeActive
     ? segmentsWithCode(richText)
     : Array.from(richText.segments(), segment => ({
