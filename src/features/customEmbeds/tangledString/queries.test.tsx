@@ -69,9 +69,20 @@ describe('useTangledStringQuery', () => {
     await waitFor(() => expect(result.current.isError).toBe(true))
   })
 
-  it('does not fetch when disabled or when the ref is empty', () => {
+  it('does not fetch when disabled', () => {
     render({actor: 'usagi.test', rkey: 'rkey', enabled: false})
-    render({actor: '', rkey: ''})
+
+    expect(resolveMiniDoc).not.toHaveBeenCalled()
+  })
+
+  it('does not fetch when the actor is missing', () => {
+    render({actor: '', rkey: 'rkey'})
+
+    expect(resolveMiniDoc).not.toHaveBeenCalled()
+  })
+
+  it('does not fetch when the rkey is missing', () => {
+    render({actor: 'usagi.test', rkey: ''})
 
     expect(resolveMiniDoc).not.toHaveBeenCalled()
   })
