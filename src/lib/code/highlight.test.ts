@@ -45,9 +45,17 @@ describe('languageFromFilename', () => {
 
 describe('highlightToLines before the grammars load', () => {
   it('returns unscoped lines so code still renders as plain monospace', () => {
-    // Runs before the beforeAll below, while the highlighter is unloaded.
-    if (isHighlighterReady()) return
-    expect(highlightToLines('const x = 1')).toEqual([[{value: 'const x = 1'}]])
+    // Load a private copy of the module so the unloaded state is guaranteed.
+    // Reading the shared module instead would tie this assertion to running
+    // before the suites below, and moving it would silently skip the check.
+    jest.isolateModules(() => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const fresh = require('./highlight') as typeof import('./highlight')
+      expect(fresh.isHighlighterReady()).toBe(false)
+      expect(fresh.highlightToLines('const x = 1')).toEqual([
+        [{value: 'const x = 1'}],
+      ])
+    })
   })
 })
 
