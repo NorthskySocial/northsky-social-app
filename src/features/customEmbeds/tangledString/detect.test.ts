@@ -27,6 +27,27 @@ describe('parseTangledString', () => {
     ).toEqual({actor: 'a.test', rkey: 'rkey'})
   })
 
+  it('tolerates a trailing slash', () => {
+    expect(
+      parseTangledString('https://tangled.org/strings/a.test/rkey/'),
+    ).toEqual({actor: 'a.test', rkey: 'rkey'})
+  })
+
+  it('returns null when the rkey is not the last path segment', () => {
+    expect(
+      parseTangledString('https://tangled.org/strings/a.test/rkey/extra'),
+    ).toBeNull()
+    expect(
+      parseTangledString('https://tangled.org/strings/a.test/rkey/raw?x=1'),
+    ).toBeNull()
+  })
+
+  it('returns null for a malformed percent escape in the actor', () => {
+    expect(
+      parseTangledString('https://tangled.org/strings/a%ZZ/rkey'),
+    ).toBeNull()
+  })
+
   it('is case insensitive on the host', () => {
     expect(
       parseTangledString('HTTPS://Tangled.ORG/strings/a.test/rkey'),

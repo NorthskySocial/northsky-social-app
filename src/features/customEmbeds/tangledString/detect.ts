@@ -4,9 +4,12 @@
  * (also tangled.sh) where {actor} is the owner (handle or DID) and {rkey} is
  * the rkey of their `sh.tangled.string` record. The DID form contains colons
  * but never a slash, so the `[^/]+` actor group captures it intact.
+ *
+ * The rkey must end the path: a deeper URL is some other page, not the snippet
+ * this card renders.
  */
 const TANGLED_STRING_RE =
-  /^https?:\/\/tangled\.(?:org|sh)\/strings\/([^/]+)\/([^/?#]+)/i
+  /^https?:\/\/tangled\.(?:org|sh)\/strings\/([^/]+)\/([^/?#]+)\/?(?:[?#].*)?$/i
 
 export type TangledStringRef = {
   /** Handle or DID of the owner, taken verbatim from the URL. */
@@ -19,7 +22,13 @@ export function parseTangledString(url: string): TangledStringRef | null {
   if (!match) return null
   const [, actor, rkey] = match
   if (!actor || !rkey) return null
-  return {actor: decodeURIComponent(actor), rkey}
+  // This runs during render via the embed registry, so a malformed escape must
+  // not throw - fall through to the default link card instead.
+  try {
+    return {actor: decodeURIComponent(actor), rkey}
+  } catch {
+    return null
+  }
 }
 
 export function isTangledStringUrl(url: string): boolean {
