@@ -3,5 +3,9 @@
   "primaryColor": "#9A45EC",
   "themeColor": "#1F0B35",
   "ogSiteName": "Northsky",
-  "twitterHandle": "@northsky"
+  "twitterHandle": "@northsky",
+  "ageAssurance": {
+    "enabled": false,
+    "adultAgeGateEnabled": true
+  }
 }

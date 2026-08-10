@@ -33,6 +33,11 @@ import {useAgeAssurance} from '#/ageAssurance'
 import {NoAccessScreen} from '#/ageAssurance/components/NoAccessScreen'
 import {RedirectOverlay} from '#/ageAssurance/components/RedirectOverlay'
 import {PassiveAnalytics} from '#/analytics/PassiveAnalytics'
+import {
+  AgeConfirmationScreen,
+  AppPasswordNoticeScreen,
+  useAgeConfirmationGate,
+} from '#/features/ageConfirmation'
 import {FlatNavigator, RoutesContainer} from '#/Navigation'
 import {Composer} from './Composer'
 import {DrawerContent} from './Drawer'
@@ -159,6 +164,8 @@ export function Shell() {
   const t = useTheme()
   const aa = useAgeAssurance()
   const {currentAccount} = useSession()
+  // northsky: blocks the app until the account declares an age.
+  const ageConfirmationGate = useAgeConfirmationGate()
   return (
     <View style={[a.util_screen_outer, t.atoms.bg]}>
       {currentAccount?.status === 'takendown' ? (
@@ -169,6 +176,10 @@ export function Shell() {
         <>
           {aa.state.access === aa.Access.None ? (
             <NoAccessScreen />
+          ) : ageConfirmationGate === 'confirm' ? (
+            <AgeConfirmationScreen />
+          ) : ageConfirmationGate === 'appPasswordNotice' ? (
+            <AppPasswordNoticeScreen />
           ) : (
             <RoutesContainer>
               <ShellInner />
