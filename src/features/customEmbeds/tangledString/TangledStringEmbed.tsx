@@ -51,9 +51,12 @@ export function TangledStringEmbed({
   })
   const value = query.data?.value
   const author = query.data?.author
+  // An empty snippet is a valid record, so distinguish it from a record that
+  // never loaded - only the latter is an error.
+  const hasContents = value?.contents !== undefined
   const code = value?.contents ?? ''
   const filename = value?.filename || view.title || l`Snippet`
-  const lineCount = code ? code.split('\n').length : 0
+  const lineCount = hasContents ? code.split('\n').length : 0
   const canExpand = lineCount > PREVIEW_LINES
 
   const onPressCard = () => {
@@ -104,7 +107,7 @@ export function TangledStringEmbed({
         <View style={[a.py_lg, a.align_center]}>
           <Loader size="md" />
         </View>
-      ) : query.isError || !code ? (
+      ) : query.isError || !hasContents ? (
         <View style={[a.px_md, a.py_md]}>
           <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
             <Trans>Couldn't load this snippet.</Trans>
@@ -122,7 +125,7 @@ export function TangledStringEmbed({
         </View>
       )}
 
-      {code ? <Divider /> : null}
+      {hasContents ? <Divider /> : null}
 
       {/* Footer: author byline | expand/collapse | line count */}
       {(author || lineCount > 0) && (
