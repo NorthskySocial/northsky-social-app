@@ -51,7 +51,7 @@ export function AgeConfirmationScreen() {
       await setBirthdate({birthDate: birthdate})
     } catch (e) {
       logger.error(`AgeConfirmationScreen: failed to save the age`, {
-        message: (e as Error).message,
+        safeMessage: (e as Error | undefined)?.message,
       })
     }
   }
