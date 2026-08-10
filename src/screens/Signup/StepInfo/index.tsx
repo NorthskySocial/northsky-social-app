@@ -290,10 +290,17 @@ export function StepInfo({
                   secureTextEntry
                   autoComplete="new-password"
                   autoCapitalize="none"
-                  returnKeyType="next"
+                  /*
+                   * northsky: the age questions are radio controls, not a text
+                   * field, so the password field is the last one to focus when
+                   * the adult age gate is on.
+                   */
+                  returnKeyType={ADULT_AGE_GATE_ENABLED ? 'done' : 'next'}
                   submitBehavior={native('blurAndSubmit')}
-                  onSubmitEditing={native(() =>
-                    birthdateInputRef.current?.focus(),
+                  onSubmitEditing={native(
+                    ADULT_AGE_GATE_ENABLED
+                      ? undefined
+                      : () => birthdateInputRef.current?.focus(),
                   )}
                   passwordRules="minlength: 8;"
                 />
