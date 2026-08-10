@@ -735,6 +735,9 @@ importers:
       '@babel/core':
         specifier: ^7.26.0
         version: 7.29.0
+      '@babel/plugin-transform-dynamic-import':
+        specifier: ^7.27.1
+        version: 7.27.1(@babel/core@7.29.0)
       '@babel/preset-env':
         specifier: ^7.26.0
         version: 7.29.5(@babel/core@7.29.0)
