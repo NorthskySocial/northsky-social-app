@@ -18,6 +18,12 @@ export const MONO_FONT = MONOSPACE_FONT_FAMILY
  */
 export const CODE_LINE_HEIGHT = 18
 
+/**
+ * Vertical padding above and below rendered code (`a.py_sm`). The viewport caps
+ * add it back explicitly so a clip lands on a whole row boundary.
+ */
+export const CODE_PADDING_Y = 8
+
 /** Collapsed preview height, in lines. */
 export const PREVIEW_LINES = 10
 

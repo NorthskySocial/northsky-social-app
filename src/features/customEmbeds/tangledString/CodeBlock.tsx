@@ -1,20 +1,16 @@
 import {ScrollView, View} from 'react-native'
 
+import {CodeSpans} from '#/lib/code/CodeSpans'
 import {languageFromFilename} from '#/lib/code/highlight'
 import {
-  CODE_LINE_HEIGHT as LINE_HEIGHT,
-  colorForScope,
+  CODE_LINE_HEIGHT,
+  CODE_PADDING_Y,
   MONO_FONT,
-  useCodeColors,
   useCodePanelColor,
 } from '#/lib/code/theme'
 import {useHighlightedLines} from '#/lib/code/useHighlighter'
 import {atoms as a, useTheme} from '#/alf'
 import {Text} from '#/components/Typography'
-
-// a.py_sm padding above and below the rendered code (8px each). Used to size
-// the capped/clipped viewports so they land on a whole row boundary.
-const PADDING_Y = 8
 
 // Web: lets long unbreakable tokens (e.g. a run of dashes) break instead of
 // forcing the line wider than the card - which otherwise compresses the gutter
@@ -46,7 +42,6 @@ export function CodeBlock({
   maxHeightLines?: number
 }) {
   const t = useTheme()
-  const colors = useCodeColors()
   const codeBg = {backgroundColor: useCodePanelColor()}
 
   const allLines = useHighlightedLines(code, languageFromFilename(filename))
@@ -61,7 +56,7 @@ export function CodeBlock({
       {lines.map((line, idx) => (
         <View
           key={idx}
-          style={[a.flex_row, a.align_start, {minHeight: LINE_HEIGHT}]}>
+          style={[a.flex_row, a.align_start, {minHeight: CODE_LINE_HEIGHT}]}>
           <Text
             selectable={false}
             style={[
@@ -72,7 +67,7 @@ export function CodeBlock({
                 // would slide the right-aligned number left).
                 flexShrink: 0,
                 fontFamily: MONO_FONT,
-                lineHeight: LINE_HEIGHT,
+                lineHeight: CODE_LINE_HEIGHT,
                 width: gutterWidth * 9 + 12,
                 textAlign: 'right',
                 paddingRight: 12,
@@ -89,28 +84,13 @@ export function CodeBlock({
               t.atoms.text,
               // minWidth: 0 lets the flex child shrink below its content's
               // intrinsic width so long tokens wrap instead of overflowing.
-              {fontFamily: MONO_FONT, lineHeight: LINE_HEIGHT, minWidth: 0},
+              {
+                fontFamily: MONO_FONT,
+                lineHeight: CODE_LINE_HEIGHT,
+                minWidth: 0,
+              },
             ]}>
-            {line.length === 0
-              ? ' '
-              : line.map((span, i) => (
-                  // The parent Text sets MONO_FONT, but each nested Text
-                  // re-applies a font family, so repeat it here or the span
-                  // reverts to the body UI font.
-                  //
-                  // `emoji` belongs on the span, not the parent: the emoji
-                  // handling only walks string children and does not recurse,
-                  // and the record's text lives here.
-                  <Text
-                    key={i}
-                    emoji
-                    style={{
-                      color: colorForScope(span.scope, colors),
-                      fontFamily: MONO_FONT,
-                    }}>
-                    {span.value}
-                  </Text>
-                ))}
+            <CodeSpans line={line} />
           </Text>
         </View>
       ))}
@@ -124,7 +104,7 @@ export function CodeBlock({
       <ScrollView
         style={[
           codeBg,
-          {maxHeight: maxHeightLines * LINE_HEIGHT + PADDING_Y * 2},
+          {maxHeight: maxHeightLines * CODE_LINE_HEIGHT + CODE_PADDING_Y * 2},
         ]}
         nestedScrollEnabled
         showsVerticalScrollIndicator>
@@ -143,7 +123,7 @@ export function CodeBlock({
         style={[
           codeBg,
           a.overflow_hidden,
-          {maxHeight: maxLines * LINE_HEIGHT + PADDING_Y},
+          {maxHeight: maxLines * CODE_LINE_HEIGHT + CODE_PADDING_Y},
         ]}>
         {content}
       </View>

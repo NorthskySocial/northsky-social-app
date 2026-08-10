@@ -2,10 +2,9 @@ import {useState} from 'react'
 import {View} from 'react-native'
 import {Plural, Trans, useLingui} from '@lingui/react/macro'
 
-import {PREVIEW_LINES, SCROLL_LINES, useCodePanelColor} from '#/lib/code/theme'
-import {useHaptics} from '#/lib/haptics'
+import {PREVIEW_LINES, SCROLL_LINES} from '#/lib/code/theme'
+import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
-import {toNiceDomain} from '#/lib/strings/url-helpers'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
 import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
@@ -15,22 +14,20 @@ import {
   ChevronBottom_Stroke2_Corner0_Rounded as ChevronDown,
   ChevronTop_Stroke2_Corner0_Rounded as ChevronUp,
 } from '#/components/icons/Chevron'
-import {Code_Stroke2_Corner2_Rounded as CodeIcon} from '#/components/icons/Code'
-import {Link} from '#/components/Link'
 import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
 import {type CustomEmbedComponentProps} from '#/features/customEmbeds/types'
 import {CodeBlock} from './CodeBlock'
 import {parseTangledString} from './detect'
 import {useTangledStringQuery} from './queries'
+import {TangledStringCard, TangledStringLink} from './TangledStringCard'
 
 /**
  * northsky: renders a link to a Tangled snippet as a code card.
  *
  * Collapsed cards show a short preview; "Show more" expands the whole file into
  * a viewport capped at SCROLL_LINES tall that scrolls internally, so a long
- * snippet never takes over the feed. The header links back to the snippet on
- * tangled.org.
+ * snippet never takes over the feed.
  */
 export function TangledStringEmbed({
   view,
@@ -39,8 +36,6 @@ export function TangledStringEmbed({
 }: CustomEmbedComponentProps) {
   const t = useTheme()
   const {t: l} = useLingui()
-  const playHaptic = useHaptics()
-  const panelBg = useCodePanelColor()
   const [expanded, setExpanded] = useState(false)
 
   const ref = parseTangledString(view.uri)
@@ -55,54 +50,15 @@ export function TangledStringEmbed({
   // never loaded - only the latter is an error.
   const hasContents = value?.contents !== undefined
   const code = value?.contents ?? ''
-  const filename = value?.filename || view.title || l`Snippet`
   const lineCount = hasContents ? code.split('\n').length : 0
   const canExpand = lineCount > PREVIEW_LINES
 
-  const onPressCard = () => {
-    playHaptic('Light')
-    onOpen?.()
-  }
-
   return (
-    <View
-      style={[
-        a.flex_col,
-        a.rounded_md,
-        a.overflow_hidden,
-        a.w_full,
-        a.border,
-        t.atoms.border_contrast_low,
-        {backgroundColor: panelBg},
-        style,
-      ]}>
-      {/* Header: filename + source, both linking to the snippet on Tangled */}
-      <View style={[a.flex_row, a.align_center, a.gap_sm, a.px_md, a.py_sm]}>
-        <CodeIcon size="sm" style={t.atoms.text_contrast_medium} />
-        <Link
-          label={l`Open ${filename} on ${toNiceDomain(view.uri)}`}
-          to={view.uri}
-          shouldProxy
-          onPress={onPressCard}
-          style={[a.flex_1, {minWidth: 0}]}>
-          <Text
-            numberOfLines={1}
-            style={[a.text_sm, a.font_bold, a.leading_snug]}>
-            {filename}
-          </Text>
-        </Link>
-        <Link
-          label={l`Open on ${toNiceDomain(view.uri)}`}
-          to={view.uri}
-          shouldProxy
-          onPress={onPressCard}>
-          <Text style={[a.text_xs, t.atoms.text_contrast_low]}>
-            {toNiceDomain(view.uri)}
-          </Text>
-        </Link>
-      </View>
-
-      {/* Code preview */}
+    <TangledStringCard
+      uri={view.uri}
+      filename={value?.filename || view.title || l`Snippet`}
+      onOpen={onOpen}
+      style={style}>
       {query.isLoading ? (
         <View style={[a.py_lg, a.align_center]}>
           <Loader size="md" />
@@ -114,9 +70,12 @@ export function TangledStringEmbed({
           </Text>
         </View>
       ) : (
+        // Positioning ancestor for CopyCodeButton's absolute placement.
         <View>
           <CodeBlock
             code={code}
+            // The record's own filename, never the OpenGraph title - language
+            // detection keys off the extension and the title has none.
             filename={value?.filename}
             maxLines={expanded ? undefined : PREVIEW_LINES}
             maxHeightLines={expanded ? SCROLL_LINES : undefined}
@@ -127,17 +86,20 @@ export function TangledStringEmbed({
 
       {hasContents ? <Divider /> : null}
 
-      {/* Footer: author byline | expand/collapse | line count */}
       {(author || lineCount > 0) && (
+        // Two flexible columns so the expand button stays centred between them.
         <View style={[a.flex_row, a.align_center, a.gap_sm, a.px_md, a.py_xs]}>
           <View style={[a.flex_1, a.flex_row, a.align_center, a.gap_xs]}>
             {author ? (
               <>
                 <UserAvatar type="user" size={20} avatar={author.avatar} />
                 <Text
+                  emoji
                   numberOfLines={1}
                   style={[a.text_sm, t.atoms.text_contrast_medium, a.flex_1]}>
-                  {author.displayName || sanitizeHandle(author.handle, '@')}
+                  {author.displayName
+                    ? sanitizeDisplayName(author.displayName)
+                    : sanitizeHandle(author.handle, '@')}
                 </Text>
               </>
             ) : null}
@@ -159,19 +121,15 @@ export function TangledStringEmbed({
 
           <View style={[a.flex_1, a.align_end]}>
             {lineCount > 0 ? (
-              <Link
-                label={l`Open on ${toNiceDomain(view.uri)}`}
-                to={view.uri}
-                shouldProxy
-                onPress={onPressCard}>
+              <TangledStringLink uri={view.uri} onOpen={onOpen}>
                 <Text style={[a.text_xs, t.atoms.text_contrast_low]}>
                   <Plural value={lineCount} one="# line" other="# lines" />
                 </Text>
-              </Link>
+              </TangledStringLink>
             ) : null}
           </View>
         </View>
       )}
-    </View>
+    </TangledStringCard>
   )
 }

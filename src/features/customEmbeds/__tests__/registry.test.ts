@@ -1,9 +1,12 @@
 import {type AppBskyEmbedExternal} from '@atproto/api'
 
-// The card pulls in ALF and native modules that a unit test cannot boot. Only
+// The cards pull in ALF and native modules that a unit test cannot boot. Only
 // the handler's `match` matters here.
 jest.mock('../tangledString/TangledStringEmbed', () => ({
   TangledStringEmbed: () => null,
+}))
+jest.mock('../tangledString/TangledStringPreview', () => ({
+  TangledStringPreview: () => null,
 }))
 
 import {matchCustomEmbed} from '../registry'

@@ -17,6 +17,7 @@ import {
   type CodePart,
   codePart,
   emphasisTextStyle,
+  textPart,
 } from '#/components/RichTextCode'
 import {RichTextTag} from '#/components/RichTextTag'
 import {Text, type TextProps} from '#/components/Typography'
@@ -122,10 +123,9 @@ export function RichText({
   const codeActive = enableCode && hasFormatting(text)
   const blockMode = codeActive && fullView && !numberOfLines
 
-  // northsky: assemble parts into the final tree. With no block parts this is
-  // the single <Text> we've always rendered. With a block (a fenced code
-  // <View>, which can't live inside a <Text>), group consecutive inline parts
-  // into <Text> runs and emit blocks as siblings inside a wrapping <View>.
+  // northsky: a fenced code <View> cannot live inside a <Text>, so when one is
+  // present the inline parts are grouped into <Text> runs and the blocks emitted
+  // as siblings. Without blocks this is the single <Text> upstream renders.
   const renderParts = (parts: CodePart[]): ReactNode => {
     if (!parts.some(p => p.block)) {
       return (
@@ -147,7 +147,6 @@ export function RichText({
     }
     const out: ReactNode[] = []
     let run: ReactNode[] = []
-    let runKey = 0
     /**
      * `trailing` is the suffix, passed only to the final flush so it lands at
      * the end of the post. It forces a run even when there is no trailing text
@@ -158,7 +157,7 @@ export function RichText({
       const children = run
       out.push(
         <Text
-          key={`run${runKey}`}
+          key={`run${out.length}`}
           emoji
           selectable={selectable}
           style={[plainStyles, trailing ? suffixStyles : null]}
@@ -169,7 +168,6 @@ export function RichText({
           {trailing}
         </Text>,
       )
-      runKey++
       run = []
     }
     for (const part of parts) {
@@ -181,14 +179,10 @@ export function RichText({
       }
     }
     flushRun(suffix)
-    // NOTE: posts with a fenced block in a full view render as a <View
-    // testID={testID}> wrapping <Text> runs, rather than the usual single
-    // <Text testID={testID}>. testID stays on the wrapper, but the structure
-    // differs - E2E/a11y logic that assumes postText is one Text node with
-    // concatenated children will see a different shape for such posts.
-    // onLayout is forwarded (View supports it); onTextLayout is Text-only, so
-    // it's dropped on this path - only reached in full views (!numberOfLines),
-    // where no post-body caller relies on it for height measurement.
+    // NOTE: testID lands on a <View> here rather than the usual single <Text>,
+    // so E2E/a11y logic expecting one text node sees a different shape.
+    // onTextLayout is Text-only and is dropped on this path, which is only
+    // reached in full views where no caller measures with it.
     return (
       <View testID={testID} style={a.flex_1} onLayout={onLayout}>
         {out}
@@ -259,16 +253,7 @@ export function RichText({
     const emphasis = emphasisTextStyle(item.style)
 
     if (item.kind === 'text') {
-      parts.push({
-        block: false,
-        node: emphasis ? (
-          <Text key={key} emoji style={emphasis}>
-            {item.text}
-          </Text>
-        ) : (
-          item.text
-        ),
-      })
+      parts.push(textPart(item.text, key, emphasis))
       key++
       continue
     }
@@ -344,16 +329,7 @@ export function RichText({
         ),
       })
     } else {
-      parts.push({
-        block: false,
-        node: emphasis ? (
-          <Text key={key} emoji style={emphasis}>
-            {segment.text}
-          </Text>
-        ) : (
-          segment.text
-        ),
-      })
+      parts.push(textPart(segment.text, key, emphasis))
     }
     key++
   }
