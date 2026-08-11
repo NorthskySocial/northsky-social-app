@@ -177,12 +177,7 @@ function PostContent({record}: {record: AppBskyFeedPost.Record | null}) {
           key={counter}
           href={segment.link.uri}
           className="text-brand hover:underline"
-          disableTracking={
-            // northsky: also treat brand links as first-party
-            !segment.link.uri.startsWith('https://bsky.app') &&
-            !segment.link.uri.startsWith('https://go.bsky.app') &&
-            !segment.link.uri.startsWith(BRAND.baseUrl)
-          }>
+          disableTracking={!isFirstPartyUrl(segment.link.uri)}>
           {segment.text}
         </Link>,
       )
@@ -222,4 +217,22 @@ function PostContent({record}: {record: AppBskyFeedPost.Record | null}) {
       {richText}
     </p>
   )
+}
+
+/*
+ * northsky: compare parsed origins so that look-alike hosts such as
+ * bsky.appattacker.com do not count as first-party. Facet URIs come
+ * from user records, so an unparseable URI is treated as external.
+ */
+function isFirstPartyUrl(uri: string): boolean {
+  try {
+    const origin = new URL(uri).origin
+    return (
+      origin === 'https://bsky.app' ||
+      origin === 'https://go.bsky.app' ||
+      origin === BRAND.baseUrl
+    )
+  } catch {
+    return false
+  }
 }
