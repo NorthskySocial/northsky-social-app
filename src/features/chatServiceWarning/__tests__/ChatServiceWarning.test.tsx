@@ -1,4 +1,4 @@
-import {type ReactElement} from 'react'
+import {type ReactElement, type ReactNode} from 'react'
 import type * as RN from 'react-native'
 import {i18n} from '@lingui/core'
 import {I18nProvider} from '@lingui/react'
@@ -40,17 +40,17 @@ jest.mock('#/storage', () => ({
 
 jest.mock('#/components/Admonition', () => {
   const {Text, View} = jest.requireActual<typeof RN>('react-native')
-  const passthrough = ({children}: {children: React.ReactNode}) => (
+  const passthrough = ({children}: {children: ReactNode}) => (
     <View>{children}</View>
   )
   return {
-    Outer: ({children}: {children: React.ReactNode}) => (
+    Outer: ({children}: {children: ReactNode}) => (
       <View testID="admonition">{children}</View>
     ),
     Row: passthrough,
     Content: passthrough,
     Icon: () => null,
-    Text: ({children}: {children: React.ReactNode}) => <Text>{children}</Text>,
+    Text: ({children}: {children: ReactNode}) => <Text>{children}</Text>,
   }
 })
 
@@ -64,7 +64,7 @@ jest.mock('#/components/Button', () => {
     }: {
       label: string
       onPress?: () => void
-      children: React.ReactNode
+      children: ReactNode
     }) => (
       <Pressable
         accessibilityLabel={label}
@@ -84,13 +84,7 @@ jest.mock('#/components/icons/Times', () => ({
 jest.mock('#/components/Link', () => {
   const {Text} = jest.requireActual<typeof RN>('react-native')
   return {
-    InlineLinkText: ({
-      to,
-      children,
-    }: {
-      to: string
-      children: React.ReactNode
-    }) => (
+    InlineLinkText: ({to, children}: {to: string; children: ReactNode}) => (
       <Text testID="inline-link" accessibilityValue={{text: to}}>
         {children}
       </Text>
