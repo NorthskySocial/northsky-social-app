@@ -7,6 +7,7 @@ import {
 import {h} from 'preact'
 
 import logo from '../../assets/logo_full_name.svg'
+import {BRAND} from '../brand' // northsky: brand link recognition
 import {Like as LikeIcon} from '../icons/Like'
 import {Reply as ReplyIcon} from '../icons/Reply'
 import {Repost as RepostIcon} from '../icons/Repost'
@@ -177,8 +178,10 @@ function PostContent({record}: {record: AppBskyFeedPost.Record | null}) {
           href={segment.link.uri}
           className="text-brand hover:underline"
           disableTracking={
+            // northsky: also treat brand links as first-party
             !segment.link.uri.startsWith('https://bsky.app') &&
-            !segment.link.uri.startsWith('https://go.bsky.app')
+            !segment.link.uri.startsWith('https://go.bsky.app') &&
+            !segment.link.uri.startsWith(BRAND.baseUrl)
           }>
           {segment.text}
         </Link>,

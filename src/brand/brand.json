@@ -4,6 +4,7 @@
   "themeColor": "#1F0B35",
   "ogSiteName": "Northsky",
   "twitterHandle": "@northsky",
+  "baseUrl": "https://northsky.app",
   "ageAssurance": {
     "enabled": false,
     "adultAgeGateEnabled": true
