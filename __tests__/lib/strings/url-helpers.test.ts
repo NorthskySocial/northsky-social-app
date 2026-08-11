@@ -1,11 +1,18 @@
 import {describe, expect, it} from '@jest/globals'
 
 import {
+  BSKY_APP_HOST,
+  createBskyAppAbsoluteUrl,
   getChatInviteCodeFromUrl,
+  isBskyAppUrl,
+  isBskyPostUrl,
+  isBskyStartUrl,
   isPossiblyAUrl,
   isTrustedUrl,
   linkRequiresWarning,
   splitApexDomain,
+  toBskyAppUrl,
+  toShareUrl,
 } from '../../../src/lib/strings/url-helpers'
 
 describe('linkRequiresWarning', () => {
@@ -188,12 +195,95 @@ describe('isTrustedUrl', () => {
   })
 })
 
+/* northsky: minting is brand-only, recognition accepts bsky.app and the brand host */
+describe('brand URL minting', () => {
+  it('BSKY_APP_HOST is the brand host', () => {
+    /*
+     * Chat invite links interpolate this constant directly, for example
+     * `${BSKY_APP_HOST}/chat/${code}` in ChatInvite/Root.tsx and
+     * InviteLinkDialog.tsx. This pin covers those sites.
+     */
+    expect(BSKY_APP_HOST).toEqual('https://northsky.app')
+  })
+
+  it('toShareUrl prefixes relative paths with the brand host', () => {
+    expect(toShareUrl('/profile/bob.test')).toEqual(
+      'https://northsky.app/profile/bob.test',
+    )
+  })
+
+  it('toShareUrl passes through absolute https URLs', () => {
+    expect(toShareUrl('https://example.com/page')).toEqual(
+      'https://example.com/page',
+    )
+  })
+
+  it('toBskyAppUrl resolves relative paths against the brand host', () => {
+    expect(toBskyAppUrl('/profile/bob.test')).toEqual(
+      'https://northsky.app/profile/bob.test',
+    )
+  })
+
+  it('createBskyAppAbsoluteUrl strips either app host', () => {
+    expect(
+      createBskyAppAbsoluteUrl('https://bsky.app/profile/bob.test'),
+    ).toEqual('https://northsky.app/profile/bob.test')
+    expect(
+      createBskyAppAbsoluteUrl('https://northsky.app/profile/bob.test'),
+    ).toEqual('https://northsky.app/profile/bob.test')
+    expect(createBskyAppAbsoluteUrl('/profile/bob.test')).toEqual(
+      'https://northsky.app/profile/bob.test',
+    )
+  })
+})
+
+describe('dual-host recognition', () => {
+  type Case = [string, boolean]
+
+  const appUrlCases: Case[] = [
+    ['https://bsky.app/profile/bob.test', true],
+    ['https://northsky.app/profile/bob.test', true],
+    ['https://bsky.app/', true],
+    ['https://northsky.app/', true],
+    ['https://example.com/profile/bob.test', false],
+    ['https://northsky.app.attacker.com/profile/bob.test', false],
+    ['https://bsky.app.attacker.com/profile/bob.test', false],
+  ]
+
+  it.each(appUrlCases)('isBskyAppUrl(%p) returns %p', (url, expected) => {
+    expect(isBskyAppUrl(url)).toEqual(expected)
+  })
+
+  const postUrlCases: Case[] = [
+    ['https://bsky.app/profile/bob.test/post/3kbeuduu7m22v', true],
+    ['https://northsky.app/profile/bob.test/post/3kbeuduu7m22v', true],
+    ['https://example.com/profile/bob.test/post/3kbeuduu7m22v', false],
+  ]
+
+  it.each(postUrlCases)('isBskyPostUrl(%p) returns %p', (url, expected) => {
+    expect(isBskyPostUrl(url)).toEqual(expected)
+  })
+
+  const startUrlCases: Case[] = [
+    ['https://bsky.app/start/bob.test/3kbeuduu7m22v', true],
+    ['https://northsky.app/start/bob.test/3kbeuduu7m22v', true],
+    ['https://example.com/start/bob.test/3kbeuduu7m22v', false],
+  ]
+
+  it.each(startUrlCases)('isBskyStartUrl(%p) returns %p', (url, expected) => {
+    expect(isBskyStartUrl(url)).toEqual(expected)
+  })
+})
+
 describe('getChatInviteCodeFromUrl', () => {
   type Case = [string, string | undefined]
 
   const cases: Case[] = [
     ['https://bsky.app/chat/abcdefg', 'abcdefg'],
     ['https://bsky.app/chat/abcdefghij', 'abcdefghij'],
+    // northsky: the brand host is recognized too
+    ['https://northsky.app/chat/abcdefg', 'abcdefg'],
+    ['https://northsky.app/chat/abcdefg?utm=foo', 'abcdefg'],
     // http is not recognized as a bsky.app url
     ['http://bsky.app/chat/abcdefg', undefined],
     ['https://bsky.app/chat/abcdefg?utm=foo', 'abcdefg'],

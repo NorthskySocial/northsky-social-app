@@ -6,6 +6,8 @@ import (
 
 	appbsky "github.com/bluesky-social/indigo/api/bsky"
 	"github.com/bluesky-social/indigo/atproto/syntax"
+
+	"github.com/bluesky-social/social-app/bskyweb/brand" // northsky: brand canonical URLs
 )
 
 // schema.org structured-data types emitted on post and profile pages.
@@ -132,7 +134,8 @@ func bskyPostURL(handle, rkey string) string {
 	if handle == "" || handle == "handle.invalid" || rkey == "" {
 		return ""
 	}
-	return fmt.Sprintf("https://bsky.app/profile/%s/post/%s", handle, rkey)
+	// northsky: canonical URLs point at the brand host
+	return fmt.Sprintf("%s/profile/%s/post/%s", brand.BaseURL, handle, rkey)
 }
 
 // bskyPostURLFromATURI is bskyPostURL for callers holding an at-uri.
@@ -166,7 +169,8 @@ func bskyPostURLFromATURIWithDIDFallback(handle, atURI string) string {
 	if did == "" {
 		return ""
 	}
-	return fmt.Sprintf("https://bsky.app/profile/%s/post/%s", did, rkey)
+	// northsky: canonical URLs point at the brand host
+	return fmt.Sprintf("%s/profile/%s/post/%s", brand.BaseURL, did, rkey)
 }
 
 // bskyProfileURL returns the canonical handle-form profile URL, or "" if
@@ -175,7 +179,8 @@ func bskyProfileURL(handle string) string {
 	if handle == "" || handle == "handle.invalid" {
 		return ""
 	}
-	return fmt.Sprintf("https://bsky.app/profile/%s", handle)
+	// northsky: canonical URLs point at the brand host
+	return fmt.Sprintf("%s/profile/%s", brand.BaseURL, handle)
 }
 
 // extractPostMedia returns thumbnail URLs for the post's image, gallery,
@@ -443,7 +448,8 @@ func buildReviewedBy(state *appbsky.ActorDefs_VerificationState) []*verifier {
 		if url := bskyProfileURL(handle); url != "" {
 			entry.URL = url
 		} else {
-			entry.URL = "https://bsky.app/profile/" + v.Issuer
+			// northsky: canonical URLs point at the brand host
+			entry.URL = brand.BaseURL + "/profile/" + v.Issuer
 		}
 		out = append(out, entry)
 	}

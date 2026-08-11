@@ -1,6 +1,7 @@
 import {type AppBskyGraphDefs, AtUri} from '@atproto/api'
 
 import {isInvalidHandle} from '#/lib/strings/handles'
+import {BRAND} from '#/brand/config' // northsky: brand host for starter pack links
 
 export function makeProfileLink(
   info: {
@@ -49,10 +50,11 @@ export function makeStarterPackLink(
     | string,
   rkey?: string,
 ) {
+  // northsky: mint brand starter pack links
   if (typeof starterPackOrName === 'string') {
-    return `https://bsky.app/start/${starterPackOrName}/${rkey}`
+    return `${BRAND.baseUrl}/start/${starterPackOrName}/${rkey}`
   } else {
     const uriRkey = new AtUri(starterPackOrName.uri).rkey
-    return `https://bsky.app/start/${starterPackOrName.creator.handle}/${uriRkey}`
+    return `${BRAND.baseUrl}/start/${starterPackOrName.creator.handle}/${uriRkey}`
   }
 }

@@ -275,7 +275,7 @@ func unmarshalLD(t *testing.T, s string) map[string]any {
 
 func TestBuildPostJSONLD_Bare(t *testing.T) {
 	pv := makePostView("alice.bsky.social", "did:plc:alice", "abc123", "hello")
-	canonical := "https://bsky.app/profile/alice.bsky.social/post/abc123"
+	canonical := "https://northsky.app/profile/alice.bsky.social/post/abc123"
 	out, err := buildPostJSONLD(pv, nil, canonical, "", hideEmbedLabels, hideReplyLabels)
 	if err != nil {
 		t.Fatal(err)
@@ -346,7 +346,7 @@ func TestBuildPostJSONLD_WithImages(t *testing.T) {
 	thumb1 := "https://cdn.bsky.app/img/feed_thumbnail/plain/did:plc:alice/abc@jpeg"
 	thumb2 := "https://cdn.bsky.app/img/feed_thumbnail/plain/did:plc:alice/def@jpeg"
 	pv := makePostView("alice.bsky.social", "did:plc:alice", "abc123", "look", withImages(thumb1, thumb2))
-	out, err := buildPostJSONLD(pv, nil, "https://bsky.app/profile/alice.bsky.social/post/abc123", "", hideEmbedLabels, hideReplyLabels)
+	out, err := buildPostJSONLD(pv, nil, "https://northsky.app/profile/alice.bsky.social/post/abc123", "", hideEmbedLabels, hideReplyLabels)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -371,7 +371,7 @@ func TestBuildPostJSONLD_WithGallery(t *testing.T) {
 	thumb2 := "https://cdn.bsky.app/img/feed_thumbnail/plain/did:plc:alice/g2@jpeg"
 	thumb3 := "https://cdn.bsky.app/img/feed_thumbnail/plain/did:plc:alice/g3@jpeg"
 	pv := makePostView("alice.bsky.social", "did:plc:alice", "abc123", "gallery", withGallery(thumb1, thumb2, thumb3))
-	out, err := buildPostJSONLD(pv, nil, "https://bsky.app/profile/alice.bsky.social/post/abc123", "", hideEmbedLabels, hideReplyLabels)
+	out, err := buildPostJSONLD(pv, nil, "https://northsky.app/profile/alice.bsky.social/post/abc123", "", hideEmbedLabels, hideReplyLabels)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -410,7 +410,7 @@ func TestBuildPostJSONLD_GalleryInRecordWithMedia(t *testing.T) {
 	if main["thumbnailUrl"] != thumb {
 		t.Errorf("thumbnailUrl wrong: %v", main["thumbnailUrl"])
 	}
-	if main["isBasedOn"] != "https://bsky.app/profile/bob.example.com/post/xyz" {
+	if main["isBasedOn"] != "https://northsky.app/profile/bob.example.com/post/xyz" {
 		t.Errorf("isBasedOn should still emit for record-with-media gallery, got %v", main["isBasedOn"])
 	}
 }
@@ -466,7 +466,7 @@ func TestBuildPostJSONLD_QuotePost(t *testing.T) {
 	pv := makePostView("alice.bsky.social", "did:plc:alice", "abc123", "quoting!", withQuotePost("bob.example.com", "did:plc:bob", "xyz"))
 	out, _ := buildPostJSONLD(pv, nil, "u", "", hideEmbedLabels, hideReplyLabels)
 	main := unmarshalLD(t, out)["mainEntity"].(map[string]any)
-	if main["isBasedOn"] != "https://bsky.app/profile/bob.example.com/post/xyz" {
+	if main["isBasedOn"] != "https://northsky.app/profile/bob.example.com/post/xyz" {
 		t.Errorf("isBasedOn wrong: %v", main["isBasedOn"])
 	}
 }
@@ -484,7 +484,7 @@ func TestBuildPostJSONLD_IsPartOf(t *testing.T) {
 	// isPartOf is sourced solely from the handler-resolved URL. When supplied,
 	// it is emitted on the main post; when empty, no isPartOf is present.
 	pv := makePostView("alice.bsky.social", "did:plc:alice", "abc123", "a reply")
-	isPartOf := "https://bsky.app/profile/root.bsky.social/post/rootrkey"
+	isPartOf := "https://northsky.app/profile/root.bsky.social/post/rootrkey"
 	out, _ := buildPostJSONLD(pv, nil, "u", isPartOf, hideEmbedLabels, hideReplyLabels)
 	main := unmarshalLD(t, out)["mainEntity"].(map[string]any)
 	if main["isPartOf"] != isPartOf {
@@ -577,7 +577,7 @@ func TestBuildPostJSONLD_ReplyCommentsNoIsPartOf(t *testing.T) {
 	// never carry isPartOf, even when the main post has one.
 	pv := makePostView("alice.bsky.social", "did:plc:alice", "abc123", "main")
 	reply := makePostView("bob.bsky.social", "did:plc:bob", "rep1", "a reply")
-	isPartOf := "https://bsky.app/profile/root.bsky.social/post/rootrkey"
+	isPartOf := "https://northsky.app/profile/root.bsky.social/post/rootrkey"
 	out, _ := buildPostJSONLD(pv, buildReplies(reply), "u", isPartOf, hideEmbedLabels, hideReplyLabels)
 	main := unmarshalLD(t, out)["mainEntity"].(map[string]any)
 	c := main["comment"].([]any)[0].(map[string]any)
@@ -716,7 +716,7 @@ func TestBuildPostJSONLD_Comments(t *testing.T) {
 
 func TestBuildPostJSONLD_HandleInvalidAuthor(t *testing.T) {
 	pv := makePostView("handle.invalid", "did:plc:alice", "abc123", "hello")
-	fallback := "https://bsky.app/profile/did:plc:alice/post/abc123"
+	fallback := "https://northsky.app/profile/did:plc:alice/post/abc123"
 	out, _ := buildPostJSONLD(pv, nil, fallback, "", hideEmbedLabels, hideReplyLabels)
 	envelope := unmarshalLD(t, out)
 	main := envelope["mainEntity"].(map[string]any)
@@ -753,14 +753,14 @@ func TestBuildPostJSONLD_EnvelopeURLMatchesMainEntity(t *testing.T) {
 			handle:    "alice.bsky.social",
 			did:       "did:plc:alice",
 			rkey:      "abc",
-			canonical: "https://bsky.app/profile/alice.bsky.social/post/abc",
+			canonical: "https://northsky.app/profile/alice.bsky.social/post/abc",
 		},
 		{
 			name:      "handle.invalid falls back to canonical",
 			handle:    "handle.invalid",
 			did:       "did:plc:alice",
 			rkey:      "abc",
-			canonical: "https://bsky.app/profile/did:plc:alice/post/abc",
+			canonical: "https://northsky.app/profile/did:plc:alice/post/abc",
 		},
 	}
 	for _, tc := range cases {
@@ -953,7 +953,7 @@ func TestBskyPostURL(t *testing.T) {
 	tests := []struct {
 		name, handle, rkey, want string
 	}{
-		{"valid", "alice.bsky.social", "abc", "https://bsky.app/profile/alice.bsky.social/post/abc"},
+		{"valid", "alice.bsky.social", "abc", "https://northsky.app/profile/alice.bsky.social/post/abc"},
 		{"empty handle", "", "abc", ""},
 		{"handle.invalid", "handle.invalid", "abc", ""},
 		{"empty rkey", "alice.bsky.social", "", ""},
@@ -971,7 +971,7 @@ func TestBskyPostURLFromATURI(t *testing.T) {
 	tests := []struct {
 		name, handle, atURI, want string
 	}{
-		{"valid", "alice.bsky.social", "at://did:plc:alice/app.bsky.feed.post/abc", "https://bsky.app/profile/alice.bsky.social/post/abc"},
+		{"valid", "alice.bsky.social", "at://did:plc:alice/app.bsky.feed.post/abc", "https://northsky.app/profile/alice.bsky.social/post/abc"},
 		{"empty handle", "", "at://did:plc:alice/app.bsky.feed.post/abc", ""},
 		{"handle.invalid", "handle.invalid", "at://did:plc:alice/app.bsky.feed.post/abc", ""},
 		{"bad uri", "alice.bsky.social", "not-an-aturi", ""},
@@ -986,7 +986,7 @@ func TestBskyPostURLFromATURI(t *testing.T) {
 }
 
 func TestBskyProfileURL(t *testing.T) {
-	if bskyProfileURL("alice.bsky.social") != "https://bsky.app/profile/alice.bsky.social" {
+	if bskyProfileURL("alice.bsky.social") != "https://northsky.app/profile/alice.bsky.social" {
 		t.Errorf("valid handle wrong")
 	}
 	if bskyProfileURL("handle.invalid") != "" {
@@ -1140,7 +1140,7 @@ func TestBuildReviewedBy_NameFallbacks(t *testing.T) {
 			spec:              verifierSpec{issuer: "did:plc:v1", handle: "alice.example.com", displayName: "Alice Verifier", isValid: true},
 			wantName:          "Alice Verifier",
 			wantAlternateName: "@alice.example.com",
-			wantURL:           "https://bsky.app/profile/alice.example.com",
+			wantURL:           "https://northsky.app/profile/alice.example.com",
 			wantIdentif:       "did:plc:v1",
 		},
 		{
@@ -1148,7 +1148,7 @@ func TestBuildReviewedBy_NameFallbacks(t *testing.T) {
 			spec:              verifierSpec{issuer: "did:plc:v2", handle: "bob.example.com", isValid: true},
 			wantName:          "@bob.example.com",
 			wantAlternateName: "",
-			wantURL:           "https://bsky.app/profile/bob.example.com",
+			wantURL:           "https://northsky.app/profile/bob.example.com",
 			wantIdentif:       "did:plc:v2",
 		},
 		{
@@ -1156,7 +1156,7 @@ func TestBuildReviewedBy_NameFallbacks(t *testing.T) {
 			spec:              verifierSpec{issuer: "did:plc:v3", displayName: "Carol Verifier", isValid: true},
 			wantName:          "Carol Verifier",
 			wantAlternateName: "",
-			wantURL:           "https://bsky.app/profile/did:plc:v3",
+			wantURL:           "https://northsky.app/profile/did:plc:v3",
 			wantIdentif:       "did:plc:v3",
 		},
 		{
@@ -1164,7 +1164,7 @@ func TestBuildReviewedBy_NameFallbacks(t *testing.T) {
 			spec:              verifierSpec{issuer: "did:plc:v4", handle: "handle.invalid", displayName: "Dave Verifier", isValid: true},
 			wantName:          "Dave Verifier",
 			wantAlternateName: "",
-			wantURL:           "https://bsky.app/profile/did:plc:v4",
+			wantURL:           "https://northsky.app/profile/did:plc:v4",
 			wantIdentif:       "did:plc:v4",
 		},
 	}
@@ -1245,7 +1245,7 @@ func TestBuildPostJSONLD_AuthorReviewedBy(t *testing.T) {
 	if v["identifier"] != "did:plc:verifier1" {
 		t.Errorf("verifier identifier = %v", v["identifier"])
 	}
-	if v["url"] != "https://bsky.app/profile/verifier.example.com" {
+	if v["url"] != "https://northsky.app/profile/verifier.example.com" {
 		t.Errorf("verifier url = %v", v["url"])
 	}
 }
@@ -1292,7 +1292,7 @@ func TestBuildProfileJSONLD_MainEntityReviewedBy(t *testing.T) {
 	if v["identifier"] != "did:plc:verifier1" {
 		t.Errorf("verifier identifier = %v", v["identifier"])
 	}
-	if v["url"] != "https://bsky.app/profile/verifier.example.com" {
+	if v["url"] != "https://northsky.app/profile/verifier.example.com" {
 		t.Errorf("verifier url = %v", v["url"])
 	}
 }
@@ -1385,7 +1385,7 @@ func TestBuildPostJSONLD_WithVideoObject(t *testing.T) {
 			thumbnail: thumb, playlist: playlist, alt: "A trip to the park",
 			hasAspect: true, width: 16, height: 9,
 		}))
-	canonical := "https://bsky.app/profile/alice.bsky.social/post/abc123"
+	canonical := "https://northsky.app/profile/alice.bsky.social/post/abc123"
 	out, err := buildPostJSONLD(pv, nil, canonical, "", hideEmbedLabels, hideReplyLabels)
 	if err != nil {
 		t.Fatal(err)
@@ -1543,7 +1543,7 @@ func TestBuildPostJSONLD_VideoInRecordWithMedia(t *testing.T) {
 		t.Errorf("thumbnailUrl = %v, want %v", video["thumbnailUrl"], thumb)
 	}
 	// quote-post still surfaces via isBasedOn alongside the video.
-	if main["isBasedOn"] != "https://bsky.app/profile/quoted.bsky.social/post/q" {
+	if main["isBasedOn"] != "https://northsky.app/profile/quoted.bsky.social/post/q" {
 		t.Errorf("isBasedOn = %v", main["isBasedOn"])
 	}
 }
@@ -1573,7 +1573,7 @@ func TestBuildPostJSONLD_VideoOnReply(t *testing.T) {
 	if video["contentUrl"] != playlist {
 		t.Errorf("reply video contentUrl = %v", video["contentUrl"])
 	}
-	if video["embedUrl"] != "https://bsky.app/profile/bob.bsky.social/post/rep1" {
+	if video["embedUrl"] != "https://northsky.app/profile/bob.bsky.social/post/rep1" {
 		t.Errorf("reply video embedUrl = %v", video["embedUrl"])
 	}
 }
@@ -1607,7 +1607,7 @@ func TestBuildProfileJSONLD_HasPartVideo(t *testing.T) {
 	if video["contentUrl"] != playlist {
 		t.Errorf("hasPart video contentUrl = %v", video["contentUrl"])
 	}
-	if video["embedUrl"] != "https://bsky.app/profile/alice.bsky.social/post/rp1" {
+	if video["embedUrl"] != "https://northsky.app/profile/alice.bsky.social/post/rp1" {
 		t.Errorf("hasPart video embedUrl = %v", video["embedUrl"])
 	}
 }
@@ -1623,7 +1623,7 @@ func TestBuildPostJSONLD_VideoHandleInvalidEmbedURL(t *testing.T) {
 		withVideoFull(videoEmbedOpts{
 			playlist: playlist, alt: "scenic clip",
 		}))
-	canonical := "https://bsky.app/profile/did:plc:alice/post/abc123"
+	canonical := "https://northsky.app/profile/did:plc:alice/post/abc123"
 	out, _ := buildPostJSONLD(pv, nil, canonical, "", hideEmbedLabels, hideReplyLabels)
 	main := unmarshalLD(t, out)["mainEntity"].(map[string]any)
 	video, ok := main["video"].(map[string]any)
@@ -1654,7 +1654,7 @@ func TestBuildPostJSONLD_VideoHandleInvalidEmbedURL_Reply(t *testing.T) {
 	if !ok {
 		t.Fatalf("reply video missing")
 	}
-	want := "https://bsky.app/profile/did:plc:bob/post/rep1"
+	want := "https://northsky.app/profile/did:plc:bob/post/rep1"
 	if video["embedUrl"] != want {
 		t.Errorf("reply video embedUrl = %v, want %v", video["embedUrl"], want)
 	}

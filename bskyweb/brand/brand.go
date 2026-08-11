@@ -14,4 +14,6 @@ const (
 	OgSiteName = "Northsky"
 	// TwitterHandle is `twitterHandle` from src/brand/brand.json.
 	TwitterHandle = "@northsky"
+	// BaseURL is `baseUrl` from src/brand/brand.json.
+	BaseURL = "https://northsky.app"
 )

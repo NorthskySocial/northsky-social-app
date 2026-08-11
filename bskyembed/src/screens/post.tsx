@@ -4,6 +4,7 @@ import {AppBskyFeedDefs, AtpAgent} from '@atproto/api'
 import {h, render} from 'preact'
 
 import logo from '../../assets/logo.svg'
+import {BRAND} from '../brand' // northsky: brand hosts
 import {applyTheme, initSystemColorMode} from '../color-mode'
 import {Container} from '../components/container'
 import {Link} from '../components/link'
@@ -14,7 +15,7 @@ const root = document.getElementById('app')
 if (!root) throw new Error('No root element')
 
 const agent = new AtpAgent({
-  service: 'https://public.api.bsky.app',
+  service: BRAND.publicAppViewUrl, // northsky: brand appview
 })
 
 const uri = `at://${window.location.pathname.slice('/embed/'.length)}`
@@ -90,9 +91,9 @@ function PwiOptOut({thread}: {thread: AppBskyFeedDefs.ThreadViewPost}) {
 
 function ErrorMessage() {
   return (
-    <Container href="https://bsky.app/">
+    <Container href={`${BRAND.baseUrl}/`}>
       <Link
-        href="https://bsky.app/"
+        href={`${BRAND.baseUrl}/`}
         className="transition-transform hover:scale-110 absolute top-4 right-4">
         <img src={logo} className="h-6" />
       </Link>
