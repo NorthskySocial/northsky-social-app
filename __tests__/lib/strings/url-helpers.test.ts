@@ -1,6 +1,7 @@
 import {describe, expect, it} from '@jest/globals'
 
 import {
+  BSKY_APP_HOST,
   createBskyAppAbsoluteUrl,
   getChatInviteCodeFromUrl,
   isBskyAppUrl,
@@ -196,6 +197,15 @@ describe('isTrustedUrl', () => {
 
 /* northsky: minting is brand-only, recognition accepts bsky.app and the brand host */
 describe('brand URL minting', () => {
+  it('BSKY_APP_HOST is the brand host', () => {
+    /*
+     * Chat invite links interpolate this constant directly, for example
+     * `${BSKY_APP_HOST}/chat/${code}` in ChatInvite/Root.tsx and
+     * InviteLinkDialog.tsx. This pin covers those sites.
+     */
+    expect(BSKY_APP_HOST).toEqual('https://northsky.app')
+  })
+
   it('toShareUrl prefixes relative paths with the brand host', () => {
     expect(toShareUrl('/profile/bob.test')).toEqual(
       'https://northsky.app/profile/bob.test',
