@@ -136,7 +136,8 @@ This is exact and zero-maintenance, and it's what the sync workflow relies on.
 | --- | --- | --- |
 | Brand identity/config | `src/brand/{brand.json,config.ts,index.ts}` | `src/lib/constants.ts`, `app.config.js` |
 | Brand theme | `src/brand/theme.ts` | root `ThemeProvider` in `src/App.tsx`, `src/App.web.tsx` |
-| Logo / web assets | `src/brand/assets/Logo.tsx`, `bskyembed/assets/logo.svg`, other in-place assets | `src/view/icons/Logo.tsx`, `web/index.html` |
+| Logo / web assets | `src/brand/assets/Logo.tsx`, in-place assets | `src/view/icons/Logo.tsx`, `web/index.html` |
+| Embed service branding | `bskyembed/src/brand.ts`, `bskyembed/assets/logo.svg` | `bskyembed/{index.html,post.html,snippet/embed.ts}`, `bskyembed/src/{components/post.tsx,screens/landing.tsx,screens/post.tsx}` |
 | Splash logomark | (brand logo) | `src/Splash.tsx`, `src/Splash.web.tsx` |
 | Pronouns | `src/screens/Profile/Header/pronouns.ts` | `EditProfileDialog.tsx`, `profile.ts`, `Handle.tsx`, `ThreadItemAnchor.tsx` |
 | Slingshot/Constellation | `src/lib/slingshot/*`, `src/state/queries/slingshot.ts` | `Post/Embed/index.tsx`, `UserAvatar.tsx` |
