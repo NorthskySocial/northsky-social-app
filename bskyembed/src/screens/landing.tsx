@@ -62,10 +62,12 @@ function LandingPage() {
             try {
               const urlp = new URL(uri)
               // northsky: accept brand post URLs next to bsky.app ones
-              if (
-                !urlp.hostname.endsWith('bsky.app') &&
-                urlp.origin !== BRAND.baseUrl
-              ) {
+              // Match bsky.app and its subdomains on a dot boundary so that
+              // look-alike hosts such as evilbsky.app do not pass.
+              const isBskyHost =
+                urlp.hostname === 'bsky.app' ||
+                urlp.hostname.endsWith('.bsky.app')
+              if (!isBskyHost && urlp.origin !== BRAND.baseUrl) {
                 throw new Error('Invalid hostname')
               }
               const split = urlp.pathname.slice(1).split('/')
