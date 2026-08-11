@@ -6,7 +6,7 @@ import {
 } from '@atproto/api'
 import {h} from 'preact'
 
-import logo from '../../assets/logo_full_name.svg'
+import logo from '../../assets/logo.svg' // northsky: brand logomark
 import {BRAND} from '../brand' // northsky: brand link recognition
 import {Like as LikeIcon} from '../icons/Like'
 import {Reply as ReplyIcon} from '../icons/Reply'
@@ -146,7 +146,11 @@ export function Post({thread}: Props) {
           <Link
             href={href}
             className="transition-transform hover:scale-110 shrink-0">
-            <img src={logo} className="h-5 min-[400px]:h-7" />
+            <img
+              src={logo}
+              className="h-5 min-[400px]:h-7"
+              alt={BRAND.appName}
+            />
           </Link>
         </div>
       </div>
