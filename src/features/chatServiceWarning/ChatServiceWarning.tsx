@@ -25,8 +25,9 @@ export function ChatServiceWarning({style}: {style?: StyleProp<ViewStyle>}) {
           <Admonition.Text>
             <Trans>
               This chat service is operated by Bluesky and messages are not
-              encrypted. For private conversations, we recommend an end-to-end
-              encrypted service like{' '}
+              encrypted. <br />
+              For private conversations, we recommend an end-to-end encrypted
+              service like{' '}
               <InlineLinkText
                 to="/profile/germnetwork.com"
                 label={l`View the Germ Network profile`}>
