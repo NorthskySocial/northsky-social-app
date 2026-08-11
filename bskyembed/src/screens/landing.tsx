@@ -6,6 +6,7 @@ import {useEffect, useMemo, useRef, useState} from 'preact/hooks'
 
 import arrowBottom from '../../assets/arrowBottom_stroke2_corner0_rounded.svg'
 import logo from '../../assets/logo.svg'
+import {BRAND} from '../brand' // northsky: brand hosts
 import {
   assertColorModeValues,
   ColorModeValues,
@@ -22,7 +23,7 @@ const DEFAULT_POST =
 const DEFAULT_URI =
   'at://did:plc:vjug55kidv6sye7ykr5faxxn/app.bsky.feed.post/3jzn6g7ixgq2y'
 
-export const EMBED_SERVICE = 'https://embed.bsky.app'
+export const EMBED_SERVICE = BRAND.embedServiceUrl // northsky: brand embed host
 export const EMBED_SCRIPT = `${EMBED_SERVICE}/static/embed.js`
 
 const root = document.getElementById('app')
@@ -31,7 +32,7 @@ if (!root) throw new Error('No root element')
 initSystemColorMode({additionalBodyClasses: 'dark:bg-dimmedBgDarken'})
 
 const agent = new AtpAgent({
-  service: 'https://public.api.bsky.app',
+  service: BRAND.publicAppViewUrl, // northsky: brand appview
 })
 
 render(<LandingPage />, root)
@@ -60,7 +61,13 @@ function LandingPage() {
           } else {
             try {
               const urlp = new URL(uri)
-              if (!urlp.hostname.endsWith('bsky.app')) {
+              // northsky: accept brand post URLs next to bsky.app ones
+              // Match bsky.app and its subdomains on a dot boundary so that
+              // look-alike hosts such as evilbsky.app do not pass.
+              const isBskyHost =
+                urlp.hostname === 'bsky.app' ||
+                urlp.hostname.endsWith('.bsky.app')
+              if (!isBskyHost && urlp.origin !== BRAND.baseUrl) {
                 throw new Error('Invalid hostname')
               }
               const split = urlp.pathname.slice(1).split('/')
@@ -294,7 +301,7 @@ function Snippet({
 }
 
 function toShareUrl(path: string) {
-  return `https://bsky.app${path}?ref_src=embed`
+  return `${BRAND.baseUrl}${path}?ref_src=embed` // northsky: brand share links
 }
 
 /**

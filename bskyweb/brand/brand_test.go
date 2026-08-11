@@ -25,6 +25,7 @@ func TestMatchesBrandJSON(t *testing.T) {
 		AppName       string `json:"appName"`
 		OgSiteName    string `json:"ogSiteName"`
 		TwitterHandle string `json:"twitterHandle"`
+		BaseURL       string `json:"baseUrl"`
 	}
 	if err := json.Unmarshal(raw, &identity); err != nil {
 		t.Fatalf("parsing %s: %v", brandJSONPath, err)
@@ -38,6 +39,7 @@ func TestMatchesBrandJSON(t *testing.T) {
 		{"appName", AppName, identity.AppName},
 		{"ogSiteName", OgSiteName, identity.OgSiteName},
 		{"twitterHandle", TwitterHandle, identity.TwitterHandle},
+		{"baseUrl", BaseURL, identity.BaseURL},
 	} {
 		if tc.want == "" {
 			t.Errorf("%s is missing from %s", tc.field, brandJSONPath)

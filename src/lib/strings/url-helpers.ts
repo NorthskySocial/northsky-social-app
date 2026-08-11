@@ -8,7 +8,9 @@ import {startUriToStarterPackUri} from '#/lib/strings/starter-pack'
 import {logger} from '#/logger'
 import {BRAND} from '#/brand/config'
 
-export const BSKY_APP_HOST = 'https://bsky.app'
+// northsky: mint brand URLs; keep recognizing bsky.app links from the wild
+export const BSKY_APP_HOST = BRAND.baseUrl
+const APP_URL_PREFIXES = ['https://bsky.app/', `${BRAND.baseUrl}/`]
 export const BSKY_HOSTING_ENDSWITH = '.host.bsky.network'
 const BSKY_TRUSTED_HOSTS = [
   'bsky\\.app',
@@ -89,7 +91,7 @@ export function toShortUrl(url: string): string {
 
 export function toShareUrl(url: string): string {
   if (!url.startsWith('https')) {
-    const urlp = new URL('https://bsky.app')
+    const urlp = new URL(BRAND.baseUrl) // northsky: share brand URLs
     urlp.pathname = url
     url = urlp.toString()
   }
@@ -130,7 +132,8 @@ export function isBlueskyHostedUrl(url: string): boolean {
 }
 
 export function isBskyAppUrl(url: string): boolean {
-  return url.startsWith('https://bsky.app/')
+  // northsky: accept the brand host and bsky.app
+  return APP_URL_PREFIXES.some(prefix => url.startsWith(prefix))
 }
 
 export function isRelativeUrl(url: string): boolean {
@@ -138,10 +141,8 @@ export function isRelativeUrl(url: string): boolean {
 }
 
 export function isBskyRSSUrl(url: string): boolean {
-  return (
-    (url.startsWith('https://bsky.app/') || isRelativeUrl(url)) &&
-    /\/rss\/?$/.test(url)
-  )
+  // northsky: isBskyAppUrl also accepts the brand host
+  return (isBskyAppUrl(url) || isRelativeUrl(url)) && /\/rss\/?$/.test(url)
 }
 
 export function isExternalUrl(url: string): boolean {
@@ -378,7 +379,11 @@ export function splitApexDomain(hostname: string): [string, string] {
 }
 
 export function createBskyAppAbsoluteUrl(path: string): string {
-  const sanitizedPath = path.replace(BSKY_APP_HOST, '').replace(/^\/+/, '')
+  // northsky: strip either app host before re-prefixing with the brand host
+  const sanitizedPath = path
+    .replace('https://bsky.app', '')
+    .replace(BSKY_APP_HOST, '')
+    .replace(/^\/+/, '')
   return `${BSKY_APP_HOST.replace(/\/$/, '')}/${sanitizedPath}`
 }
 

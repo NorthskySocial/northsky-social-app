@@ -31,7 +31,6 @@ import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {getAllListMembers} from '#/state/queries/list-members'
 import {useResolvedStarterPackShortLink} from '#/state/queries/resolve-short-link'
 import {useResolveDidQuery} from '#/state/queries/resolve-uri'
-import {useShortenLink} from '#/state/queries/shorten-link'
 import {
   useDeleteStarterPackMutation,
   useStarterPackQuery,
@@ -200,7 +199,6 @@ function StarterPackScreenLoaded({
   const qrCodeDialogControl = useDialogControl()
   const shareDialogControl = useDialogControl()
 
-  const shortenLink = useShortenLink()
   const [link, setLink] = useState<string>()
   const [imageLoaded, setImageLoaded] = useState(false)
 
@@ -212,11 +210,8 @@ function StarterPackScreenLoaded({
 
   const onOpenShareDialog = useCallback(() => {
     const rkey = new AtUri(starterPack.uri).rkey
-    shortenLink(makeStarterPackLink(starterPack.creator.did, rkey)).then(
-      res => {
-        setLink(res.url)
-      },
-    )
+    // northsky: share the full brand URL; do not use the go.bsky.app shortener
+    setLink(makeStarterPackLink(starterPack.creator.did, rkey))
     Image.prefetch(getStarterPackOgCard(starterPack))
       .then(() => {
         setImageLoaded(true)
@@ -225,7 +220,7 @@ function StarterPackScreenLoaded({
         setImageLoaded(true)
       })
     shareDialogControl.open()
-  }, [shareDialogControl, shortenLink, starterPack])
+  }, [shareDialogControl, starterPack])
 
   useEffect(() => {
     if (routeParams.new) {

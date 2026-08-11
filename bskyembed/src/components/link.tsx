@@ -1,5 +1,7 @@
 import {h} from 'preact'
 
+import {BRAND} from '../brand' // northsky: brand host for relative links
+
 export function Link({
   href,
   className,
@@ -21,7 +23,7 @@ export function Link({
 
   return (
     <a
-      href={`${href.startsWith('http') ? href : `https://bsky.app${href}`}${
+      href={`${href.startsWith('http') ? href : `${BRAND.baseUrl}${href}`}${
         disableTracking ? '' : `?${newSearchParam.toString()}`
       }`}
       target="_blank"
