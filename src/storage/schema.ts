@@ -62,6 +62,8 @@ export type Device = {
   demoMode: boolean
   activitySubscriptionsNudged?: boolean
   threadgateNudged?: boolean
+  // northsky: true after the user dismisses the unencrypted-chat warning
+  chatServiceWarningDismissed?: boolean
   inviteFriendsFollowersPromoDismissed?: boolean
   pendingOTAUpdate?: {
     attemptedAt: number
