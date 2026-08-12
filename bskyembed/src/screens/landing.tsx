@@ -18,9 +18,9 @@ import {Post} from '../components/post'
 import * as bsky from '../types/bsky'
 import {niceDate} from '../util/nice-date'
 
-const DEFAULT_POST = `${BRAND.baseUrl}/profile/did:plc:vjug55kidv6sye7ykr5faxxn/post/3jzn6g7ixgq2y`
+const DEFAULT_POST = `${BRAND.baseUrl}/profile/did:plc:bo2zngg7yxwavvsnhdzrufil/post/3mfgmvubn6k2t`
 const DEFAULT_URI =
-  'at://did:plc:vjug55kidv6sye7ykr5faxxn/app.bsky.feed.post/3jzn6g7ixgq2y'
+  'at://did:plc:bo2zngg7yxwavvsnhdzrufil/app.bsky.feed.post/3mfgmvubn6k2t'
 
 export const EMBED_SERVICE = BRAND.embedServiceUrl // northsky: brand embed host
 export const EMBED_SCRIPT = `${EMBED_SERVICE}/static/embed.js`
