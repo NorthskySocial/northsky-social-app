@@ -9,6 +9,14 @@ import Animated, {
   type WithSpringConfig,
 } from 'react-native-reanimated'
 
+import {
+  HOVER_GROW_PX,
+  PRESS_GROW_PX,
+  PRESS_SQUASH_PX,
+  REST_SCALE,
+  scaleForDelta,
+} from './motionScale'
+
 export const SQUISH_SPRING: WithSpringConfig = {
   duration: 300,
   dampingRatio: 0.6,
@@ -26,12 +34,6 @@ export const BOING = {
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
-// press squashes (wider + shorter), hover grows uniformly, rest is identity.
-const PRESS_SCALE_X = 1.1
-const PRESS_SCALE_Y = 0.9
-const HOVER_SCALE = 1.06
-const REST_SCALE = 1
-
 /**
  * A `Pressable` that squishes on press and grows on hover with a springy
  * overshoot. Forwards all `PressableProps`; skips motion under reduced-motion.
@@ -46,6 +48,7 @@ export const SquishyPressable = forwardRef<View, SquishyPressableProps>(
       children,
       style,
       squish = true,
+      onLayout,
       onPressIn,
       onPressOut,
       onHoverIn,
@@ -58,6 +61,11 @@ export const SquishyPressable = forwardRef<View, SquishyPressableProps>(
 
     const sx = useSharedValue(REST_SCALE)
     const sy = useSharedValue(REST_SCALE)
+
+    // Measured size, held in shared values so onLayout never re-renders the
+    // button. High-cardinality lists (Follow buttons) depend on that.
+    const width = useSharedValue(0)
+    const height = useSharedValue(0)
 
     const hovered = useRef(false)
     const pressed = useRef(false)
@@ -79,9 +87,15 @@ export const SquishyPressable = forwardRef<View, SquishyPressableProps>(
 
     const settle = () => {
       if (pressed.current) {
-        springTo(PRESS_SCALE_X, PRESS_SCALE_Y)
+        springTo(
+          scaleForDelta(width.get(), PRESS_GROW_PX),
+          scaleForDelta(height.get(), -PRESS_SQUASH_PX),
+        )
       } else if (hovered.current) {
-        springTo(HOVER_SCALE, HOVER_SCALE)
+        springTo(
+          scaleForDelta(width.get(), HOVER_GROW_PX),
+          scaleForDelta(height.get(), HOVER_GROW_PX),
+        )
       } else {
         springTo(REST_SCALE, REST_SCALE)
       }
@@ -91,6 +105,11 @@ export const SquishyPressable = forwardRef<View, SquishyPressableProps>(
       <AnimatedPressable
         // @ts-ignore - the underlying component is always a Pressable
         ref={ref}
+        onLayout={e => {
+          onLayout?.(e)
+          width.set(e.nativeEvent.layout.width)
+          height.set(e.nativeEvent.layout.height)
+        }}
         onPressIn={e => {
           onPressIn?.(e)
           pressed.current = true
