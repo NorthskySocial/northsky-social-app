@@ -1,0 +1,120 @@
+# Support (donations)
+
+The Support screen takes donations two ways:
+
+- **Web**: Stripe Embedded Checkout, on our own page. bskyweb creates the
+  Checkout Session, because Stripe removed the client-only flow and the browser
+  cannot hold a secret key.
+- **Native**: Stripe payment links, opened in the in-app browser. There is no
+  embedded checkout for React Native, and paying outside the app also keeps
+  clear of the store rules on donations.
+
+Stripe emails the receipt, and nothing in our system changes state on payment,
+so there are no webhooks and no stored records.
+
+## Server
+
+The routes live in `bskyweb/cmd/bskyweb/donations.go` and are registered only
+when `STRIPE_SECRET_KEY` is set.
+
+```
+POST /api/donations/session
+body: {amountCents, interval: "one_time" | "month", did?}
+200:  {clientSecret}
+
+GET /api/donations/status?session_id=cs_...
+200: {status: "complete" | "open" | "expired"}
+```
+
+The server validates the amount, because the browser cannot be trusted with a
+price. One-time donations use `mode=payment`; monthly donations use
+`mode=subscription` with a recurring `price_data`, so any amount can recur.
+
+| Env | Purpose | Default |
+| --- | --- | --- |
+| `STRIPE_SECRET_KEY` | Enables checkout. **A real secret: k8s Secret only.** | empty |
+| `STRIPE_PUBLISHABLE_KEY` | Sent to the app | empty |
+| `DONATION_CURRENCY` | Three letter code | `usd` |
+| `DONATION_PRESETS_CENTS` | Comma separated amounts | `500,1000,2500,5000` |
+| `DONATION_MIN_CENTS` | Smallest accepted donation | `100` |
+| `DONATION_MAX_CENTS` | Largest accepted donation | `100000` |
+| `DONATION_RETURN_BASE_URL` | Origin Stripe returns the donor to | the brand base URL |
+| `DONATION_LINKS` | Payment links for native, as JSON | empty |
+
+## Client config
+
+The app reads one JSON object. bskyweb merges the payment links with the values
+only it knows, then writes the result into the page as
+`window.__NORTHSKY_DONATIONS__`:
+
+```json
+{
+  "currency": "usd",
+  "checkout": true,
+  "publishableKey": "pk_live_...",
+  "presetsCents": [500, 1000, 2500, 5000],
+  "minCents": 100,
+  "maxCents": 100000,
+  "oneTime": {
+    "custom": "https://donate.stripe.com/PAY_WHAT_YOU_WANT",
+    "500": "https://donate.stripe.com/..."
+  },
+  "monthly": {"500": "https://donate.stripe.com/..."}
+}
+```
+
+The same shape can be built into the bundle through
+`EXPO_PUBLIC_DONATIONS_CONFIG`. Native builds have no server, so they need it
+there. The injected value wins when both are present.
+
+**The build-time value is read at build time, not run time.** Metro replaces
+`process.env.EXPO_PUBLIC_*` with literal strings, so a variable set on a running
+container never reaches native builds. Pass it as a Docker build argument for
+the web image and in the `.env` file for native builds.
+
+Nothing in this config is secret. Payment links and the publishable key are
+public by design. The secret key never leaves bskyweb.
+
+## Screen behaviour
+
+1. `checkout` true and a publishable key present: the amount form, then the
+   embedded Stripe form, then a thank-you panel.
+2. Otherwise: payment link buttons, one per configured tier, plus "Other amount"
+   for the pay-what-you-want link.
+3. No config at all: a link to the website.
+
+Stripe returns the donor to `/support?session_id=...`. The screen reads the
+status once, then removes the parameter so a reload does not repeat the
+thank-you panel.
+
+## Payment links
+
+Payment link tiers are keyed by amount in the smallest currency unit. `custom`
+is a "customers choose what to pay" link, which Stripe supports for one-time
+payments only, so it has no monthly equivalent. Adding a tier means creating the
+link in the dashboard and adding one entry to `DONATION_LINKS`. Never put a
+test-mode link into a production deployment.
+
+## Attribution
+
+When somebody is signed in, the app sends the DID: as
+`?client_reference_id=<base64url did>` on a payment link, or as `metadata.did`
+on a Checkout Session. To read a payment link value back:
+
+```js
+const did = atob(clientReferenceId.replace(/-/g, '+').replace(/_/g, '/'))
+```
+
+Either value is a hint, not proof of identity. Anybody can send any DID. Do not
+grant account benefits from it without stronger verification.
+
+## Testing
+
+```bash
+npm i -g @stripe/cli
+stripe sandbox create
+```
+
+Run bskyweb with the sandbox secret key and pay with `4242 4242 4242 4242`.
+Apple Pay needs Safari, HTTPS and a registered domain, so it is normally absent
+in local development.

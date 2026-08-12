@@ -32,6 +32,12 @@ ARG EXPO_PUBLIC_BUNDLE_IDENTIFIER
 # If not set by GitHub workflows, we're probably in Render
 ENV EXPO_PUBLIC_BUNDLE_IDENTIFIER=${EXPO_PUBLIC_BUNDLE_IDENTIFIER:-$RENDER_GIT_COMMIT}
 
+# northsky: donation config for the Support screen. Metro inlines this
+# value into the bundle, so it must be present at build time. bskyweb can also
+# serve it at run time. See src/features/support/README.md
+ARG EXPO_PUBLIC_DONATIONS_CONFIG
+ENV EXPO_PUBLIC_DONATIONS_CONFIG=$EXPO_PUBLIC_DONATIONS_CONFIG
+
 #
 # Sentry
 #
@@ -47,7 +53,8 @@ RUN echo "Using bundle identifier: $EXPO_PUBLIC_BUNDLE_IDENTIFIER" && \
   echo "EXPO_PUBLIC_RELEASE_VERSION=$EXPO_PUBLIC_RELEASE_VERSION" >> .env && \
   echo "EXPO_PUBLIC_BUNDLE_IDENTIFIER=$EXPO_PUBLIC_BUNDLE_IDENTIFIER" >> .env && \
   echo "EXPO_PUBLIC_BUNDLE_DATE=$(date -u +"%y%m%d%H")" >> .env && \
-  echo "EXPO_PUBLIC_SENTRY_DSN=$EXPO_PUBLIC_SENTRY_DSN" >> .env
+  echo "EXPO_PUBLIC_SENTRY_DSN=$EXPO_PUBLIC_SENTRY_DSN" >> .env && \
+  echo "EXPO_PUBLIC_DONATIONS_CONFIG=$EXPO_PUBLIC_DONATIONS_CONFIG" >> .env
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 

@@ -50,6 +50,10 @@ type Server struct {
 
 	ipccClient http.Client
 
+	// northsky: donation checkout for the Support screen
+	donations       *donationsConfig
+	donationsClient http.Client
+
 	// sitemapClient is used for fetching sitemaps from the appview. It has
 	// DisableCompression set to true so that gzipped responses are passed
 	// through without being decompressed.
@@ -82,6 +86,18 @@ func serve(cctx *cli.Context) error {
 	staticCDNHost = strings.TrimSuffix(staticCDNHost, "/")
 	canonicalInstance := cctx.Bool("bsky-canonical-instance")
 	robotsDisallowAll := cctx.Bool("robots-disallow-all")
+
+	// northsky: donation checkout for the Support screen
+	donations := &donationsConfig{
+		secretKey:      cctx.String("stripe-secret-key"),
+		publishableKey: cctx.String("stripe-publishable-key"),
+		currency:       cctx.String("donation-currency"),
+		presetsCents:   parsePresetsCents(cctx.String("donation-presets-cents")),
+		minCents:       cctx.Int64("donation-min-cents"),
+		maxCents:       cctx.Int64("donation-max-cents"),
+		returnBaseURL:  strings.TrimSuffix(cctx.String("donation-return-base-url"), "/"),
+		apiBase:        stripeAPIBase,
+	}
 
 	// Echo
 	e := echo.New()
@@ -144,6 +160,10 @@ func serve(cctx *cli.Context) error {
 				},
 			},
 		},
+		donations: donations,
+		donationsClient: http.Client{
+			Timeout: 20 * time.Second,
+		},
 		sitemapClient: http.Client{
 			Transport: &http.Transport{
 				MaxIdleConns:        100,
@@ -166,7 +186,10 @@ func serve(cctx *cli.Context) error {
 	}
 
 	e.HideBanner = true
-	e.Renderer = NewRenderer("templates/", &bskyweb.TemplateFS, debug)
+	renderer := NewRenderer("templates/", &bskyweb.TemplateFS, debug)
+	// northsky: the app reads the donation config from the page
+	renderer.SetDonationConfig(donations.clientConfigLiteral())
+	e.Renderer = renderer
 	e.HTTPErrorHandler = server.errorHandler
 
 	e.IPExtractor = echo.ExtractIPFromXFFHeader()
@@ -231,9 +254,16 @@ func serve(cctx *cli.Context) error {
 	e.Use(echoprom)
 
 	// CORS middleware
+	corsMethods := []string{http.MethodGet, http.MethodHead, http.MethodOptions}
+	if debug {
+		// northsky: the Expo dev server is a different origin, so local work on
+		// the donation form needs a cross-origin POST. Production serves the app
+		// from this process, where the call is same-origin.
+		corsMethods = append(corsMethods, http.MethodPost)
+	}
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: corsOrigins,
-		AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodOptions},
+		AllowMethods: corsMethods,
 	}))
 
 	//
@@ -379,6 +409,12 @@ func serve(cctx *cli.Context) error {
 
 	// ipcc
 	e.GET("/ipcc", server.WebIpCC)
+
+	// northsky: donation checkout, served only when a Stripe key is configured
+	if donations.enabled() {
+		e.POST("/api/donations/session", server.DonationSession)
+		e.GET("/api/donations/status", server.DonationStatus)
+	}
 
 	// sitemap handlers
 	e.GET("/sitemap/users.xml.gz", server.handleSitemapUsersIndex)

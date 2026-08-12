@@ -66,3 +66,4 @@ jobs:
             EXPO_PUBLIC_BUNDLE_IDENTIFIER=${{ steps.env.outputs.EXPO_PUBLIC_BUNDLE_IDENTIFIER }}
             EXPO_PUBLIC_SENTRY_DSN=${{ secrets.SENTRY_DSN }}
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
+            EXPO_PUBLIC_DONATIONS_CONFIG=${{ secrets.DONATIONS_CONFIG }}

@@ -82,6 +82,8 @@ export type Events = {
       | 'lists'
       | 'saved'
       | 'settings'
+      // northsky: donation screen
+      | 'support'
       | 'menu'
     surface: 'bottomBar' | 'drawer' | 'drawerHeader' | 'topBar' | 'leftNav'
   }
