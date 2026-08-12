@@ -6,8 +6,12 @@
  * by hand; bskyembed has no test runner to guard against drift.
  */
 export const BRAND = {
+  /** `appName` from src/brand/brand.json */
+  appName: 'Northsky',
   /** `baseUrl` from src/brand/brand.json */
   baseUrl: 'https://northsky.app',
+  /** `aboutUrl` from src/brand/config.ts */
+  aboutUrl: 'https://northskysocial.com/posts/about',
   /** `embedServiceUrl` from src/brand/config.ts */
   embedServiceUrl: 'https://embed.northsky.app',
   /** `publicAppViewUrl` from src/brand/config.ts */

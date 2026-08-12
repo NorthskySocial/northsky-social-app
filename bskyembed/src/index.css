@@ -12,6 +12,22 @@
   word-break: break-word;
 }
 
+/* northsky: match gradientBorderWeb from src/brand/gradients.ts */
+.northsky-gradient-border {
+  border: 2px solid transparent;
+  background:
+    linear-gradient(white, white) padding-box,
+    linear-gradient(135deg, #bb0ffb 0%, #9f3def 35%, #718ada 65%, #2affba 100%)
+      border-box;
+}
+
+.northsky-gradient-border:is(.dark *):not(:is(.dark .light *)) {
+  background:
+    linear-gradient(black, black) padding-box,
+    linear-gradient(135deg, #bb0ffb 0%, #9f3def 35%, #718ada 65%, #2affba 100%)
+      border-box;
+}
+
 #app {
   color-scheme: light dark;
 }

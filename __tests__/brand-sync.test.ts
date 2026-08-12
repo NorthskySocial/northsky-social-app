@@ -10,7 +10,9 @@ import {BRAND} from '../src/brand/config'
  */
 describe('bskyembed brand constants', () => {
   it('match src/brand/config.ts', () => {
+    expect(EMBED_BRAND.appName).toEqual(BRAND.appName)
     expect(EMBED_BRAND.baseUrl).toEqual(BRAND.baseUrl)
+    expect(EMBED_BRAND.aboutUrl).toEqual(BRAND.aboutUrl)
     expect(EMBED_BRAND.embedServiceUrl).toEqual(BRAND.embedServiceUrl)
     expect(EMBED_BRAND.publicAppViewUrl).toEqual(BRAND.publicAppViewUrl)
   })

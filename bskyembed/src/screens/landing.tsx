@@ -18,10 +18,9 @@ import {Post} from '../components/post'
 import * as bsky from '../types/bsky'
 import {niceDate} from '../util/nice-date'
 
-const DEFAULT_POST =
-  'https://bsky.app/profile/did:plc:vjug55kidv6sye7ykr5faxxn/post/3jzn6g7ixgq2y'
+const DEFAULT_POST = `${BRAND.baseUrl}/profile/did:plc:bo2zngg7yxwavvsnhdzrufil/post/3mfgmvubn6k2t`
 const DEFAULT_URI =
-  'at://did:plc:vjug55kidv6sye7ykr5faxxn/app.bsky.feed.post/3jzn6g7ixgq2y'
+  'at://did:plc:bo2zngg7yxwavvsnhdzrufil/app.bsky.feed.post/3mfgmvubn6k2t'
 
 export const EMBED_SERVICE = BRAND.embedServiceUrl // northsky: brand embed host
 export const EMBED_SCRIPT = `${EMBED_SERVICE}/static/embed.js`
@@ -93,7 +92,7 @@ function LandingPage() {
               atUri = `at://${did}/app.bsky.feed.post/${rkey}`
             } catch (err) {
               console.log(err)
-              throw new Error('Invalid Bluesky URL')
+              throw new Error(`Invalid ${BRAND.appName} URL`)
             }
           }
         }
@@ -118,7 +117,9 @@ function LandingPage() {
         setThread(data.thread)
       } catch (err) {
         console.error(err)
-        setError(err instanceof Error ? err.message : 'Invalid Bluesky URL')
+        setError(
+          err instanceof Error ? err.message : `Invalid ${BRAND.appName} URL`,
+        )
       } finally {
         setLoading(false)
       }
@@ -128,12 +129,14 @@ function LandingPage() {
   return (
     <main className="w-full min-h-dvh flex flex-col items-center gap-8 py-14 px-4 md:pt-32 dark:text-slate-200">
       <Link
-        href="https://bsky.social/about"
+        href={BRAND.aboutUrl}
         className="transition-transform hover:scale-110">
-        <img src={logo} className="h-10" />
+        <img src={logo} className="h-10" alt={BRAND.appName} />
       </Link>
 
-      <h1 className="text-4xl font-bold text-center">Embed a Bluesky Post</h1>
+      <h1 className="text-4xl font-bold text-center">
+        Embed a {BRAND.appName} Post
+      </h1>
 
       <div className="flex flex-col w-full max-w-[600px] gap-6">
         <input
