@@ -341,7 +341,8 @@
     "modulePathIgnorePatterns": [
       "__tests__/.*/__mocks__",
       "__e2e__/.*",
-      "bskylink/.*"
+      "bskylink/.*",
+      "<rootDir>/.claude/.*"
     ],
     "coveragePathIgnorePatterns": [
       "<rootDir>/node_modules/",
