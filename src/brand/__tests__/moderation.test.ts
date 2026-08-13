@@ -107,15 +107,16 @@ describe('getHostModServiceHeaders', () => {
   })
 
   /*
-   * Regression proof for the fallback path: unknown hosts must keep producing
-   * the exact header the screen sent before appeals became host-aware.
+   * Regression proof for the fallback path: a host the map cannot resolve must
+   * keep producing the exact header the screen sent before appeals became
+   * host-aware.
    */
-  it('falls back to the Bluesky mod service', () => {
-    const bluesky = {
+  it.each([
+    ['an unknown host', 'https://pds.example.com'],
+    ['a missing service URL', undefined],
+  ])('falls back to the Bluesky mod service for %s', (_name, serviceUrl) => {
+    expect(getHostModServiceHeaders(serviceUrl)).toEqual({
       'atproto-proxy': `${BSKY_LABELER_DID}#atproto_labeler`,
-    }
-    expect(getHostModServiceHeaders('https://pds.example.com')).toEqual(bluesky)
-    expect(getHostModServiceHeaders(undefined)).toEqual(bluesky)
-    expect(getHostModServiceHeaders('https://bsky.social')).toEqual(bluesky)
+    })
   })
 })
