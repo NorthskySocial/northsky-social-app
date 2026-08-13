@@ -3,6 +3,7 @@ import {type StyleProp, type TextStyle, View} from 'react-native'
 import {AppBskyRichtextFacet, RichText as RichTextAPI} from '@atproto/api'
 
 // northsky: Markdown-style code and emphasis in post text
+import {hasEmphasis} from '#/lib/code/emphasis'
 import {
   hasFormatting,
   type RichTextItem,
@@ -39,6 +40,12 @@ export type RichTextProps = TextStyleProp &
      * See `#/components/RichTextCode`.
      */
     enableCode?: boolean
+    /**
+     * northsky: render emphasis in the text, but leave code markers literal.
+     * For compact previews where a code chip or a fenced block is too heavy.
+     * `enableCode` already includes emphasis and wins if both are set.
+     */
+    enableEmphasis?: boolean
     /**
      * northsky: this is the single, full post view rather than a row in a list.
      * Only then may a fenced block render as a scrollable `<View>` panel; inside
@@ -86,6 +93,7 @@ export function RichText({
   selectable,
   enableTags = false,
   enableCode = false,
+  enableEmphasis = false,
   fullView = false,
   authorHandle,
   onLinkPress,
@@ -120,6 +128,8 @@ export function RichText({
   // northsky: fast guard - only run the formatting pipeline when the post
   // actually contains a marker.
   const codeActive = enableCode && hasFormatting(text)
+  const emphasisActive = !codeActive && enableEmphasis && hasEmphasis(text)
+  const formattingActive = codeActive || emphasisActive
   const blockMode = codeActive && fullView && !numberOfLines
 
   // northsky: a fenced code <View> cannot live inside a <Text>, so when one is
@@ -189,7 +199,7 @@ export function RichText({
     )
   }
 
-  if (!facets?.length && !codeActive) {
+  if (!facets?.length && !formattingActive) {
     if (isOnlyEmoji(text)) {
       const flattenedStyle = flatten(style) ?? {}
       const fontSize =
@@ -233,8 +243,8 @@ export function RichText({
   // northsky: with formatting active, code and emphasis are resolved over the
   // full text before facets, so a fence containing a link stays a fence.
   // See `#/lib/code/ranges`.
-  const items: RichTextItem[] = codeActive
-    ? segmentsWithCode(richText)
+  const items: RichTextItem[] = formattingActive
+    ? segmentsWithCode(richText, {renderCode: codeActive})
     : Array.from(richText.segments(), segment => ({
         kind: 'segment' as const,
         segment,

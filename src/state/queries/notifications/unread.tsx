@@ -16,6 +16,7 @@ import {EventEmitter} from 'eventemitter3'
 
 import BroadcastChannel from '#/lib/broadcast'
 import {resetBadgeCount} from '#/lib/notifications/notifications'
+import {logger} from '#/logger'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {truncateAndInvalidate} from '#/state/queries/util'
 import {useAgent, useSession} from '#/state/session'
@@ -195,6 +196,15 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
             truncateAndInvalidate(queryClient, RQKEY_NOTIFS('mentions'))
           }
           broadcast.postMessage({event: unreadCountStr})
+        } catch (e) {
+          /*
+           * Nothing awaits this call, so an unhandled rejection crashes the
+           * app. Restricted sessions (suspended accounts, App Passwords) fail
+           * here with `Bad token scope` on every poll.
+           */
+          logger.error('checkUnread: failed to fetch notifications', {
+            message: e,
+          })
         } finally {
           isFetchingRef.current = false
         }

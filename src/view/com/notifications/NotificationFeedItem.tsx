@@ -64,6 +64,7 @@ import * as MediaPreview from '#/components/MediaPreview'
 import {ProfileBadges} from '#/components/ProfileBadges'
 import * as ProfileCard from '#/components/ProfileCard'
 import {ProfileHoverCard} from '#/components/ProfileHoverCard'
+import {RichText} from '#/components/RichText'
 import {
   Notification as StarterPackCard,
   useStarterPackLink,
@@ -1157,12 +1158,16 @@ function AdditionalPostText({post}: {post?: AppBskyFeedDefs.PostView}) {
     return (
       <>
         {text?.length > 0 && (
-          <Text
-            emoji
+          // northsky: render emphasis so markers do not show as literal text.
+          // Code stays literal and links stay inert, to keep the preview light
+          // and to avoid a pressable inside the row's own link.
+          <RichText
+            value={text}
+            enableEmphasis
+            disableLinks
             style={[a.text_sm, t.atoms.text_contrast_medium]}
-            numberOfLines={MAX_POST_LINES}>
-            {text}
-          </Text>
+            numberOfLines={MAX_POST_LINES}
+          />
         )}
         <MediaPreview.Embed
           embed={post.embed}

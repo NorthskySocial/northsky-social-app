@@ -142,6 +142,7 @@ This is exact and zero-maintenance, and it's what the sync workflow relies on.
 | Pronouns | `src/screens/Profile/Header/pronouns.ts` | `EditProfileDialog.tsx`, `profile.ts`, `Handle.tsx`, `ThreadItemAnchor.tsx` |
 | Slingshot/Constellation | `src/lib/slingshot/*`, `src/state/queries/slingshot.ts` | `Post/Embed/index.tsx`, `UserAvatar.tsx` |
 | Custom lexicon rendering | `src/features/customRecords/*` | `Post/Embed/index.tsx` (`unknown` branch) |
+| Host-aware takedown/appeal routing | `src/brand/moderation.ts` | `src/screens/Takendown.tsx` |
 
 ### Anti-patterns (deliberately NOT done)
 
