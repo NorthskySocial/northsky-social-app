@@ -17,7 +17,7 @@ so there are no webhooks and no stored records.
 The routes live in `bskyweb/cmd/bskyweb/donations.go` and are registered only
 when `STRIPE_SECRET_KEY` is set.
 
-```
+```http
 POST /api/donations/session
 body: {amountCents, interval: "one_time" | "month", did?}
 200:  {clientSecret}
