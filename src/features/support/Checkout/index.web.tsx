@@ -36,17 +36,20 @@ function getStripe(publishableKey: string) {
   return stripePromise
 }
 
-/**
- * Reads the session Stripe returned the donor with, then clears it so a reload
- * does not show the thank-you panel again.
- */
-function takeReturnedSessionId(): string | undefined {
+/** Reads the session Stripe returned the donor with, if any. */
+function getReturnedSessionId(): string | undefined {
   const id = new URLSearchParams(window.location.search).get('session_id')
-  if (!id) return undefined
+  return id ?? undefined
+}
+
+/**
+ * Clears the returned session so a reload does not show the thank-you panel,
+ * or retry the same confirmation, again.
+ */
+function clearReturnedSessionId() {
   const url = new URL(window.location.href)
   url.searchParams.delete('session_id')
   window.history.replaceState({}, '', url.toString())
-  return id
 }
 
 export function Checkout({config}: {config: DonationsConfig}) {
@@ -59,11 +62,12 @@ export function Checkout({config}: {config: DonationsConfig}) {
 
   useEffect(() => {
     if (!canCheckout) return
-    const sessionId = takeReturnedSessionId()
+    const sessionId = getReturnedSessionId()
     if (!sessionId) return
 
     getDonationStatus(sessionId)
       .then(status => {
+        clearReturnedSessionId()
         setStep(
           status === 'complete'
             ? {name: 'thanks'}
@@ -76,6 +80,12 @@ export function Checkout({config}: {config: DonationsConfig}) {
       .catch(err => {
         logger.warn('donations: could not read the session status', {
           message: err,
+        })
+        // Leave session_id in the URL: a reload retries confirmation instead
+        // of losing track of a payment that may have completed.
+        setStep({
+          name: 'amount',
+          error: l`We could not confirm the payment. Please refresh and try again.`,
         })
       })
   }, [canCheckout, l])
