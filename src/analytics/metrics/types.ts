@@ -82,7 +82,7 @@ export type Events = {
       | 'lists'
       | 'saved'
       | 'settings'
-      // northsky: donation screen
+      // northsky: type-safe tracking for the Support (donation) nav item
       | 'support'
       | 'menu'
     surface: 'bottomBar' | 'drawer' | 'drawerHeader' | 'topBar' | 'leftNav'

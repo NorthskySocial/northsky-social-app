@@ -101,7 +101,7 @@ export function AmountStep({
             inputMode="decimal"
           />
         </TextField.Root>
-        <Text style={[a.text_xs, a.pt_xs, t.atoms.text_contrast_medium]}>
+        <Text style={[a.pt_xs, a.text_xs, t.atoms.text_contrast_medium]}>
           <Trans>
             Between {formatAmount(minCents)} and {formatAmount(maxCents)}.
           </Trans>
