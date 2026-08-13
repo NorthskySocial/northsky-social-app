@@ -378,8 +378,6 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
               onPress={onPressProfile}
             />
             <SettingsMenuItem onPress={onPressSettings} />
-            {/* northsky: donation screen */}
-            <SupportMenuItem onPress={onPressSupport} />
           </>
         ) : (
           <>
@@ -388,6 +386,8 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
             <SearchMenuItem isActive={isAtSearch} onPress={onPressSearch} />
           </>
         )}
+        {/* northsky: donation screen, open to signed-out users too */}
+        <SupportMenuItem onPress={onPressSupport} />
 
         <View style={[a.px_xl]}>
           <Divider style={[a.mb_xl, a.mt_sm]} />
