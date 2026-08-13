@@ -107,6 +107,15 @@ export const GROWTHBOOK_CLIENT_KEY: string =
   process.env.EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY || ''
 
 /**
+ * northsky: donation config for the Support screen, as a JSON string. The value
+ * is injected at build time by the deployment, and bskyweb can replace it at run
+ * time on web. See `src/features/support/README.md` for the shape. When unset,
+ * the Support screen shows the fallback link instead of donation amounts.
+ */
+export const DONATIONS_CONFIG: string | undefined =
+  process.env.EXPO_PUBLIC_DONATIONS_CONFIG
+
+/**
  * Sentry DSN for telemetry
  */
 export const SENTRY_DSN: string | undefined = process.env.EXPO_PUBLIC_SENTRY_DSN

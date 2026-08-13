@@ -128,6 +128,9 @@ jobs:
           echo "EXPO_PUBLIC_BUNDLE_DATE=$(date -u +"%y%m%d%H")" >> .env
           echo "EXPO_PUBLIC_SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> .env
           echo "EXPO_PUBLIC_BITDRIFT_API_KEY=${{ secrets.BITDRIFT_API_KEY }}" >> .env
+          # northsky: donation config for the Support screen. Native has no
+          # server to ask, so the value is built into the bundle.
+          echo 'EXPO_PUBLIC_DONATIONS_CONFIG=${{ secrets.DONATIONS_CONFIG }}' >> .env
           echo "EXPO_PUBLIC_GCP_PROJECT_ID=${{ secrets.EXPO_PUBLIC_GCP_PROJECT_ID }}" >> .env
           echo "${{ secrets.GOOGLE_SERVICES_TOKEN }}" > google-services.json
 

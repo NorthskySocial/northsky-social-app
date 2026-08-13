@@ -147,6 +147,10 @@
       document.documentElement.classList.add(`theme--${theme}`)
     }
   </script>
+  {% if donationConfig %}
+  <!-- northsky: donation config for the Support screen -->
+  <script>window.__NORTHSKY_DONATIONS__ = {{ donationConfig|safe }}</script>
+  {% endif %}
 
   {% include "scripts.html" %}
   <link rel="apple-touch-icon" sizes="180x180" href="{{ staticCDNHost }}/static/apple-touch-icon.png">

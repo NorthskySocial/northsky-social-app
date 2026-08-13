@@ -113,6 +113,14 @@ export function DesktopRightNav({routeName}: {routeName: string}) {
             <Text style={[t.atoms.text_contrast_low]}>{' ∙ '}</Text>
           </>
         )}
+        {/* northsky: donation screen link, visible to signed-out users */}
+        <InlineLinkText
+          to="/support"
+          style={[t.atoms.text_contrast_medium]}
+          label={_(msg`Support`)}>
+          {_(msg`Support`)}
+        </InlineLinkText>
+        <Text style={[t.atoms.text_contrast_low]}>{' ∙ '}</Text>
         <InlineLinkText
           to={BRAND.privacyPolicyUrl} // northsky: brand override
           style={[t.atoms.text_contrast_medium]}
