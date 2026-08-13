@@ -38,8 +38,8 @@ export function SupportScreen({}: Props) {
           </Text>
           <Text style={[a.text_md, a.leading_snug]}>
             <Trans>
-              {BRAND.appName} is funded by the people who use it. Your support
-              pays for servers, moderation and development. Every amount helps.
+              {BRAND.appName} is funded by the community. Your support helps us
+              improve and maintain the platform.
             </Trans>
           </Text>
         </View>
