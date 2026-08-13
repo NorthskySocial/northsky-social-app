@@ -15,8 +15,9 @@ import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {BRAND, DisplayText} from '#/brand'
 import {NORTHSKY_DARK_PALETTE} from '#/brand/palette'
+
 // northsky: webp brand background for the logged-out welcome modal
-import welcomeModalBg from '../../assets/images/welcome-modal-bg.webp'
+const welcomeModalBg = require('../../assets/images/welcome-modal-bg.webp')
 
 interface WelcomeModalProps {
   control: WelcomeModalControl

@@ -4,8 +4,9 @@ import {Image} from 'expo-image'
 
 import {useSession} from '#/state/session'
 import {IS_WEB} from '#/env'
-import welcomeModalBg from '../../../assets/images/welcome-modal-bg.webp'
 import {type WelcomeModalControl} from './useWelcomeModal.shared'
+
+const welcomeModalBg = require('../../../assets/images/welcome-modal-bg.webp')
 
 export function useWelcomeModal(): WelcomeModalControl {
   const {hasSession} = useSession()
