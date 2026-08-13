@@ -1,8 +1,6 @@
 import {createContext, useContext} from 'react'
 import {QueryClient, useQuery} from '@tanstack/react-query'
 
-import {APP_CONFIG_URL} from '#/env'
-
 const qc = new QueryClient()
 const appConfigQueryKey = ['app-config']
 
@@ -26,23 +24,12 @@ export const DEFAULT_APP_CONFIG_RESPONSE: AppConfigResponse = {
   },
 }
 
-let fetchAppConfigPromise: Promise<AppConfigResponse> | undefined
-
-async function fetchAppConfig(): Promise<AppConfigResponse | null> {
-  try {
-    if (!fetchAppConfigPromise) {
-      fetchAppConfigPromise = (async () => {
-        const r = await fetch(`${APP_CONFIG_URL}/config`)
-        if (!r.ok) throw new Error(await r.text())
-        const data = await r.json()
-        return data
-      })()
-    }
-    return await fetchAppConfigPromise
-  } catch (e) {
-    fetchAppConfigPromise = undefined
-    throw e
-  }
+/*
+ * northsky: do not call the Bluesky app-config worker.
+ * The app uses the default config instead.
+ */
+function fetchAppConfig(): Promise<AppConfigResponse | null> {
+  return Promise.resolve(DEFAULT_APP_CONFIG_RESPONSE)
 }
 
 const Context = createContext<AppConfigResponse>(DEFAULT_APP_CONFIG_RESPONSE)
