@@ -49,6 +49,53 @@ and they need HTTPS and a registered domain, so they never appear on
 | `DONATION_RETURN_BASE_URL` | Origin Stripe returns the donor to | the brand base URL |
 | `DONATION_LINKS` | Payment links for native, as JSON | empty |
 
+## Deployment
+
+**The web app needs nothing at image build time.** bskyweb always injects the
+config into the page, and the app prefers that over anything in the bundle. So
+every web setting is pod environment, held in the deployment repository. Changing
+an amount, a preset or the payment method set is a pod restart, not a release.
+
+Only two values differ between environments: the payment method configuration id
+(`pmc_` ids are separate in test mode and live mode) and the return base URL.
+
+```yaml
+# Secret: the only sensitive value in this feature
+stringData:
+  STRIPE_SECRET_KEY: sk_live_...
+
+# Deployment env: none of these are secret
+- STRIPE_PUBLISHABLE_KEY: pk_live_...
+- DONATION_PAYMENT_METHOD_CONFIGURATION: pmc_...
+- DONATION_RETURN_BASE_URL: https://northsky.app
+- DONATION_CURRENCY: usd
+- DONATION_PRESETS_CENTS: "500,1000,2500,5000"
+- DONATION_MIN_CENTS: "100"
+- DONATION_MAX_CENTS: "100000"
+```
+
+Leaving `STRIPE_SECRET_KEY` out is a safe state, not a broken one: the routes do
+not register and the screen falls back to payment links, then to the website
+link. An environment can run without a key until it is ready.
+
+Before wallets can appear, register the domain in Stripe:
+
+```bash
+stripe payment_method_domains create --domain-name northsky.app
+```
+
+After a deploy, one command shows whether the config reached the pod:
+
+```bash
+curl -s https://northsky.app/support | grep -o '__NORTHSKY_DONATIONS__ = .*'
+```
+
+Expect `"checkout":true` and the publishable key. A `false` means the secret key
+did not arrive.
+
+Native builds have no server to ask, so they read `EXPO_PUBLIC_DONATIONS_CONFIG`
+from the `.env` file that the EAS build workflows write.
+
 ## Client config
 
 The app reads one JSON object. bskyweb merges the payment links with the values
