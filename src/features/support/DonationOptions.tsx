@@ -94,8 +94,7 @@ export function DonationOptions({config}: {config: DonationsConfig}) {
 
       <Text style={[a.text_sm, a.leading_snug, t.atoms.text_contrast_medium]}>
         <Trans>
-          You pay on Stripe's secure page, with a card, Apple Pay, Google Pay or
-          PayPal. Stripe emails your receipt.
+          You pay on Stripe's secure page. Stripe emails your receipt.
         </Trans>
       </Text>
     </View>
