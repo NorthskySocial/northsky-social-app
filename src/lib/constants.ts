@@ -141,6 +141,9 @@ export const MAX_POST_LINES = 25
 
 export const BSKY_APP_ACCOUNT_DID = 'did:plc:z72i7hdynmk6r22z27h6tvur'
 
+// northsky: new accounts follow the Northsky account during onboarding
+export const NORTHSKY_APP_ACCOUNT_DID = 'did:plc:23cnpffmuf4vkpsnwhgyvljw'
+
 export const BSKY_FEED_OWNER_DIDS = [
   BSKY_APP_ACCOUNT_DID,
   'did:plc:vpkhqolt662uhesyj6nxm7ys',
