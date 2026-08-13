@@ -4,6 +4,7 @@ import {Image} from 'expo-image'
 
 import {useSession} from '#/state/session'
 import {IS_WEB} from '#/env'
+import welcomeModalBg from '../../../assets/images/welcome-modal-bg.webp'
 import {type WelcomeModalControl} from './useWelcomeModal.shared'
 
 export function useWelcomeModal(): WelcomeModalControl {
@@ -29,11 +30,7 @@ export function useWelcomeModal(): WelcomeModalControl {
         // Mark that the modal has been shown, don't show again
         localStorage.setItem('welcomeModalShown', 'true')
         // northsky: warm the cache during the delay so the background is ready on open
-        void Image.prefetch(
-          Asset.fromModule(
-            require('../../../assets/images/welcome-modal-bg.webp'),
-          ).uri,
-        )
+        void Image.prefetch(Asset.fromModule(welcomeModalBg).uri)
         // Small delay to ensure the page has loaded
         const timer = setTimeout(() => {
           open()
