@@ -388,7 +388,8 @@
     {
       "files": [
         "bskyogcard/**/*.{js,jsx,ts,tsx}",
-        "dev-env/**/*.{js,jsx,ts,tsx}"
+        "dev-env/**/*.{js,jsx,ts,tsx}",
+        "scripts/post-embed-build.js"
       ],
       "rules": {
         "import/no-nodejs-modules": "off"

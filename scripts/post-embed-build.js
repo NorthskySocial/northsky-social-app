@@ -11,6 +11,14 @@ const embedAssetDest = path.join(projectRoot, 'bskyweb', 'embedr-static')
 
 fs.cpSync(embedAssetSource, embedAssetDest, {recursive: true})
 
+// northsky: serve the branded icons referenced by the embed HTML.
+for (const asset of ['apple-touch-icon.png', 'safari-pinned-tab.svg']) {
+  fs.copyFileSync(
+    path.join(projectRoot, 'bskyweb', 'static', asset),
+    path.join(embedAssetDest, asset),
+  )
+}
+
 const embedEmbedJSSource = path.join(
   projectRoot,
   'bskyembed',
