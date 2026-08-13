@@ -766,21 +766,21 @@ export function DesktopLeftNav({routeName}: {routeName: string}) {
               active: SettingsFilledIcon,
             }}
           />
+          {/* northsky: donation screen */}
+          <NavItem
+            label={l`Support`}
+            href="/support"
+            navItem="support"
+            minimal={leftNavMinimal}
+            icons={{
+              inactive: MoneybagHeartIcon,
+              active: MoneybagHeartIcon,
+            }}
+          />
 
           <ComposeBtn minimal={leftNavMinimal} />
         </>
       )}
-      {/* northsky: donation screen, open to signed-out users too */}
-      <NavItem
-        label={l`Support`}
-        href="/support"
-        navItem="support"
-        minimal={leftNavMinimal}
-        icons={{
-          inactive: MoneybagHeartIcon,
-          active: MoneybagHeartIcon,
-        }}
-      />
     </View>
   )
 }
