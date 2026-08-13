@@ -1,5 +1,20 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
-export const AndroidLogo = createSinglePathSVG({
-  path: 'm15.604 2.47-.642 1.112a4.997 4.997 0 0 1 2.05 4.034H7.005c0-1.658.809-3.123 2.05-4.034L8.41 2.47a.313.313 0 0 1 .542-.313l.627 1.086a4.97 4.97 0 0 1 2.428-.63c.882 0 1.709.23 2.428.63l.627-1.085a.311.311 0 0 1 .426-.115c.151.087.202.278.115.428ZM9.506 5.114a.625.625 0 1 0 1.25 0 .625.625 0 0 0-1.25 0Zm3.753 0a.625.625 0 1 0 1.25 0 .625.625 0 0 0-1.25 0ZM3.878 8.866a1.251 1.251 0 0 1 2.501 0v5.004a1.252 1.252 0 0 1-2.501 0V8.866Zm13.759 0a1.251 1.251 0 0 1 2.501 0v5.004a1.251 1.251 0 0 1-2.501 0V8.866ZM7.005 17.622h1.25v3.128a1.251 1.251 0 0 0 2.502 0v-3.128h2.502v3.128a1.251 1.251 0 0 0 2.501 0v-3.128h1.25V8.241H7.006v9.381Z',
+/** Tabler: brand-android (outline) */
+export const AndroidLogo = createTablerIcon({
+  paths: [
+    'M4 10l0 6',
+    'M20 10l0 6',
+    'M7 9h10v8a1 1 0 0 1 -1 1h-8a1 1 0 0 1 -1 -1v-8a5 5 0 0 1 10 0',
+    'M8 3l1 2',
+    'M16 3l-1 2',
+    'M9 18l0 3',
+    'M15 18l0 3',
+  ],
 })

@@ -1,5 +1,17 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
-export const Newspaper_Stroke2_Corner2_Rounded = createSinglePathSVG({
-  path: 'M1 6.5A2.5 2.5 0 0 1 3.5 4H9a4 4 0 0 1 3 1.354A4 4 0 0 1 15 4h5.5A2.5 2.5 0 0 1 23 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-5.223c-.52 0-1 .125-1.4.372-.421.26-.761.633-.983 1.075a1 1 0 0 1-1.788 0 2.66 2.66 0 0 0-.983-1.075c-.4-.247-.88-.372-1.4-.372H3.5A2.5 2.5 0 0 1 1 17.5v-11ZM11 8a2 2 0 0 0-2-2H3.5a.5.5 0 0 0-.5.5v11a.5.5 0 0 0 .5.5h5.223c.776 0 1.564.173 2.277.569V8Zm2 10.569A4.7 4.7 0 0 1 15.277 18H20.5a.5.5 0 0 0 .5-.5v-11a.5.5 0 0 0-.5-.5H15a2 2 0 0 0-2 2v10.569Z',
+/** Tabler: news (outline) */
+export const Newspaper_Stroke2_Corner2_Rounded = createTablerIcon({
+  paths: [
+    'M16 6h3a1 1 0 0 1 1 1v11a2 2 0 0 1 -4 0v-13a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v12a3 3 0 0 0 3 3h11',
+    'M8 8l4 0',
+    'M8 12l4 0',
+    'M8 16l4 0',
+  ],
 })

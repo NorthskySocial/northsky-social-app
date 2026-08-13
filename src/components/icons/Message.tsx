@@ -1,21 +1,44 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {
+  createTablerFilledIcon,
+  createTablerIcon,
+} from '#/features/tablerIcons/createTablerIcon'
 
-export const Message_Stroke1_Corner0_Rounded_Filled = createSinglePathSVG({
-  viewBox: '0 0 51 51',
-  strokeWidth: 2,
-  strokeLinecap: 'square',
-  strokeLinejoin: 'round',
-  path: 'M9 1h32a8 8 0 0 1 8 8v21.333a8 8 0 0 1-8 8H27.667L14.333 49V38.333H9a8 8 0 0 1-8-8V9a8 8 0 0 1 8-8Z',
+/** Tabler: message (filled) */
+export const Message_Stroke1_Corner0_Rounded_Filled = createTablerFilledIcon({
+  paths: [
+    'M18 3a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-4.724l-4.762 2.857a1 1 0 0 1 -1.508 -.743l-.006 -.114v-2h-1a4 4 0 0 1 -3.995 -3.8l-.005 -.2v-8a4 4 0 0 1 4 -4zm-4 9h-6a1 1 0 0 0 0 2h6a1 1 0 0 0 0 -2m2 -4h-8a1 1 0 1 0 0 2h8a1 1 0 0 0 0 -2',
+  ],
 })
 
-export const Message_Stroke2_Corner0_Rounded_Filled = createSinglePathSVG({
-  path: 'M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10a9.968 9.968 0 0 1-4.136-.893l-4.68.876a1 1 0 0 1-1.164-1.184l.931-4.537A9.965 9.965 0 0 1 2 12Zm4.25 0a1.25 1.25 0 1 0 2.5 0 1.25 1.25 0 0 0-2.5 0Zm4.5 0a1.25 1.25 0 1 0 2.5 0 1.25 1.25 0 0 0-2.5 0Zm5.75 1.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5Z',
+/** Tabler: message (filled) */
+export const Message_Stroke2_Corner0_Rounded_Filled = createTablerFilledIcon({
+  paths: [
+    'M18 3a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-4.724l-4.762 2.857a1 1 0 0 1 -1.508 -.743l-.006 -.114v-2h-1a4 4 0 0 1 -3.995 -3.8l-.005 -.2v-8a4 4 0 0 1 4 -4zm-4 9h-6a1 1 0 0 0 0 2h6a1 1 0 0 0 0 -2m2 -4h-8a1 1 0 1 0 0 2h8a1 1 0 0 0 0 -2',
+  ],
 })
 
-export const Message_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M4 12a8 8 0 1 1 4.445 7.169 1 1 0 0 0-.629-.088l-3.537.662.7-3.415a1 1 0 0 0-.09-.66A7.961 7.961 0 0 1 4 12Zm8-10C6.477 2 2 6.477 2 12c0 1.523.341 2.968.951 4.262l-.93 4.537a1 1 0 0 0 1.163 1.184l4.68-.876A9.968 9.968 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2ZM7.5 13.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5Zm4.5 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5Zm4.5 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5Z',
+/** Tabler: message (outline) */
+export const Message_Stroke2_Corner0_Rounded = createTablerIcon({
+  paths: [
+    'M8 9h8',
+    'M8 13h6',
+    'M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12',
+  ],
 })
 
-export const MessagePlus_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10a10 10 0 0 1-4.136-.893l-4.68.876A1 1 0 0 1 2.02 20.8l.93-4.537A10 10 0 0 1 2 12C2 6.477 6.477 2 12 2Zm0 2a8 8 0 0 0-7.111 11.668 1 1 0 0 1 .09.66l-.7 3.415 3.537-.662c.214-.04.435-.009.63.088A8 8 0 1 0 12 4Zm0 4a1 1 0 0 1 1 1v2h2a1 1 0 1 1 0 2h-2v2a1 1 0 1 1-2 0v-2H9a1 1 0 1 1 0-2h2V9a1 1 0 0 1 1-1Z',
+/** Tabler: message-plus (outline) */
+export const MessagePlus_Stroke2_Corner0_Rounded = createTablerIcon({
+  paths: [
+    'M8 9h8',
+    'M8 13h6',
+    'M12.01 18.594l-4.01 2.406v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v5.5',
+    'M16 19h6',
+    'M19 16v6',
+  ],
 })

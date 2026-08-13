@@ -1,0 +1,1156 @@
+{
+  "Accessibility.tsx": {
+    "Accessibility_Stroke2_Corner2_Rounded": {
+      "tabler": "accessible"
+    }
+  },
+  "Alien.tsx": {
+    "Alien_Stroke2_Corner0_Rounded": {
+      "tabler": "alien"
+    }
+  },
+  "AndroidLogo.tsx": {
+    "AndroidLogo": {
+      "tabler": "brand-android"
+    }
+  },
+  "Apple.tsx": {
+    "Apple_Stroke2_Corner0_Rounded": {
+      "tabler": "apple"
+    }
+  },
+  "AppleLogo.tsx": {
+    "AppleLogo": {
+      "tabler": "brand-apple"
+    }
+  },
+  "Arrow.tsx": {
+    "ArrowTopRight_Stroke2_Corner0_Rounded": {
+      "tabler": "arrow-up-right"
+    },
+    "ArrowTop_Stroke2_Corner0_Rounded": {
+      "tabler": "arrow-up"
+    },
+    "ArrowLeft_Stroke2_Corner0_Rounded": {
+      "tabler": "arrow-left"
+    },
+    "ArrowRight_Stroke2_Corner0_Rounded": {
+      "tabler": "arrow-right"
+    },
+    "ArrowBottom_Stroke2_Corner0_Rounded": {
+      "tabler": "arrow-down"
+    }
+  },
+  "ArrowBoxLeft.tsx": {
+    "ArrowBoxLeft_Stroke2_Corner0_Rounded": {
+      "tabler": "logout"
+    },
+    "ArrowBoxLeft_Stroke2_Corner2_Rounded": {
+      "tabler": "logout"
+    }
+  },
+  "ArrowBoxRight.tsx": {
+    "ArrowBoxRight_Stroke2_Corner3_Rounded": {
+      "tabler": "login-2"
+    }
+  },
+  "ArrowCornerDownRight.tsx": {
+    "ArrowCornerDownRight_Stroke2_Corner2_Rounded": {
+      "tabler": "corner-down-right"
+    },
+    "ArrowCornerDownRight_Stroke2_Corner3_Rounded": {
+      "tabler": "corner-down-right"
+    }
+  },
+  "ArrowOutOfBox.tsx": {
+    "ArrowOutOfBox_Stroke2_Corner0_Rounded": {
+      "tabler": "arrow-down-from-arc"
+    },
+    "ArrowOutOfBoxModified_Stroke2_Corner2_Rounded": {
+      "tabler": "arrow-down-from-arc"
+    }
+  },
+  "ArrowRotate.tsx": {
+    "ArrowRotateCounterClockwise_Stroke2_Corner0_Rounded": {
+      "tabler": "rotate"
+    },
+    "ArrowRotateClockwise_Stroke2_Corner0_Rounded": {
+      "tabler": "rotate-clockwise"
+    }
+  },
+  "ArrowShareRight.tsx": {
+    "ArrowShareRight_Stroke2_Corner2_Rounded": {
+      "tabler": "share-3"
+    }
+  },
+  "ArrowTopCircle.tsx": {
+    "ArrowTopCircle_Stroke2_Corner0_Rounded": {
+      "tabler": "circle-arrow-up"
+    }
+  },
+  "ArrowTriangle.tsx": {
+    "ArrowTriangleBottom_Stroke2_Corner1_Rounded": {
+      "tabler": "caret-down"
+    }
+  },
+  "ArrowsDiagonal.tsx": {
+    "ArrowsDiagonalOut_Stroke2_Corner0_Rounded": {
+      "tabler": "arrows-diagonal-2"
+    },
+    "ArrowsDiagonalIn_Stroke2_Corner0_Rounded": {
+      "tabler": "arrows-diagonal-minimize-2"
+    },
+    "ArrowsDiagonalOut_Stroke2_Corner2_Rounded": {
+      "tabler": "arrows-diagonal-2"
+    },
+    "ArrowsDiagonalIn_Stroke2_Corner2_Rounded": {
+      "tabler": "arrows-diagonal-minimize-2"
+    }
+  },
+  "AspectRatio.tsx": {
+    "AspectRatio11_Stroke2_Corner0_Rounded": {
+      "tabler": "square"
+    },
+    "AspectRatio43_Stroke2_Corner0_Rounded": {
+      "tabler": "rectangle"
+    },
+    "AspectRatio34_Stroke2_Corner0_Rounded": {
+      "tabler": "rectangle-vertical"
+    }
+  },
+  "At.tsx": {
+    "At_Stroke2_Corner0_Rounded": {
+      "tabler": "at"
+    },
+    "At_Stroke2_Corner2_Rounded": {
+      "tabler": "at"
+    }
+  },
+  "Atom.tsx": {
+    "Atom_Stroke2_Corner0_Rounded": {
+      "tabler": "atom"
+    }
+  },
+  "Bars.tsx": {
+    "Bars3_Stroke2_Corner0_Rounded": {
+      "tabler": "menu-2"
+    }
+  },
+  "Beaker.tsx": {
+    "Beaker_Stroke2_Corner2_Rounded": {
+      "tabler": "bong"
+    }
+  },
+  "Bell.tsx": {
+    "Bell_Stroke2_Corner0_Rounded": {
+      "tabler": "bell"
+    },
+    "Bell_Filled_Corner0_Rounded": {
+      "tabler": "bell",
+      "variant": "filled"
+    }
+  },
+  "Bell2.tsx": {
+    "Bell2_Stroke2_Corner0_Rounded": {
+      "tabler": "bell"
+    },
+    "Bell2_Filled_Corner0_Rounded": {
+      "tabler": "bell",
+      "variant": "filled"
+    },
+    "Bell2Off_Stroke2_Corner0_Rounded": {
+      "tabler": "bell-x"
+    },
+    "Bell2Off_Filled_Corner0_Rounded": {
+      "tabler": "bell-x",
+      "variant": "filled"
+    }
+  },
+  "BellPlus.tsx": {
+    "BellPlus_Stroke2_Corner0_Rounded": {
+      "tabler": "bell-plus"
+    }
+  },
+  "BellRinging.tsx": {
+    "BellRinging_Stroke2_Corner0_Rounded": {
+      "tabler": "bell-ringing"
+    },
+    "BellRinging_Filled_Corner0_Rounded": {
+      "tabler": "bell-ringing",
+      "variant": "filled"
+    }
+  },
+  "BirthdayCake.tsx": {
+    "BirthdayCake_Stroke2_Corner2_Rounded": {
+      "tabler": "cake"
+    }
+  },
+  "Bookmark.tsx": {
+    "Bookmark": {
+      "tabler": "bookmark"
+    },
+    "BookmarkFilled": {
+      "tabler": "bookmark",
+      "variant": "filled"
+    },
+    "BookmarkDeleteLarge": {
+      "tabler": "bookmark-off"
+    }
+  },
+  "Bot.tsx": {
+    "Bot_Stroke": {
+      "tabler": "robot"
+    },
+    "Bot_Filled": {
+      "tabler": "robot"
+    }
+  },
+  "BroomSparkle.tsx": {
+    "BroomSparkle_Stroke2_Corner2_Rounded": {
+      "tabler": "deer"
+    }
+  },
+  "Bubble.tsx": {
+    "BubbleQuestion_Stroke2_Corner0_Rounded": {
+      "tabler": "message-language"
+    },
+    "Bubble_Stroke2_Corner2_Rounded": {
+      "tabler": "message-2"
+    },
+    "Bubble_Stroke2_Corner3_Rounded": {
+      "tabler": "message-2"
+    },
+    "Bubbles_Stroke2_Corner2_Rounded": {
+      "tabler": "messages"
+    },
+    "BubbleSmile_Stroke2_Corner2_Rounded_Large": {
+      "tabler": "message-chatbot"
+    }
+  },
+  "BubbleInfo.tsx": {
+    "BubbleInfo_Stroke2_Corner2_Rounded": {
+      "tabler": "message-2-question"
+    }
+  },
+  "BulletList.tsx": {
+    "BulletList_Stroke1_Corner0_Rounded": {
+      "tabler": "list",
+      "strokeWidth": 1.25
+    },
+    "BulletList_Stroke2_Corner0_Rounded": {
+      "tabler": "list"
+    },
+    "BulletList_Filled_Corner0_Rounded": {
+      "tabler": "list",
+      "variant": "filled"
+    }
+  },
+  "CC.tsx": {
+    "CC_Stroke2_Corner0_Rounded": {
+      "tabler": "badge-cc"
+    },
+    "CC_Filled_Corner0_Rounded": {
+      "tabler": "badge-cc",
+      "variant": "filled"
+    }
+  },
+  "Calendar.tsx": {
+    "Calendar_Stroke2_Corner0_Rounded": {
+      "tabler": "calendar"
+    }
+  },
+  "CalendarClock.tsx": {
+    "CalendarClock_Stroke2_Corner0_Rounded": {
+      "tabler": "calendar-clock"
+    }
+  },
+  "CalendarDays.tsx": {
+    "CalendarDays_Stroke2_Corner0_Rounded": {
+      "tabler": "calendar-month"
+    }
+  },
+  "Camera.tsx": {
+    "Camera_Stroke2_Corner0_Rounded": {
+      "tabler": "camera"
+    },
+    "Camera_Filled_Stroke2_Corner0_Rounded": {
+      "tabler": "camera",
+      "variant": "filled"
+    }
+  },
+  "Car.tsx": {
+    "Car_Stroke2_Corner2_Rounded": {
+      "tabler": "car"
+    }
+  },
+  "Celebrate.tsx": {
+    "Celebrate_Stroke2_Corner0_Rounded": {
+      "tabler": "confetti"
+    }
+  },
+  "ChainLink.tsx": {
+    "ChainLink_Stroke2_Corner0_Rounded": {
+      "tabler": "link"
+    },
+    "ChainLinkBroken_Stroke2_Corner0_Rounded": {
+      "tabler": "unlink"
+    }
+  },
+  "Check.tsx": {
+    "Check_Stroke2_Corner0_Rounded": {
+      "tabler": "check"
+    },
+    "CheckThick_Stroke2_Corner0_Rounded": {
+      "tabler": "check",
+      "strokeWidth": 2.5
+    }
+  },
+  "Chevron.tsx": {
+    "ChevronLeft_Stroke2_Corner0_Rounded": {
+      "tabler": "chevron-left"
+    },
+    "ChevronRight_Stroke2_Corner0_Rounded": {
+      "tabler": "chevron-right"
+    },
+    "ChevronTop_Stroke2_Corner0_Rounded": {
+      "tabler": "chevron-up"
+    },
+    "ChevronBottom_Stroke2_Corner0_Rounded": {
+      "tabler": "chevron-down"
+    },
+    "ChevronTopBottom_Stroke2_Corner0_Rounded": {
+      "tabler": "selector"
+    },
+    "TinyChevronBottom_Stroke2_Corner0_Rounded": {
+      "tabler": "chevron-down"
+    }
+  },
+  "Circle.tsx": {
+    "Circle_Stroke2_Corner0_Rounded": {
+      "tabler": "circle"
+    }
+  },
+  "CircleAndSquare.tsx": {
+    "Circle_And_Square_Stroke1_Corner0_Rounded_Filled": {
+      "tabler": "circle-square"
+    }
+  },
+  "CircleBanSign.tsx": {
+    "CircleBanSign_Stroke2_Corner0_Rounded": {
+      "tabler": "ban"
+    }
+  },
+  "CircleCheck.tsx": {
+    "CircleCheck_Stroke2_Corner0_Rounded": {
+      "tabler": "circle-check"
+    }
+  },
+  "CircleInfo.tsx": {
+    "CircleInfo_Stroke2_Corner0_Rounded": {
+      "tabler": "info-circle"
+    }
+  },
+  "CirclePlus.tsx": {
+    "CirclePlus_Stroke2_Corner0_Rounded": {
+      "tabler": "circle-plus"
+    }
+  },
+  "CircleQuestion.tsx": {
+    "CircleQuestion_Stroke2_Corner2_Rounded": {
+      "tabler": "help-circle"
+    }
+  },
+  "CircleX.tsx": {
+    "CircleX_Stroke2_Corner0_Rounded": {
+      "tabler": "circle-x"
+    }
+  },
+  "Clipboard.tsx": {
+    "Clipboard_Stroke2_Corner2_Rounded": {
+      "tabler": "clipboard"
+    }
+  },
+  "Clock.tsx": {
+    "Clock_Stroke2_Corner0_Rounded": {
+      "tabler": "clock"
+    }
+  },
+  "Code.tsx": {
+    "Code_Stroke2_Corner2_Rounded": {
+      "tabler": "code"
+    }
+  },
+  "CodeBrackets.tsx": {
+    "CodeBrackets_Stroke2_Corner0_Rounded": {
+      "tabler": "brackets"
+    },
+    "CodeBrackets_Stroke2_Corner2_Rounded": {
+      "tabler": "brackets"
+    }
+  },
+  "CodeLines.tsx": {
+    "CodeLines_Stroke2_Corner2_Rounded": {
+      "tabler": "source-code"
+    }
+  },
+  "ColorPalette.tsx": {
+    "ColorPalette_Stroke2_Corner0_Rounded": {
+      "tabler": "palette"
+    }
+  },
+  "Contacts.tsx": {
+    "Contacts_Stroke2_Corner2_Rounded": {
+      "tabler": "address-book"
+    },
+    "Contacts_Filled_Corner2_Rounded": {
+      "tabler": "address-book"
+    }
+  },
+  "Copy.tsx": {
+    "Copy_Stroke2_Corner2_Rounded": {
+      "tabler": "copy"
+    }
+  },
+  "Crop.tsx": {
+    "Crop_Stroke2_Corner0_Rounded": {
+      "tabler": "crop"
+    }
+  },
+  "DotGrid.tsx": {
+    "DotGrid3x1_Stroke2_Corner0_Rounded": {
+      "tabler": "dots"
+    },
+    "DotGrid2x3_Stroke2_Corner0_Rounded": {
+      "tabler": "dots-vertical"
+    }
+  },
+  "Download.tsx": {
+    "Download_Stroke2_Corner0_Rounded": {
+      "tabler": "download"
+    }
+  },
+  "EditBig.tsx": {
+    "EditBig_Stroke1_Corner0_Rounded": {
+      "tabler": "edit",
+      "strokeWidth": 1.25
+    },
+    "EditBig_Stroke2_Corner0_Rounded": {
+      "tabler": "edit"
+    },
+    "EditBig_Stroke2_Corner2_Rounded": {
+      "tabler": "edit"
+    }
+  },
+  "Emoji.tsx": {
+    "EmojiSad_Stroke2_Corner0_Rounded": {
+      "tabler": "mood-sad"
+    },
+    "EmojiSmile_Stroke2_Corner0_Rounded": {
+      "tabler": "mood-nerd"
+    },
+    "EmojiArc_Stroke2_Corner0_Rounded": {
+      "tabler": "mood-smile"
+    },
+    "EmojiHeartEyes_Stroke2_Corner0_Rounded": {
+      "tabler": "mood-heart"
+    }
+  },
+  "Envelope.tsx": {
+    "Envelope_Stroke2_Corner0_Rounded": {
+      "tabler": "mail"
+    },
+    "Envelope_Filled_Stroke2_Corner0_Rounded": {
+      "tabler": "mail",
+      "variant": "filled"
+    },
+    "Envelope_Stroke2_Corner2_Rounded": {
+      "tabler": "mail"
+    }
+  },
+  "EnveopeOpen.tsx": {
+    "Envelope_Open_Stroke2_Corner0_Rounded": {
+      "tabler": "mail-opened"
+    }
+  },
+  "Explosion.tsx": {
+    "Explosion_Stroke2_Corner0_Rounded": {
+      "tabler": "bomb"
+    }
+  },
+  "Eye.tsx": {
+    "Eye_Stroke2_Corner0_Rounded": {
+      "tabler": "eye"
+    },
+    "Eye_Stroke2_Corner2_Rounded": {
+      "tabler": "eye"
+    }
+  },
+  "EyeSlash.tsx": {
+    "EyeSlash_Stroke2_Corner0_Rounded": {
+      "tabler": "eye-off"
+    }
+  },
+  "Filter.tsx": {
+    "Filter_Stroke2_Corner0_Rounded": {
+      "tabler": "filter"
+    }
+  },
+  "FilterTimeline.tsx": {
+    "FilterTimeline_Stroke2_Corner0_Rounded": {
+      "tabler": "filter-2-down"
+    }
+  },
+  "Flag.tsx": {
+    "Flag_Stroke2_Corner0_Rounded": {
+      "tabler": "flag-3"
+    }
+  },
+  "Flame.tsx": {
+    "Flame_Stroke2_Corner1_Rounded": {
+      "tabler": "flame"
+    }
+  },
+  "FlipImage.tsx": {
+    "FlipVertical_Stroke2_Corner0_Rounded": {
+      "tabler": "flip-vertical"
+    },
+    "FlipHorizontal_Stroke2_Corner0_Rounded": {
+      "tabler": "flip-horizontal"
+    }
+  },
+  "FloppyDisk.tsx": {
+    "FloppyDisk_Stroke2_Corner0_Rounded": {
+      "tabler": "device-floppy"
+    }
+  },
+  "Freeze.tsx": {
+    "Freeze_Stroke2_Corner2_Rounded": {
+      "tabler": "snowflake"
+    }
+  },
+  "GameController.tsx": {
+    "GameController_Stroke2_Corner0_Rounded": {
+      "tabler": "device-gamepad-2"
+    }
+  },
+  "Gif.tsx": {
+    "Gif_Stroke2_Corner0_Rounded": {
+      "tabler": "gif"
+    },
+    "GifSquare_Stroke2_Corner0_Rounded": {
+      "tabler": "gif"
+    }
+  },
+  "Gift1.tsx": {
+    "Gift1_Stroke2_Corner0_Rounded": {
+      "tabler": "gift"
+    },
+    "Gift1_Filled_Corner0_Rounded": {
+      "tabler": "gift",
+      "variant": "filled"
+    }
+  },
+  "Globe.tsx": {
+    "Globe_Stroke2_Corner0_Rounded": {
+      "tabler": "globe"
+    },
+    "Earth_Stroke2_Corner0_Rounded": {
+      "tabler": "world"
+    },
+    "Earth_Stroke2_Corner2_Rounded": {
+      "tabler": "world"
+    }
+  },
+  "Group.tsx": {
+    "Group3_Stroke2_Corner0_Rounded": {
+      "tabler": "users-group"
+    }
+  },
+  "Growth.tsx": {
+    "Growth_Stroke2_Corner0_Rounded": {
+      "tabler": "growth"
+    }
+  },
+  "Haptic.tsx": {
+    "Haptic_Stroke2_Corner2_Rounded": {
+      "tabler": "ripple"
+    }
+  },
+  "Hashtag.tsx": {
+    "HashtagWide_Stroke1_Corner0_Rounded": {
+      "tabler": "hash",
+      "strokeWidth": 1.25
+    },
+    "Hashtag_Stroke2_Corner0_Rounded": {
+      "tabler": "hash"
+    },
+    "Hashtag_Filled_Corner0_Rounded": {
+      "tabler": "hash"
+    }
+  },
+  "Heart2.tsx": {
+    "Heart2_Stroke1_Corner0_Rounded": {
+      "tabler": "heart",
+      "strokeWidth": 1.25
+    },
+    "Heart2_Stroke2_Corner0_Rounded": {
+      "tabler": "heart"
+    },
+    "Heart2_Filled_Stroke2_Corner0_Rounded": {
+      "tabler": "heart",
+      "variant": "filled"
+    },
+    "LikeRepost_Stroke2_Corner2_Rounded": {
+      "tabler": "heart"
+    }
+  },
+  "Home.tsx": {
+    "Home_Stroke2_Corner0_Rounded": {
+      "tabler": "home"
+    },
+    "Home_Stroke2_Corner2_Rounded": {
+      "tabler": "home"
+    },
+    "Home_Filled_Corner0_Rounded": {
+      "tabler": "home",
+      "variant": "filled"
+    }
+  },
+  "HomeOpen.tsx": {
+    "HomeOpen_Stoke2_Corner0_Rounded": {
+      "tabler": "home-2"
+    },
+    "HomeOpen_Filled_Corner0_Rounded": {
+      "tabler": "home-2",
+      "variant": "filled"
+    }
+  },
+  "Image.tsx": {
+    "Image_Stroke1_Corner0_Rounded": {
+      "tabler": "photo",
+      "strokeWidth": 1.25
+    },
+    "Image_Stroke2_Corner0_Rounded": {
+      "tabler": "photo"
+    }
+  },
+  "Inbox.tsx": {
+    "Inbox_Stroke2_Corner2_Rounded": {
+      "tabler": "inbox"
+    },
+    "Inbox_Stroke2_Corner2_Rounded_Large": {
+      "tabler": "inbox"
+    }
+  },
+  "Key.tsx": {
+    "Key_Stroke2_Corner2_Rounded": {
+      "tabler": "key"
+    }
+  },
+  "Lab.tsx": {
+    "Lab_Stroke2_Corner0_Rounded": {
+      "tabler": "bong"
+    }
+  },
+  "Language.tsx": {
+    "Language_Stroke2_Corner2_Rounded": {
+      "tabler": "language"
+    }
+  },
+  "Leaf.tsx": {
+    "Leaf_Stroke2_Corner0_Rounded": {
+      "tabler": "leaf-maple"
+    }
+  },
+  "ListMagnifyingGlass.tsx": {
+    "ListMagnifyingGlass_Stroke2_Corner0_Rounded": {
+      "tabler": "list-search"
+    }
+  },
+  "ListPlus.tsx": {
+    "ListPlus_Stroke2_Corner0_Rounded": {
+      "tabler": "list"
+    }
+  },
+  "ListSparkle.tsx": {
+    "ListSparkle_Stroke2_Corner0_Rounded": {
+      "tabler": "filter-2-spark"
+    }
+  },
+  "Live.tsx": {
+    "Live_Stroke2_Corner0_Rounded": {
+      "tabler": "broadcast"
+    }
+  },
+  "Loader.tsx": {
+    "Loader_Stroke2_Corner0_Rounded": {
+      "tabler": "loader"
+    }
+  },
+  "Lock.tsx": {
+    "Lock_Stroke2_Corner0_Rounded": {
+      "tabler": "lock"
+    },
+    "Lock_Stroke2_Corner2_Rounded": {
+      "tabler": "lock"
+    },
+    "Unlock_Stroke2_Corner2_Rounded": {
+      "tabler": "lock-open"
+    }
+  },
+  "Macintosh.tsx": {
+    "Macintosh_Stroke2_Corner2_Rounded": {
+      "tabler": "device-imac"
+    }
+  },
+  "MagnifyingGlass.tsx": {
+    "MagnifyingGlass_Stroke2_Corner0_Rounded": {
+      "tabler": "search"
+    },
+    "MagnifyingGlass_Filled_Stroke2_Corner0_Rounded": {
+      "tabler": "search",
+      "variant": "filled"
+    },
+    "MagnifyingGlassX_Stroke2_Corner0_Rounded": {
+      "tabler": "search-off"
+    },
+    "MagnifyingGlassX_Stroke2_Corner0_Rounded_Large": {
+      "tabler": "search-off"
+    }
+  },
+  "Menu.tsx": {
+    "Menu_Stroke2_Corner0_Rounded": {
+      "tabler": "menu-2"
+    }
+  },
+  "Message.tsx": {
+    "Message_Stroke1_Corner0_Rounded_Filled": {
+      "tabler": "message",
+      "variant": "filled"
+    },
+    "Message_Stroke2_Corner0_Rounded_Filled": {
+      "tabler": "message",
+      "variant": "filled"
+    },
+    "Message_Stroke2_Corner0_Rounded": {
+      "tabler": "message"
+    },
+    "MessagePlus_Stroke2_Corner0_Rounded": {
+      "tabler": "message-plus"
+    }
+  },
+  "MoneybagHeart.tsx": {
+    "MoneybagHeart_Stroke2_Corner2_Rounded": {
+      "tabler": "moneybag-heart"
+    }
+  },
+  "Moon.tsx": {
+    "Moon_Stroke2_Corner0_Rounded": {
+      "tabler": "moon"
+    }
+  },
+  "MusicNote.tsx": {
+    "MusicNote_Stroke2_Corner0_Rounded": {
+      "tabler": "music"
+    }
+  },
+  "Mute.tsx": {
+    "Mute_Stroke2_Corner0_Rounded": {
+      "tabler": "volume-off"
+    }
+  },
+  "News2.tsx": {
+    "News2_Stroke2_Corner0_Rounded": {
+      "tabler": "news"
+    }
+  },
+  "Newskie.tsx": {
+    "Newskie": {
+      "tabler": "sunset-2"
+    }
+  },
+  "Newspaper.tsx": {
+    "Newspaper_Stroke2_Corner2_Rounded": {
+      "tabler": "news"
+    }
+  },
+  "PageText.tsx": {
+    "PageText_Stroke2_Corner0_Rounded": {
+      "tabler": "file-text"
+    }
+  },
+  "PageX.tsx": {
+    "PageX_Stroke2_Corner0_Rounded_Large": {
+      "tabler": "file-x"
+    }
+  },
+  "PaintRoller.tsx": {
+    "PaintRoller_Stroke2_Corner2_Rounded": {
+      "tabler": "paint"
+    }
+  },
+  "PaperPlane.tsx": {
+    "PaperPlane_Stroke2_Corner0_Rounded": {
+      "tabler": "send"
+    },
+    "PaperPlaneVertical_Filled_Stroke2_Corner1_Rounded": {
+      "tabler": "send",
+      "variant": "filled"
+    }
+  },
+  "Pause.tsx": {
+    "Pause_Stroke2_Corner0_Rounded": {
+      "tabler": "player-pause"
+    },
+    "Pause_Filled_Corner0_Rounded": {
+      "tabler": "player-pause",
+      "variant": "filled"
+    },
+    "Pause_Stroke2_Corner2_Rounded": {
+      "tabler": "player-pause"
+    },
+    "Pause_Filled_Corner2_Rounded": {
+      "tabler": "player-pause",
+      "variant": "filled"
+    }
+  },
+  "Pencil.tsx": {
+    "Pencil_Stroke2_Corner0_Rounded": {
+      "tabler": "pencil"
+    },
+    "PencilLine_Stroke2_Corner0_Rounded": {
+      "tabler": "pencil-minus"
+    },
+    "PencilLine_Stroke2_Corner2_Rounded": {
+      "tabler": "pencil-minus"
+    }
+  },
+  "PeopleRemove2.tsx": {
+    "PeopleRemove2_Stroke1_Corner0_Rounded": {
+      "tabler": "users-minus",
+      "strokeWidth": 1.25
+    },
+    "PeopleRemove2_Stroke2_Corner0_Rounded": {
+      "tabler": "users-minus"
+    }
+  },
+  "Person.tsx": {
+    "Person_Stroke2_Corner0_Rounded": {
+      "tabler": "user"
+    },
+    "Person_Stroke2_Corner2_Rounded": {
+      "tabler": "user"
+    },
+    "PersonCheck_Stroke2_Corner0_Rounded": {
+      "tabler": "user-check"
+    },
+    "PersonX_Stroke2_Corner0_Rounded": {
+      "tabler": "user-x"
+    },
+    "PersonX_Stroke2_Corner0_Rounded_Large": {
+      "tabler": "user-x"
+    },
+    "PersonPlus_Stroke2_Corner0_Rounded": {
+      "tabler": "user-plus"
+    },
+    "PersonPlus_Filled_Stroke2_Corner0_Rounded": {
+      "tabler": "user-plus"
+    },
+    "PersonPlus_Stroke2_Corner2_Rounded": {
+      "tabler": "user-plus"
+    },
+    "PersonGroup_Stroke2_Corner2_Rounded": {
+      "tabler": "users"
+    },
+    "Person_Filled_Corner2_Rounded": {
+      "tabler": "user",
+      "variant": "filled"
+    }
+  },
+  "Phone.tsx": {
+    "Phone_Stroke2_Corner0_Rounded": {
+      "tabler": "phone"
+    },
+    "PhoneHaptic_Stroke2_Corner2_Rounded": {
+      "tabler": "device-mobile-vibration"
+    }
+  },
+  "Pin.tsx": {
+    "Pin_Stroke2_Corner0_Rounded": {
+      "tabler": "pin"
+    },
+    "Pin_Filled_Corner0_Rounded": {
+      "tabler": "pin",
+      "variant": "filled"
+    }
+  },
+  "PinLocation.tsx": {
+    "PinLocation_Stroke2_Corner0_Rounded": {
+      "tabler": "map-pin"
+    },
+    "PinLocationFilled_Stroke2_Corner0_Rounded": {
+      "tabler": "map-pin",
+      "variant": "filled"
+    }
+  },
+  "Pizza.tsx": {
+    "Pizza_Stroke2_Corner0_Rounded": {
+      "tabler": "pizza"
+    }
+  },
+  "Play.tsx": {
+    "Play_Stroke2_Corner0_Rounded": {
+      "tabler": "player-play"
+    },
+    "Play_Filled_Corner0_Rounded": {
+      "tabler": "player-play",
+      "variant": "filled"
+    },
+    "Play_Stroke2_Corner2_Rounded": {
+      "tabler": "player-play"
+    },
+    "Play_Filled_Corner2_Rounded": {
+      "tabler": "player-play",
+      "variant": "filled"
+    }
+  },
+  "Plus.tsx": {
+    "PlusLarge_Stroke2_Corner0_Rounded": {
+      "tabler": "plus"
+    },
+    "PlusSmall_Stroke2_Corner0_Rounded": {
+      "tabler": "plus"
+    }
+  },
+  "QrCode.tsx": {
+    "QrCode_Stroke2_Corner0_Rounded": {
+      "tabler": "qrcode"
+    }
+  },
+  "Quote.tsx": {
+    "OpenQuote_Stroke2_Corner0_Rounded": {
+      "tabler": "quote",
+      "rotate": 180
+    },
+    "OpenQuote_Filled_Stroke2_Corner0_Rounded": {
+      "tabler": "quote",
+      "variant": "filled",
+      "rotate": 180
+    },
+    "CloseQuote_Stroke2_Corner0_Rounded": {
+      "tabler": "quote"
+    },
+    "CloseQuote_Stroke2_Corner1_Rounded": {
+      "tabler": "quote"
+    },
+    "CloseQuote_Filled_Stroke2_Corner0_Rounded": {
+      "tabler": "quote",
+      "variant": "filled"
+    }
+  },
+  "RaisingHand.tsx": {
+    "RaisingHand4Finger_Stroke2_Corner0_Rounded": {
+      "tabler": "hand-stop"
+    },
+    "RaisingHand4Finger_Stroke2_Corner2_Rounded": {
+      "tabler": "hand-stop"
+    }
+  },
+  "Reply.tsx": {
+    "Reply": {
+      "tabler": "message-circle-plus"
+    },
+    "ReplyFilled": {
+      "tabler": "message-circle-plus"
+    }
+  },
+  "Repost.tsx": {
+    "Repost_Stroke2_Corner0_Rounded": {
+      "tabler": "arrows-random"
+    },
+    "Repost_Stroke2_Corner2_Rounded": {
+      "tabler": "arrows-random"
+    },
+    "Repost_Stroke2_Corner3_Rounded": {
+      "tabler": "arrows-random"
+    },
+    "RepostRepost_Stroke2_Corner2_Rounded": {
+      "tabler": "arrows-random"
+    },
+    "RepostStrike_Stroke2_Corner0_Rounded": {
+      "tabler": "repeat-off"
+    }
+  },
+  "Robot.tsx": {
+    "Robot_Stroke2_Corner2_Rounded": {
+      "tabler": "robot"
+    }
+  },
+  "Rose.tsx": {
+    "Rose_Stroke2_Corner0_Rounded": {
+      "tabler": "flower"
+    }
+  },
+  "SettingsGear2.tsx": {
+    "SettingsGear2_Stroke2_Corner0_Rounded": {
+      "tabler": "settings"
+    },
+    "SettingsGear2_Filled_Corner0_Rounded": {
+      "tabler": "settings",
+      "variant": "filled"
+    }
+  },
+  "SettingsSlider.tsx": {
+    "SettingsSliderVertical_Stroke2_Corner0_Rounded": {
+      "tabler": "adjustments"
+    }
+  },
+  "Shaka.tsx": {
+    "Shaka_Stroke2_Corner0_Rounded": {
+      "tabler": "hand-love-you"
+    }
+  },
+  "Shapes.tsx": {
+    "Shapes_Stroke2_Corner0_Rounded": {
+      "tabler": "tic-tac"
+    }
+  },
+  "Shield.tsx": {
+    "Shield_Stroke2_Corner0_Rounded": {
+      "tabler": "shield"
+    },
+    "ShieldCheck_Stroke2_Corner0_Rounded": {
+      "tabler": "shield-check"
+    }
+  },
+  "Sparkle.tsx": {
+    "Sparkle_Stroke2_Corner0_Rounded": {
+      "tabler": "sparkle"
+    }
+  },
+  "Speaker.tsx": {
+    "SpeakerVolumeFull_Stroke2_Corner0_Rounded": {
+      "tabler": "volume"
+    }
+  },
+  "SquareArrowTopRight.tsx": {
+    "SquareArrowTopRight_Stroke2_Corner0_Rounded": {
+      "tabler": "external-link"
+    }
+  },
+  "SquareBehindSquare4.tsx": {
+    "SquareBehindSquare4_Stroke2_Corner0_Rounded": {
+      "tabler": "copy"
+    },
+    "SquareBehindSquare_Stroke2_Corner2_Rounded": {
+      "tabler": "copy"
+    }
+  },
+  "Star.tsx": {
+    "Star_Stroke2_Corner0_Rounded": {
+      "tabler": "star"
+    },
+    "Star_Filled_Corner0_Rounded": {
+      "tabler": "star",
+      "variant": "filled"
+    }
+  },
+  "StarterPack.tsx": {
+    "StarterPack": {
+      "tabler": "swipe"
+    }
+  },
+  "StreamingLive.tsx": {
+    "StreamingLive_Stroke2_Corner0_Rounded": {
+      "tabler": "user-square"
+    }
+  },
+  "TextSize.tsx": {
+    "TextSize_Stroke2_Corner0_Rounded": {
+      "tabler": "text-size"
+    }
+  },
+  "Thumb.tsx": {
+    "ThumbUp_Stroke2_Corner0_Rounded": {
+      "tabler": "thumb-up"
+    }
+  },
+  "Ticket.tsx": {
+    "Ticket_Stroke2_Corner0_Rounded": {
+      "tabler": "ticket"
+    }
+  },
+  "Times.tsx": {
+    "TimesLarge_Stroke2_Corner0_Rounded": {
+      "tabler": "x"
+    }
+  },
+  "TitleCase.tsx": {
+    "TitleCase_Stroke2_Corner0_Rounded": {
+      "tabler": "letter-case"
+    }
+  },
+  "Trash.tsx": {
+    "Trash_Stroke2_Corner0_Rounded": {
+      "tabler": "trash"
+    },
+    "Trash_Stroke2_Corner2_Rounded": {
+      "tabler": "trash"
+    }
+  },
+  "Tree.tsx": {
+    "Tree_Stroke2_Corner0_Rounded": {
+      "tabler": "tree"
+    }
+  },
+  "Trending.tsx": {
+    "Trending2_Stroke2_Corner2_Rounded": {
+      "tabler": "wave-sine"
+    },
+    "Trending3_Stroke2_Corner1_Rounded": {
+      "tabler": "trending-up"
+    }
+  },
+  "UFO.tsx": {
+    "UFO_Stroke2_Corner0_Rounded": {
+      "tabler": "ufo"
+    }
+  },
+  "UserCircle.tsx": {
+    "UserCircle_Stroke2_Corner0_Rounded": {
+      "tabler": "user-circle"
+    },
+    "UserCircle_Filled_Corner0_Rounded": {
+      "tabler": "user-circle"
+    }
+  },
+  "VideoClip.tsx": {
+    "VideoClip_Stroke1_Corner0_Rounded": {
+      "tabler": "video",
+      "strokeWidth": 1.25
+    },
+    "VideoClip_Stroke2_Corner0_Rounded": {
+      "tabler": "video"
+    }
+  },
+  "Warning.tsx": {
+    "Warning_Stroke2_Corner0_Rounded": {
+      "tabler": "alert-triangle"
+    }
+  },
+  "Window.tsx": {
+    "Window_Stroke2_Corner2_Rounded": {
+      "tabler": "app-window"
+    }
+  },
+  "Wrench.tsx": {
+    "Wrench_Stroke2_Corner2_Rounded": {
+      "tabler": "tool"
+    }
+  },
+  "Zap.tsx": {
+    "Zap_Stroke2_Corner0_Rounded": {
+      "tabler": "bolt"
+    }
+  }
+}

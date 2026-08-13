@@ -1,9 +1,27 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {
+  createTablerFilledIcon,
+  createTablerIcon,
+} from '#/features/tablerIcons/createTablerIcon'
 
-export const Gift1_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M6 4.667A2.667 2.667 0 0 1 8.667 2c1.34 0 2.538.608 3.333 1.564A4.324 4.324 0 0 1 15.333 2 2.667 2.667 0 0 1 18 4.667c0 .859-.25 1.66-.681 2.333H20a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1v7a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-7a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h2.681A4.313 4.313 0 0 1 6 4.667ZM10.333 7H11v-.667A2.333 2.333 0 0 0 8.667 4 .667.667 0 0 0 8 4.667 2.333 2.333 0 0 0 10.333 7ZM13 6.333V7h.667A2.333 2.333 0 0 0 16 4.667.667.667 0 0 0 15.333 4 2.333 2.333 0 0 0 13 6.333ZM11 9H5v2h6V9Zm2 2V9h6v2h-6Zm-2 2H6v6h5v-6Zm2 6v-6h5v6h-5Z',
+/** Tabler: gift (outline) */
+export const Gift1_Stroke2_Corner0_Rounded = createTablerIcon({
+  paths: [
+    'M3 9a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1l0 -2',
+    'M12 8l0 13',
+    'M19 12v7a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-7',
+    'M7.5 8a2.5 2.5 0 0 1 0 -5a4.8 8 0 0 1 4.5 5a4.8 8 0 0 1 4.5 -5a2.5 2.5 0 0 1 0 5',
+  ],
 })
 
-export const Gift1_Filled_Corner0_Rounded = createSinglePathSVG({
-  path: 'M6 4.667A2.667 2.667 0 0 1 8.667 2c1.34 0 2.538.608 3.333 1.564A4.324 4.324 0 0 1 15.333 2 2.667 2.667 0 0 1 18 4.667c0 .859-.25 1.66-.681 2.333H20a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-7V7h.667A2.333 2.333 0 0 0 16 4.667.667.667 0 0 0 15.333 4 2.333 2.333 0 0 0 13 6.333V7h-2v-.667A2.333 2.333 0 0 0 8.667 4 .667.667 0 0 0 8 4.667 2.333 2.333 0 0 0 10.333 7H11v4H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h2.681A4.313 4.313 0 0 1 6 4.667ZM11 13H4v7a1 1 0 0 0 1 1h6v-8Zm9 0h-7v8h6a1 1 0 0 0 1-1v-7Z',
+/** Tabler: gift (filled) */
+export const Gift1_Filled_Corner0_Rounded = createTablerFilledIcon({
+  paths: [
+    'M11 14v8h-4a3 3 0 0 1 -3 -3v-4a1 1 0 0 1 1 -1h6zm8 0a1 1 0 0 1 1 1v4a3 3 0 0 1 -3 3h-4v-8h6zm-2.5 -12a3.5 3.5 0 0 1 3.163 5h.337a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-7v-5h-2v5h-7a2 2 0 0 1 -2 -2v-1a2 2 0 0 1 2 -2h.337a3.486 3.486 0 0 1 -.337 -1.5c0 -1.933 1.567 -3.5 3.483 -3.5c1.755 -.03 3.312 1.092 4.381 2.934l.136 .243c1.033 -1.914 2.56 -3.114 4.291 -3.175l.209 -.002zm-9 2a1.5 1.5 0 0 0 0 3h3.143c-.741 -1.905 -1.949 -3.02 -3.143 -3zm8.983 0c-1.18 -.02 -2.385 1.096 -3.126 3h3.143a1.5 1.5 0 1 0 -.017 -3z',
+  ],
 })

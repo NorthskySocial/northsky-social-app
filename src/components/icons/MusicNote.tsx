@@ -1,5 +1,17 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
-export const MusicNote_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M18.423 2.428a2 2 0 0 1 2.575 1.916V15.5c0 2.096-1.97 3.5-4 3.5-2.03 0-4-1.404-4-3.5s1.97-3.5 4-3.5c.7 0 1.392.167 2 .471V4.344l-8 2.4V18.5c0 2.096-1.97 3.5-4 3.5-2.03 0-4-1.404-4-3.5s1.97-3.5 4-3.5c.7 0 1.393.167 2 .471V6.744a2 2 0 0 1 1.425-1.916l8-2.4ZM8.998 18.5c0-.666-.717-1.5-2-1.5s-2 .834-2 1.5c0 .665.717 1.5 2 1.5s2-.835 2-1.5Zm10-3c0-.665-.717-1.5-2-1.5s-2 .835-2 1.5.717 1.5 2 1.5 2-.835 2-1.5Z',
+/** Tabler: music (outline) */
+export const MusicNote_Stroke2_Corner0_Rounded = createTablerIcon({
+  paths: [
+    'M3 17a3 3 0 1 0 6 0a3 3 0 0 0 -6 0',
+    'M13 17a3 3 0 1 0 6 0a3 3 0 0 0 -6 0',
+    'M9 17v-13h10v13',
+    'M9 8h10',
+  ],
 })
