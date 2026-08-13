@@ -69,7 +69,18 @@ function covering(ranges: readonly Range[], index: number): Range | undefined {
   return ranges.find(r => index >= r.start && index < r.end)
 }
 
-export function segmentsWithCode(richText: RichTextAPI): RichTextItem[] {
+/**
+ * Resolves `richText` into one ordered stream of items.
+ *
+ * Set `renderCode` to false for emphasis-only callers, such as a notification
+ * preview. Code spans are still located, because they are the `skip` ranges that
+ * keep `` `a * b` `` from italicising, but each one is emitted as its literal
+ * source text instead of a code token.
+ */
+export function segmentsWithCode(
+  richText: RichTextAPI,
+  {renderCode = true}: {renderCode?: boolean} = {},
+): RichTextItem[] {
   const text = richText.text
   const codeSpans = findCodeSpans(text)
 
@@ -126,7 +137,13 @@ export function segmentsWithCode(richText: RichTextAPI): RichTextItem[] {
     const code = codeSpans.find(c => pos >= c.start && pos < c.end)
     if (code) {
       // Emit once, at the span's start; the rest of the range is consumed.
-      if (pos === code.start) items.push({kind: 'code', token: code.token})
+      if (pos === code.start) {
+        items.push(
+          renderCode
+            ? {kind: 'code', token: code.token}
+            : {kind: 'text', text: text.slice(code.start, code.end)},
+        )
+      }
       pos = code.end
       continue
     }

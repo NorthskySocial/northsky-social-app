@@ -9,6 +9,13 @@ function build(text: string) {
   return segmentsWithCode(rt)
 }
 
+/** The emphasis-only stream, as compact previews request it. */
+function buildEmphasisOnly(text: string) {
+  const rt = new RichText({text})
+  rt.detectFacetsWithoutResolution()
+  return segmentsWithCode(rt, {renderCode: false})
+}
+
 /** Compact rendering of the item stream for readable assertions. */
 function describeItems(items: RichTextItem[]): string[] {
   return items.map(item => {
@@ -156,5 +163,49 @@ describe('segmentsWithCode', () => {
     expect(
       describeItems(build('before\n```ts\nconst x = 1\n```\nafter')),
     ).toEqual(['text:before\n', 'fence(ts):const x = 1', 'text:\nafter'])
+  })
+})
+
+describe('segmentsWithCode with renderCode false', () => {
+  it('hides emphasis markers and styles the content', () => {
+    expect(describeItems(buildEmphasisOnly('~~old plan~~'))).toEqual([
+      'text+strike:old plan',
+    ])
+  })
+
+  it('emits inline code as its literal source', () => {
+    expect(describeItems(buildEmphasisOnly('run `npm test` now'))).toEqual([
+      'text:run ',
+      'text:`npm test`',
+      'text: now',
+    ])
+  })
+
+  it('emits a fence as its literal source', () => {
+    expect(describeItems(buildEmphasisOnly('```ts\nconst a = 1\n```'))).toEqual(
+      ['text:```ts\nconst a = 1\n```'],
+    )
+  })
+
+  it('still lets code shield emphasis markers inside it', () => {
+    expect(describeItems(buildEmphasisOnly('a `x *y* z` b'))).toEqual([
+      'text:a ',
+      'text:`x *y* z`',
+      'text: b',
+    ])
+  })
+
+  it('styles emphasis outside code and leaves the backticks', () => {
+    expect(describeItems(buildEmphasisOnly('**bold** then `code`'))).toEqual([
+      'text+bold:bold',
+      'text: then ',
+      'text:`code`',
+    ])
+  })
+
+  it('keeps a link as a single facet segment', () => {
+    expect(
+      describeItems(buildEmphasisOnly('see https://example.com ok')),
+    ).toEqual(['text:see ', 'facet:https://example.com', 'text: ok'])
   })
 })
