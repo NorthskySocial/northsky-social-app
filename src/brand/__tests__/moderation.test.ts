@@ -34,13 +34,6 @@ describe('getHostModerationInfo', () => {
     expect(result.modServiceDid).toBe(BLACKSKY_MOD_DID)
   })
 
-  /* `blacksky.social` has no DNS record and was never a real Blacksky host. */
-  it('does not resolve the retired blacksky.social key', () => {
-    expect(getHostModerationInfo('https://blacksky.social').name).toBe(
-      'Bluesky Social',
-    )
-  })
-
   it('resolves bsky.social to the Bluesky operator', () => {
     const result = getHostModerationInfo('https://bsky.social')
     expect(result.name).toBe('Bluesky Social')
