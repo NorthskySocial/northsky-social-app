@@ -1,5 +1,6 @@
 import {AtUri} from '@atproto/api'
 
+import {BRAND} from '#/brand/config'
 import type * as bsky from '#/types/bsky'
 
 export function createStarterPackLinkFromAndroidReferrer(
@@ -84,11 +85,12 @@ export function getStarterPackOgCard(
   didOrStarterPack: bsky.starterPack.AnyStarterPackView | string,
   rkey?: string,
 ) {
+  // northsky: serve starter-pack images from the branded card service.
   if (typeof didOrStarterPack === 'string') {
-    return `https://ogcard.cdn.bsky.app/start/${didOrStarterPack}/${rkey}`
+    return `${BRAND.ogcardServiceUrl}/start/${didOrStarterPack}/${rkey}`
   } else {
     const rkey = new AtUri(didOrStarterPack.uri).rkey
-    return `https://ogcard.cdn.bsky.app/start/${didOrStarterPack.creator.did}/${rkey}`
+    return `${BRAND.ogcardServiceUrl}/start/${didOrStarterPack.creator.did}/${rkey}`
   }
 }
 

@@ -1,7 +1,7 @@
 /* eslint-disable bsky-internal/avoid-unwrapped-text */
 import {type AppBskyGraphDefs, AppBskyGraphStarterpack} from '@atproto/api'
 
-import {Butterfly} from './Butterfly.js'
+import {BRAND} from '../brand.js'
 import {Img} from './Img.js'
 import * as bsky from '../types/bsky/index.js'
 
@@ -9,9 +9,10 @@ export const STARTERPACK_HEIGHT = 630
 export const STARTERPACK_WIDTH = 1200
 export const TILE_SIZE = STARTERPACK_HEIGHT / 3
 
-const GRADIENT_TOP = '#0A7AFF'
-const GRADIENT_BOTTOM = '#59B9FF'
-const IMAGE_STROKE = '#359CFF'
+// northsky: match the card to the Northsky palette instead of Bluesky blue.
+const GRADIENT_TOP = BRAND.primaryColor
+const GRADIENT_BOTTOM = BRAND.primaryDark
+const IMAGE_STROKE = BRAND.primaryLight
 
 export function StarterPack(props: {
   starterPack: AppBskyGraphDefs.StarterPackView
@@ -149,7 +150,8 @@ export function StarterPack(props: {
             justifyContent: 'center',
             padding: '30px 30px 10px',
           }}>
-          on <Butterfly width="65" style={{margin: '-7px 10px 0'}} /> Bluesky
+          {/* northsky: identify Northsky as the card service. */}
+          on {BRAND.name}
         </div>
       </div>
     </div>
