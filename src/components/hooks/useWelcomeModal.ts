@@ -1,4 +1,6 @@
 import {useEffect, useState} from 'react'
+import {Asset} from 'expo-asset'
+import {Image} from 'expo-image'
 
 import {useSession} from '#/state/session'
 import {IS_WEB} from '#/env'
@@ -26,6 +28,12 @@ export function useWelcomeModal(): WelcomeModalControl {
       if (isHomePage && !hasModalBeenShown) {
         // Mark that the modal has been shown, don't show again
         localStorage.setItem('welcomeModalShown', 'true')
+        // northsky: warm the cache during the delay so the background is ready on open
+        void Image.prefetch(
+          Asset.fromModule(
+            require('../../../assets/images/welcome-modal-bg.webp'),
+          ).uri,
+        )
         // Small delay to ensure the page has loaded
         const timer = setTimeout(() => {
           open()
