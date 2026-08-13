@@ -1,5 +1,18 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
-export const Macintosh_Stroke2_Corner2_Rounded = createSinglePathSVG({
-  path: 'M4 5a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v11c0 .889-.386 1.687-1 2.236V20a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-1.764c-.614-.55-1-1.348-1-2.236V5Zm3 14v1h10v-1H7ZM7 4a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H7Zm0 2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V6Zm2 1v4h6V7H9Zm4 8a1 1 0 0 1 1-1h2a1 1 0 1 1 0 2h-2a1 1 0 0 1-1-1Z',
+/** Tabler: device-imac (outline) */
+export const Macintosh_Stroke2_Corner2_Rounded = createTablerIcon({
+  paths: [
+    'M3 4a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-12',
+    'M3 13h18',
+    'M8 21h8',
+    'M10 17l-.5 4',
+    'M14 17l.5 4',
+  ],
 })

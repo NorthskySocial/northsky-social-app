@@ -1,12 +1,28 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
-export const Image_Stroke1_Corner0_Rounded = createSinglePathSVG({
-  viewBox: '0 0 46 46',
-  strokeLinecap: 'round',
-  strokeWidth: 1.5,
-  path: 'm1.417 28.645 7.586-5.676a5.33 5.33 0 0 1 6.867.809c3.98 4.286 8.594 8.182 14.88 8.182 5.794 0 9.633-2.147 13.333-5.847m-38 18.637h33.334a5.333 5.333 0 0 0 5.333-5.333V6.083A5.333 5.333 0 0 0 39.417.75H6.083A5.333 5.333 0 0 0 .75 6.083v33.334a5.333 5.333 0 0 0 5.333 5.333ZM36.75 14.083a5.333 5.333 0 1 1-10.667 0 5.333 5.333 0 0 1 10.667 0Z',
+/** Tabler: photo (outline) */
+export const Image_Stroke1_Corner0_Rounded = createTablerIcon({
+  paths: [
+    'M15 8h.01',
+    'M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12',
+    'M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5',
+    'M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3',
+  ],
+  strokeWidth: 1.25,
 })
 
-export const Image_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M3 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4Zm2 1v7.213l1.246-.932.044-.03a3 3 0 0 1 3.863.454c1.468 1.58 2.941 2.749 4.847 2.749 1.703 0 2.855-.555 4-1.618V5H5Zm14 10.357c-1.112.697-2.386 1.097-4 1.097-2.81 0-4.796-1.755-6.313-3.388a1 1 0 0 0-1.269-.164L5 14.712V19h14v-3.643ZM15 8a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm-3 1a3 3 0 1 1 6 0 3 3 0 0 1-6 0Z',
+/** Tabler: photo (outline) */
+export const Image_Stroke2_Corner0_Rounded = createTablerIcon({
+  paths: [
+    'M15 8h.01',
+    'M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12',
+    'M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5',
+    'M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3',
+  ],
 })

@@ -1,5 +1,21 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
-export const Shapes_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M7 3a1 1 0 0 1 1 1v2h2a1 1 0 1 1 0 2H8v2a1 1 0 1 1-2 0V8H4a1 1 0 0 1 0-2h2V4a1 1 0 0 1 1-1Zm6 4a4 4 0 1 1 8 0 4 4 0 0 1-8 0Zm4-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM3 14a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-6Zm2 1v4h4v-4H5Zm9.171-.829a1 1 0 0 1 1.415 0L17 15.585l1.414-1.414a1 1 0 1 1 1.414 1.414L18.414 17l1.414 1.414a1 1 0 0 1-1.414 1.414L17 18.414l-1.415 1.414a1 1 0 0 1-1.414-1.414l1.415-1.415-1.415-1.414a1 1 0 0 1 0-1.414Z',
+/** Tabler: tic-tac (outline) */
+export const Shapes_Stroke2_Corner0_Rounded = createTablerIcon({
+  paths: [
+    'M4 6a2 2 0 1 0 4 0a2 2 0 1 0 -4 0',
+    'M3 12h18',
+    'M12 3v18',
+    'M4 16l4 4',
+    'M4 20l4 -4',
+    'M16 4l4 4',
+    'M16 8l4 -4',
+    'M16 18a2 2 0 1 0 4 0a2 2 0 1 0 -4 0',
+  ],
 })

@@ -6,6 +6,8 @@ import {atoms as a, useTheme} from '#/alf'
 import {Button, type ButtonProps} from '#/components/Button'
 import {type Props as SVGIconProps} from '#/components/icons/common'
 import {Text, type TextProps} from '#/components/Typography'
+// northsky: feed icons need a heavier Tabler stroke at 18px
+import {FEED_ICON_STROKE_WIDTH} from '#/features/tablerIcons/createTablerIcon'
 
 export const DEFAULT_HITSLOP = {top: 5, bottom: 10, left: 10, right: 10}
 
@@ -117,6 +119,8 @@ export function PostControlButtonIcon({
   return (
     <Comp
       style={[color, a.pointer_events_none, style]}
+      // northsky: Tabler glyphs read thin at the feed's 18px, so weight them up
+      strokeWidth={FEED_ICON_STROKE_WIDTH}
       {...rest}
       width={big ? 22 : 18}
     />

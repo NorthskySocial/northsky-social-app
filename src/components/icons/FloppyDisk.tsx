@@ -1,5 +1,16 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
-export const FloppyDisk_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M3 4a1 1 0 0 1 1-1h13a1 1 0 0 1 .707.293l3 3A1 1 0 0 1 21 7v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4Zm6 15h6v-5H9v5Zm8 0v-6a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v6H5V5h2v3a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5.414l2 2V19h-2ZM15 5H9v2h6V5Z',
+/** Tabler: device-floppy (outline) */
+export const FloppyDisk_Stroke2_Corner0_Rounded = createTablerIcon({
+  paths: [
+    'M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2',
+    'M10 14a2 2 0 1 0 4 0a2 2 0 1 0 -4 0',
+    'M14 4l0 4l-6 0l0 -4',
+  ],
 })

@@ -1,12 +1,23 @@
-import {createSinglePathSVG} from './TEMPLATE'
-
 /**
- * @deprecated Use SquareBehindSquare_Stroke2_Corner2_Rounded
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
  */
-export const SquareBehindSquare4_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M8 8V3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-5v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h5Zm1 8a1 1 0 0 1-1-1v-5H4v10h10v-4H9Z',
+// northsky: upstream glyphs replaced with Tabler icons
+import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
+
+/** Tabler: copy (outline) */
+export const SquareBehindSquare4_Stroke2_Corner0_Rounded = createTablerIcon({
+  paths: [
+    'M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667l0 -8.666',
+    'M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1',
+  ],
 })
 
-export const SquareBehindSquare_Stroke2_Corner2_Rounded = createSinglePathSVG({
-  path: 'M20 4.25a.25.25 0 0 0-.25-.25h-9.5a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25zM4 19.75c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25V16h-3.75A2.25 2.25 0 0 1 8 13.75V10H4.25a.25.25 0 0 0-.25.25zm18-6A2.25 2.25 0 0 1 19.75 16H16v3.75A2.25 2.25 0 0 1 13.75 22h-9.5A2.25 2.25 0 0 1 2 19.75v-9.5A2.25 2.25 0 0 1 4.25 8H8V4.25A2.25 2.25 0 0 1 10.25 2h9.5A2.25 2.25 0 0 1 22 4.25z',
+/** Tabler: copy (outline) */
+export const SquareBehindSquare_Stroke2_Corner2_Rounded = createTablerIcon({
+  paths: [
+    'M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667l0 -8.666',
+    'M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1',
+  ],
 })

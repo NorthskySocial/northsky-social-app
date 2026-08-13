@@ -1,9 +1,19 @@
-import {createSinglePathSVG} from './TEMPLATE'
-
-/*
- * This icon is off-menu, not part of the icon set
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
  */
+// northsky: upstream glyphs replaced with Tabler icons
+import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
-export const ListPlus_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M4 5a1 1 0 0 0 0 2h16a1 1 0 1 0 0-2H4Zm0 12a1 1 0 1 0 0 2h3a1 1 0 1 0 0-2H4Zm-1-5a1 1 0 0 1 1-1h5a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1Zm14-3c.552 0 1 .41 1 .917V13.5h3.583c.507 0 .917.448.917 1s-.41 1-.917 1H18v3.583c0 .507-.448.917-1 .917s-1-.41-1-.917V15.5h-3.583c-.507 0-.917-.448-.917-1s.41-1 .917-1H16V9.917C16 9.41 16.448 9 17 9Z',
+/** Tabler: list (outline) */
+export const ListPlus_Stroke2_Corner0_Rounded = createTablerIcon({
+  paths: [
+    'M9 6l11 0',
+    'M9 12l11 0',
+    'M9 18l11 0',
+    'M5 6l0 .01',
+    'M5 12l0 .01',
+    'M5 18l0 .01',
+  ],
 })
