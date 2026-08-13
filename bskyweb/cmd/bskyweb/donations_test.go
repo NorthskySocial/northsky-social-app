@@ -183,6 +183,35 @@ func TestDonationSessionForm(t *testing.T) {
 		}
 	})
 
+	t.Run("omits the payment method configuration when unset", func(t *testing.T) {
+		form, err := donationSessionForm(cfg, donationSessionRequest{
+			AmountCents: 500,
+			Interval:    intervalOneTime,
+		})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if form.Has("payment_method_configuration") {
+			t.Error("expected Stripe to use the default configuration")
+		}
+	})
+
+	t.Run("sends the payment method configuration when set", func(t *testing.T) {
+		configured := testDonationsConfig("")
+		configured.paymentMethodConfiguration = "pmc_batou"
+
+		form, err := donationSessionForm(configured, donationSessionRequest{
+			AmountCents: 500,
+			Interval:    intervalOneTime,
+		})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if got := form.Get("payment_method_configuration"); got != "pmc_batou" {
+			t.Errorf("expected the configuration id, got %q", got)
+		}
+	})
+
 	t.Run("keeps a well formed did", func(t *testing.T) {
 		form, err := donationSessionForm(cfg, donationSessionRequest{
 			AmountCents: 500,

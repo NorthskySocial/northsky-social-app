@@ -30,6 +30,13 @@ The server validates the amount, because the browser cannot be trusted with a
 price. One-time donations use `mode=payment`; monthly donations use
 `mode=subscription` with a recurring `price_data`, so any amount can recur.
 
+Which payment methods appear is dashboard state, not code. Set
+`DONATION_PAYMENT_METHOD_CONFIGURATION` to pick a configuration, then turn
+methods on and off in the Stripe dashboard without a deploy. Apple Pay and
+Google Pay are wallets on the card method: Stripe places them above the form,
+and they need HTTPS and a registered domain, so they never appear on
+`http://localhost`.
+
 | Env | Purpose | Default |
 | --- | --- | --- |
 | `STRIPE_SECRET_KEY` | Enables checkout. **A real secret: k8s Secret only.** | empty |
@@ -38,6 +45,7 @@ price. One-time donations use `mode=payment`; monthly donations use
 | `DONATION_PRESETS_CENTS` | Comma separated amounts | `500,1000,2500,5000` |
 | `DONATION_MIN_CENTS` | Smallest accepted donation | `100` |
 | `DONATION_MAX_CENTS` | Largest accepted donation | `100000` |
+| `DONATION_PAYMENT_METHOD_CONFIGURATION` | Stripe payment method configuration id, e.g. `pmc_...`. Empty uses the default configuration. | empty |
 | `DONATION_RETURN_BASE_URL` | Origin Stripe returns the donor to | the brand base URL |
 | `DONATION_LINKS` | Payment links for native, as JSON | empty |
 

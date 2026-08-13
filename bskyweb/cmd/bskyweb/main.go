@@ -166,6 +166,13 @@ func run(args []string) {
 					EnvVars:  []string{"DONATION_MAX_CENTS"},
 				},
 				&cli.StringFlag{
+					Name:     "donation-payment-method-configuration",
+					Usage:    "Stripe payment method configuration id. The default configuration applies when empty",
+					Required: false,
+					Value:    "",
+					EnvVars:  []string{"DONATION_PAYMENT_METHOD_CONFIGURATION"},
+				},
+				&cli.StringFlag{
 					Name:     "donation-return-base-url",
 					Usage:    "origin Stripe returns the donor to, without a trailing slash",
 					Required: false,

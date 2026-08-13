@@ -49,6 +49,10 @@ type donationsConfig struct {
 	minCents       int64
 	maxCents       int64
 	returnBaseURL  string
+	// paymentMethodConfiguration selects which set of payment methods Stripe
+	// offers. The set itself is managed in the dashboard. IDs differ between
+	// test mode and live mode.
+	paymentMethodConfiguration string
 	// apiBase points at Stripe. Tests point it at a local server.
 	apiBase string
 }
@@ -168,6 +172,10 @@ func donationSessionForm(cfg *donationsConfig, req donationSessionRequest) (url.
 	form.Set("line_items[0][price_data][currency]", cfg.currency)
 	form.Set("line_items[0][price_data][product_data][name]", fmt.Sprintf("Donation to %s", brand.AppName))
 	form.Set("line_items[0][price_data][unit_amount]", strconv.FormatInt(req.AmountCents, 10))
+
+	if cfg.paymentMethodConfiguration != "" {
+		form.Set("payment_method_configuration", cfg.paymentMethodConfiguration)
+	}
 
 	switch req.Interval {
 	case intervalOneTime:
