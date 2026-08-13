@@ -17,10 +17,16 @@ const logger = Logger.create(Logger.Context.Metric, {})
 export class MetricsClient<M extends Record<string, any>> {
   maxBatchSize = 100
 
+  private enabled: boolean
   private started: boolean = false
   private queue: Event<M>[] = []
   private failedQueue: Event<M>[] = []
   private flushInterval: NodeJS.Timeout | null = null
+
+  // northsky: a disabled client drops events before it queues them
+  constructor({enabled = true}: {enabled?: boolean} = {}) {
+    this.enabled = enabled
+  }
 
   start() {
     if (this.started) return
@@ -42,6 +48,8 @@ export class MetricsClient<M extends Record<string, any>> {
     payload: M[E],
     metadata: Record<string, any> = {},
   ) {
+    if (!this.enabled) return
+
     this.start()
 
     const e: Event<M> = {
