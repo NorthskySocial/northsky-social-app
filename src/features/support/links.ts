@@ -77,7 +77,10 @@ export function getDonationUrl(
 ): string | undefined {
   const url = config[interval]?.[String(amount)]
   if (!url) return undefined
-  return did ? `${url}?client_reference_id=${encodeDid(did)}` : url
+  if (!did) return url
+  const donationUrl = new URL(url)
+  donationUrl.searchParams.set('client_reference_id', encodeDid(did))
+  return donationUrl.toString()
 }
 
 /**

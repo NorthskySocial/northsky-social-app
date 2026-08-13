@@ -86,6 +86,16 @@ describe('getDonationUrl', () => {
       'https://donate.stripe.com/five?client_reference_id=ZGlkOnBsYzptb3Rva28',
     )
   })
+
+  it('preserves an existing query string', () => {
+    const config = {
+      currency: 'usd',
+      oneTime: {'500': 'https://donate.stripe.com/five?locale=en'},
+    }
+    expect(getDonationUrl(config, 'oneTime', 500, 'did:plc:motoko')).toBe(
+      'https://donate.stripe.com/five?locale=en&client_reference_id=ZGlkOnBsYzptb3Rva28',
+    )
+  })
 })
 
 describe('encodeDid', () => {
