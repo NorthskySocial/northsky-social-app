@@ -36,7 +36,7 @@ const KNOWN_HOSTS = new Map<string, HostModerationInfo>([
     /* `blacksky.social` has no DNS record; the PDS is served from blacksky.app */
     'blacksky.app',
     {
-      name: 'Blacksky',
+      name: 'Blacksky Algorithms',
       tosUrl: 'https://www.blackskyweb.xyz/about/support/tos',
       modServiceDid: 'did:plc:d2mkddsbmnrgr3domzg5qexf',
     },

@@ -29,7 +29,7 @@ describe('getHostModerationInfo', () => {
 
   it('resolves blacksky.app to the Blacksky operator', () => {
     const result = getHostModerationInfo('https://blacksky.app/')
-    expect(result.name).toBe('Blacksky')
+    expect(result.name).toBe('Blacksky Algorithms')
     expect(result.tosUrl).toBe('https://www.blackskyweb.xyz/about/support/tos')
     expect(result.modServiceDid).toBe(BLACKSKY_MOD_DID)
   })

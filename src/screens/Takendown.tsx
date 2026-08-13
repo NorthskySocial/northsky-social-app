@@ -144,7 +144,7 @@ export function Takendown() {
               {isAppealling ? (
                 <Trans>Appeal suspension</Trans>
               ) : (
-                <Trans>Your account has been suspended</Trans>
+                <Trans>Your account has been suspended by {host.name}</Trans>
               )}
             </Text>
 
