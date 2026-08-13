@@ -191,6 +191,14 @@ func donationSessionForm(cfg *donationsConfig, req donationSessionRequest) (url.
 	// malformed one is dropped rather than treated as an error.
 	if did := req.Did; strings.HasPrefix(did, "did:") && len(did) <= maxDidLength {
 		form.Set("metadata[did]", did)
+		// Session metadata stays on the session. Copy it to the payment or the
+		// subscription as well, because those are the objects the dashboard and
+		// the reports show.
+		if req.Interval == intervalMonthly {
+			form.Set("subscription_data[metadata][did]", did)
+		} else {
+			form.Set("payment_intent_data[metadata][did]", did)
+		}
 	}
 
 	return form, nil

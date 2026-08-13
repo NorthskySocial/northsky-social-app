@@ -212,7 +212,7 @@ func TestDonationSessionForm(t *testing.T) {
 		}
 	})
 
-	t.Run("keeps a well formed did", func(t *testing.T) {
+	t.Run("puts the did on the session and the payment", func(t *testing.T) {
 		form, err := donationSessionForm(cfg, donationSessionRequest{
 			AmountCents: 500,
 			Interval:    intervalOneTime,
@@ -221,8 +221,33 @@ func TestDonationSessionForm(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		if got := form.Get("metadata[did]"); got != "did:plc:motoko" {
-			t.Errorf("expected the did in metadata, got %q", got)
+		for _, key := range []string{"metadata[did]", "payment_intent_data[metadata][did]"} {
+			if got := form.Get(key); got != "did:plc:motoko" {
+				t.Errorf("%s: expected the did, got %q", key, got)
+			}
+		}
+		if form.Has("subscription_data[metadata][did]") {
+			t.Error("a one-time donation creates no subscription")
+		}
+	})
+
+	t.Run("puts the did on the session and the subscription", func(t *testing.T) {
+		form, err := donationSessionForm(cfg, donationSessionRequest{
+			AmountCents: 500,
+			Interval:    intervalMonthly,
+			Did:         "did:plc:motoko",
+		})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		for _, key := range []string{"metadata[did]", "subscription_data[metadata][did]"} {
+			if got := form.Get(key); got != "did:plc:motoko" {
+				t.Errorf("%s: expected the did, got %q", key, got)
+			}
+		}
+		// Stripe rejects payment_intent_data in subscription mode.
+		if form.Has("payment_intent_data[metadata][did]") {
+			t.Error("a subscription must not carry payment intent data")
 		}
 	})
 
