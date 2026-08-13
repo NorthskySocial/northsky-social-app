@@ -60,6 +60,13 @@ func (cfg *donationsConfig) enabled() bool {
 	return cfg != nil && cfg.secretKey != ""
 }
 
+// isLocalhostOrigin reports whether an origin is a local development server.
+// It is used in debug mode only.
+func isLocalhostOrigin(origin string) bool {
+	return strings.HasPrefix(origin, "http://localhost:") ||
+		strings.HasPrefix(origin, "http://127.0.0.1:")
+}
+
 // clientConfigLiteral builds the donation config that the app reads, as a
 // JavaScript string literal. The payment links come from DONATION_LINKS, and
 // everything else from this process, which is the only place that knows whether

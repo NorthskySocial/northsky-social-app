@@ -19,6 +19,7 @@ import (
 	"os"
 	"os/signal"
 	"regexp"
+	"slices"
 	"strings"
 	"syscall"
 	"time"
@@ -254,17 +255,21 @@ func serve(cctx *cli.Context) error {
 	e.Use(echoprom)
 
 	// CORS middleware
-	corsMethods := []string{http.MethodGet, http.MethodHead, http.MethodOptions}
-	if debug {
-		// northsky: the Expo dev server is a different origin, so local work on
-		// the donation form needs a cross-origin POST. Production serves the app
-		// from this process, where the call is same-origin.
-		corsMethods = append(corsMethods, http.MethodPost)
-	}
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+	corsConfig := middleware.CORSConfig{
 		AllowOrigins: corsOrigins,
-		AllowMethods: corsMethods,
-	}))
+		AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodOptions},
+	}
+	if debug {
+		// northsky: the Expo dev server runs on its own origin and port, so local
+		// work on the donation form needs a cross-origin POST from localhost.
+		// Production serves the app from this process, where the call is
+		// same-origin and neither addition applies.
+		corsConfig.AllowMethods = append(corsConfig.AllowMethods, http.MethodPost)
+		corsConfig.AllowOriginFunc = func(origin string) (bool, error) {
+			return isLocalhostOrigin(origin) || slices.Contains(corsOrigins, origin), nil
+		}
+	}
+	e.Use(middleware.CORSWithConfig(corsConfig))
 
 	//
 	// configure routes
