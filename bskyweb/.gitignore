@@ -15,6 +15,9 @@ static/css/*.map
 static/css/*.css.LICENSE.txt
 static/css/empty.txt
 static/media/*.png
+# northsky: the brand fonts are copied here by the web build
+static/media/*.woff2
+static/media/*.ttf
 static/media/empty.txt
 templates/scripts.html
 templates/*-embed.html
