@@ -1,17 +1,16 @@
 # tablerIcons
 
-Renders [Tabler](https://tabler.io/icons) icons with the app's existing icon
+Renders [Tabler](https://tabler.io/icons) and [Garden](https://github.com/zendeskgarden/svg-icons) icons with the app's existing icon
 props. 156 of the 160 modules in `src/components/icons` are generated from
-Tabler SVG source. The four that are not are the brand mark and the three
-verification badges, which carry product meaning Tabler cannot express.
+these sources. The four that are not are the brand mark and the three
+verification badges, which carry product meaning generic icon sets cannot express.
 
 ## Why a new helper
 
-The upstream helpers in `src/components/icons/TEMPLATE.tsx` cannot render a
-Tabler outline icon:
+The upstream helpers in `src/components/icons/TEMPLATE.tsx` cannot render an outline icon:
 
 | Helper                   | Paths | Stroke | Fill rule |
-| ------------------------ | ----- | ------ | --------- |
+| --------------------------| -------| --------| -----------|
 | `createSinglePathSVG`    | 1     | yes    | evenodd   |
 | `createMultiPathSVG`     | many  | no     | evenodd   |
 | `createTablerIcon`       | many  | yes    | -         |
@@ -95,9 +94,8 @@ Each mapping entry names its glyph under the key of the set it comes from:
 | `tabler` | `src/assets/tabler`     | MIT        |
 | `garden` | `src/assets/gardenSvg`  | Apache 2.0 |
 
-Garden is Bluesky's own icon set. It supplies the repost mark, which Tabler has
-no equivalent for: the nearest Tabler glyph, `arrows-random`, reads as scattered
-arrows rather than a loop.
+Garden is simply another icon set. It supplies the repost mark, which Tabler has
+no equivalent for.
 
 Garden draws on a 12 unit view box where Tabler draws on 24, so the generator
 reads the view box out of each SVG and writes it into the module whenever it
