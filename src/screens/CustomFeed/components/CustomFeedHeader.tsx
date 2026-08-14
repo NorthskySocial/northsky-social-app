@@ -50,7 +50,13 @@ import {RichText} from '#/components/RichText'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
+// northsky: size-independent hover feedback
+import {useMeasuredScale} from '#/brand'
 import {IS_WEB} from '#/env'
+
+// northsky: distance the feed title hover wash grows, matching what it grew
+// by before it was measured in pixels.
+const WASH_HOVER_GROW_PX = 4
 
 export function CustomFeedHeaderSkeleton() {
   const t = useTheme()
@@ -96,6 +102,18 @@ export function CustomFeedHeader({
   const {gtMobile} = useBreakpoints()
   const infoControl = Dialog.useDialogControl()
   const playHaptic = useHaptics()
+
+  /* northsky: the hover wash sits behind a title that wraps to two lines, so
+   * its height changes. The ratio it grew by moved a one-line title 4px and a
+   * two-line title 6.6px. Grow it by a set distance instead, so the pop is the
+   * same for both. The wash is a wide background plate, not a button surface,
+   * so it keeps its own distance rather than the smaller button one.
+   *
+   * React Native attaches no hover handler on iOS or Android, so only web
+   * needs the measurement. If that ever changes, the scale falls back to 1 and
+   * the wash still lights up, only without the pop. */
+  const hover = useMeasuredScale(WASH_HOVER_GROW_PX)
+  const onHoverLayout = IS_WEB ? hover.onLayout : undefined
 
   const {data: preferences} = usePreferencesQuery()
 
@@ -240,6 +258,7 @@ export function CustomFeedHeader({
                 {({hovered, pressed}) => (
                   <>
                     <View
+                      onLayout={onHoverLayout} // northsky: measure for the hover scale below
                       style={[
                         a.absolute,
                         a.inset_0,
@@ -256,7 +275,11 @@ export function CustomFeedHeader({
                         },
                         hovered && {
                           opacity: 1,
-                          transform: [{scaleX: 1.01}, {scaleY: 1.1}],
+                          // northsky: grow by a set distance, not a ratio
+                          transform: [
+                            {scaleX: hover.scaleX},
+                            {scaleY: hover.scaleY},
+                          ],
                         },
                       ]}
                     />
