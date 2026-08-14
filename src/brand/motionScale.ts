@@ -13,13 +13,16 @@
 export const PRESS_GROW_PX = 3
 export const PRESS_SQUASH_PX = 3
 export const HOVER_GROW_PX = 2
+// For elements that shrink on both axes on press, such as images.
+export const PRESS_SHRINK_PX = 3
 export const REST_SCALE = 1
 
 // Very small elements would still deform a lot per pixel, so cap the ratio.
 const MAX_SCALE_DELTA = 0.1
 
 /**
- * Returns the scale factor that moves each edge of an element `deltaPx` pixels.
+ * Returns the scale factor that changes the size of an element by `deltaPx`.
+ * The element scales about its centre, so each edge moves half of `deltaPx`.
  * A negative `deltaPx` shrinks the element. Returns the rest scale before
  * layout reports a size, which disables the motion instead of guessing at it.
  */
