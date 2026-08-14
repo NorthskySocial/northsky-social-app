@@ -72,7 +72,7 @@ The SVGs under `src/assets/tabler/{outline,filled}` are the source of truth, so
 a regeneration needs no external checkout. Only the icons the mapping names are
 vendored, along with Tabler's MIT licence.
 
-When the mapping starts naming an icon that is not vendored yet, point the
+When the mapping starts naming a Tabler icon that is not vendored yet, point the
 generator at a [tabler/tabler-icons](https://github.com/tabler/tabler-icons)
 checkout once and it copies the file in:
 
@@ -80,11 +80,29 @@ checkout once and it copies the file in:
 TABLER_ICONS_PATH=/path/to/tabler-icons node scripts/generate-tabler-icons.mjs
 ```
 
-`mapping.json` is the source of truth: it maps each export name to a Tabler
-outline icon, with an optional stroke width. The generator refuses to write a
-module unless the mapping covers every export that module currently has, so a
-conversion cannot silently drop an export and break its import sites. The tests
-pin the same agreement in the committed tree.
+`mapping.json` is the source of truth: it maps each export name to an icon, with
+an optional stroke width. The generator refuses to write a module unless the
+mapping covers every export that module currently has, so a conversion cannot
+silently drop an export and break its import sites. The tests pin the same
+agreement in the committed tree.
+
+## Icon sets
+
+Each mapping entry names its glyph under the key of the set it comes from:
+
+| Key      | Assets                  | Licence    |
+| -------- | ----------------------- | ---------- |
+| `tabler` | `src/assets/tabler`     | MIT        |
+| `garden` | `src/assets/gardenSvg`  | Apache 2.0 |
+
+Garden is Bluesky's own icon set. It supplies the repost mark, which Tabler has
+no equivalent for: the nearest Tabler glyph, `arrows-random`, reads as scattered
+arrows rather than a loop.
+
+Garden draws on a 12 unit view box where Tabler draws on 24, so the generator
+reads the view box out of each SVG and writes it into the module whenever it
+differs from Tabler's. Garden's stroke-styled icons are drawn as fills, so they
+map to `createTablerFilledIcon` and ignore any stroke width.
 
 ## What is not converted
 
