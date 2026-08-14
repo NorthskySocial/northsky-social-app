@@ -40,6 +40,8 @@ import {ImageContextMenu} from '#/components/Post/Embed/ImageContextMenu'
 import {PostEmbedViewContext} from '#/components/Post/Embed/types'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
+// northsky: size-independent press feedback
+import {PRESS_SHRINK_PX, scaleForDelta} from '#/brand'
 import {IS_ANDROID, IS_WEB} from '#/env'
 
 export * from './const'
@@ -472,7 +474,15 @@ function GalleryImage({
               },
               a.transition_transform,
               {transitionDuration: '200ms'},
-              pressed && {transform: [{scale: 0.99}]},
+              /* northsky: a fixed ratio shrinks a wide item much further than a
+               * narrow one. The Pressable wraps the image exactly, so shrink it
+               * by a set distance off its known dims. */
+              pressed && {
+                transform: [
+                  {scaleX: scaleForDelta(dims.width, -PRESS_SHRINK_PX)},
+                  {scaleY: scaleForDelta(dims.height, -PRESS_SHRINK_PX)},
+                ],
+              },
             ]),
           ]}>
           <Image
