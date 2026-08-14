@@ -1,9 +1,19 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
-export const Trending2_Stroke2_Corner2_Rounded = createSinglePathSVG({
-  path: 'm18.192 5.004 1.864 5.31a1 1 0 0 0 1.887-.662L20.08 4.34c-.665-1.893-3.378-1.741-3.834.207l-3.381 14.449-2.985-9.605C9.3 7.531 6.684 7.506 6.07 9.355l-1.18 3.56-.969-2.312a1 1 0 0 0-1.844.772l.97 2.315c.715 1.71 3.159 1.613 3.741-.144l1.18-3.56 2.985 9.605c.607 1.952 3.392 1.848 3.857-.138l3.381-14.449Z',
+/** Tabler: wave-sine (outline) */
+export const Trending2_Stroke2_Corner2_Rounded = createTablerIcon({
+  paths: [
+    'M21 12h-2c-.894 0 -1.662 -.857 -1.761 -2c-.296 -3.45 -.749 -6 -2.749 -6s-2.5 3.582 -2.5 8s-.5 8 -2.5 8s-2.452 -2.547 -2.749 -6c-.1 -1.147 -.867 -2 -1.763 -2h-2',
+  ],
 })
 
-export const Trending3_Stroke2_Corner1_Rounded = createSinglePathSVG({
-  path: 'M15 7a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v5a1 1 0 1 1-2 0V9.414L14.414 15a2 2 0 0 1-2.828 0L9 12.414l-5.293 5.293a1 1 0 0 1-1.414-1.414L7.586 11a2 2 0 0 1 2.828 0L13 13.586 18.586 8H16a1 1 0 0 1-1-1Z',
+/** Tabler: trending-up (outline) */
+export const Trending3_Stroke2_Corner1_Rounded = createTablerIcon({
+  paths: ['M3 17l6 -6l4 4l8 -8', 'M14 7l7 0l0 7'],
 })

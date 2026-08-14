@@ -17,6 +17,8 @@ import {atoms as a, useTheme, web} from '#/alf'
 import {ArrowsDiagonalOut_Stroke2_Corner0_Rounded as Fullscreen} from '#/components/icons/ArrowsDiagonal'
 import {MediaInsetBorder} from '#/components/MediaInsetBorder'
 import {Text} from '#/components/Typography'
+// northsky: size-independent press feedback
+import {PRESS_SHRINK_PX, useMeasuredScale} from '#/brand'
 import {IS_NATIVE} from '#/env'
 
 export function ConstrainedImage({
@@ -118,6 +120,13 @@ export function AutoSizedImage({
   const isCropped = rawIsCropped && !cropDisabled
   const isContain = aspectRatio === undefined
   const hasAlt = !!image.alt
+
+  /* northsky: a fixed ratio shrinks a wide desktop image much further than a
+   * narrow mobile one. Measure the image and shrink it by a set distance.
+   * Only the web branches below read the scale, so only web pays for the
+   * measurement. */
+  const press = useMeasuredScale(-PRESS_SHRINK_PX)
+  const onPressLayout = IS_NATIVE ? undefined : press.onLayout
 
   const contents = (
     <Animated.View ref={containerRef} collapsable={false} style={{flex: 1}}>
@@ -225,6 +234,7 @@ export function AutoSizedImage({
           color: utils.alpha(t.atoms.bg.backgroundColor, 0.2),
           foreground: true,
         }}
+        onLayout={onPressLayout} // northsky: measure for the press scale below
         style={({pressed}) => [
           a.w_full,
           a.rounded_md,
@@ -234,7 +244,10 @@ export function AutoSizedImage({
           web([
             a.transition_transform,
             {transitionDuration: '200ms'},
-            pressed && {transform: [{scale: 0.99}]},
+            // northsky: shrink by a set distance, not a ratio
+            pressed && {
+              transform: [{scaleX: press.scaleX}, {scaleY: press.scaleY}],
+            },
           ]),
         ]}>
         {contents}
@@ -257,6 +270,7 @@ export function AutoSizedImage({
             color: utils.alpha(t.atoms.bg.backgroundColor, 0.2),
             foreground: true,
           }}
+          onLayout={onPressLayout} // northsky: measure for the press scale below
           style={({pressed}) => [
             a.h_full,
             a.rounded_md,
@@ -264,7 +278,10 @@ export function AutoSizedImage({
             web([
               a.transition_transform,
               {transitionDuration: '200ms'},
-              pressed && {transform: [{scale: 0.99}]},
+              // northsky: shrink by a set distance, not a ratio
+              pressed && {
+                transform: [{scaleX: press.scaleX}, {scaleY: press.scaleY}],
+              },
             ]),
           ]}>
           {contents}

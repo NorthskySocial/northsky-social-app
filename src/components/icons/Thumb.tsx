@@ -1,6 +1,14 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
-export const ThumbUp_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  viewBox: '0 0 21 19',
-  path: 'M9.61523 0C11.4562 0 12.8635 1.6429 12.5801 3.46191L12.1836 6H16.0635C18.4871 6.0002 20.3536 8.13859 20.0264 10.54L19.3447 15.54C19.0745 17.522 17.3811 19 15.3809 19H2C0.895431 19 0 18.1046 0 17V10C0 8.89543 0.895431 8 2 8H4.38184L8.10547 0.552734L8.17676 0.431641C8.36169 0.163675 8.66854 0 9 0H9.61523ZM6 9.23633V17H15.3809C16.3809 17 17.228 16.2614 17.3633 15.2705L18.0449 10.2705C18.2087 9.06976 17.2753 8.0002 16.0635 8H11.0166C10.7246 8 10.4468 7.87218 10.2568 7.65039C10.0669 7.42849 9.98332 7.13434 10.0283 6.8457L10.6035 3.1543C10.698 2.54844 10.2301 2.00093 9.61719 2L6 9.23633ZM2 17H4V10H2V17Z',
+/** Tabler: thumb-up (outline) */
+export const ThumbUp_Stroke2_Corner0_Rounded = createTablerIcon({
+  paths: [
+    'M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3',
+  ],
 })

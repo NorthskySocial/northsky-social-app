@@ -1,9 +1,17 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
-export const FlipVertical_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M3 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v5h-2V5H5v4H3V4Zm20 9H1v-2h22v2Zm-2.293 7.707A1 1 0 0 1 20 21h-1v-2h2v1a1 1 0 0 1-.293.707ZM17 19v2h-2v-2h2Zm-4 0v2h-2v-2h2Zm-4 0v2H7v-2h2Zm-4 0v2H4a1 1 0 0 1-1-1v-1h2Zm0-2H3v-2h2v2Zm14-2v2h2v-2h-2Z',
+/** Tabler: flip-vertical (outline) */
+export const FlipVertical_Stroke2_Corner0_Rounded = createTablerIcon({
+  paths: ['M3 12l18 0', 'M7 16l10 0l-10 5l0 -5', 'M7 8l10 0l-10 -5l0 5'],
 })
 
-export const FlipHorizontal_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M4 21a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5v2H5v14h4v2H4Zm9-20v22h-2V1h2Zm7.707 2.293A1 1 0 0 1 21 4v1h-2V3h1a1 1 0 0 1 .707.293ZM19 7h2v2h-2V7Zm0 4h2v2h-2v-2Zm0 4h2v2h-2v-2Zm0 4h2v1a1 1 0 0 1-1 1h-1v-2Zm-2 0v2h-2v-2h2ZM15 5h2V3h-2v2Z',
+/** Tabler: flip-horizontal (outline) */
+export const FlipHorizontal_Stroke2_Corner0_Rounded = createTablerIcon({
+  paths: ['M12 3l0 18', 'M16 7l0 10l5 0l-5 -10', 'M8 7l0 10l-5 0l5 -10'],
 })

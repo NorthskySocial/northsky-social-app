@@ -1,5 +1,17 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
-export const ListSparkle_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M4 5a1 1 0 0 0 0 2h16a1 1 0 1 0 0-2H4Zm0 12a1 1 0 1 0 0 2h3a1 1 0 1 0 0-2H4Zm-1-5a1 1 0 0 1 1-1h5a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1Zm14-3a1 1 0 0 1 .92.606l1.342 3.132 3.132 1.343a1 1 0 0 1 0 1.838l-3.132 1.343-1.343 3.132a1 1 0 0 1-1.838 0l-1.343-3.132-3.132-1.343a1 1 0 0 1 0-1.838l3.132-1.343 1.343-3.132A1 1 0 0 1 17 9Zm0 3.539-.58 1.355a1 1 0 0 1-.526.525L14.539 15l1.355.58a1 1 0 0 1 .525.526L17 17.461l.58-1.355a1 1 0 0 1 .526-.525L19.461 15l-1.355-.58a1 1 0 0 1-.525-.526L17 12.539Z',
+/** Tabler: filter-2-spark (outline) */
+export const ListSparkle_Stroke2_Corner0_Rounded = createTablerIcon({
+  paths: [
+    'M4 6h16',
+    'M6 12h9.5',
+    'M9 18h2.5',
+    'M19 21.5c.205 -.849 .641 -1.625 1.258 -2.242c.617 -.617 1.393 -1.053 2.242 -1.258c-.849 -.205 -1.625 -.641 -2.242 -1.258c-.617 -.617 -1.053 -1.393 -1.258 -2.242c-.205 .849 -.641 1.625 -1.258 2.242c-.617 .617 -1.393 1.053 -2.242 1.258c.849 .205 1.625 .641 2.242 1.258c.617 .617 1.053 1.393 1.258 2.242',
+  ],
 })

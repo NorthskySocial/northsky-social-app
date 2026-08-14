@@ -1,5 +1,15 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
-export const Key_Stroke2_Corner2_Rounded = createSinglePathSVG({
-  path: 'M3 12a4 4 0 0 1 7.212-2.385c.363.488.963.885 1.696.885h8.111l1.2 1.5-1.2 1.5h-1.783l-1.789-.894a1 1 0 0 0-.894 0l-1.79.894h-1.855c-.733 0-1.333.397-1.696.885A4 4 0 0 1 3 12Zm4-6a6 6 0 1 0 4.817 9.579.3.3 0 0 1 .076-.072l.017-.007H14a1 1 0 0 0 .447-.106L16 14.618l1.553.776c.139.07.292.106.447.106h2.02a2 2 0 0 0 1.561-.75l1.2-1.5a2 2 0 0 0 0-2.5l-1.2-1.5a2 2 0 0 0-1.562-.75h-8.11l-.016-.007a.3.3 0 0 1-.077-.071A6 6 0 0 0 7 6Zm0 7.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z',
+/** Tabler: key (outline) */
+export const Key_Stroke2_Corner2_Rounded = createTablerIcon({
+  paths: [
+    'M16.555 3.843l3.602 3.602a2.877 2.877 0 0 1 0 4.069l-2.643 2.643a2.877 2.877 0 0 1 -4.069 0l-.301 -.301l-6.558 6.558a2 2 0 0 1 -1.239 .578l-.175 .008h-1.172a1 1 0 0 1 -.993 -.883l-.007 -.117v-1.172a2 2 0 0 1 .467 -1.284l.119 -.13l.414 -.414h2v-2h2v-2l2.144 -2.144l-.301 -.301a2.877 2.877 0 0 1 0 -4.069l2.643 -2.643a2.877 2.877 0 0 1 4.069 0',
+    'M15 9h.01',
+  ],
 })

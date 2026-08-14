@@ -1,9 +1,26 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {
+  createTablerFilledIcon,
+  createTablerIcon,
+} from '#/features/tablerIcons/createTablerIcon'
 
-export const HomeOpen_Stoke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M11.37 1.724a1 1 0 0 1 1.26 0l8 6.5A1 1 0 0 1 21 9v11a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1v-5h-2v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 .37-.776l8-6.5ZM5 9.476V19h4v-5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v5h4V9.476l-7-5.688-7 5.688Z',
+/** Tabler: home-2 (outline) */
+export const HomeOpen_Stoke2_Corner0_Rounded = createTablerIcon({
+  paths: [
+    'M5 12l-2 0l9 -9l9 9l-2 0',
+    'M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7',
+    'M10 12h4v4h-4l0 -4',
+  ],
 })
 
-export const HomeOpen_Filled_Corner0_Rounded = createSinglePathSVG({
-  path: 'M12.63 1.724a1 1 0 0 0-1.26 0l-8 6.5A1 1 0 0 0 3 9v11a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-6h4v6a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V9a1 1 0 0 0-.37-.776l-8-6.5Z',
+/** Tabler: home-2 (filled) */
+export const HomeOpen_Filled_Corner0_Rounded = createTablerFilledIcon({
+  paths: [
+    'M12.707 2.293l9 9c.63 .63 .184 1.707 -.707 1.707h-1v6a3 3 0 0 1 -3 3h-10a3 3 0 0 1 -3 -3v-6h-1c-.89 0 -1.337 -1.077 -.707 -1.707l9 -9a1 1 0 0 1 1.414 0m.793 8.707h-3a1.5 1.5 0 0 0 -1.5 1.5v3a1.5 1.5 0 0 0 1.5 1.5h3a1.5 1.5 0 0 0 1.5 -1.5v-3a1.5 1.5 0 0 0 -1.5 -1.5',
+  ],
 })

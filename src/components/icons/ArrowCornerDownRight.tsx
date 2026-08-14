@@ -1,13 +1,17 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
-export const ArrowCornerDownRight_Stroke2_Corner2_Rounded = createSinglePathSVG(
-  {
-    path: 'M15.793 10.293a1 1 0 0 1 1.338-.068l.076.068 3.293 3.293a2 2 0 0 1 .138 2.677l-.138.151-3.293 3.293a1 1 0 1 1-1.414-1.414L18.086 16H8a5 5 0 0 1-5-5V5a1 1 0 0 1 2 0v6a3 3 0 0 0 3 3h10.086l-2.293-2.293-.068-.076a1 1 0 0 1 .068-1.338Z',
-  },
-)
+/** Tabler: corner-down-right (outline) */
+export const ArrowCornerDownRight_Stroke2_Corner2_Rounded = createTablerIcon({
+  paths: ['M6 6v6a3 3 0 0 0 3 3h10l-4 -4m0 8l4 -4'],
+})
 
-export const ArrowCornerDownRight_Stroke2_Corner3_Rounded = createSinglePathSVG(
-  {
-    path: 'M5 5a1 1 0 0 0-2 0v4a7 7 0 0 0 7 7h8.086l-2.293 2.293a1 1 0 0 0 1.414 1.414l2.94-2.94a2.5 2.5 0 0 0 0-3.535l-2.94-2.94a1 1 0 1 0-1.414 1.415L18.086 14H10a5 5 0 0 1-5-5V5Z',
-  },
-)
+/** Tabler: corner-down-right (outline) */
+export const ArrowCornerDownRight_Stroke2_Corner3_Rounded = createTablerIcon({
+  paths: ['M6 6v6a3 3 0 0 0 3 3h10l-4 -4m0 8l4 -4'],
+})

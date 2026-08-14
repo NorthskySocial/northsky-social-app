@@ -1,9 +1,25 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
-export const DotGrid3x1_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M2 12a2 2 0 1 1 4 0 2 2 0 0 1-4 0Zm16 0a2 2 0 1 1 4 0 2 2 0 0 1-4 0Zm-6-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z',
+/** Tabler: dots (outline) */
+export const DotGrid3x1_Stroke2_Corner0_Rounded = createTablerIcon({
+  paths: [
+    'M4 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0',
+    'M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0',
+    'M18 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0',
+  ],
 })
 
-export const DotGrid2x3_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M9 17a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm6 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm-6-7a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm6 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4ZM9 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm6 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z',
+/** Tabler: dots-vertical (outline) */
+export const DotGrid2x3_Stroke2_Corner0_Rounded = createTablerIcon({
+  paths: [
+    'M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0',
+    'M11 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0',
+    'M11 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0',
+  ],
 })

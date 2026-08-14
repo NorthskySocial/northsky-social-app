@@ -1,9 +1,24 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
-export const Phone_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M5 4a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v16a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V4Zm3-1a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H8Zm2 2a1 1 0 0 1 1-1h2a1 1 0 1 1 0 2h-2a1 1 0 0 1-1-1Z',
+/** Tabler: phone (outline) */
+export const Phone_Stroke2_Corner0_Rounded = createTablerIcon({
+  paths: [
+    'M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2',
+  ],
 })
 
-export const PhoneHaptic_Stroke2_Corner2_Rounded = createSinglePathSVG({
-  path: 'M16 6a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6ZM2.87 7.225a1 1 0 0 1 1.337 1.482L3.155 9.759a.546.546 0 0 0-.05.714l.119.173c.52.827.52 1.88 0 2.707l-.12.174a.546.546 0 0 0 .051.714l1.052 1.052.069.076a1 1 0 0 1-1.407 1.406l-.076-.068-1.052-1.052a2.55 2.55 0 0 1-.237-3.328l.048-.075a.55.55 0 0 0 0-.504l-.048-.075a2.55 2.55 0 0 1 .237-3.328l1.052-1.052.076-.068Zm16.923.068a1 1 0 0 1 1.338-.068l.076.068 1.052 1.052.16.174c.696.837.78 2.03.209 2.958l-.133.196a.55.55 0 0 0 0 .654l.133.196a2.55 2.55 0 0 1-.21 2.958l-.16.174-1.05 1.052a1 1 0 1 1-1.415-1.414l1.052-1.052.064-.077a.55.55 0 0 0 .04-.552l-.053-.085a2.545 2.545 0 0 1 0-3.054l.052-.085a.55.55 0 0 0-.039-.552l-.064-.077-1.052-1.052-.068-.076a1 1 0 0 1 .068-1.338ZM13 6l.103.005a1 1 0 0 1 0 1.99L13 8h-2a1 1 0 1 1 0-2h2Zm5 12a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v12Z',
+/** Tabler: device-mobile-vibration (outline) */
+export const PhoneHaptic_Stroke2_Corner2_Rounded = createTablerIcon({
+  paths: [
+    'M3 5a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2l0 -14',
+    'M8 4l2 0',
+    'M9 17l0 .01',
+    'M21 6l-2 3l2 3l-2 3l2 3',
+  ],
 })

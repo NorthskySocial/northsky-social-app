@@ -1,5 +1,16 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
-export const BirthdayCake_Stroke2_Corner2_Rounded = createSinglePathSVG({
-  path: 'm12 .757 2.122 2.122A3 3 0 0 1 13 7.829V9h4.5a3 3 0 0 1 3 3v1.646c0 .603-.18 1.177-.5 1.658V19a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-3.696a3 3 0 0 1-.5-1.658V12a3 3 0 0 1 3-3H11V7.829a3 3 0 0 1-1.121-4.95L12 .757ZM6.5 11a1 1 0 0 0-1 1v1.646a1 1 0 0 0 .629.928l.5.2a1 1 0 0 0 .742 0l1.015-.405a3 3 0 0 1 2.228 0l1.015.405a1 1 0 0 0 .742 0l1.015-.405a3 3 0 0 1 2.228 0l1.015.405a1 1 0 0 0 .742 0l.5-.2a1 1 0 0 0 .629-.928V12a1 1 0 0 0-1-1h-11ZM6 16.674V19a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-2.326a3 3 0 0 1-2.114-.043l-1.015-.405a1 1 0 0 0-.742 0l-1.015.405a3 3 0 0 1-2.228 0l-1.015-.405a1 1 0 0 0-.742 0l-1.015.405A3 3 0 0 1 6 16.674ZM12.002 6a1 1 0 0 0 .706-1.707L12 3.586l-.707.707A1 1 0 0 0 12.002 6Z',
+/** Tabler: cake (outline) */
+export const BirthdayCake_Stroke2_Corner2_Rounded = createTablerIcon({
+  paths: [
+    'M3 20h18v-8a3 3 0 0 0 -3 -3h-12a3 3 0 0 0 -3 3v8',
+    'M3 14.803c.312 .135 .654 .204 1 .197a2.4 2.4 0 0 0 2 -1a2.4 2.4 0 0 1 2 -1a2.4 2.4 0 0 1 2 1a2.4 2.4 0 0 0 2 1a2.4 2.4 0 0 0 2 -1a2.4 2.4 0 0 1 2 -1a2.4 2.4 0 0 1 2 1a2.4 2.4 0 0 0 2 1c.35 .007 .692 -.062 1 -.197',
+    'M12 4l1.465 1.638a2 2 0 1 1 -3.015 .099l1.55 -1.737',
+  ],
 })

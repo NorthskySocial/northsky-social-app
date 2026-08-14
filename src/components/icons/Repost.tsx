@@ -1,21 +1,72 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
-export const Repost_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M16.293 2.293a1 1 0 0 1 1.414 0l3 3a1 1 0 0 1 0 1.414l-3 3a1 1 0 0 1-1.414-1.414L17.586 7H5v4a1 1 0 1 1-2 0V6a1 1 0 0 1 1-1h13.586l-1.293-1.293a1 1 0 0 1 0-1.414ZM21 13v5a1 1 0 0 1-1 1H6.414l1.293 1.293a1 1 0 1 1-1.414 1.414l-3-3a1 1 0 0 1 0-1.414l3-3a1 1 0 0 1 1.414 1.414L6.414 17H19v-4a1 1 0 1 1 2 0Z',
+/** Tabler: arrows-random (outline) */
+export const Repost_Stroke2_Corner0_Rounded = createTablerIcon({
+  paths: [
+    'M20 21h-4v-4',
+    'M16 21l5 -5',
+    'M6.5 9.504l-3.5 -2l2 -3.504',
+    'M3 7.504l6.83 -1.87',
+    'M4 16l4 -1l1 4',
+    'M8 15l-3.5 6',
+    'M21 5l-.5 4l-4 -.5',
+    'M20.5 9l-4.5 -5.5',
+  ],
 })
 
-export const Repost_Stroke2_Corner2_Rounded = createSinglePathSVG({
-  path: 'M17.957 2.293a1 1 0 1 0-1.414 1.414L17.836 5H6a3 3 0 0 0-3 3v3a1 1 0 1 0 2 0V8a1 1 0 0 1 1-1h11.836l-1.293 1.293a1 1 0 0 0 1.414 1.414l2.47-2.47a1.75 1.75 0 0 0 0-2.474l-2.47-2.47ZM20 12a1 1 0 0 1 1 1v3a3 3 0 0 1-3 3H6.164l1.293 1.293a1 1 0 1 1-1.414 1.414l-2.47-2.47a1.75 1.75 0 0 1 0-2.474l2.47-2.47a1 1 0 0 1 1.414 1.414L6.164 17H18a1 1 0 0 0 1-1v-3a1 1 0 0 1 1-1Z',
+/** Tabler: arrows-random (outline) */
+export const Repost_Stroke2_Corner2_Rounded = createTablerIcon({
+  paths: [
+    'M20 21h-4v-4',
+    'M16 21l5 -5',
+    'M6.5 9.504l-3.5 -2l2 -3.504',
+    'M3 7.504l6.83 -1.87',
+    'M4 16l4 -1l1 4',
+    'M8 15l-3.5 6',
+    'M21 5l-.5 4l-4 -.5',
+    'M20.5 9l-4.5 -5.5',
+  ],
 })
 
-export const Repost_Stroke2_Corner3_Rounded = createSinglePathSVG({
-  path: 'M16.793 2.293a1 1 0 0 1 1.414 0L20.5 4.586a2 2 0 0 1 0 2.828l-2.293 2.293a1 1 0 0 1-1.414-1.414L18.086 7H7a2 2 0 0 0-2 2v2a1 1 0 1 1-2 0V9a4 4 0 0 1 4-4h11.086l-1.293-1.293a1 1 0 0 1 0-1.414ZM20 12a1 1 0 0 1 1 1v2a4 4 0 0 1-4 4H5.914l1.293 1.293a1 1 0 1 1-1.414 1.414L3.5 19.414a2 2 0 0 1 0-2.828l2.293-2.293a1 1 0 0 1 1.414 1.414L5.914 17H17a2 2 0 0 0 2-2v-2a1 1 0 0 1 1-1Z',
+/** Tabler: arrows-random (outline) */
+export const Repost_Stroke2_Corner3_Rounded = createTablerIcon({
+  paths: [
+    'M20 21h-4v-4',
+    'M16 21l5 -5',
+    'M6.5 9.504l-3.5 -2l2 -3.504',
+    'M3 7.504l6.83 -1.87',
+    'M4 16l4 -1l1 4',
+    'M8 15l-3.5 6',
+    'M21 5l-.5 4l-4 -.5',
+    'M20.5 9l-4.5 -5.5',
+  ],
 })
 
-export const RepostRepost_Stroke2_Corner2_Rounded = createSinglePathSVG({
-  path: 'M6.043 14.293a1 1 0 1 1 1.414 1.414L5.164 18l2.293 2.293.068.076a1 1 0 0 1-1.406 1.406l-.076-.068-2.47-2.47a1.75 1.75 0 0 1 0-2.474l2.47-2.47Zm6.22 0a1 1 0 0 1 1.414 1.414L12.384 17H18a1 1 0 0 0 1-1v-3a1 1 0 1 1 2 0v3a3 3 0 0 1-3 3h-5.616l1.293 1.293.068.076a1 1 0 0 1-1.406 1.406l-.076-.068-2.47-2.47a1.75 1.75 0 0 1 0-2.474l2.47-2.47ZM3 11V8a3 3 0 0 1 3-3h5.586l-1.293-1.293-.068-.076a1 1 0 0 1 1.406-1.406l.076.068 2.47 2.47.12.133a1.75 1.75 0 0 1 0 2.209l-.12.132-2.47 2.47a1 1 0 1 1-1.414-1.414L11.586 7H6a1 1 0 0 0-1 1v3a1 1 0 1 1-2 0Zm13.543-8.707a1 1 0 0 1 1.338-.068l.076.068 2.47 2.47.12.133a1.75 1.75 0 0 1 0 2.209l-.12.132-2.47 2.47a1 1 0 1 1-1.414-1.414L18.836 6l-2.293-2.293-.068-.076a1 1 0 0 1 .068-1.338Z',
+/** Tabler: arrows-random (outline) */
+export const RepostRepost_Stroke2_Corner2_Rounded = createTablerIcon({
+  paths: [
+    'M20 21h-4v-4',
+    'M16 21l5 -5',
+    'M6.5 9.504l-3.5 -2l2 -3.504',
+    'M3 7.504l6.83 -1.87',
+    'M4 16l4 -1l1 4',
+    'M8 15l-3.5 6',
+    'M21 5l-.5 4l-4 -.5',
+    'M20.5 9l-4.5 -5.5',
+  ],
 })
 
-export const RepostStrike_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M2.293 2.293a1 1 0 0 1 1.414 0l18 18a1 1 0 0 1-1.414 1.414L17.586 19H6.414l1.293 1.293a1 1 0 0 1-1.414 1.414l-3-3a1 1 0 0 1 0-1.414l3-3a1 1 0 1 1 1.414 1.414L6.414 17h9.172L5.909 7.323A2 2 0 0 0 5 9v2a1 1 0 0 1-2 0V9c0-1.255.579-2.372 1.482-3.104L2.293 3.707a1 1 0 0 1 0-1.414M20 12a1 1 0 0 1 1 1v2a1 1 0 0 1-2 0v-2a1 1 0 0 1 1-1M16.293 2.293a1 1 0 0 1 1.414 0l3 3a1 1 0 0 1 0 1.414l-3 3a1 1 0 0 1-1.414-1.414L17.586 7H11a1 1 0 0 1 0-2h6.586l-1.293-1.293a1 1 0 0 1 0-1.414',
+/** Tabler: repeat-off (outline) */
+export const RepostStrike_Stroke2_Corner0_Rounded = createTablerIcon({
+  paths: [
+    'M4 12v-3c0 -1.336 .873 -2.468 2.08 -2.856m3.92 -.144h10m-3 -3l3 3l-3 3',
+    'M20 12v3a3 3 0 0 1 -.133 .886m-1.99 1.984a3 3 0 0 1 -.877 .13h-13m3 3l-3 -3l3 -3',
+    'M3 3l18 18',
+  ],
 })
