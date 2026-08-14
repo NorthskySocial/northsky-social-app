@@ -1,15 +1,17 @@
 /**
- * Rewrites icon modules in src/components/icons from vendored Tabler SVGs.
+ * Rewrites icon modules in src/components/icons from vendored SVGs.
  *
  * Run from the repository root:
  *   node scripts/generate-tabler-icons.mjs
  *
- * The SVGs under src/assets/tabler are the source of truth, so a regeneration
- * needs no external checkout. Set TABLER_ICONS_PATH to a tabler/tabler-icons
- * checkout only when the mapping starts naming an icon that is not vendored.
+ * The SVGs under src/assets/tabler and src/assets/gardenSvg are the source of
+ * truth, so a regeneration needs no external checkout. Set TABLER_ICONS_PATH to
+ * a tabler/tabler-icons checkout only when the mapping starts naming a Tabler
+ * icon that is not vendored.
  *
- * The mapping of export name to Tabler icon lives in
- * src/features/tablerIcons/mapping.json.
+ * The mapping of export name to icon lives in
+ * src/features/tablerIcons/mapping.json. Each entry names its icon under the
+ * key of the set it comes from, either "tabler" or "garden".
  *
  * The generator refuses to write a file unless the mapping covers every export
  * that file currently has. Dropping an export breaks its import sites, and a
@@ -27,7 +29,7 @@ import {fileURLToPath} from 'node:url'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const ICONS_DIR = join(ROOT, 'src', 'components', 'icons')
-const ASSETS_DIR = join(ROOT, 'src', 'assets', 'tabler')
+const ASSETS_DIR = join(ROOT, 'src', 'assets')
 const MAPPING_FILE = join(
   ROOT,
   'src',
@@ -37,65 +39,92 @@ const MAPPING_FILE = join(
 )
 const MAPPING = JSON.parse(readFileSync(MAPPING_FILE, 'utf8'))
 
-const VARIANT_DIR = {
-  outline: join(ASSETS_DIR, 'outline'),
-  filled: join(ASSETS_DIR, 'filled'),
+/** The icon sets the mapping can draw from, keyed by their mapping key. */
+const SOURCES = {
+  tabler: {dir: join(ASSETS_DIR, 'tabler'), label: 'Tabler'},
+  garden: {dir: join(ASSETS_DIR, 'gardenSvg'), label: 'Garden'},
 }
 
-/** Every icon the mapping names, as [variant, fileName] pairs. */
+const VARIANTS = ['outline', 'filled']
+
+/** The view box `createTablerIcon` assumes when a module declares none. */
+const DEFAULT_VIEW_BOX = '0 0 24 24'
+
+/** Resolves a mapping entry to the file that holds its glyph. */
+function iconOf(spec) {
+  const source = Object.keys(SOURCES).find(key => spec[key] !== undefined)
+  const variant = spec.variant ?? 'outline'
+  if (!source || !VARIANTS.includes(variant)) return undefined
+  return {source, variant, name: spec[source]}
+}
+
+function iconPath({source, variant, name}) {
+  return join(SOURCES[source].dir, variant, `${name}.svg`)
+}
+
+/** Every icon the mapping names. */
 function mappedIcons() {
   const icons = []
   for (const exports of Object.values(MAPPING)) {
     for (const spec of Object.values(exports)) {
-      const variant = spec.variant ?? 'outline'
-      if (VARIANT_DIR[variant]) icons.push([variant, `${spec.tabler}.svg`])
+      const icon = iconOf(spec)
+      if (icon) icons.push(icon)
     }
   }
   return icons
 }
 
-/** Copies any newly mapped SVG in from a tabler/tabler-icons checkout. */
+/** Copies any newly mapped Tabler SVG in from a tabler/tabler-icons checkout. */
 function vendorMissingIcons() {
-  const missing = mappedIcons().filter(
-    ([variant, file]) => !existsSync(join(VARIANT_DIR[variant], file)),
-  )
+  const missing = mappedIcons().filter(icon => !existsSync(iconPath(icon)))
   if (missing.length === 0) return
 
-  const source = process.env.TABLER_ICONS_PATH
-  if (!source) {
-    console.error('These mapped icons are not vendored yet:')
-    for (const [variant, file] of missing) {
-      console.error(`  ${variant}/${file}`)
-    }
-    console.error('Set TABLER_ICONS_PATH to a tabler/tabler-icons checkout.')
-    process.exit(1)
+  const checkout = process.env.TABLER_ICONS_PATH
+  const copyable = checkout
+    ? missing.filter(icon => icon.source === 'tabler')
+    : []
+
+  for (const icon of copyable) {
+    copyFileSync(
+      join(checkout, 'icons', icon.variant, `${icon.name}.svg`),
+      iconPath(icon),
+    )
+    console.log(`vendored ${icon.variant}/${icon.name}.svg`)
   }
 
-  for (const [variant, file] of missing) {
-    copyFileSync(
-      join(source, 'icons', variant, file),
-      join(VARIANT_DIR[variant], file),
-    )
-    console.log(`vendored ${variant}/${file}`)
+  const unresolved = missing.filter(icon => !copyable.includes(icon))
+  if (unresolved.length === 0) return
+
+  console.error('These mapped icons are not vendored yet:')
+  for (const icon of unresolved) {
+    console.error(`  ${icon.source}/${icon.variant}/${icon.name}.svg`)
   }
+  if (unresolved.some(icon => icon.source === 'tabler')) {
+    console.error('Set TABLER_ICONS_PATH to a tabler/tabler-icons checkout.')
+  }
+  process.exit(1)
 }
 
 vendorMissingIcons()
 
-/** Reads the path data out of a Tabler SVG, in document order. */
-function tablerPaths(name, variant) {
-  const svg = readFileSync(join(VARIANT_DIR[variant], `${name}.svg`), 'utf8')
-  const paths = [...svg.matchAll(/<path\s+d="([^"]+)"/g)].map(m => m[1])
+/** Reads the path data and view box out of a vendored SVG, in document order. */
+function glyphOf(icon) {
+  const svg = readFileSync(iconPath(icon), 'utf8')
+  const paths = [...svg.matchAll(/<path[^>]*\sd="([^"]+)"/g)].map(m => m[1])
   if (paths.length === 0) {
-    throw new Error(`${name}.svg has no <path> elements`)
+    throw new Error(`${icon.name}.svg has no <path> elements`)
   }
   const others = svg.match(/<(circle|rect|line|polyline|ellipse)\b/g)
   if (others) {
     throw new Error(
-      `${name}.svg uses ${others.join(', ')}, which the generator cannot emit`,
+      `${icon.name}.svg uses ${others.join(', ')}, which the generator cannot emit`,
     )
   }
-  return paths
+  const viewBox = svg.match(/viewBox="([^"]+)"/)
+  if (!viewBox) {
+    throw new Error(`${icon.name}.svg declares no viewBox`)
+  }
+  return {paths, viewBox: viewBox[1]}
 }
 
 /** Export names the file declares today. */
@@ -106,42 +135,52 @@ function currentExports(file) {
 
 function render(entries) {
   const helpers = new Set()
+  const labels = new Set()
 
   const body = entries
     .map(([name, spec]) => {
-      const variant = spec.variant ?? 'outline'
+      const icon = iconOf(spec)
       const helper =
-        variant === 'filled' ? 'createTablerFilledIcon' : 'createTablerIcon'
+        icon.variant === 'filled'
+          ? 'createTablerFilledIcon'
+          : 'createTablerIcon'
       helpers.add(helper)
+      labels.add(SOURCES[icon.source].label)
 
-      const paths = tablerPaths(spec.tabler, variant)
-        .map(p => `    ${JSON.stringify(p)},`)
-        .join('\n')
+      const glyph = glyphOf(icon)
+      const paths = glyph.paths.map(p => `    ${JSON.stringify(p)},`).join('\n')
+      /* The helpers assume the Tabler view box, so only a different one is
+       * worth writing out. */
+      const box =
+        glyph.viewBox === DEFAULT_VIEW_BOX
+          ? ''
+          : `\n  viewBox: ${JSON.stringify(glyph.viewBox)},`
       /* A filled icon has no stroke, so a stroke width there is a mistake. */
       const width =
-        variant === 'filled' || spec.strokeWidth === undefined
+        icon.variant === 'filled' || spec.strokeWidth === undefined
           ? ''
           : `\n  strokeWidth: ${spec.strokeWidth},`
       const rotate =
         spec.rotate === undefined ? '' : `\n  rotate: ${spec.rotate},`
 
       return (
-        `/** Tabler: ${spec.tabler} (${variant}) */\n` +
+        `/** ${SOURCES[icon.source].label}: ${icon.name} (${icon.variant}) */\n` +
         `export const ${name} = ${helper}({\n` +
-        `  paths: [\n${paths}\n  ],${width}${rotate}\n})`
+        `  paths: [\n${paths}\n  ],${box}${width}${rotate}\n})`
       )
     })
     .join('\n\n')
 
   const imported = [...helpers].sort().join(', ')
+  const from = [...labels].sort().join(' and ')
 
   return (
     `/**\n` +
-    ` * Generated from Tabler icons. Do not edit by hand.\n` +
+    ` * Generated from ${from} icons. Do not edit by hand.\n` +
     ` *\n` +
     ` * Regenerate with scripts/generate-tabler-icons.mjs.\n` +
     ` */\n` +
-    `// northsky: upstream glyphs replaced with Tabler icons\n` +
+    `// northsky: upstream glyphs replaced with ${from} icons\n` +
     `import {${imported}} from '#/features/tablerIcons/createTablerIcon'\n\n` +
     `${body}\n`
   )
@@ -171,11 +210,12 @@ for (const [file, exports] of Object.entries(MAPPING)) {
     continue
   }
 
-  const badVariant = mapped.filter(
-    name => !VARIANT_DIR[exports[name].variant ?? 'outline'],
-  )
-  if (badVariant.length) {
-    skipped.push([file, `unknown variant on ${badVariant.join(', ')}`])
+  const unresolved = mapped.filter(name => !iconOf(exports[name]))
+  if (unresolved.length) {
+    skipped.push([
+      file,
+      `no source or unknown variant on ${unresolved.join(', ')}`,
+    ])
     continue
   }
 

@@ -966,16 +966,20 @@
   },
   "Repost.tsx": {
     "Repost_Stroke2_Corner0_Rounded": {
-      "tabler": "arrows-random"
+      "garden": "arrow-retweet-stroke-12",
+      "variant": "filled"
     },
     "Repost_Stroke2_Corner2_Rounded": {
-      "tabler": "arrows-random"
+      "garden": "arrow-retweet-stroke-12",
+      "variant": "filled"
     },
     "Repost_Stroke2_Corner3_Rounded": {
-      "tabler": "arrows-random"
+      "garden": "arrow-retweet-stroke-12",
+      "variant": "filled"
     },
     "RepostRepost_Stroke2_Corner2_Rounded": {
-      "tabler": "arrows-random"
+      "garden": "arrow-retweet-stroke-12",
+      "variant": "filled"
     },
     "RepostStrike_Stroke2_Corner0_Rounded": {
       "tabler": "repeat-off"

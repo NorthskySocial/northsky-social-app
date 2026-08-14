@@ -18,6 +18,10 @@ import {
   OpenQuote_Stroke2_Corner0_Rounded,
 } from '#/components/icons/Quote'
 import {
+  Repost_Stroke2_Corner2_Rounded,
+  RepostStrike_Stroke2_Corner0_Rounded,
+} from '#/components/icons/Repost'
+import {
   createTablerFilledIcon,
   createTablerIcon,
   DEFAULT_STROKE_WIDTH,
@@ -172,6 +176,14 @@ describe('createTablerFilledIcon', () => {
     expect(Icon.svgStrokeWidth).toBe(0)
     expect(Icon.svgPaths).toEqual(FILLED)
   })
+
+  it('honours a custom view box', () => {
+    const Icon = createTablerFilledIcon({paths: FILLED, viewBox: '0 0 12 12'})
+    const tree = render(<Icon />)
+
+    expect(Icon.svgViewBox).toBe('0 0 12 12')
+    expect(propsOf(tree.UNSAFE_getAllByType(Svg)[0]).viewBox).toBe('0 0 12 12')
+  })
 })
 
 describe('rotation', () => {
@@ -233,7 +245,7 @@ describe('rotation', () => {
 describe('icon mapping', () => {
   const entries = Object.entries(mapping) as [
     string,
-    Record<string, {tabler: string; strokeWidth?: number}>,
+    Record<string, {tabler?: string; garden?: string; strokeWidth?: number}>,
   ][]
 
   it('covers every listed module with at least one export', () => {
@@ -243,10 +255,13 @@ describe('icon mapping', () => {
     }
   })
 
-  it('names a Tabler icon for every export', () => {
+  it('names exactly one vendored icon for every export', () => {
     for (const [file, exports] of entries) {
       for (const [name, spec] of Object.entries(exports)) {
-        expect(`${file}:${name}:${spec.tabler}`).toMatch(
+        const named = [spec.tabler, spec.garden].filter(
+          icon => icon !== undefined,
+        )
+        expect(`${file}:${name}:${named.join(',')}`).toMatch(
           /^[\w.]+:\w+:[a-z0-9-]+$/,
         )
       }
@@ -285,6 +300,13 @@ describe('generated icon modules', () => {
     expect(Image_Stroke1_Corner0_Rounded.svgStrokeWidth).toBeLessThan(
       Image_Stroke2_Corner0_Rounded.svgStrokeWidth,
     )
+  })
+
+  it('draws Repost as a filled Garden glyph on its own view box', () => {
+    /* Garden draws at 12 units, where the rest of the set draws at 24. */
+    expect(Repost_Stroke2_Corner2_Rounded.svgViewBox).toBe('0 0 12 12')
+    expect(Repost_Stroke2_Corner2_Rounded.svgStrokeWidth).toBe(0)
+    expect(RepostStrike_Stroke2_Corner0_Rounded.svgViewBox).toBe('0 0 24 24')
   })
 
   it('gives Globe and Earth different glyphs', () => {
