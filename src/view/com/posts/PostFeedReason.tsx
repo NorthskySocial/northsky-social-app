@@ -75,7 +75,7 @@ export function PostFeedReason({
         style={styles.includeReason}
         to={makeProfileLink(reason.by)}
         label={
-          isOwner ? _(msg`Reposted by you`) : _(msg`Reposted by ${reposter}`)
+          isOwner ? _(msg`Reskeeted by you`) : _(msg`Reskeeted by ${reposter}`)
         }
         onPress={onOpenReposter}>
         <RepostIcon
@@ -92,9 +92,9 @@ export function PostFeedReason({
             ]}
             numberOfLines={1}>
             {isOwner ? (
-              <Trans>Reposted by you</Trans>
+              <Trans>Reskeeted by you</Trans>
             ) : (
-              <Trans>Reposted by {reposter}</Trans>
+              <Trans>Reskeeted by {reposter}</Trans>
             )}
           </Text>
         </ProfileHoverCard>
