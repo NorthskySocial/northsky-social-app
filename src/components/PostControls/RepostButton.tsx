@@ -66,9 +66,9 @@ let RepostButton = ({
           isReposted
             ? _(
                 msg({
-                  message: `Undo repost (${plural(repostCount || 0, {
-                    one: '# repost',
-                    other: '# reposts',
+                  message: `Undo reskeet (${plural(repostCount || 0, {
+                    one: '# reskeet',
+                    other: '# reskeets',
                   })})`,
                   comment:
                     'Accessibility label for the repost button when the post has been reposted, verb followed by number of reposts and noun',
@@ -76,9 +76,9 @@ let RepostButton = ({
               )
             : _(
                 msg({
-                  message: `Repost (${plural(repostCount || 0, {
-                    one: '# repost',
-                    other: '# reposts',
+                  message: `Reskeet (${plural(repostCount || 0, {
+                    one: '# reskeet',
+                    other: '# reskeets',
                   })})`,
                   comment:
                     'Accessibility label for the repost button when the post has not been reposted, verb form followed by number of reposts and noun form',
@@ -143,15 +143,15 @@ let RepostButtonDialogInner = ({
   const onPressClose = useCallback(() => control.close(), [control])
 
   return (
-    <Dialog.ScrollableInner label={_(msg`Repost or quote post`)}>
+    <Dialog.ScrollableInner label={_(msg`Reskeet or quote post`)}>
       <View style={a.gap_xl}>
         <View style={a.gap_xs}>
           <Button
             style={[a.justify_start, a.px_md, a.gap_sm]}
             label={
               isReposted
-                ? _(msg`Remove repost`)
-                : _(msg({message: `Repost`, context: 'action'}))
+                ? _(msg`Remove reskeet`)
+                : _(msg({message: `Reskeet`, context: 'action'}))
             }
             onPress={onPressRepost}
             size="large"
@@ -160,9 +160,9 @@ let RepostButtonDialogInner = ({
             <RepostIcon size="lg" fill={t.palette.primary_500} />
             <Text style={[a.font_semi_bold, a.text_xl]}>
               {isReposted ? (
-                <Trans>Remove repost</Trans>
+                <Trans>Remove reskeet</Trans>
               ) : (
-                <Trans context="action">Repost</Trans>
+                <Trans context="action">Reskeet</Trans>
               )}
             </Text>
           </Button>

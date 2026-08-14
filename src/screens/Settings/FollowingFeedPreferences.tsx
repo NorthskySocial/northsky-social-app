@@ -87,7 +87,7 @@ export function FollowingFeedPreferencesScreen({}: Props) {
           <Toggle.Item
             type="checkbox"
             name="show-reposts"
-            label={_(msg`Show reposts`)}
+            label={_(msg`Show reskeets`)}
             value={showReposts}
             onChange={value =>
               setFeedViewPref({
@@ -97,7 +97,7 @@ export function FollowingFeedPreferencesScreen({}: Props) {
             <SettingsList.Item>
               <SettingsList.ItemIcon icon={RepostIcon} />
               <SettingsList.ItemText>
-                <Trans>Show reposts</Trans>
+                <Trans>Show reskeets</Trans>
               </SettingsList.ItemText>
               <Toggle.Platform />
             </SettingsList.Item>

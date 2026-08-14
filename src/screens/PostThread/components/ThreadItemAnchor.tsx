@@ -477,19 +477,19 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
                   t.atoms.border_contrast_low,
                 ]}>
                 {post.repostCount != null && post.repostCount !== 0 ? (
-                  <Link to={repostsHref} label={l`Reposts of this post`}>
+                  <Link to={repostsHref} label={l`Reskeets of this post`}>
                     <Text
                       testID="repostCount-expanded"
                       style={[a.text_md, t.atoms.text_contrast_medium]}>
-                      <Trans comment="Repost count display, the <0> tags enclose the number of reposts in bold (will never be 0)">
+                      <Trans comment="Reskeet count display, the <0> tags enclose the number of reskeets in bold (will never be 0)">
                         <Text
                           style={[a.text_md, a.font_semi_bold, t.atoms.text]}>
                           {formatPostStatCount(post.repostCount)}
                         </Text>{' '}
                         <Plural
                           value={post.repostCount}
-                          one="repost"
-                          other="reposts"
+                          one="reskeet"
+                          other="reskeets"
                         />
                       </Trans>
                     </Text>

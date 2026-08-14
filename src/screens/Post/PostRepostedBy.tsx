@@ -28,13 +28,13 @@ export const PostRepostedByScreen = ({route}: Props) => {
           {post && (
             <>
               <Layout.Header.TitleText>
-                <Trans>Reposted By</Trans>
+                <Trans>Reskeeted By</Trans>
               </Layout.Header.TitleText>
               <Layout.Header.SubtitleText>
                 <Plural
                   value={quoteCount ?? 0}
-                  one="# repost"
-                  other="# reposts"
+                  one="# reskeet"
+                  other="# reskeets"
                 />
               </Layout.Header.SubtitleText>
             </>

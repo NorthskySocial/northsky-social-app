@@ -226,7 +226,7 @@ export function MutedOnlyReposts(props: CommonProps) {
   return (
     <LabelBase
       {...props}
-      label={l`Reposts Hidden`}
+      label={l`Reskeets Hidden`}
       icon={
         <RepostStrikeIcon
           width={size}

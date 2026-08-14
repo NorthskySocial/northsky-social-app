@@ -40,7 +40,7 @@ export const RepostButton = ({
   return hasSession ? (
     <EventStopper onKeyDown={false}>
       <Menu.Root>
-        <Menu.Trigger label={_(msg`Repost or quote post`)}>
+        <Menu.Trigger label={_(msg`Reskeet or quote post`)}>
           {({props}) => {
             return (
               <PostControlButton
@@ -64,15 +64,15 @@ export const RepostButton = ({
           <Menu.Item
             label={
               isReposted
-                ? _(msg`Undo repost`)
-                : _(msg({message: `Repost`, context: `action`}))
+                ? _(msg`Undo reskeet`)
+                : _(msg({message: `Reskeet`, context: `action`}))
             }
             testID="repostDropdownRepostBtn"
             onPress={onRepost}>
             <Menu.ItemText>
               {isReposted
-                ? _(msg`Undo repost`)
-                : _(msg({message: `Repost`, context: `action`}))}
+                ? _(msg`Undo reskeet`)
+                : _(msg({message: `Reskeet`, context: `action`}))}
             </Menu.ItemText>
             <Menu.ItemIcon icon={Repost} position="right" />
           </Menu.Item>
@@ -100,7 +100,7 @@ export const RepostButton = ({
       onPress={() => requireAuth(() => {})}
       active={isReposted}
       activeColor={t.palette.positive_500}
-      label={_(msg`Repost or quote post`)}
+      label={_(msg`Reskeet or quote post`)}
       big={big}>
       <PostControlButtonIcon icon={Repost} />
       {typeof repostCount !== 'undefined' && repostCount > 0 && (
