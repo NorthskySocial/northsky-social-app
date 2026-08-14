@@ -13,7 +13,6 @@ export const BRAND = {
   pdsServiceUrl: 'https://northsky.social',
   publicAppViewUrl: 'https://api.blacksky.community',
   publicAppViewDid: 'did:web:api.blacksky.community',
-  embedServiceUrl: 'https://embed.northsky.app',
   helpUrl: 'https://tally.so/r/yPN6k6',
   feedbackUrl:
     'https://userinput.app/#/s/did:plc:23cnpffmuf4vkpsnwhgyvljw/3mrrtpve7ab2f',
