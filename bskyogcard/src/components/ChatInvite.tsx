@@ -1,6 +1,7 @@
 /* eslint-disable bsky-internal/avoid-unwrapped-text */
 import {ChatBskyGroupDefs} from '@atproto/api'
 
+import {BRAND} from '../brand.js'
 import {Img} from './Img.js'
 
 export const CHAT_INVITE_HEIGHT = 630
@@ -22,14 +23,9 @@ export function ChatInvite({
         height: CHAT_INVITE_HEIGHT,
         display: 'flex',
         position: 'relative',
-        backgroundColor: '#006AFF',
+        // northsky: use the Northsky palette instead of Bluesky chat artwork.
+        backgroundColor: BRAND.backgroundColor,
       }}>
-      <Background
-        style={{
-          position: 'absolute',
-          inset: 0,
-        }}
-      />
       <div
         style={{
           width: '100%',
