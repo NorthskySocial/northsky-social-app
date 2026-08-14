@@ -20,6 +20,7 @@ func applyBrandGlobals(globals pongo2.Context) {
 	globals["ogSiteName"] = brand.OgSiteName
 	globals["twitterHandle"] = brand.TwitterHandle
 	globals["baseUrl"] = brand.BaseURL
+	globals["embedServiceUrl"] = brand.EmbedServiceURL
 }
 
 type RendererLoader struct {
