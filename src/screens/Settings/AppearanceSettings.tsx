@@ -176,7 +176,7 @@ export function AppearanceSettingsScreen({}: Props) {
                 icon={SpeakerphoneIcon}
                 items={[
                   {
-                    label: _(msg`Post`),
+                    label: _(msg`Posts`),
                     name: 'post',
                   },
                   {
