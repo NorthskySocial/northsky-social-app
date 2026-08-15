@@ -46,7 +46,7 @@ and they need HTTPS and a registered domain, so they never appear on
 | --- | --- | --- |
 | `STRIPE_SECRET_KEY` | Enables checkout. **A real secret: k8s Secret only.** | empty |
 | `STRIPE_PUBLISHABLE_KEY` | Sent to the app | empty |
-| `STRIPE_PORTAL_URL` | Customer portal login page. Empty hides the Manage Subscription button. | empty |
+| `STRIPE_PORTAL_URL` | Customer portal login page. Must be an https URL. Empty, or not https, hides the Manage Subscription button. | empty |
 | `DONATION_CURRENCY` | Three letter code | `usd` |
 | `DONATION_PRESETS_CENTS` | Comma separated amounts | `500,1000,2500,5000` |
 | `DONATION_MIN_CENTS` | Smallest accepted donation | `100` |
@@ -149,6 +149,15 @@ public by design. The secret key never leaves bskyweb.
 
 A **Manage Subscription** button appears below whenever `portalUrl` is set. It
 does not depend on checkout, so an environment can offer the portal on its own.
+
+A wrong portal URL only removes that button. The server drops a value that is
+not https, and the app drops one that survives anyway, so the donation form
+still works.
+
+**Native builds need the portal URL in `DONATIONS_CONFIG`.** `STRIPE_PORTAL_URL`
+reaches the web app only. Native reads the build-time config, so add `portalUrl`
+to that secret before the next EAS build. Without it, native donors default to a
+monthly donation with no way to cancel inside the app.
 
 Stripe returns the donor to `/support?session_id=...`. The screen reads the
 status once, then removes the parameter so a reload does not repeat the

@@ -112,6 +112,25 @@ func TestClientConfigLiteral(t *testing.T) {
 	})
 }
 
+func TestSanitizePortalURL(t *testing.T) {
+	const valid = "https://billing.stripe.com/p/login/tetsuo"
+	if got := sanitizePortalURL(valid); got != valid {
+		t.Errorf("expected an https url to survive, got %q", got)
+	}
+	for _, raw := range []string{
+		"",
+		"billing.stripe.com/p/login/tetsuo",
+		"http://billing.stripe.com/p/login/tetsuo",
+		"javascript:alert(1)",
+		"https://",
+		"://nope",
+	} {
+		if got := sanitizePortalURL(raw); got != "" {
+			t.Errorf("expected %q to be dropped, got %q", raw, got)
+		}
+	}
+}
+
 func TestJsStringLiteral(t *testing.T) {
 	got := jsStringLiteral(`{"note":"</script><img src=x onerror=alert(1)>"}`)
 	if strings.ContainsAny(got, "<>") {

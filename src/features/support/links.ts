@@ -22,9 +22,17 @@ const donationsConfigSchema = z.object({
   publishableKey: z.string().optional(),
   /**
    * Stripe customer portal login page. A donor enters their email and Stripe
-   * sends a one-time link, so this app stores no customer id.
+   * sends a one-time link, so this app stores no customer id. A bad value falls
+   * back to undefined instead of failing the parse, because one wrong URL must
+   * not hide the donation form. Native builds read this from the bundle, where
+   * the server cannot check it first.
    */
-  portalUrl: z.string().url().optional(),
+  portalUrl: z
+    .string()
+    .url()
+    .startsWith('https://')
+    .optional()
+    .catch(undefined),
   presetsCents: z.array(z.number().int().positive()).optional(),
   minCents: z.number().int().positive().optional(),
   maxCents: z.number().int().positive().optional(),

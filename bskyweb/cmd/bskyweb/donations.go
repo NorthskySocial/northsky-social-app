@@ -68,6 +68,22 @@ func (cfg *donationsConfig) enabled() bool {
 	return cfg != nil && cfg.secretKey != ""
 }
 
+// sanitizePortalURL accepts an https URL and drops anything else. A bad value
+// must not stop the service or hide the donation form, so an invalid URL is
+// logged and discarded, the same way an invalid preset is. The https rule also
+// keeps a javascript: URL out of the page.
+func sanitizePortalURL(raw string) string {
+	if raw == "" {
+		return ""
+	}
+	parsed, err := url.Parse(raw)
+	if err != nil || parsed.Scheme != "https" || parsed.Host == "" {
+		slog.Warn("ignoring an invalid STRIPE_PORTAL_URL; it must be an https URL")
+		return ""
+	}
+	return raw
+}
+
 // isLocalhostOrigin reports whether an origin is a local development server.
 // It is used in debug mode only.
 func isLocalhostOrigin(origin string) bool {

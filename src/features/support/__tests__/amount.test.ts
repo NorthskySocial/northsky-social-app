@@ -44,6 +44,10 @@ describe('defaultPresetCents', () => {
   it('falls back to the first preset when the default is absent', () => {
     expect(defaultPresetCents([300, 1000])).toBe(300)
   })
+
+  it('falls back to the default when there are no presets', () => {
+    expect(defaultPresetCents([])).toBe(DEFAULT_AMOUNT_CENTS)
+  })
 })
 
 describe('isAmountInRange', () => {

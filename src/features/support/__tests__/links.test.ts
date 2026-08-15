@@ -68,10 +68,19 @@ describe('parseDonationsConfig', () => {
     })
   })
 
-  it('returns null when the portal url is not a URL', () => {
-    expect(
-      parseDonationsConfig('{"currency":"usd","portalUrl":"akira"}'),
-    ).toBeNull()
+  it('drops a bad portal url but keeps the rest of the config', () => {
+    for (const bad of [
+      'akira',
+      'billing.stripe.com/p/login/tetsuo',
+      'http://billing.stripe.com/p/login/tetsuo',
+      'javascript:alert(1)',
+    ]) {
+      expect(
+        parseDonationsConfig(
+          JSON.stringify({currency: 'usd', checkout: true, portalUrl: bad}),
+        ),
+      ).toEqual({currency: 'usd', checkout: true})
+    }
   })
 })
 
