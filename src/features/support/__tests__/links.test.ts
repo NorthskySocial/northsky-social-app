@@ -1,4 +1,6 @@
 import {
+  DEFAULT_INTERVAL,
+  defaultLinkInterval,
   encodeDid,
   getDonationUrl,
   getPresetAmounts,
@@ -81,6 +83,29 @@ describe('parseDonationsConfig', () => {
         ),
       ).toEqual({currency: 'usd', checkout: true})
     }
+  })
+})
+
+describe('defaultLinkInterval', () => {
+  it('starts on monthly when monthly links exist', () => {
+    expect(defaultLinkInterval(CONFIG)).toBe('monthly')
+    expect(DEFAULT_INTERVAL).toBe('monthly')
+  })
+
+  it('starts on one-time when no monthly link exists', () => {
+    expect(
+      defaultLinkInterval({currency: 'usd', oneTime: CONFIG.oneTime}),
+    ).toBe('oneTime')
+    expect(defaultLinkInterval({currency: 'usd'})).toBe('oneTime')
+  })
+
+  it('ignores a monthly section that has only a custom link', () => {
+    expect(
+      defaultLinkInterval({
+        currency: 'usd',
+        monthly: {custom: 'https://donate.stripe.com/custom-monthly'},
+      }),
+    ).toBe('oneTime')
   })
 })
 

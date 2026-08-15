@@ -64,6 +64,20 @@ export function parseDonationsConfig(
   return result.data
 }
 
+/** The frequency the form offers first. */
+export const DEFAULT_INTERVAL: DonationInterval = 'monthly'
+
+/**
+ * The frequency to select first from payment links. Monthly needs a link per
+ * amount, so without those links the form falls back to one-time. Otherwise the
+ * frequency control hides itself and the amount list renders empty.
+ */
+export function defaultLinkInterval(config: DonationsConfig): DonationInterval {
+  return getPresetAmounts(config, 'monthly').length > 0
+    ? DEFAULT_INTERVAL
+    : 'oneTime'
+}
+
 /**
  * Amounts that have a configured link for the interval, in ascending order.
  */

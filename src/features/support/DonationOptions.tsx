@@ -9,6 +9,7 @@ import * as SegmentedControl from '#/components/forms/SegmentedControl'
 import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
 import {
+  defaultLinkInterval,
   type DonationInterval,
   type DonationsConfig,
   getDonationUrl,
@@ -21,7 +22,7 @@ export function DonationOptions({config}: {config: DonationsConfig}) {
   const {currentAccount} = useSession()
   const monthlyAvailable = getPresetAmounts(config, 'monthly').length > 0
   const [frequency, setFrequency] = useState<DonationInterval>(
-    monthlyAvailable ? 'monthly' : 'oneTime',
+    defaultLinkInterval(config),
   )
 
   const amounts = getPresetAmounts(config, frequency)

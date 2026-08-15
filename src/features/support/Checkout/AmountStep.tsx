@@ -14,7 +14,11 @@ import {
   isAmountInRange,
   parseAmountInput,
 } from '../amount'
-import {type DonationInterval, type DonationsConfig} from '../links'
+import {
+  DEFAULT_INTERVAL,
+  type DonationInterval,
+  type DonationsConfig,
+} from '../links'
 
 const FALLBACK_PRESETS = [500, 1000, 2500, 5000]
 
@@ -35,7 +39,7 @@ export function AmountStep({
   const minCents = config.minCents ?? DEFAULT_MIN_CENTS
   const maxCents = config.maxCents ?? DEFAULT_MAX_CENTS
 
-  const [interval, setInterval] = useState<DonationInterval>('monthly')
+  const [interval, setInterval] = useState<DonationInterval>(DEFAULT_INTERVAL)
   const [amountCents, setAmountCents] = useState(defaultPresetCents(presets))
   const [customInput, setCustomInput] = useState('')
 
