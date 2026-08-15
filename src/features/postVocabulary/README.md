@@ -1,49 +1,46 @@
 # postVocabulary
 
-Northsky calls a post a skeet and a repost a reskeet. This module makes that a
-user preference instead of a hardcoded rename.
+Northsky calls a post a skeet. This module lets the user choose the wording on
+the two compose buttons.
 
 The setting lives under **Settings > Appearance**, is titled "They're called",
 and offers **Post** and **Skeets**. It defaults to **Skeets**, which is what the
 app shipped before the setting existed.
 
+## Scope
+
+The setting reaches two buttons:
+
+- the compose button in the desktop left sidebar
+- the publish button in the composer, and the label a screen reader reads for it
+
+Nothing else follows the setting. Feed lines, screen headers, notification text,
+and the repost controls keep the skeet wording that commit `24c2ff3ff` gave
+them. Keeping the scope this small keeps the upstream merge surface small: the
+whole setting is two edited upstream files.
+
 ## Why a module
 
-Commit `24c2ff3ff` renamed the wording in place, inside Lingui macros across 14
-files. A Lingui macro compiles to a fixed message at build time, so a running
-app cannot re-point one. Both wordings have to be authored.
-
-Authoring them at every call site would put a ternary in 20 upstream files.
-Authoring them here keeps each upstream edit down to a token swap, which is the
-cheapest thing to re-apply during an upstream sync. See the fork rules in
-`AGENTS.md`.
+A Lingui macro compiles to a fixed message at build time, so a running app
+cannot re-point one. Both wordings have to be authored. Authoring them here
+keeps each upstream edit down to a token swap, which is the cheapest thing to
+re-apply during an upstream sync. See the fork rules in `AGENTS.md`.
 
 ## The two hooks
 
-`usePostVocabulary()` returns one object of translated strings. Most call sites
-want this:
+`usePostVocabulary()` returns the button strings for the current setting:
 
 ```tsx
 const vocab = usePostVocabulary()
-;<Button label={vocab.repost} />
+;<ButtonText>{vocab.newPost}</ButtonText>
 ```
 
-`usePostNaming()` returns `'post'` or `'skeet'`. Five call sites need it,
-because their message interpolates a React element and so cannot collapse to a
-string. Those pick between two complete `<Trans>` blocks.
+`usePostNaming()` returns `'post'` or `'skeet'`. Only the setting screen needs
+it, to show which choice is active.
 
-## Adding a string
+## Realtime
 
-Add a field to `vocabulary.ts` with both wordings. Take the skeet wording from
-`git show 24c2ff3ff` where that commit already wrote it, so the two stay in
-agreement, and take the post wording from what that commit replaced.
-
-A field that varies with a count is a function, so that `plural()` sees the
-count. `repostCount` and `repostNoun` differ in whether the number is part of
-the returned string.
-
-## Performance
-
-The state provider reads device storage once and shares the value through
-context. `useStorage` cannot do that job: it opens an MMKV listener per caller
-and rebuilds it every render, and the repost button renders once per feed row.
+The setting screen and the left sidebar are siblings. A change has to relabel
+the compose button while the setting is still on screen, so the provider holds
+the value in React state and shares it through context. `useStorage` cannot do
+that job: it opens an MMKV listener per caller and rebuilds it every render.

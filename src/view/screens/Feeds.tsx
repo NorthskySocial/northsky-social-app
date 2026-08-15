@@ -45,8 +45,6 @@ import * as Layout from '#/components/Layout'
 import {Link} from '#/components/Link'
 import * as ListCard from '#/components/ListCard'
 import {IS_NATIVE, IS_WEB} from '#/env'
-// northsky: wording follows the "They're called" setting
-import {usePostVocabulary} from '#/features/postVocabulary'
 
 type Props = NativeStackScreenProps<CommonNavigatorParams, 'Feeds'>
 
@@ -127,8 +125,6 @@ export function FeedsScreen(_props: Props) {
     hasNextPage: hasNextPopularFeedsPage,
   } = useGetPopularFeedsQuery()
   const {_} = useLingui()
-  // northsky: wording follows the "They're called" setting
-  const vocab = usePostVocabulary()
   const {
     data: searchResults,
     mutate: search,
@@ -546,7 +542,7 @@ export function FeedsScreen(_props: Props) {
           onPress={onPressCompose}
           icon={<EditBigIcon size="lg" fill={t.palette.white} />}
           accessibilityRole="button"
-          accessibilityLabel={vocab.newPost}
+          accessibilityLabel={_(msg`New post`)}
           accessibilityHint=""
         />
       )}

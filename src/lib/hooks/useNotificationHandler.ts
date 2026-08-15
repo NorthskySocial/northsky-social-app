@@ -17,8 +17,6 @@ import {useLoggedOutViewControls} from '#/state/shell/logged-out'
 import {useCloseAllActiveElements} from '#/state/util'
 import {useAnalytics} from '#/analytics'
 import {IS_ANDROID, IS_IOS} from '#/env'
-// northsky: wording follows the "They're called" setting
-import {usePostVocabulary} from '#/features/postVocabulary'
 import {resetToTab} from '#/Navigation'
 import {router} from '#/routes'
 
@@ -119,8 +117,6 @@ export function useNotificationsHandler() {
   const {setShowLoggedOut} = useLoggedOutViewControls()
   const closeAllActiveElements = useCloseAllActiveElements()
   const {t: l} = useLingui()
-  // northsky: wording follows the "They're called" setting
-  const vocab = usePostVocabulary()
 
   // On Android, we cannot control which sound is used for a notification on Android
   // 28 or higher. Instead, we have to configure a notification channel ahead of time
@@ -166,7 +162,7 @@ export function useNotificationsHandler() {
     void Notifications.setNotificationChannelAsync(
       'repost' satisfies NotificationReason,
       {
-        name: vocab.reposts,
+        name: l`Reskeets`,
         importance: Notifications.AndroidImportance.HIGH,
       },
     )
@@ -201,14 +197,14 @@ export function useNotificationsHandler() {
     void Notifications.setNotificationChannelAsync(
       'like-via-repost' satisfies NotificationReason,
       {
-        name: vocab.likesOfYourReposts,
+        name: l`Likes of your reskeets`,
         importance: Notifications.AndroidImportance.HIGH,
       },
     )
     void Notifications.setNotificationChannelAsync(
       'repost-via-repost' satisfies NotificationReason,
       {
-        name: vocab.repostsOfYourReposts,
+        name: l`Reskeets of your reskeets`,
         importance: Notifications.AndroidImportance.HIGH,
       },
     )
@@ -219,7 +215,7 @@ export function useNotificationsHandler() {
         importance: Notifications.AndroidImportance.HIGH,
       },
     )
-  }, [l, vocab])
+  }, [l])
 
   useEffect(() => {
     const handleNotification = (payload?: NotificationPayload) => {

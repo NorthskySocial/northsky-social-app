@@ -1,4 +1,5 @@
-// northsky: wording follows the "They're called" setting
+import {Plural, Trans} from '@lingui/react/macro'
+
 import {
   type CommonNavigatorParams,
   type NativeStackScreenProps,
@@ -7,12 +8,9 @@ import {makeRecordUri} from '#/lib/strings/url-helpers'
 import {usePostQuery} from '#/state/queries/post'
 import {PostRepostedBy as PostRepostedByComponent} from '#/view/com/post-thread/PostRepostedBy'
 import * as Layout from '#/components/Layout'
-import {usePostVocabulary} from '#/features/postVocabulary'
 
 type Props = NativeStackScreenProps<CommonNavigatorParams, 'PostRepostedBy'>
 export const PostRepostedByScreen = ({route}: Props) => {
-  // northsky: wording follows the "They're called" setting
-  const vocab = usePostVocabulary()
   const {name, rkey} = route.params
   const uri = makeRecordUri(name, 'app.bsky.feed.post', rkey)
   const {data: post} = usePostQuery(uri)
@@ -29,12 +27,15 @@ export const PostRepostedByScreen = ({route}: Props) => {
         <Layout.Header.Content>
           {post && (
             <>
-              {/* northsky: wording follows the "They're called" setting */}
               <Layout.Header.TitleText>
-                {vocab.repostedByHeader}
+                <Trans>Reskeeted By</Trans>
               </Layout.Header.TitleText>
               <Layout.Header.SubtitleText>
-                {vocab.repostCount(quoteCount ?? 0)}
+                <Plural
+                  value={quoteCount ?? 0}
+                  one="# reskeet"
+                  other="# reskeets"
+                />
               </Layout.Header.SubtitleText>
             </>
           )}

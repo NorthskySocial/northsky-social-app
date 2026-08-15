@@ -36,8 +36,6 @@ import * as Layout from '#/components/Layout'
 import {InlineLinkText, Link} from '#/components/Link'
 import {Loader} from '#/components/Loader'
 import {IS_NATIVE} from '#/env'
-// northsky: wording follows the "They're called" setting
-import {usePostVocabulary} from '#/features/postVocabulary'
 
 // We don't currently persist this across reloads since
 // you gotta visit All to clear the badge anyway.
@@ -50,8 +48,6 @@ type Props = NativeStackScreenProps<
 >
 export function NotificationsScreen({}: Props) {
   const {_} = useLingui()
-  // northsky: wording follows the "They're called" setting
-  const vocab = usePostVocabulary()
   const t = useTheme()
   const {openComposer} = useOpenComposer()
   const unreadNotifs = useUnreadNotifications()
@@ -166,7 +162,7 @@ export function NotificationsScreen({}: Props) {
         onPress={() => openComposer({logContext: 'Fab'})}
         icon={<EditBigIcon size="lg" fill={t.palette.white} />}
         accessibilityRole="button"
-        accessibilityLabel={vocab.newPost}
+        accessibilityLabel={_(msg`New post`)}
         accessibilityHint=""
       />
     </Layout.Screen>

@@ -1,6 +1,6 @@
 import {memo, useCallback} from 'react'
 import {View} from 'react-native'
-import {msg} from '@lingui/core/macro'
+import {msg, plural} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
 
@@ -13,8 +13,6 @@ import {CloseQuote_Stroke2_Corner1_Rounded as QuoteIcon} from '#/components/icon
 import {Repost_Stroke2_Corner3_Rounded as RepostIcon} from '#/components/icons/Repost'
 import {useFormatPostStatCount} from '#/components/PostControls/util'
 import {Text} from '#/components/Typography'
-// northsky: wording follows the "They're called" setting
-import {usePostVocabulary} from '#/features/postVocabulary'
 import {
   PostControlButton,
   PostControlButtonIcon,
@@ -39,8 +37,7 @@ let RepostButton = ({
   embeddingDisabled,
 }: Props): React.ReactNode => {
   const t = useTheme()
-  // northsky: wording follows the "They're called" setting
-  const vocab = usePostVocabulary()
+  const {_} = useLingui()
   const requireAuth = useRequireAuth()
   const dialogControl = Dialog.useDialogControl()
   const formatPostStatCount = useFormatPostStatCount()
@@ -66,10 +63,27 @@ let RepostButton = ({
         onPress={onPress}
         onLongPress={onLongPress}
         label={
-          // northsky: wording follows the "They're called" setting
           isReposted
-            ? vocab.undoRepostA11yLabel(repostCount || 0)
-            : vocab.repostA11yLabel(repostCount || 0)
+            ? _(
+                msg({
+                  message: `Undo reskeet (${plural(repostCount || 0, {
+                    one: '# reskeet',
+                    other: '# reskeets',
+                  })})`,
+                  comment:
+                    'Accessibility label for the repost button when the post has been reposted, verb followed by number of reposts and noun',
+                }),
+              )
+            : _(
+                msg({
+                  message: `Reskeet (${plural(repostCount || 0, {
+                    one: '# reskeet',
+                    other: '# reskeets',
+                  })})`,
+                  comment:
+                    'Accessibility label for the repost button when the post has not been reposted, verb form followed by number of reposts and noun form',
+                }),
+              )
         }>
         <PostControlButtonIcon icon={RepostIcon} />
         {typeof repostCount !== 'undefined' && repostCount > 0 && (
@@ -108,8 +122,6 @@ let RepostButtonDialogInner = ({
 }): React.ReactNode => {
   const t = useTheme()
   const {_} = useLingui()
-  // northsky: wording follows the "They're called" setting
-  const vocab = usePostVocabulary()
   const playHaptic = useHaptics()
   const control = Dialog.useDialogContext()
 
@@ -131,19 +143,27 @@ let RepostButtonDialogInner = ({
   const onPressClose = useCallback(() => control.close(), [control])
 
   return (
-    <Dialog.ScrollableInner label={vocab.repostOrQuotePost}>
+    <Dialog.ScrollableInner label={_(msg`Reskeet or quote post`)}>
       <View style={a.gap_xl}>
         <View style={a.gap_xs}>
           <Button
             style={[a.justify_start, a.px_md, a.gap_sm]}
-            label={isReposted ? vocab.removeRepost : vocab.repost}
+            label={
+              isReposted
+                ? _(msg`Remove reskeet`)
+                : _(msg({message: `Reskeet`, context: 'action'}))
+            }
             onPress={onPressRepost}
             size="large"
             variant="ghost"
             color="primary">
             <RepostIcon size="lg" fill={t.palette.primary_500} />
             <Text style={[a.font_semi_bold, a.text_xl]}>
-              {isReposted ? vocab.removeRepost : vocab.repost}
+              {isReposted ? (
+                <Trans>Remove reskeet</Trans>
+              ) : (
+                <Trans context="action">Reskeet</Trans>
+              )}
             </Text>
           </Button>
           <Button

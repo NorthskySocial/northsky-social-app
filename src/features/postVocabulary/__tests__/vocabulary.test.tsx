@@ -1,7 +1,14 @@
 import {type ReactNode} from 'react'
+import {Text} from 'react-native'
 import {i18n} from '@lingui/core'
 import {I18nProvider} from '@lingui/react'
-import {act, renderHook} from '@testing-library/react-native'
+import {
+  act,
+  fireEvent,
+  render,
+  renderHook,
+  screen,
+} from '@testing-library/react-native'
 
 import {
   Provider,
@@ -58,8 +65,9 @@ describe('post naming', () => {
     const {result} = renderVocabulary()
 
     expect(result.current.naming).toBe('skeet')
+    expect(result.current.vocab.newPost).toBe('New skeet')
     expect(result.current.vocab.post).toBe('Skeet')
-    expect(result.current.vocab.repost).toBe('Reskeet')
+    expect(result.current.vocab.postAll).toBe('Skeet All')
   })
 
   it('reads the stored choice', () => {
@@ -67,47 +75,52 @@ describe('post naming', () => {
     const {result} = renderVocabulary()
 
     expect(result.current.vocab.newPost).toBe('New post')
-    expect(result.current.vocab.repost).toBe('Repost')
+    expect(result.current.vocab.post).toBe('Post')
   })
 
-  it('persists a change and applies it without a reload', () => {
+  it('persists a change', () => {
     const {result} = renderVocabulary()
 
     act(() => result.current.setNaming('post'))
 
     expect(mockStore.get('postNaming')).toBe('post')
-    expect(result.current.vocab.post).toBe('Post')
-    expect(result.current.vocab.newPost).toBe('New post')
   })
 })
 
-describe('counted wordings', () => {
-  it('agrees with the naming in both the singular and the plural', () => {
-    const {result} = renderVocabulary()
+/*
+ * The setting screen and the left sidebar are siblings, not parent and child.
+ * The user has to see the compose button change while the setting is on screen,
+ * so a change has to cross from one subtree to the other without a reload.
+ */
+describe('a change reaches a sibling subtree', () => {
+  function SettingScreen() {
+    const setNaming = useSetPostNaming()
+    return <Text testID="setting" onPress={() => setNaming('post')} />
+  }
 
-    expect(result.current.vocab.repostCount(1)).toBe('1 reskeet')
-    expect(result.current.vocab.repostCount(2)).toBe('2 reskeets')
-    expect(result.current.vocab.repostNoun(1)).toBe('reskeet')
-    expect(result.current.vocab.repostA11yLabel(3)).toBe('Reskeet (3 reskeets)')
+  function ComposeButton() {
+    const vocab = usePostVocabulary()
+    return <Text testID="composeButton">{vocab.newPost}</Text>
+  }
 
-    act(() => result.current.setNaming('post'))
-
-    expect(result.current.vocab.repostCount(1)).toBe('1 repost')
-    expect(result.current.vocab.repostNoun(2)).toBe('reposts')
-    expect(result.current.vocab.undoRepostA11yLabel(3)).toBe(
-      'Undo repost (3 reposts)',
+  it('relabels the compose button when the setting changes', () => {
+    render(
+      <>
+        <SettingScreen />
+        <ComposeButton />
+      </>,
+      {wrapper},
     )
+
+    expect(screen.getByTestId('composeButton')).toHaveTextContent('New skeet')
+
+    fireEvent.press(screen.getByTestId('setting'))
+
+    expect(screen.getByTestId('composeButton')).toHaveTextContent('New post')
   })
 })
 
 type Vocabulary = ReturnType<typeof usePostVocabulary>
-
-/** Resolves a field to the string it renders, whether or not it takes an argument. */
-function read(vocab: Vocabulary, key: keyof Vocabulary): string {
-  if (key === 'repostedBy') return vocab.repostedBy('Sakura')
-  const value = vocab[key]
-  return typeof value === 'function' ? value(2) : value
-}
 
 describe('coverage', () => {
   /*
@@ -126,10 +139,7 @@ describe('coverage', () => {
 
     expect(keys.length).toBeGreaterThan(0)
     for (const key of keys) {
-      expect([key, read(skeetVocab, key)]).not.toEqual([
-        key,
-        read(postVocab, key),
-      ])
+      expect([key, skeetVocab[key]]).not.toEqual([key, postVocab[key]])
     }
   })
 })

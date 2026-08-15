@@ -38,8 +38,6 @@ import {useHeaderOffset} from '#/components/hooks/useHeaderOffset'
 import {EditBig_Stroke2_Corner2_Rounded as EditBigIcon} from '#/components/icons/EditBig'
 import {useAnalytics} from '#/analytics'
 import {IS_NATIVE} from '#/env'
-// northsky: wording follows the "They're called" setting
-import {usePostVocabulary} from '#/features/postVocabulary'
 
 const POLL_FREQ = 60e3 // 60sec
 
@@ -67,8 +65,6 @@ export function FeedPage({
   const ax = useAnalytics()
   const {hasSession} = useSession()
   const {_} = useLingui()
-  // northsky: wording follows the "They're called" setting
-  const vocab = usePostVocabulary()
   const navigation = useNavigation<NavigationProp<AllNavigatorParams>>()
   const queryClient = useQueryClient()
   const {openComposer} = useOpenComposer()
@@ -180,7 +176,7 @@ export function FeedPage({
           onPress={onPressCompose}
           icon={<EditBigIcon size="lg" fill={t.palette.white} />}
           accessibilityRole="button"
-          accessibilityLabel={vocab.newPost}
+          accessibilityLabel={_(msg({message: `New post`, context: 'action'}))}
           accessibilityHint=""
         />
       )}

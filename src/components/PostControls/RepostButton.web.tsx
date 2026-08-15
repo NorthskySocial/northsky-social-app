@@ -7,8 +7,6 @@ import {useTheme} from '#/alf'
 import {CloseQuote_Stroke2_Corner1_Rounded as Quote} from '#/components/icons/Quote'
 import {Repost_Stroke2_Corner2_Rounded as Repost} from '#/components/icons/Repost'
 import * as Menu from '#/components/Menu'
-// northsky: wording follows the "They're called" setting
-import {usePostVocabulary} from '#/features/postVocabulary'
 import {
   PostControlButton,
   PostControlButtonIcon,
@@ -35,8 +33,6 @@ export const RepostButton = ({
 }: Props) => {
   const t = useTheme()
   const {_} = useLingui()
-  // northsky: wording follows the "They're called" setting
-  const vocab = usePostVocabulary()
   const {hasSession} = useSession()
   const requireAuth = useRequireAuth()
   const formatPostStatCount = useFormatPostStatCount()
@@ -44,7 +40,7 @@ export const RepostButton = ({
   return hasSession ? (
     <EventStopper onKeyDown={false}>
       <Menu.Root>
-        <Menu.Trigger label={vocab.repostOrQuotePost}>
+        <Menu.Trigger label={_(msg`Reskeet or quote post`)}>
           {({props}) => {
             return (
               <PostControlButton
@@ -66,11 +62,17 @@ export const RepostButton = ({
         </Menu.Trigger>
         <Menu.Outer style={{minWidth: 170}}>
           <Menu.Item
-            label={isReposted ? vocab.undoRepost : vocab.repost}
+            label={
+              isReposted
+                ? _(msg`Undo reskeet`)
+                : _(msg({message: `Reskeet`, context: `action`}))
+            }
             testID="repostDropdownRepostBtn"
             onPress={onRepost}>
             <Menu.ItemText>
-              {isReposted ? vocab.undoRepost : vocab.repost}
+              {isReposted
+                ? _(msg`Undo reskeet`)
+                : _(msg({message: `Reskeet`, context: `action`}))}
             </Menu.ItemText>
             <Menu.ItemIcon icon={Repost} position="right" />
           </Menu.Item>
@@ -98,7 +100,7 @@ export const RepostButton = ({
       onPress={() => requireAuth(() => {})}
       active={isReposted}
       activeColor={t.palette.positive_500}
-      label={vocab.repostOrQuotePost}
+      label={_(msg`Reskeet or quote post`)}
       big={big}>
       <PostControlButtonIcon icon={Repost} />
       {typeof repostCount !== 'undefined' && repostCount > 0 && (

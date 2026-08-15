@@ -66,8 +66,6 @@ import {GoLiveDialog} from '#/features/liveNow/components/GoLiveDialog'
 import {GoLiveDisabledDialog} from '#/features/liveNow/components/GoLiveDisabledDialog'
 import {Dot} from '#/features/nuxs/components/Dot'
 import {Gradient} from '#/features/nuxs/components/Gradient'
-// northsky: wording follows the "They're called" setting
-import {usePostVocabulary} from '#/features/postVocabulary'
 import {useDevMode} from '#/storage/hooks/dev-mode'
 
 let ProfileMenu = ({
@@ -78,8 +76,6 @@ let ProfileMenu = ({
   const t = useTheme()
   const ax = useAnalytics()
   const {t: l} = useLingui()
-  // northsky: wording follows the "They're called" setting
-  const vocab = usePostVocabulary()
   const {currentAccount, hasSession} = useSession()
   const reportDialogControl = useReportDialogControl()
   const queryClient = useQueryClient()
@@ -177,7 +173,9 @@ let ProfileMenu = ({
     if (profile.viewer?.mutedOnlyReposts) {
       try {
         await queueUnmuteReposts()
-        Toast.show(vocab.repostsShownToast)
+        Toast.show(
+          l({message: 'Reskeets will be shown in feeds', context: 'toast'}),
+        )
       } catch (err) {
         const e = err as Error
         if (e?.name !== 'AbortError') {
@@ -190,7 +188,9 @@ let ProfileMenu = ({
     } else {
       try {
         await queueMuteReposts()
-        Toast.show(vocab.repostsHiddenToast)
+        Toast.show(
+          l({message: 'Reskeets will be hidden in feeds', context: 'toast'}),
+        )
       } catch (err) {
         const e = err as Error
         if (e?.name !== 'AbortError') {
@@ -201,7 +201,7 @@ let ProfileMenu = ({
         }
       }
     }
-  }, [ax, profile.viewer, queueUnmuteReposts, l, queueMuteReposts, vocab])
+  }, [ax, profile.viewer, queueUnmuteReposts, l, queueMuteReposts])
 
   const blockAccount = useCallback(async () => {
     if (profile.viewer?.blocking) {
@@ -483,16 +483,17 @@ let ProfileMenu = ({
                             <Menu.Item
                               testID="profileHeaderDropdownMuteRepostsBtn"
                               label={
-                                // northsky: wording follows the "They're called" setting
                                 profile.viewer?.mutedOnlyReposts
-                                  ? vocab.showRepostsInFeeds
-                                  : vocab.hideRepostsInFeeds
+                                  ? l`Show reskeets in feeds`
+                                  : l`Hide reskeets in feeds`
                               }
                               onPress={() => void onPressMuteReposts()}>
                               <Menu.ItemText>
-                                {profile.viewer?.mutedOnlyReposts
-                                  ? vocab.showRepostsInFeeds
-                                  : vocab.hideRepostsInFeeds}
+                                {profile.viewer?.mutedOnlyReposts ? (
+                                  <Trans>Show reskeets in feeds</Trans>
+                                ) : (
+                                  <Trans>Hide reskeets in feeds</Trans>
+                                )}
                               </Menu.ItemText>
                               <Menu.ItemIcon
                                 icon={

@@ -54,8 +54,6 @@ import {VideoClip_Stroke1_Corner0_Rounded as VideoIcon} from '#/components/icons
 import * as Layout from '#/components/Layout'
 import {ScreenHider} from '#/components/moderation/ScreenHider'
 import {ProfileStarterPacks} from '#/components/StarterPack/ProfileStarterPacks'
-// northsky: wording follows the "They're called" setting
-import {usePostVocabulary} from '#/features/postVocabulary'
 import {navigate} from '#/Navigation'
 
 interface SectionRef {
@@ -192,8 +190,6 @@ function ProfileScreenLoaded({
   const [currentPage, setCurrentPage] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const {_} = useLingui()
-  // northsky: wording follows the "They're called" setting
-  const vocab = usePostVocabulary()
 
   const [scrollViewTag, setScrollViewTag] = useState<number | null>(null)
 
@@ -608,7 +604,7 @@ function ProfileScreenLoaded({
           onPress={onPressCompose}
           icon={<EditBigIcon size="lg" fill={t.palette.white} />}
           accessibilityRole="button"
-          accessibilityLabel={vocab.newPost}
+          accessibilityLabel={_(msg`New post`)}
           accessibilityHint=""
         />
       )}

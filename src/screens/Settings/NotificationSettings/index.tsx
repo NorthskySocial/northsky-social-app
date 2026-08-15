@@ -36,8 +36,6 @@ import {
 import {Shapes_Stroke2_Corner0_Rounded as ShapesIcon} from '#/components/icons/Shapes'
 import * as Layout from '#/components/Layout'
 import {IS_ANDROID, IS_IOS, IS_WEB} from '#/env'
-// northsky: wording follows the "They're called" setting
-import {usePostVocabulary} from '#/features/postVocabulary'
 import * as SettingsList from '../components/SettingsList'
 import {ChatNotificationDialogs} from './components/ChatNotificationDialogs'
 import {ItemTextWithSubtitle} from './components/ItemTextWithSubtitle'
@@ -48,8 +46,6 @@ const RQKEY = ['notification-permissions']
 type Props = NativeStackScreenProps<AllNavigatorParams, 'NotificationSettings'>
 export function NotificationSettingsScreen({}: Props) {
   const {t: l} = useLingui()
-  // northsky: wording follows the "They're called" setting
-  const vocab = usePostVocabulary()
   const queryClient = useQueryClient()
   const {data: settings, isError} = useNotificationSettingsQuery()
   const {data: chatSettings, isError: chatError} =
@@ -210,12 +206,12 @@ export function NotificationSettingsScreen({}: Props) {
               />
             </SettingsList.PressableItem>
             <SettingsList.PressableItem
-              label={vocab.repostNotificationSettings}
+              label={l`Settings for reskeet notifications`}
               onPress={repostDialogControl.open}
               contentContainerStyle={[a.align_start]}>
               <SettingsList.ItemIcon icon={RepostIcon} />
               <ItemTextWithSubtitle
-                titleText={vocab.reposts}
+                titleText={<Trans>Reskeets</Trans>}
                 subtitleText={<SettingPreview preference={settings?.repost} />}
                 showSkeleton={!settings}
               />
@@ -234,12 +230,12 @@ export function NotificationSettingsScreen({}: Props) {
               />
             </SettingsList.LinkItem>
             <SettingsList.PressableItem
-              label={vocab.likesOfYourRepostsNotificationSettings}
+              label={l`Settings for notifications for likes of your reskeets`}
               onPress={likeRepostDialogControl.open}
               contentContainerStyle={[a.align_start]}>
               <SettingsList.ItemIcon icon={LikeRepostIcon} />
               <ItemTextWithSubtitle
-                titleText={vocab.likesOfYourReposts}
+                titleText={<Trans>Likes of your reskeets</Trans>}
                 subtitleText={
                   <SettingPreview preference={settings?.likeViaRepost} />
                 }
@@ -247,12 +243,12 @@ export function NotificationSettingsScreen({}: Props) {
               />
             </SettingsList.PressableItem>
             <SettingsList.PressableItem
-              label={vocab.repostsOfYourRepostsNotificationSettings}
+              label={l`Settings for notifications for reskeets of your reskeets`}
               onPress={repostRepostDialogControl.open}
               contentContainerStyle={[a.align_start]}>
               <SettingsList.ItemIcon icon={RepostRepostIcon} />
               <ItemTextWithSubtitle
-                titleText={vocab.repostsOfYourReposts}
+                titleText={<Trans>Reskeets of your reskeets</Trans>}
                 subtitleText={
                   <SettingPreview preference={settings?.repostViaRepost} />
                 }
@@ -356,22 +352,28 @@ export function NotificationSettingsScreen({}: Props) {
         control={repostDialogControl}
         name="repost"
         icon={RepostIcon}
-        titleText={vocab.reposts}
-        subtitleText={vocab.repostNotificationDescription}
+        titleText={<Trans>Reskeets</Trans>}
+        subtitleText={
+          <Trans>Get notifications when people reskeet your posts.</Trans>
+        }
       />
       <NotificationSettingsDialog
         control={likeRepostDialogControl}
         name="likeViaRepost"
         icon={LikeRepostIcon}
-        titleText={vocab.likesOfYourReposts}
-        subtitleText={vocab.likesOfYourRepostsDescription}
+        titleText={<Trans>Likes of your reskeets</Trans>}
+        subtitleText={
+          <Trans>Get notifications when people like your reskeets.</Trans>
+        }
       />
       <NotificationSettingsDialog
         control={repostRepostDialogControl}
         name="repostViaRepost"
         icon={RepostRepostIcon}
-        titleText={vocab.repostsOfYourReposts}
-        subtitleText={vocab.repostsOfYourRepostsDescription}
+        titleText={<Trans>Reskeets of your reskeets</Trans>}
+        subtitleText={
+          <Trans>Get notifications when people reskeet your reskeets.</Trans>
+        }
       />
       <ChatNotificationDialogs
         chatControl={chatDialogControl}
