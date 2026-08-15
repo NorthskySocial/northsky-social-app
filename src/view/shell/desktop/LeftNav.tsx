@@ -89,6 +89,8 @@ import {useAnalytics} from '#/analytics'
 import {type Events} from '#/analytics/metrics/types'
 import {navItemHoverWash} from '#/brand/gradients' // northsky: nav hover wash
 import {useActorStatus} from '#/features/liveNow'
+// northsky: wording follows the "They're called" setting
+import {usePostVocabulary} from '#/features/postVocabulary'
 import {router} from '#/routes'
 import {PlatformInfo} from '../../../../modules/expo-bluesky-swiss-army'
 
@@ -546,6 +548,8 @@ function ComposeBtn({minimal}: {minimal: boolean}) {
   const {getState} = useNavigation()
   const {openComposer} = useOpenComposer()
   const {t: l} = useLingui()
+  // northsky: wording follows the "They're called" setting
+  const vocab = usePostVocabulary()
   const [isFetchingHandle, setIsFetchingHandle] = useState(false)
   const fetchHandle = useFetchHandle()
 
@@ -598,11 +602,7 @@ function ComposeBtn({minimal}: {minimal: boolean}) {
           minimal && {width: LARGE_ELEMENT_SIZE, height: LARGE_ELEMENT_SIZE},
         ]}>
         <ButtonIcon icon={EditBigIcon} size={minimal ? 'lg' : 'sm'} />
-        {!minimal && (
-          <ButtonText>
-            <Trans context="action">New post</Trans>
-          </ButtonText>
-        )}
+        {!minimal && <ButtonText>{vocab.newPost}</ButtonText>}
       </Button>
     </View>
   )

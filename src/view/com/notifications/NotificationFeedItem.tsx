@@ -74,6 +74,8 @@ import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {IS_WEB} from '#/env'
+// northsky: wording follows the "They're called" setting
+import {usePostNaming} from '#/features/postVocabulary'
 import * as bsky from '#/types/bsky'
 
 const MAX_AUTHORS = 5
@@ -98,6 +100,8 @@ let NotificationFeedItem = ({
   const queryClient = useQueryClient()
   const t = useTheme()
   const {t: l, i18n} = useLingui()
+  // northsky: wording follows the "They're called" setting
+  const skeetNaming = usePostNaming() === 'skeet'
   const ax = useAnalytics()
   const [isAuthorsExpanded, setIsAuthorsExpanded] = useState(false)
   const [isHoveringAuthorsList, setIsHoveringAuthorsList] = useState(false)
@@ -318,13 +322,37 @@ let NotificationFeedItem = ({
       <Trans>{firstAuthorLink} liked your post</Trans>
     )
   } else if (item.type === 'repost') {
-    a11yLabel = hasMultipleAuthors
-      ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
-          one: `${formattedAuthorsCount} other`,
-          other: `${formattedAuthorsCount} others`,
-        })} reskeeted your post`
-      : l`${firstAuthorName} reskeeted your post`
-    notificationContent = hasMultipleAuthors ? (
+    // northsky: wording follows the "They're called" setting
+    a11yLabel = skeetNaming
+      ? hasMultipleAuthors
+        ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
+            one: `${formattedAuthorsCount} other`,
+            other: `${formattedAuthorsCount} others`,
+          })} reskeeted your post`
+        : l`${firstAuthorName} reskeeted your post`
+      : hasMultipleAuthors
+        ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
+            one: `${formattedAuthorsCount} other`,
+            other: `${formattedAuthorsCount} others`,
+          })} reposted your post`
+        : l`${firstAuthorName} reposted your post`
+    notificationContent = skeetNaming ? (
+      hasMultipleAuthors ? (
+        <Trans>
+          {firstAuthorLink} and{' '}
+          <Text style={[a.text_md, a.font_semi_bold]}>
+            <Plural
+              value={additionalAuthorsCount}
+              one={`${formattedAuthorsCount} other`}
+              other={`${formattedAuthorsCount} others`}
+            />
+          </Text>{' '}
+          reskeeted your post
+        </Trans>
+      ) : (
+        <Trans>{firstAuthorLink} reskeeted your post</Trans>
+      )
+    ) : hasMultipleAuthors ? (
       <Trans>
         {firstAuthorLink} and{' '}
         <Text style={[a.text_md, a.font_semi_bold]}>
@@ -334,10 +362,10 @@ let NotificationFeedItem = ({
             other={`${formattedAuthorsCount} others`}
           />
         </Text>{' '}
-        reskeeted your post
+        reposted your post
       </Trans>
     ) : (
-      <Trans>{firstAuthorLink} reskeeted your post</Trans>
+      <Trans>{firstAuthorLink} reposted your post</Trans>
     )
     icon = <RepostIcon size="xl" style={{color: t.palette.positive_500}} />
   } else if (item.type === 'follow') {
@@ -487,13 +515,37 @@ let NotificationFeedItem = ({
     )
     icon = <VerifiedCheck size="xl" fill={t.palette.contrast_500} />
   } else if (item.type === 'like-via-repost') {
-    a11yLabel = hasMultipleAuthors
-      ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
-          one: `${formattedAuthorsCount} other`,
-          other: `${formattedAuthorsCount} others`,
-        })} liked your reskeet`
-      : l`${firstAuthorName} liked your reskeet`
-    notificationContent = hasMultipleAuthors ? (
+    // northsky: wording follows the "They're called" setting
+    a11yLabel = skeetNaming
+      ? hasMultipleAuthors
+        ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
+            one: `${formattedAuthorsCount} other`,
+            other: `${formattedAuthorsCount} others`,
+          })} liked your reskeet`
+        : l`${firstAuthorName} liked your reskeet`
+      : hasMultipleAuthors
+        ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
+            one: `${formattedAuthorsCount} other`,
+            other: `${formattedAuthorsCount} others`,
+          })} liked your repost`
+        : l`${firstAuthorName} liked your repost`
+    notificationContent = skeetNaming ? (
+      hasMultipleAuthors ? (
+        <Trans>
+          {firstAuthorLink} and{' '}
+          <Text style={[a.text_md, a.font_semi_bold]}>
+            <Plural
+              value={additionalAuthorsCount}
+              one={`${formattedAuthorsCount} other`}
+              other={`${formattedAuthorsCount} others`}
+            />
+          </Text>{' '}
+          liked your reskeet
+        </Trans>
+      ) : (
+        <Trans>{firstAuthorLink} liked your reskeet</Trans>
+      )
+    ) : hasMultipleAuthors ? (
       <Trans>
         {firstAuthorLink} and{' '}
         <Text style={[a.text_md, a.font_semi_bold]}>
@@ -503,19 +555,43 @@ let NotificationFeedItem = ({
             other={`${formattedAuthorsCount} others`}
           />
         </Text>{' '}
-        liked your reskeet
+        liked your repost
       </Trans>
     ) : (
-      <Trans>{firstAuthorLink} liked your reskeet</Trans>
+      <Trans>{firstAuthorLink} liked your repost</Trans>
     )
   } else if (item.type === 'repost-via-repost') {
-    a11yLabel = hasMultipleAuthors
-      ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
-          one: `${formattedAuthorsCount} other`,
-          other: `${formattedAuthorsCount} others`,
-        })} reskeeted your reskeet`
-      : l`${firstAuthorName} reskeeted your reskeet`
-    notificationContent = hasMultipleAuthors ? (
+    // northsky: wording follows the "They're called" setting
+    a11yLabel = skeetNaming
+      ? hasMultipleAuthors
+        ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
+            one: `${formattedAuthorsCount} other`,
+            other: `${formattedAuthorsCount} others`,
+          })} reskeeted your reskeet`
+        : l`${firstAuthorName} reskeeted your reskeet`
+      : hasMultipleAuthors
+        ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
+            one: `${formattedAuthorsCount} other`,
+            other: `${formattedAuthorsCount} others`,
+          })} reposted your repost`
+        : l`${firstAuthorName} reposted your repost`
+    notificationContent = skeetNaming ? (
+      hasMultipleAuthors ? (
+        <Trans>
+          {firstAuthorLink} and{' '}
+          <Text style={[a.text_md, a.font_semi_bold]}>
+            <Plural
+              value={additionalAuthorsCount}
+              one={`${formattedAuthorsCount} other`}
+              other={`${formattedAuthorsCount} others`}
+            />
+          </Text>{' '}
+          reskeeted your reskeet
+        </Trans>
+      ) : (
+        <Trans>{firstAuthorLink} reskeeted your reskeet</Trans>
+      )
+    ) : hasMultipleAuthors ? (
       <Trans>
         {firstAuthorLink} and{' '}
         <Text style={[a.text_md, a.font_semi_bold]}>
@@ -525,10 +601,10 @@ let NotificationFeedItem = ({
             other={`${formattedAuthorsCount} others`}
           />
         </Text>{' '}
-        reskeeted your reskeet
+        reposted your repost
       </Trans>
     ) : (
-      <Trans>{firstAuthorLink} reskeeted your reskeet</Trans>
+      <Trans>{firstAuthorLink} reposted your repost</Trans>
     )
     icon = <RepostIcon size="xl" style={{color: t.palette.positive_500}} />
   } else if (item.type === 'subscribed-post') {

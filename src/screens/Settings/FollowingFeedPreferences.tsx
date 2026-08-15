@@ -18,6 +18,8 @@ import {Bubbles_Stroke2_Corner2_Rounded as BubblesIcon} from '#/components/icons
 import {CloseQuote_Stroke2_Corner1_Rounded as QuoteIcon} from '#/components/icons/Quote'
 import {Repost_Stroke2_Corner2_Rounded as RepostIcon} from '#/components/icons/Repost'
 import * as Layout from '#/components/Layout'
+// northsky: wording follows the "They're called" setting
+import {usePostVocabulary} from '#/features/postVocabulary'
 import * as SettingsList from './components/SettingsList'
 
 type Props = NativeStackScreenProps<
@@ -26,6 +28,8 @@ type Props = NativeStackScreenProps<
 >
 export function FollowingFeedPreferencesScreen({}: Props) {
   const {_} = useLingui()
+  // northsky: wording follows the "They're called" setting
+  const vocab = usePostVocabulary()
 
   const {data: preferences} = usePreferencesQuery()
   const {mutate: setFeedViewPref, variables} =
@@ -87,7 +91,7 @@ export function FollowingFeedPreferencesScreen({}: Props) {
           <Toggle.Item
             type="checkbox"
             name="show-reposts"
-            label={_(msg`Show reskeets`)}
+            label={vocab.showReposts}
             value={showReposts}
             onChange={value =>
               setFeedViewPref({
@@ -96,9 +100,7 @@ export function FollowingFeedPreferencesScreen({}: Props) {
             }>
             <SettingsList.Item>
               <SettingsList.ItemIcon icon={RepostIcon} />
-              <SettingsList.ItemText>
-                <Trans>Show reskeets</Trans>
-              </SettingsList.ItemText>
+              <SettingsList.ItemText>{vocab.showReposts}</SettingsList.ItemText>
               <Toggle.Platform />
             </SettingsList.Item>
           </Toggle.Item>

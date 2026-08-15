@@ -39,6 +39,8 @@ import {EditBig_Stroke2_Corner2_Rounded as EditBigIcon} from '#/components/icons
 import {HashtagWide_Stroke1_Corner0_Rounded as HashtagWideIcon} from '#/components/icons/Hashtag'
 import * as Layout from '#/components/Layout'
 import {IS_NATIVE} from '#/env'
+// northsky: wording follows the "They're called" setting
+import {usePostVocabulary} from '#/features/postVocabulary'
 import {
   CustomFeedHeader,
   CustomFeedHeaderSkeleton,
@@ -131,6 +133,8 @@ export function CustomFeedScreenInner({
   feedParams: FeedParams | undefined
 }) {
   const {t: l} = useLingui()
+  // northsky: wording follows the "They're called" setting
+  const vocab = usePostVocabulary()
   const {hasSession} = useSession()
   const {openComposer} = useOpenComposer()
   const isScreenFocused = useIsFocused()
@@ -215,7 +219,7 @@ export function CustomFeedScreenInner({
           onPress={() => openComposer({logContext: 'Fab'})}
           icon={<EditBigIcon size="lg" fill={t.palette.white} />}
           accessibilityRole="button"
-          accessibilityLabel={l`New post`}
+          accessibilityLabel={vocab.newPost}
           accessibilityHint=""
         />
       )}

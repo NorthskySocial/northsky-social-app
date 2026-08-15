@@ -1,7 +1,5 @@
 import {useCallback, useMemo, useState} from 'react'
 import {type AppBskyActorDefs as ActorDefs} from '@atproto/api'
-import {msg} from '@lingui/core/macro'
-import {useLingui} from '@lingui/react'
 
 import {useInitialNumToRender} from '#/lib/hooks/useInitialNumToRender'
 import {cleanError} from '#/lib/strings/errors'
@@ -11,6 +9,8 @@ import {useResolveUriQuery} from '#/state/queries/resolve-uri'
 import {ProfileCardWithFollowBtn} from '#/view/com/profile/ProfileCard'
 import {List} from '#/view/com/util/List'
 import {ListFooter, ListMaybePlaceholder} from '#/components/Lists'
+// northsky: wording follows the "They're called" setting
+import {usePostVocabulary} from '#/features/postVocabulary'
 
 function renderItem({
   item,
@@ -33,7 +33,8 @@ function keyExtractor(item: ActorDefs.ProfileView) {
 }
 
 export function PostRepostedBy({uri}: {uri: string}) {
-  const {_} = useLingui()
+  // northsky: wording follows the "They're called" setting
+  const vocab = usePostVocabulary()
   const initialNumToRender = useInitialNumToRender()
 
   const [isPTRing, setIsPTRing] = useState(false)
@@ -87,10 +88,8 @@ export function PostRepostedBy({uri}: {uri: string}) {
         isLoading={isLoadingUri || isLoadingRepostedBy}
         isError={isError}
         emptyType="results"
-        emptyTitle={_(msg`No reskeets yet`)}
-        emptyMessage={_(
-          msg`Nobody has reskeeted this yet. Maybe you should be the first!`,
-        )}
+        emptyTitle={vocab.noRepostsYet}
+        emptyMessage={vocab.nobodyHasRepostedYet}
         errorMessage={cleanError(resolveError || error)}
         sideBorders={false}
       />

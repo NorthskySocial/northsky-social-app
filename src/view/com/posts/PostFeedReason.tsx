@@ -14,6 +14,8 @@ import {Repost_Stroke2_Corner3_Rounded as RepostIcon} from '#/components/icons/R
 import {Link} from '#/components/Link'
 import {ProfileHoverCard} from '#/components/ProfileHoverCard'
 import {Text} from '#/components/Typography'
+// northsky: wording follows the "They're called" setting
+import {usePostVocabulary} from '#/features/postVocabulary'
 import {FeedNameText} from '../util/FeedInfoText'
 
 export function PostFeedReason({
@@ -31,6 +33,8 @@ export function PostFeedReason({
 }) {
   const t = useTheme()
   const {_} = useLingui()
+  // northsky: wording follows the "They're called" setting
+  const vocab = usePostVocabulary()
 
   const {currentAccount} = useSession()
 
@@ -75,7 +79,8 @@ export function PostFeedReason({
         style={styles.includeReason}
         to={makeProfileLink(reason.by)}
         label={
-          isOwner ? _(msg`Reskeeted by you`) : _(msg`Reskeeted by ${reposter}`)
+          // northsky: wording follows the "They're called" setting
+          isOwner ? vocab.repostedByYou : vocab.repostedBy(reposter)
         }
         onPress={onOpenReposter}>
         <RepostIcon
@@ -91,11 +96,7 @@ export function PostFeedReason({
               a.leading_snug,
             ]}
             numberOfLines={1}>
-            {isOwner ? (
-              <Trans>Reskeeted by you</Trans>
-            ) : (
-              <Trans>Reskeeted by {reposter}</Trans>
-            )}
+            {isOwner ? vocab.repostedByYou : vocab.repostedBy(reposter)}
           </Text>
         </ProfileHoverCard>
       </Link>

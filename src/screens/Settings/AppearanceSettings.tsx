@@ -19,10 +19,14 @@ import * as SegmentedControl from '#/components/forms/SegmentedControl'
 import {type Props as SVGIconProps} from '#/components/icons/common'
 import {Moon_Stroke2_Corner0_Rounded as MoonIcon} from '#/components/icons/Moon'
 import {Phone_Stroke2_Corner0_Rounded as PhoneIcon} from '#/components/icons/Phone'
+// northsky: icon for the "They're called" setting
+import {Speakerphone_Stroke2_Corner0_Rounded as SpeakerphoneIcon} from '#/components/icons/Speakerphone'
 import {TextSize_Stroke2_Corner0_Rounded as TextSize} from '#/components/icons/TextSize'
 import {TitleCase_Stroke2_Corner0_Rounded as Aa} from '#/components/icons/TitleCase'
 import * as Layout from '#/components/Layout'
 import {Text} from '#/components/Typography'
+// northsky: the "They're called" setting, post wording vs skeet wording
+import {usePostNaming, useSetPostNaming} from '#/features/postVocabulary'
 import * as SettingsList from './components/SettingsList'
 
 type Props = NativeStackScreenProps<CommonNavigatorParams, 'AppearanceSettings'>
@@ -32,6 +36,9 @@ export function AppearanceSettingsScreen({}: Props) {
 
   const {colorMode, darkTheme} = useThemePrefs()
   const {setColorMode, setDarkTheme} = useSetThemePrefs()
+  // northsky: the "They're called" setting
+  const postNaming = usePostNaming()
+  const setPostNaming = useSetPostNaming()
 
   const onChangeAppearance = useCallback(
     (value: 'light' | 'system' | 'dark') => {
@@ -161,6 +168,24 @@ export function AppearanceSettingsScreen({}: Props) {
                 ]}
                 value={fonts.scale}
                 onChange={onChangeFontScale}
+              />
+
+              {/* northsky: the "They're called" setting */}
+              <AppearanceToggleButtonGroup
+                title={_(msg`They're called`)}
+                icon={SpeakerphoneIcon}
+                items={[
+                  {
+                    label: _(msg`Post`),
+                    name: 'post',
+                  },
+                  {
+                    label: _(msg`Skeets`),
+                    name: 'skeet',
+                  },
+                ]}
+                value={postNaming}
+                onChange={setPostNaming}
               />
 
               {/*{IS_NATIVE && IS_INTERNAL && (

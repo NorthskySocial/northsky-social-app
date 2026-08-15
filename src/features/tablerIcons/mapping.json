@@ -1037,6 +1037,11 @@
       "tabler": "volume"
     }
   },
+  "Speakerphone.tsx": {
+    "Speakerphone_Stroke2_Corner0_Rounded": {
+      "tabler": "speakerphone"
+    }
+  },
   "SquareArrowTopRight.tsx": {
     "SquareArrowTopRight_Stroke2_Corner0_Rounded": {
       "tabler": "external-link"

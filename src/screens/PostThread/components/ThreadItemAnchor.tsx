@@ -64,6 +64,8 @@ import {Text} from '#/components/Typography'
 import {WhoCanReply} from '#/components/WhoCanReply'
 import {useAnalytics} from '#/analytics'
 import {useActorStatus} from '#/features/liveNow'
+// northsky: wording follows the "They're called" setting
+import {usePostNaming, usePostVocabulary} from '#/features/postVocabulary'
 import * as bsky from '#/types/bsky'
 
 export function ThreadItemAnchor({
@@ -183,6 +185,9 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
   const t = useTheme()
   const ax = useAnalytics()
   const {t: l} = useLingui()
+  // northsky: wording follows the "They're called" setting
+  const vocab = usePostVocabulary()
+  const postNaming = usePostNaming()
   const {openComposer} = useOpenComposer()
   const {currentAccount, hasSession} = useSession()
   const feedFeedback = useFeedFeedback(postSource?.feedSourceInfo, hasSession)
@@ -477,21 +482,36 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
                   t.atoms.border_contrast_low,
                 ]}>
                 {post.repostCount != null && post.repostCount !== 0 ? (
-                  <Link to={repostsHref} label={l`Reskeets of this post`}>
+                  <Link to={repostsHref} label={vocab.repostsOfThisPost}>
                     <Text
                       testID="repostCount-expanded"
                       style={[a.text_md, t.atoms.text_contrast_medium]}>
-                      <Trans comment="Reskeet count display, the <0> tags enclose the number of reskeets in bold (will never be 0)">
-                        <Text
-                          style={[a.text_md, a.font_semi_bold, t.atoms.text]}>
-                          {formatPostStatCount(post.repostCount)}
-                        </Text>{' '}
-                        <Plural
-                          value={post.repostCount}
-                          one="reskeet"
-                          other="reskeets"
-                        />
-                      </Trans>
+                      {/* northsky: wording follows the "They're called" setting */}
+                      {postNaming === 'skeet' ? (
+                        <Trans comment="Reskeet count display, the <0> tags enclose the number of reskeets in bold (will never be 0)">
+                          <Text
+                            style={[a.text_md, a.font_semi_bold, t.atoms.text]}>
+                            {formatPostStatCount(post.repostCount)}
+                          </Text>{' '}
+                          <Plural
+                            value={post.repostCount}
+                            one="reskeet"
+                            other="reskeets"
+                          />
+                        </Trans>
+                      ) : (
+                        <Trans comment="Repost count display, the <0> tags enclose the number of reposts in bold (will never be 0)">
+                          <Text
+                            style={[a.text_md, a.font_semi_bold, t.atoms.text]}>
+                            {formatPostStatCount(post.repostCount)}
+                          </Text>{' '}
+                          <Plural
+                            value={post.repostCount}
+                            one="repost"
+                            other="reposts"
+                          />
+                        </Trans>
+                      )}
                     </Text>
                   </Link>
                 ) : null}

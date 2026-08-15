@@ -1,7 +1,7 @@
 import {useMemo} from 'react'
 import {View} from 'react-native'
 import {BSKY_LABELER_DID, type ModerationCause} from '@atproto/api'
-import {Trans, useLingui} from '@lingui/react/macro'
+import {Trans} from '@lingui/react/macro'
 
 import {useModerationCauseDescription} from '#/lib/moderation/useModerationCauseDescription'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
@@ -13,6 +13,8 @@ import {
   useModerationDetailsDialogControl,
 } from '#/components/moderation/ModerationDetailsDialog'
 import {Text} from '#/components/Typography'
+// northsky: wording follows the "They're called" setting
+import {usePostVocabulary} from '#/features/postVocabulary'
 
 export type AppModerationCause =
   | ModerationCause
@@ -219,14 +221,15 @@ export function FollowsYou({size = 'sm'}: CommonProps) {
 
 export function MutedOnlyReposts(props: CommonProps) {
   const t = useTheme()
-  const {t: l} = useLingui()
+  // northsky: wording follows the "They're called" setting
+  const vocab = usePostVocabulary()
 
   const size = props.size === 'lg' ? 16 : 12
 
   return (
     <LabelBase
       {...props}
-      label={l`Reskeets Hidden`}
+      label={vocab.repostsHidden}
       icon={
         <RepostStrikeIcon
           width={size}

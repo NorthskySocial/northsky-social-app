@@ -42,6 +42,8 @@ import * as Layout from '#/components/Layout'
 import {Loader} from '#/components/Loader'
 import * as Hider from '#/components/moderation/Hider'
 import {IS_WEB} from '#/env'
+// northsky: wording follows the "They're called" setting
+import {usePostVocabulary} from '#/features/postVocabulary'
 import {AboutSection} from './AboutSection'
 import {ErrorScreen} from './components/ErrorScreen'
 import {Header} from './components/Header'
@@ -152,6 +154,8 @@ function ProfileListScreenLoaded({
 }) {
   const t = useTheme()
   const {_} = useLingui()
+  // northsky: wording follows the "They're called" setting
+  const vocab = usePostVocabulary()
   const queryClient = useQueryClient()
   const {openComposer} = useOpenComposer()
   const {currentAccount} = useSession()
@@ -234,7 +238,7 @@ function ProfileListScreenLoaded({
               onPress={() => openComposer({logContext: 'Fab'})}
               icon={<EditBigIcon size="lg" fill={t.palette.white} />}
               accessibilityRole="button"
-              accessibilityLabel={_(msg`New post`)}
+              accessibilityLabel={vocab.newPost}
               accessibilityHint=""
             />
           </View>
@@ -277,7 +281,7 @@ function ProfileListScreenLoaded({
             onPress={() => openComposer({logContext: 'Fab'})}
             icon={<EditBigIcon size="lg" fill={t.palette.white} />}
             accessibilityRole="button"
-            accessibilityLabel={_(msg`New post`)}
+            accessibilityLabel={vocab.newPost}
             accessibilityHint=""
           />
         </View>

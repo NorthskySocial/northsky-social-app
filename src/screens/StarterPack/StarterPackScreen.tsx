@@ -76,6 +76,8 @@ import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {IS_WEB} from '#/env'
+// northsky: wording follows the "They're called" setting
+import {usePostVocabulary} from '#/features/postVocabulary'
 import * as bsky from '#/types/bsky'
 
 type StarterPackScreeProps = NativeStackScreenProps<
@@ -523,6 +525,8 @@ function OverflowMenu({
 }) {
   const t = useTheme()
   const {_} = useLingui()
+  // northsky: wording follows the "They're called" setting
+  const vocab = usePostVocabulary()
   const ax = useAnalytics()
   const {gtMobile} = useBreakpoints()
   const {currentAccount} = useSession()
@@ -569,7 +573,8 @@ function OverflowMenu({
   return (
     <>
       <Menu.Root>
-        <Menu.Trigger label={_(msg`Reskeet or quote post`)}>
+        {/* northsky: wording follows the "They're called" setting */}
+        <Menu.Trigger label={vocab.repostOrQuotePost}>
           {({props}) => (
             <Button
               {...props}
