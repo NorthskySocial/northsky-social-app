@@ -66,6 +66,7 @@ describe('post naming', () => {
 
     expect(result.current.naming).toBe('skeet')
     expect(result.current.vocab.newPost).toBe('New skeet')
+    expect(result.current.vocab.composeNewPost).toBe('Compose new skeet')
     expect(result.current.vocab.post).toBe('Skeet')
     expect(result.current.vocab.postAll).toBe('Skeet All')
   })
@@ -75,6 +76,7 @@ describe('post naming', () => {
     const {result} = renderVocabulary()
 
     expect(result.current.vocab.newPost).toBe('New post')
+    expect(result.current.vocab.composeNewPost).toBe('Compose new post')
     expect(result.current.vocab.post).toBe('Post')
   })
 

@@ -547,7 +547,6 @@ function ComposeBtn({minimal}: {minimal: boolean}) {
   const {currentAccount} = useSession()
   const {getState} = useNavigation()
   const {openComposer} = useOpenComposer()
-  const {t: l} = useLingui()
   // northsky: wording follows the "They're called" setting
   const vocab = usePostVocabulary()
   const [isFetchingHandle, setIsFetchingHandle] = useState(false)
@@ -593,7 +592,7 @@ function ComposeBtn({minimal}: {minimal: boolean}) {
     <View style={minimal ? [a.px_sm, a.pt_lg] : [a.flex_row, a.pl_md, a.pt_lg]}>
       <Button
         disabled={isFetchingHandle}
-        label={l`Compose new post`}
+        label={vocab.composeNewPost}
         onPress={() => void onPressCompose()}
         size="large"
         color="primary"

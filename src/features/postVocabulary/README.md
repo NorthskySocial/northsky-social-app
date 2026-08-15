@@ -12,7 +12,10 @@ app shipped before the setting existed.
 The setting reaches two buttons:
 
 - the compose button in the desktop left sidebar
-- the publish button in the composer, and the label a screen reader reads for it
+- the publish button in the composer
+
+Each button carries two strings: the visible one and the label a screen reader
+reads. The setting changes both.
 
 Nothing else follows the setting. Feed lines, screen headers, notification text,
 and the repost controls keep the skeet wording that commit `24c2ff3ff` gave

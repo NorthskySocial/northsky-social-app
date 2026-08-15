@@ -25,6 +25,19 @@ export function usePostVocabulary() {
       ? l({message: 'New skeet', context: 'action'})
       : l({message: 'New post', context: 'action'}),
 
+    /** The label a screen reader reads for the left sidebar compose button. */
+    composeNewPost: skeet
+      ? l({
+          message: 'Compose new skeet',
+          comment:
+            'Accessibility label for the sidebar button that writes a skeet',
+        })
+      : l({
+          message: 'Compose new post',
+          comment:
+            'Accessibility label for the sidebar button that writes a post',
+        }),
+
     /** The composer publish button, and the label a screen reader reads for it. */
     post: skeet
       ? l({message: 'Skeet', context: 'action'})
