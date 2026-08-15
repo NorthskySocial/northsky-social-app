@@ -49,6 +49,10 @@ type donationsConfig struct {
 	minCents       int64
 	maxCents       int64
 	returnBaseURL  string
+	// portalURL is the Stripe customer portal login page. A donor enters their
+	// email there and Stripe sends a one-time link, so this service stores no
+	// customer id. The URL differs between test mode and live mode.
+	portalURL string
 	// paymentMethodConfiguration selects which set of payment methods Stripe
 	// offers. The set itself is managed in the dashboard. IDs differ between
 	// test mode and live mode.
@@ -62,6 +66,22 @@ type donationsConfig struct {
 // links.
 func (cfg *donationsConfig) enabled() bool {
 	return cfg != nil && cfg.secretKey != ""
+}
+
+// sanitizePortalURL accepts an https URL and drops anything else. A bad value
+// must not stop the service or hide the donation form, so an invalid URL is
+// logged and discarded, the same way an invalid preset is. The https rule also
+// keeps a javascript: URL out of the page.
+func sanitizePortalURL(raw string) string {
+	if raw == "" {
+		return ""
+	}
+	parsed, err := url.Parse(raw)
+	if err != nil || parsed.Scheme != "https" || parsed.Host == "" {
+		slog.Warn("ignoring an invalid STRIPE_PORTAL_URL; it must be an https URL")
+		return ""
+	}
+	return raw
 }
 
 // isLocalhostOrigin reports whether an origin is a local development server.
@@ -93,6 +113,13 @@ func (cfg *donationsConfig) clientConfigLiteral() string {
 	config["checkout"] = cfg.enabled()
 	if cfg.publishableKey != "" {
 		config["publishableKey"] = cfg.publishableKey
+	}
+	// DONATION_LINKS carries payment links only. Drop a portal URL from it, so
+	// that the sanitized value below is the only one that can reach the page.
+	delete(config, "portalUrl")
+	// The portal needs no secret key, so it is offered even when checkout is off.
+	if cfg.portalURL != "" {
+		config["portalUrl"] = cfg.portalURL
 	}
 
 	encoded, err := json.Marshal(config)

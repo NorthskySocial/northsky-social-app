@@ -1,5 +1,7 @@
 import {
   clampAmountCents,
+  DEFAULT_AMOUNT_CENTS,
+  defaultPresetCents,
   isAmountInRange,
   parseAmountInput,
 } from '#/features/support/amount'
@@ -28,6 +30,23 @@ describe('clampAmountCents', () => {
     expect(clampAmountCents(50, 100, 5000)).toBe(100)
     expect(clampAmountCents(9999, 100, 5000)).toBe(5000)
     expect(clampAmountCents(700, 100, 5000)).toBe(700)
+  })
+})
+
+describe('defaultPresetCents', () => {
+  it('picks the default when the deployment offers it', () => {
+    expect(defaultPresetCents([500, 1000, 2500, 5000])).toBe(
+      DEFAULT_AMOUNT_CENTS,
+    )
+    expect(defaultPresetCents([300, 500])).toBe(DEFAULT_AMOUNT_CENTS)
+  })
+
+  it('falls back to the first preset when the default is absent', () => {
+    expect(defaultPresetCents([300, 1000])).toBe(300)
+  })
+
+  it('falls back to the default when there are no presets', () => {
+    expect(defaultPresetCents([])).toBe(DEFAULT_AMOUNT_CENTS)
   })
 })
 

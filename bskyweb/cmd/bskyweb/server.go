@@ -97,6 +97,7 @@ func serve(cctx *cli.Context) error {
 		minCents:       cctx.Int64("donation-min-cents"),
 		maxCents:       cctx.Int64("donation-max-cents"),
 		returnBaseURL:  strings.TrimSuffix(cctx.String("donation-return-base-url"), "/"),
+		portalURL:      sanitizePortalURL(cctx.String("stripe-portal-url")),
 
 		paymentMethodConfiguration: cctx.String("donation-payment-method-configuration"),
 		apiBase:                    stripeAPIBase,

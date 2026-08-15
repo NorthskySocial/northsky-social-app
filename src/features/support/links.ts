@@ -20,6 +20,19 @@ const donationsConfigSchema = z.object({
    */
   checkout: z.boolean().optional(),
   publishableKey: z.string().optional(),
+  /**
+   * Stripe customer portal login page. A donor enters their email and Stripe
+   * sends a one-time link, so this app stores no customer id. A bad value falls
+   * back to undefined instead of failing the parse, because one wrong URL must
+   * not hide the donation form. Native builds read this from the bundle, where
+   * the server cannot check it first.
+   */
+  portalUrl: z
+    .string()
+    .url()
+    .startsWith('https://')
+    .optional()
+    .catch(undefined),
   presetsCents: z.array(z.number().int().positive()).optional(),
   minCents: z.number().int().positive().optional(),
   maxCents: z.number().int().positive().optional(),
@@ -49,6 +62,20 @@ export function parseDonationsConfig(
     return null
   }
   return result.data
+}
+
+/** The frequency the form offers first. */
+export const DEFAULT_INTERVAL: DonationInterval = 'monthly'
+
+/**
+ * The frequency to select first from payment links. Monthly needs a link per
+ * amount, so without those links the form falls back to one-time. Otherwise the
+ * frequency control hides itself and the amount list renders empty.
+ */
+export function defaultLinkInterval(config: DonationsConfig): DonationInterval {
+  return getPresetAmounts(config, 'monthly').length > 0
+    ? DEFAULT_INTERVAL
+    : 'oneTime'
 }
 
 /**

@@ -1,4 +1,6 @@
 import {
+  DEFAULT_INTERVAL,
+  defaultLinkInterval,
   encodeDid,
   getDonationUrl,
   getPresetAmounts,
@@ -51,8 +53,59 @@ describe('parseDonationsConfig', () => {
       presetsCents: [500, 1000],
       minCents: 100,
       maxCents: 100000,
+      portalUrl: 'https://billing.stripe.com/p/login/tetsuo',
     }
     expect(parseDonationsConfig(JSON.stringify(served))).toEqual(served)
+  })
+
+  it('keeps the portal url when checkout is off', () => {
+    expect(
+      parseDonationsConfig(
+        '{"currency":"usd","checkout":false,"portalUrl":"https://billing.stripe.com/p/login/tetsuo"}',
+      ),
+    ).toEqual({
+      currency: 'usd',
+      checkout: false,
+      portalUrl: 'https://billing.stripe.com/p/login/tetsuo',
+    })
+  })
+
+  it('drops a bad portal url but keeps the rest of the config', () => {
+    for (const bad of [
+      'akira',
+      'billing.stripe.com/p/login/tetsuo',
+      'http://billing.stripe.com/p/login/tetsuo',
+      'javascript:alert(1)',
+    ]) {
+      expect(
+        parseDonationsConfig(
+          JSON.stringify({currency: 'usd', checkout: true, portalUrl: bad}),
+        ),
+      ).toEqual({currency: 'usd', checkout: true})
+    }
+  })
+})
+
+describe('defaultLinkInterval', () => {
+  it('starts on monthly when monthly links exist', () => {
+    expect(defaultLinkInterval(CONFIG)).toBe('monthly')
+    expect(DEFAULT_INTERVAL).toBe('monthly')
+  })
+
+  it('starts on one-time when no monthly link exists', () => {
+    expect(
+      defaultLinkInterval({currency: 'usd', oneTime: CONFIG.oneTime}),
+    ).toBe('oneTime')
+    expect(defaultLinkInterval({currency: 'usd'})).toBe('oneTime')
+  })
+
+  it('ignores a monthly section that has only a custom link', () => {
+    expect(
+      defaultLinkInterval({
+        currency: 'usd',
+        monthly: {custom: 'https://donate.stripe.com/custom-monthly'},
+      }),
+    ).toBe('oneTime')
   })
 })
 

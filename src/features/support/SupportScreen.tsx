@@ -74,6 +74,29 @@ export function SupportScreen({}: Props) {
             </Link>
           </View>
         )}
+
+        {DONATIONS?.portalUrl && (
+          <View
+            style={[a.gap_md, a.p_lg, a.rounded_md, t.atoms.bg_contrast_25]}>
+            <Text style={[a.text_md, a.leading_snug]}>
+              <Trans>
+                Already donate every month? You can change the amount, update
+                your card, or cancel at any time.
+              </Trans>
+            </Text>
+            <Link
+              to={DONATIONS.portalUrl}
+              label={l`Manage your monthly donation`}
+              size="small"
+              variant="solid"
+              color="secondary"
+              style={[a.rounded_full, a.justify_center]}>
+              <ButtonText>
+                <Trans>Manage Subscription</Trans>
+              </ButtonText>
+            </Link>
+          </View>
+        )}
       </Layout.Content>
     </Layout.Screen>
   )
