@@ -78,6 +78,43 @@ func TestClientConfigLiteral(t *testing.T) {
 		}
 	})
 
+	t.Run("offers the portal even without a secret key", func(t *testing.T) {
+		t.Setenv("DONATION_LINKS", "")
+		cfg := testDonationsConfig("")
+		cfg.secretKey = ""
+		cfg.portalURL = "https://billing.stripe.com/p/login/tetsuo"
+
+		literal := cfg.clientConfigLiteral()
+		if !strings.Contains(literal, "billing.stripe.com/p/login/tetsuo") {
+			t.Errorf("expected the portal url to reach the page, got %s", literal)
+		}
+	})
+
+	t.Run("omits the portal url when it is unset", func(t *testing.T) {
+		t.Setenv("DONATION_LINKS", "")
+		if literal := testDonationsConfig("").clientConfigLiteral(); strings.Contains(literal, "portalUrl") {
+			t.Errorf("expected no portal url, got %s", literal)
+		}
+	})
+
+	t.Run("ignores a portal url from DONATION_LINKS", func(t *testing.T) {
+		t.Setenv("DONATION_LINKS", `{"portalUrl":"https://evil.example/p/login/akira"}`)
+
+		cfg := testDonationsConfig("")
+		if literal := cfg.clientConfigLiteral(); strings.Contains(literal, "evil.example") {
+			t.Errorf("expected the inherited portal url to be dropped, got %s", literal)
+		}
+
+		cfg.portalURL = "https://billing.stripe.com/p/login/tetsuo"
+		literal := cfg.clientConfigLiteral()
+		if strings.Contains(literal, "evil.example") {
+			t.Errorf("expected the server value to win, got %s", literal)
+		}
+		if !strings.Contains(literal, "billing.stripe.com/p/login/tetsuo") {
+			t.Errorf("expected the server portal url, got %s", literal)
+		}
+	})
+
 	t.Run("survives invalid links", func(t *testing.T) {
 		t.Setenv("DONATION_LINKS", "{nope")
 		if literal := testDonationsConfig("").clientConfigLiteral(); !strings.Contains(literal, `currency`) {
@@ -91,6 +128,25 @@ func TestClientConfigLiteral(t *testing.T) {
 			t.Fatal("the secret key must not reach the page")
 		}
 	})
+}
+
+func TestSanitizePortalURL(t *testing.T) {
+	const valid = "https://billing.stripe.com/p/login/tetsuo"
+	if got := sanitizePortalURL(valid); got != valid {
+		t.Errorf("expected an https url to survive, got %q", got)
+	}
+	for _, raw := range []string{
+		"",
+		"billing.stripe.com/p/login/tetsuo",
+		"http://billing.stripe.com/p/login/tetsuo",
+		"javascript:alert(1)",
+		"https://",
+		"://nope",
+	} {
+		if got := sanitizePortalURL(raw); got != "" {
+			t.Errorf("expected %q to be dropped, got %q", raw, got)
+		}
+	}
 }
 
 func TestJsStringLiteral(t *testing.T) {
