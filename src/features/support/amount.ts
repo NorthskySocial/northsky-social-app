@@ -1,5 +1,17 @@
 export const DEFAULT_MIN_CENTS = 100
 export const DEFAULT_MAX_CENTS = 100000
+export const DEFAULT_AMOUNT_CENTS = 500
+
+/**
+ * The preset to select first. A deployment can set its own presets, so the
+ * default is used only when it is one of them. Otherwise no preset button would
+ * look selected.
+ */
+export function defaultPresetCents(presets: number[]): number {
+  return presets.includes(DEFAULT_AMOUNT_CENTS)
+    ? DEFAULT_AMOUNT_CENTS
+    : presets[0]
+}
 
 /**
  * Reads a typed amount into the smallest currency unit. Returns null when the

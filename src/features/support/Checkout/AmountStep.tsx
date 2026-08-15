@@ -10,6 +10,7 @@ import {Text} from '#/components/Typography'
 import {
   DEFAULT_MAX_CENTS,
   DEFAULT_MIN_CENTS,
+  defaultPresetCents,
   isAmountInRange,
   parseAmountInput,
 } from '../amount'
@@ -34,8 +35,8 @@ export function AmountStep({
   const minCents = config.minCents ?? DEFAULT_MIN_CENTS
   const maxCents = config.maxCents ?? DEFAULT_MAX_CENTS
 
-  const [interval, setInterval] = useState<DonationInterval>('oneTime')
-  const [amountCents, setAmountCents] = useState(presets[0])
+  const [interval, setInterval] = useState<DonationInterval>('monthly')
+  const [amountCents, setAmountCents] = useState(defaultPresetCents(presets))
   const [customInput, setCustomInput] = useState('')
 
   const customCents = customInput ? parseAmountInput(customInput) : null

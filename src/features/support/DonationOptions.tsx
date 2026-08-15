@@ -19,10 +19,12 @@ export function DonationOptions({config}: {config: DonationsConfig}) {
   const t = useTheme()
   const {t: l, i18n} = useLingui()
   const {currentAccount} = useSession()
-  const [frequency, setFrequency] = useState<DonationInterval>('oneTime')
+  const monthlyAvailable = getPresetAmounts(config, 'monthly').length > 0
+  const [frequency, setFrequency] = useState<DonationInterval>(
+    monthlyAvailable ? 'monthly' : 'oneTime',
+  )
 
   const amounts = getPresetAmounts(config, frequency)
-  const monthlyAvailable = getPresetAmounts(config, 'monthly').length > 0
   const customUrl =
     frequency === 'oneTime'
       ? getDonationUrl(config, 'oneTime', 'custom', currentAccount?.did)
