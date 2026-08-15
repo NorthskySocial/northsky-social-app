@@ -206,12 +206,12 @@ export function NotificationSettingsScreen({}: Props) {
               />
             </SettingsList.PressableItem>
             <SettingsList.PressableItem
-              label={l`Settings for repost notifications`}
+              label={l`Settings for reskeet notifications`}
               onPress={repostDialogControl.open}
               contentContainerStyle={[a.align_start]}>
               <SettingsList.ItemIcon icon={RepostIcon} />
               <ItemTextWithSubtitle
-                titleText={<Trans>Reposts</Trans>}
+                titleText={<Trans>Reskeets</Trans>}
                 subtitleText={<SettingPreview preference={settings?.repost} />}
                 showSkeleton={!settings}
               />
@@ -230,12 +230,12 @@ export function NotificationSettingsScreen({}: Props) {
               />
             </SettingsList.LinkItem>
             <SettingsList.PressableItem
-              label={l`Settings for notifications for likes of your reposts`}
+              label={l`Settings for notifications for likes of your reskeets`}
               onPress={likeRepostDialogControl.open}
               contentContainerStyle={[a.align_start]}>
               <SettingsList.ItemIcon icon={LikeRepostIcon} />
               <ItemTextWithSubtitle
-                titleText={<Trans>Likes of your reposts</Trans>}
+                titleText={<Trans>Likes of your reskeets</Trans>}
                 subtitleText={
                   <SettingPreview preference={settings?.likeViaRepost} />
                 }
@@ -243,12 +243,12 @@ export function NotificationSettingsScreen({}: Props) {
               />
             </SettingsList.PressableItem>
             <SettingsList.PressableItem
-              label={l`Settings for notifications for reposts of your reposts`}
+              label={l`Settings for notifications for reskeets of your reskeets`}
               onPress={repostRepostDialogControl.open}
               contentContainerStyle={[a.align_start]}>
               <SettingsList.ItemIcon icon={RepostRepostIcon} />
               <ItemTextWithSubtitle
-                titleText={<Trans>Reposts of your reposts</Trans>}
+                titleText={<Trans>Reskeets of your reskeets</Trans>}
                 subtitleText={
                   <SettingPreview preference={settings?.repostViaRepost} />
                 }
@@ -352,27 +352,27 @@ export function NotificationSettingsScreen({}: Props) {
         control={repostDialogControl}
         name="repost"
         icon={RepostIcon}
-        titleText={<Trans>Reposts</Trans>}
+        titleText={<Trans>Reskeets</Trans>}
         subtitleText={
-          <Trans>Get notifications when people repost your posts.</Trans>
+          <Trans>Get notifications when people reskeet your posts.</Trans>
         }
       />
       <NotificationSettingsDialog
         control={likeRepostDialogControl}
         name="likeViaRepost"
         icon={LikeRepostIcon}
-        titleText={<Trans>Likes of your reposts</Trans>}
+        titleText={<Trans>Likes of your reskeets</Trans>}
         subtitleText={
-          <Trans>Get notifications when people like your reposts.</Trans>
+          <Trans>Get notifications when people like your reskeets.</Trans>
         }
       />
       <NotificationSettingsDialog
         control={repostRepostDialogControl}
         name="repostViaRepost"
         icon={RepostRepostIcon}
-        titleText={<Trans>Reposts of your reposts</Trans>}
+        titleText={<Trans>Reskeets of your reskeets</Trans>}
         subtitleText={
-          <Trans>Get notifications when people repost your reposts.</Trans>
+          <Trans>Get notifications when people reskeet your reskeets.</Trans>
         }
       />
       <ChatNotificationDialogs

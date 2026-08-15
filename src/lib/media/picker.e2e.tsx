@@ -49,7 +49,7 @@ async function getFile() {
 
 /*
  * The Android emulator can't reach the iOS simulator's sample photo library,
- * so we load a jpg bundled with the app instead. It is bundled via require()
+ * so we load a WebP image bundled with the app instead. It is bundled via require()
  * (resolved by Metro), so it survives `pm clear`, which Maestro's clearState
  * runs at the start of every flow. An adb-seeded file in app-scoped external
  * storage does not survive: pm clear wipes that directory each flow, so the
@@ -57,7 +57,7 @@ async function getFile() {
  */
 async function getAndroidFile() {
   const asset = Asset.fromModule(
-    require('../../../assets/images/welcome-modal-bg.jpg'),
+    require('../../../assets/images/welcome-modal-bg.webp'),
   )
   await asset.downloadAsync()
 
@@ -69,16 +69,16 @@ async function getAndroidFile() {
   }
 
   /*
-   * Dimensions of the bundled asset (assets/images/welcome-modal-bg.jpg). Only
+   * Dimensions of the bundled asset (assets/images/welcome-modal-bg.webp). Only
    * used for downstream aspect-ratio display; the actual bytes are read from
    * disk by compressIfNeeded.
    */
   return await compressIfNeeded(
     {
       path,
-      mime: 'image/jpeg',
+      mime: 'image/webp',
       size: fileInfo.size,
-      width: 1432,
+      width: 1423,
       height: 1025,
     },
     IMAGE_SIZE_CONFIG_2K_1MB,

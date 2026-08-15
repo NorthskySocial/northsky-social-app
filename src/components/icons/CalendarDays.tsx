@@ -1,5 +1,20 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
-export const CalendarDays_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M4 3a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H4Zm1 16V9h14v10H5ZM5 7h14V5H5v2Zm3 10.25a1.25 1.25 0 1 0 0-2.5 1.25 1.25 0 0 0 0 2.5ZM17.25 12a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0ZM12 13.25a1.25 1.25 0 1 0 0-2.5 1.25 1.25 0 0 0 0 2.5ZM9.25 12a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0ZM12 17.25a1.25 1.25 0 1 0 0-2.5 1.25 1.25 0 0 0 0 2.5Z',
+/** Tabler: calendar-month (outline) */
+export const CalendarDays_Stroke2_Corner0_Rounded = createTablerIcon({
+  paths: [
+    'M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12',
+    'M16 3v4',
+    'M8 3v4',
+    'M4 11h16',
+    'M8 14v4',
+    'M12 14v4',
+    'M16 14v4',
+  ],
 })

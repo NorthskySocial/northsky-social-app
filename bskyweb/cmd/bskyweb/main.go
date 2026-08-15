@@ -5,6 +5,7 @@ import (
 
 	_ "github.com/joho/godotenv/autoload"
 
+	"github.com/bluesky-social/social-app/bskyweb/brand"
 	logging "github.com/ipfs/go-log"
 	"github.com/urfave/cli/v2"
 )
@@ -120,6 +121,70 @@ func run(args []string) {
 					Value:    false,
 					Required: false,
 					EnvVars:  []string{"ROBOTS_DISALLOW_ALL"},
+				},
+				// northsky: donation checkout for the Support screen
+				&cli.StringFlag{
+					Name:     "stripe-secret-key",
+					Usage:    "Stripe secret key. Donations are disabled when empty",
+					Required: false,
+					Value:    "",
+					EnvVars:  []string{"STRIPE_SECRET_KEY"},
+				},
+				&cli.StringFlag{
+					Name:     "stripe-publishable-key",
+					Usage:    "Stripe publishable key, sent to the app",
+					Required: false,
+					Value:    "",
+					EnvVars:  []string{"STRIPE_PUBLISHABLE_KEY"},
+				},
+				&cli.StringFlag{
+					Name:     "stripe-portal-url",
+					Usage:    "Stripe customer portal login page. The Manage Subscription button is hidden when empty",
+					Required: false,
+					Value:    "",
+					EnvVars:  []string{"STRIPE_PORTAL_URL"},
+				},
+				&cli.StringFlag{
+					Name:     "donation-currency",
+					Usage:    "three letter currency code for donations",
+					Required: false,
+					Value:    "usd",
+					EnvVars:  []string{"DONATION_CURRENCY"},
+				},
+				&cli.StringFlag{
+					Name:     "donation-presets-cents",
+					Usage:    "comma separated donation amounts, in the smallest currency unit",
+					Required: false,
+					Value:    "500,1000,2500,5000",
+					EnvVars:  []string{"DONATION_PRESETS_CENTS"},
+				},
+				&cli.Int64Flag{
+					Name:     "donation-min-cents",
+					Usage:    "smallest donation the server accepts",
+					Required: false,
+					Value:    100,
+					EnvVars:  []string{"DONATION_MIN_CENTS"},
+				},
+				&cli.Int64Flag{
+					Name:     "donation-max-cents",
+					Usage:    "largest donation the server accepts",
+					Required: false,
+					Value:    100000,
+					EnvVars:  []string{"DONATION_MAX_CENTS"},
+				},
+				&cli.StringFlag{
+					Name:     "donation-payment-method-configuration",
+					Usage:    "Stripe payment method configuration id. The default configuration applies when empty",
+					Required: false,
+					Value:    "",
+					EnvVars:  []string{"DONATION_PAYMENT_METHOD_CONFIGURATION"},
+				},
+				&cli.StringFlag{
+					Name:     "donation-return-base-url",
+					Usage:    "origin Stripe returns the donor to, without a trailing slash",
+					Required: false,
+					Value:    brand.BaseURL,
+					EnvVars:  []string{"DONATION_RETURN_BASE_URL"},
 				},
 			},
 		},

@@ -7,6 +7,7 @@ import (
 
 	appbsky "github.com/bluesky-social/indigo/api/bsky"
 	"github.com/bluesky-social/indigo/atproto/syntax"
+	"github.com/bluesky-social/social-app/bskyweb/brand"
 )
 
 func (srv *Server) postEmbedHTML(postView *appbsky.FeedDefs_PostView) (string, error) {
@@ -64,9 +65,9 @@ func (srv *Server) postEmbedHTML(postView *appbsky.FeedDefs_PostView) (string, e
 		PostText:      post.Text,
 		PostAuthor:    authorName,
 		PostIndexedAt: sortAt,
-		ProfileURL:    template.URL(fmt.Sprintf("https://bsky.app/profile/%s?ref_src=embed", aturi.Authority())),
-		PostURL:       template.URL(fmt.Sprintf("https://bsky.app/profile/%s/post/%s?ref_src=embed", aturi.Authority(), aturi.RecordKey())),
-		WidgetURL:     template.URL("https://embed.bsky.app/static/embed.js"),
+		ProfileURL:    template.URL(fmt.Sprintf("%s/profile/%s?ref_src=embed", brand.BaseURL, aturi.Authority())),
+		PostURL:       template.URL(fmt.Sprintf("%s/profile/%s/post/%s?ref_src=embed", brand.BaseURL, aturi.Authority(), aturi.RecordKey())),
+		WidgetURL:     template.URL(brand.EmbedServiceURL + "/static/embed.js"),
 	}
 
 	var buf bytes.Buffer

@@ -1,5 +1,16 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
-export const EyeSlash_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M2.293 2.293a1 1 0 0 1 1.414 0L7.335 5.92l.03.03 3.22 3.222 4.243 4.242 3.22 3.22.03.03 3.63 3.629a1 1 0 0 1-1.415 1.414l-3.09-3.09c-2.65 1.478-5.625 1.778-8.421.869-3.039-.987-5.779-3.37-7.67-7.027a1 1 0 0 1 0-.918c1.086-2.1 2.452-3.78 3.996-5.019L2.293 3.707a1 1 0 0 1 0-1.414Zm4.24 5.654 2.021 2.021a4 4 0 0 0 5.478 5.478l1.688 1.688c-2.042.982-4.246 1.124-6.32.45-2.34-.76-4.594-2.586-6.265-5.584.97-1.739 2.135-3.083 3.398-4.053Zm3.535 3.535 2.45 2.45a2 2 0 0 1-2.45-2.45Zm.81-5.405c3.573-.49 7.45 1.369 9.987 5.923a14.797 14.797 0 0 1-1.347 2.02 1 1 0 1 0 1.564 1.247 17.078 17.078 0 0 0 1.806-2.808 1 1 0 0 0 0-.918c-2.833-5.479-7.584-8.088-12.281-7.446a1 1 0 0 0 .271 1.982Z',
+/** Tabler: eye-off (outline) */
+export const EyeSlash_Stroke2_Corner0_Rounded = createTablerIcon({
+  paths: [
+    'M10.585 10.587a2 2 0 0 0 2.829 2.828',
+    'M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87',
+    'M3 3l18 18',
+  ],
 })

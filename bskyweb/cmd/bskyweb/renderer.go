@@ -20,6 +20,7 @@ func applyBrandGlobals(globals pongo2.Context) {
 	globals["ogSiteName"] = brand.OgSiteName
 	globals["twitterHandle"] = brand.TwitterHandle
 	globals["baseUrl"] = brand.BaseURL
+	globals["embedServiceUrl"] = brand.EmbedServiceURL
 }
 
 type RendererLoader struct {
@@ -66,6 +67,13 @@ func NewRenderer(prefix string, fs *embed.FS, debug bool) *Renderer {
 		TemplateSet: set,
 		Debug:       debug,
 	}
+}
+
+// SetDonationConfig publishes the donation config to every template, so that the
+// app can read it at run time. See src/features/support/README.md
+func (r *Renderer) SetDonationConfig(literal string) {
+	r.TemplateSet.Globals["donationConfig"] = literal
+	pongo2.Globals["donationConfig"] = literal
 }
 
 func (r Renderer) Render(w io.Writer, name string, data any, c echo.Context) error {

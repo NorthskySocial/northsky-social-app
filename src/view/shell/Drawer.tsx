@@ -56,6 +56,8 @@ import {
   Message_Stroke2_Corner0_Rounded as Message,
   Message_Stroke2_Corner0_Rounded_Filled as MessageFilled,
 } from '#/components/icons/Message'
+// northsky: donation screen icon
+import {MoneybagHeart_Stroke2_Corner2_Rounded as MoneybagHeart} from '#/components/icons/MoneybagHeart'
 import {SettingsGear2_Stroke2_Corner0_Rounded as Settings} from '#/components/icons/SettingsGear2'
 import {
   UserCircle_Filled_Corner0_Rounded as UserCircleFilled,
@@ -293,6 +295,13 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
     setDrawerOpen(false)
   }, [navigation, setDrawerOpen, ax])
 
+  // northsky: donation screen
+  const onPressSupport = useCallback(() => {
+    ax.metric('nav:click', {item: 'support', surface: 'drawer'})
+    navigation.navigate('Support')
+    setDrawerOpen(false)
+  }, [navigation, setDrawerOpen, ax])
+
   const onPressFeedback = useCallback(() => {
     Linking.openURL(
       FEEDBACK_FORM_URL({
@@ -369,6 +378,8 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
               onPress={onPressProfile}
             />
             <SettingsMenuItem onPress={onPressSettings} />
+            {/* northsky: donation screen */}
+            <SupportMenuItem onPress={onPressSupport} />
           </>
         ) : (
           <>
@@ -674,6 +685,20 @@ let SettingsMenuItem = ({onPress}: {onPress: () => void}): React.ReactNode => {
   )
 }
 SettingsMenuItem = memo(SettingsMenuItem)
+
+// northsky: donation screen
+let SupportMenuItem = ({onPress}: {onPress: () => void}): React.ReactNode => {
+  const {_} = useLingui()
+  const t = useTheme()
+  return (
+    <MenuItem
+      icon={<MoneybagHeart style={[t.atoms.text]} width={iconWidth} />}
+      label={_(msg`Support`)}
+      onPress={onPress}
+    />
+  )
+}
+SupportMenuItem = memo(SupportMenuItem)
 
 function MenuItem({icon, label, count, bold, onPress}: MenuItemProps) {
   const t = useTheme()

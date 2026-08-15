@@ -63,11 +63,12 @@
   <meta name="twitter:value3" content="{{ postView.ReplyCount }}">
   {% endif -%}
   {%- if postView.RepostCount %}
-  <meta name="twitter:label4" content="Reposts">
+  {# northsky: user-facing repost label renamed to reskeet #}
+  <meta name="twitter:label4" content="Reskeets">
   <meta name="twitter:value4" content="{{ postView.RepostCount }}">
   {% endif -%}
   <meta property="article:published_time" content="{{ postView.IndexedAt }}">
-  <link rel="alternate" type="application/json+oembed" href="https://embed.bsky.app/oembed?format=json&url={{ postView.Uri | urlencode }}" />
+  <link rel="alternate" type="application/json+oembed" href="{{ embedServiceUrl }}/oembed?format=json&url={{ postView.Uri | urlencode }}" />
   <link rel="alternate" href="{{ postView.Uri }}" />
   {%- if postJSONLD %}
   <script type="application/ld+json">{{ postJSONLD|safe }}</script>

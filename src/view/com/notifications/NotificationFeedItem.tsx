@@ -322,8 +322,8 @@ let NotificationFeedItem = ({
       ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
           one: `${formattedAuthorsCount} other`,
           other: `${formattedAuthorsCount} others`,
-        })} reposted your post`
-      : l`${firstAuthorName} reposted your post`
+        })} reskeeted your post`
+      : l`${firstAuthorName} reskeeted your post`
     notificationContent = hasMultipleAuthors ? (
       <Trans>
         {firstAuthorLink} and{' '}
@@ -334,10 +334,10 @@ let NotificationFeedItem = ({
             other={`${formattedAuthorsCount} others`}
           />
         </Text>{' '}
-        reposted your post
+        reskeeted your post
       </Trans>
     ) : (
-      <Trans>{firstAuthorLink} reposted your post</Trans>
+      <Trans>{firstAuthorLink} reskeeted your post</Trans>
     )
     icon = <RepostIcon size="xl" style={{color: t.palette.positive_500}} />
   } else if (item.type === 'follow') {
@@ -491,8 +491,8 @@ let NotificationFeedItem = ({
       ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
           one: `${formattedAuthorsCount} other`,
           other: `${formattedAuthorsCount} others`,
-        })} liked your repost`
-      : l`${firstAuthorName} liked your repost`
+        })} liked your reskeet`
+      : l`${firstAuthorName} liked your reskeet`
     notificationContent = hasMultipleAuthors ? (
       <Trans>
         {firstAuthorLink} and{' '}
@@ -503,18 +503,18 @@ let NotificationFeedItem = ({
             other={`${formattedAuthorsCount} others`}
           />
         </Text>{' '}
-        liked your repost
+        liked your reskeet
       </Trans>
     ) : (
-      <Trans>{firstAuthorLink} liked your repost</Trans>
+      <Trans>{firstAuthorLink} liked your reskeet</Trans>
     )
   } else if (item.type === 'repost-via-repost') {
     a11yLabel = hasMultipleAuthors
       ? l`${firstAuthorName} and ${plural(additionalAuthorsCount, {
           one: `${formattedAuthorsCount} other`,
           other: `${formattedAuthorsCount} others`,
-        })} reposted your repost`
-      : l`${firstAuthorName} reposted your repost`
+        })} reskeeted your reskeet`
+      : l`${firstAuthorName} reskeeted your reskeet`
     notificationContent = hasMultipleAuthors ? (
       <Trans>
         {firstAuthorLink} and{' '}
@@ -525,10 +525,10 @@ let NotificationFeedItem = ({
             other={`${formattedAuthorsCount} others`}
           />
         </Text>{' '}
-        reposted your repost
+        reskeeted your reskeet
       </Trans>
     ) : (
-      <Trans>{firstAuthorLink} reposted your repost</Trans>
+      <Trans>{firstAuthorLink} reskeeted your reskeet</Trans>
     )
     icon = <RepostIcon size="xl" style={{color: t.palette.positive_500}} />
   } else if (item.type === 'subscribed-post') {

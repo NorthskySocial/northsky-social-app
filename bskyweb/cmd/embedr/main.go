@@ -24,7 +24,7 @@ func run(args []string) {
 
 	app := cli.App{
 		Name:  "embedr",
-		Usage: "web server for embed.bsky.app post embeds",
+		Usage: "web server for post embeds",
 	}
 
 	app.Commands = []*cli.Command{

@@ -1,5 +1,12 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
-export const Menu_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M2 6a1 1 0 0 1 1-1h18a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1Zm0 6a1 1 0 0 1 1-1h18a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1Zm0 6a1 1 0 0 1 1-1h18a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1Z',
+/** Tabler: menu-2 (outline) */
+export const Menu_Stroke2_Corner0_Rounded = createTablerIcon({
+  paths: ['M4 6l16 0', 'M4 12l16 0', 'M4 18l16 0'],
 })

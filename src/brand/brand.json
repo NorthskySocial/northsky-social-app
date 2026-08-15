@@ -5,6 +5,8 @@
   "ogSiteName": "Northsky",
   "twitterHandle": "@northsky",
   "baseUrl": "https://northsky.app",
+  "embedServiceUrl": "https://embed.northsky.app",
+  "ogcardServiceUrl": "https://ogcard.northsky.app",
   "ageAssurance": {
     "enabled": false,
     "adultAgeGateEnabled": true

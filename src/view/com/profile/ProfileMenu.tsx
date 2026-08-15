@@ -174,7 +174,7 @@ let ProfileMenu = ({
       try {
         await queueUnmuteReposts()
         Toast.show(
-          l({message: 'Reposts will be shown in feeds', context: 'toast'}),
+          l({message: 'Reskeets will be shown in feeds', context: 'toast'}),
         )
       } catch (err) {
         const e = err as Error
@@ -189,7 +189,7 @@ let ProfileMenu = ({
       try {
         await queueMuteReposts()
         Toast.show(
-          l({message: 'Reposts will be hidden in feeds', context: 'toast'}),
+          l({message: 'Reskeets will be hidden in feeds', context: 'toast'}),
         )
       } catch (err) {
         const e = err as Error
@@ -484,15 +484,15 @@ let ProfileMenu = ({
                               testID="profileHeaderDropdownMuteRepostsBtn"
                               label={
                                 profile.viewer?.mutedOnlyReposts
-                                  ? l`Show reposts in feeds`
-                                  : l`Hide reposts in feeds`
+                                  ? l`Show reskeets in feeds`
+                                  : l`Hide reskeets in feeds`
                               }
                               onPress={() => void onPressMuteReposts()}>
                               <Menu.ItemText>
                                 {profile.viewer?.mutedOnlyReposts ? (
-                                  <Trans>Show reposts in feeds</Trans>
+                                  <Trans>Show reskeets in feeds</Trans>
                                 ) : (
-                                  <Trans>Hide reposts in feeds</Trans>
+                                  <Trans>Hide reskeets in feeds</Trans>
                                 )}
                               </Menu.ItemText>
                               <Menu.ItemIcon

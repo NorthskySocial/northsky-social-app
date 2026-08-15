@@ -14,6 +14,8 @@ export const BRAND = {
   aboutUrl: 'https://northskysocial.com/posts/about',
   /** `embedServiceUrl` from src/brand/config.ts */
   embedServiceUrl: 'https://embed.northsky.app',
+  /** `ogcardServiceUrl` from src/brand/brand.json */
+  ogcardServiceUrl: 'https://ogcard.northsky.app',
   /** `publicAppViewUrl` from src/brand/config.ts */
   publicAppViewUrl: 'https://api.blacksky.community',
 } as const

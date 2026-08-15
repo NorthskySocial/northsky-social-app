@@ -569,7 +569,7 @@ function OverflowMenu({
   return (
     <>
       <Menu.Root>
-        <Menu.Trigger label={_(msg`Repost or quote post`)}>
+        <Menu.Trigger label={_(msg`Reskeet or quote post`)}>
           {({props}) => (
             <Button
               {...props}

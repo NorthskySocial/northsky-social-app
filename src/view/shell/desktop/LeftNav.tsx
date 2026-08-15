@@ -69,6 +69,8 @@ import {
   Message_Stroke2_Corner0_Rounded as MessageIcon,
   Message_Stroke2_Corner0_Rounded_Filled as MessageFilledIcon,
 } from '#/components/icons/Message'
+// northsky: donation screen icon
+import {MoneybagHeart_Stroke2_Corner2_Rounded as MoneybagHeartIcon} from '#/components/icons/MoneybagHeart'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {
   SettingsGear2_Filled_Corner0_Rounded as SettingsFilledIcon,
@@ -762,6 +764,17 @@ export function DesktopLeftNav({routeName}: {routeName: string}) {
             icons={{
               inactive: SettingsIcon,
               active: SettingsFilledIcon,
+            }}
+          />
+          {/* northsky: donation screen */}
+          <NavItem
+            label={l`Support`}
+            href="/support"
+            navItem="support"
+            minimal={leftNavMinimal}
+            icons={{
+              inactive: MoneybagHeartIcon,
+              active: MoneybagHeartIcon,
             }}
           />
 

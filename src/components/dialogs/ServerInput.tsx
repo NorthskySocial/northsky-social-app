@@ -17,6 +17,7 @@ import {Globe_Stroke2_Corner0_Rounded as Globe} from '#/components/icons/Globe'
 import {InlineLinkText} from '#/components/Link'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
+import {BRAND} from '#/brand' // northsky: use the server brand name in provider labels
 
 type SegmentedControlOptions = typeof BSKY_SERVICE | 'custom'
 
@@ -141,9 +142,9 @@ function DialogInner({
           <SegmentedControl.Item
             testID="bskyServiceSelectBtn"
             value={BSKY_SERVICE}
-            label={_(msg`Bluesky`)}>
+            label={BRAND.appName}>
             <SegmentedControl.ItemText>
-              {_(msg`Bluesky`)}
+              {BRAND.appName}
             </SegmentedControl.ItemText>
           </SegmentedControl.Item>
           <SegmentedControl.Item
@@ -160,9 +161,9 @@ function DialogInner({
           <View role="tabpanel">
             <Admonition type="tip">
               <Trans>
-                Bluesky is an open network where you can choose your own
+                {BRAND.appName} is an open network where you can choose your own
                 provider. If you're new here, we recommend sticking with the
-                default Bluesky Social option.
+                default {BRAND.appName} option.
               </Trans>
             </Admonition>
           </View>
@@ -212,8 +213,9 @@ function DialogInner({
               </Trans>
             ) : (
               <Trans>
-                Bluesky is an open network where you can choose your hosting
-                provider. If you're a developer, you can host your own server.
+                {BRAND.appName} is an open network where you can choose your
+                hosting provider. If you're a developer, you can host your own
+                server.
               </Trans>
             )}{' '}
             <InlineLinkText
