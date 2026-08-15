@@ -1,208 +1,189 @@
 # Asset licensing
 
-The [MIT license](./LICENSE) in this repository covers our source code. It does not cover
-every file in the tree.
+Northsky is a fork of Bluesky's social-app. The upstream project publishes its own asset
+notice explaining that its MIT license does not cover every file in its tree: the interface
+icons are licensed to Bluesky by a third party, the illustrations are commissioned, and the
+marks are trademarks. Bleusky requires you replace all of that with little guidance on how to.
 
-Some of the images, icons, fonts, and brand assets here are licensed to Bluesky Social PBC
-by third parties, or are our trademarks, or are third-party trademarks. We cannot pass those
-rights on to you. This document identifies them.
+**Our goal is that every asset Northsky ships is one you may redistribute.** Where upstream
+had to say "this is not ours to pass on," we would rather replace the asset with something
+openly licensed. That work is well underway but not complete; [Section 5](#5-still-to-replace)
+contains what is left.
 
-We should have written this down sooner. If you have already forked this repository and
-shipped one of the assets listed below, we are not treating that as bad faith on your part —
-the repository did not tell you, and that is our fault. Please work through the
-[If you are forking](#if-you-are-forking) checklist when you can.
+Two rules follow from the goal.
 
-Assets are scoped by directory wherever possible, so that adding a file to a carved-out
-directory does not require an edit here. Individual paths are listed only where an asset does
-not sit in a dedicated directory.
+1. **A third-party asset carries its license in its own directory.** If you want to know
+what covers a file, look for a license file beside it. That is the whole lookup. We do not want
+a forker cross-referencing a central table against a directory listing, because that is the
+step people skip.
 
-**The rule:** if a file is listed in this document, the MIT license does not grant you rights
-to it. Everything in [Section 6](#6-third-party-assets-you-may-redistribute) is redistributable
-on its own terms, which travel with the files.
+2. **The Northsky branding is ours, and a fork of Northsky must replace them.** Opening up
+everything else does not open up our identity. See [Section 3](#3-northsky-brand-assets).
 
 ---
 
-## 1. Commissioned artwork — licensed to Bluesky only
+## 1. Third-party assets we ship
 
-**`assets/illustrations/`**
+Every entry here is redistributable on its own terms. Those terms travel with the files, and
+you must keep them there.
 
-The landing-screen illustration, in light and dark variants, used by
-`src/view/com/auth/SplashScreen.tsx` (`illustration-mobile.png` and
-`illustration-mobile-dark.png`).
+| Asset                 | Path                                       | License                  | License file                                     |
+| -----------------------| --------------------------------------------| --------------------------| --------------------------------------------------|
+| Tabler Icons          | `src/assets/tabler`                        | MIT, (c) Pawel Kuna      | `src/assets/tabler/LICENSE`                      |
+| Zendesk Garden icons  | `src/assets/gardenSvg`                     | Apache 2.0               | `src/assets/gardenSvg/LICENSE`                   |
+| Inter typeface        | `assets/fonts/inter`                       | SIL OFL 1.1              | `assets/fonts/inter/OFL.txt`                     |
+| Geist typeface        | `assets/fonts/geist`                       | SIL OFL 1.1              | `assets/fonts/geist/Geist-OFL.txt`               |
+| MuseoModerno typeface | `assets/fonts/museomoderno`                | SIL OFL 1.1              | `assets/fonts/museomoderno/MuseoModerno-OFL.txt` |
+| country-flag-icons    | `assets/icons/flags`                       | MIT, (c) @catamphetamine | `assets/icons/flags/README.md`                   |
+| Material Icons        | `bskyweb/static/media/MaterialIcons.*.ttf` | Apache 2.0               | `licenses/APACHE-2.0.txt`                        |
 
-This artwork was commissioned by Bluesky Social PBC from illustrator Owen D. Pomery, through
-his agent Brilliant Artists Ltd. Copyright remains with the artist. Our license is limited to
-Bluesky's own products and channels, it is exclusive to us, and it does not permit us to
-sublicense the artwork or to distribute modified versions of it.
+Inter, Geist, and MuseoModerno are all under the SIL Open Font License, which includes a
+Reserved Font Name provision. If you modify or subset one of these fonts, you may not
+distribute the result under its original name. We do ask that you also change the fonts as 
+they are part of our branding.
 
-**If you are forking this repository, replace these files.** They are not available for
-third-party licensing while our license runs, so please do not contact the artist or his agent
-to request permission — the answer is constrained by our agreement, not by their willingness.
-See [`assets/illustrations/README.md`](./assets/illustrations/README.md).
+Material Icons is build output rather than a source asset. The Expo toolchain pulls it in and
+emits it into the web build, which is why its notice sits in `licenses/APACHE-2.0.txt` and
+`NOTICE.md` rather than beside the file.
 
-## 2. Licensed icon system — not ours to pass on
+See `NOTICE.md` for the consolidated attribution text.
 
-**`assets/icons/` (top level), and the icon glyphs in `bskyembed/assets/`**
+## 2. Icons, and the asset map
 
-The user-interface glyphs at the top level of `assets/icons/`, plus copies of several in
-`bskyembed/assets/`, come from the Central icon system by Iconists (David & Storm GbR). Bluesky
-Social PBC licenses these icons for use in our own products. **That license is for our own use.
-It does not include the right to pass any rights to the icons on to you.**
+Upstream's interface glyphs come from a commercial icon system licensed to Bluesky for
+Bluesky's own products. We replaced the set.
 
-This is not us telling you that you cannot use these icons. It is us telling you that any right
-you have to use them has to come from Iconists rather than from us, and that you should not
-assume our MIT license gave you one. Licenses are available directly from
-[iconists.co](https://iconists.co), and there are good openly licensed alternatives if you would
-rather not buy one.
+156 of the 160 modules in `src/components/icons` are now generated from openly licensed
+sources: Tabler for almost everything, and Zendesk Garden for the repost mark.
 
-This section covers every file at the top level of `assets/icons/` **except** those named
-elsewhere in this document — specifically `logomark.svg`, `newskie.svg`, `verifiedCheck.svg`,
-`verifierCheck.svg`, `starterPack.svg`, `starterPack_stroke2_corner0_rounded.svg`, `custom_logo_japan.svg`,
-`apple_logo.svg`, and `android_logo.svg`. The `assets/icons/flags/` and `assets/icons/community/`
-subdirectories are covered by [Section 6](#6-third-party-assets-you-may-redistribute) and
-[Section 5](#5-third-party-trademarks) respectively.
+**Use the asset map as your guide when replacing icons.**
 
-See [`assets/icons/README.md`](./assets/icons/README.md).
+`src/features/tablerIcons/mapping.json` maps every exported icon name to the glyph that draws
+it. It is the complete inventory of what the interface needs, name by name, which makes it the
+right starting point for a swap:
 
-## 3. Bluesky trademarks and brand assets
+- To change one icon, edit its entry and regenerate.
+- To move to a different icon set entirely, the map tells you exactly how many glyphs you need
+  and what each one is for.
+- The generator refuses to write a module unless the map covers every export that module
+  already has, so a swap cannot silently drop an export and break its import sites.
 
-Our name, logo, butterfly mark, logotype, and app icons are trademarks of Bluesky Social PBC.
-They are not licensed to you under the MIT license or by this document. Use of them is governed
-by our [Trademark Policy](https://bsky.social/about/support/trademarks) and [Brand Guidelines](https://bsky.social/about/support/branding).
+```bash
+node scripts/generate-tabler-icons.mjs
+npx prettier --write src/components/icons
+```
 
-You may refer to Bluesky by name to describe interoperability or origin — for example, "a client
-for Bluesky," or "based on the Bluesky app." You may not use our marks as the identity of your
-own product or service, or in any way likely to suggest that Bluesky publishes, endorses, or
-supports it.
+`src/features/tablerIcons/README.md` covers the helpers, stroke weights, vendoring a glyph
+that is not yet in the tree, and the known gaps.
 
-- `assets/app-icons/` — all iOS and Android app icon variants, including the `.icon` bundles
+## 3. Northsky brand assets
+
+These are our identity. They are not covered by our MIT license, and replacing them is the
+first thing to do if you fork Northsky.
+
 - `assets/favicon.png`
-- `assets/logo.png`
-- `assets/default-avatar.png`
-- `assets/icon-android-foreground.png`
-- `assets/icon-android-monochrome.png`
-- `assets/icon-android-notification.png`
-- `assets/splash/splash.png`
-- `assets/splash/splash-dark.png`
-- `assets/splash/android-splash-logo-white.png`
-- `assets/icons/logomark.svg`
-- `assets/icons/newskie.svg`
-- `assets/icons/verifiedCheck.svg`
-- `assets/icons/verifierCheck.svg`
-- `assets/icons/starterPack.svg`, `assets/icons/starterPack_stroke2_corner0_rounded.svg`
-- `bskyembed/assets/logo.svg`
-- `bskyembed/assets/logo_full_name.svg`
-- `bskyweb/static/favicon.png`, `favicon-16x16.png`, `favicon-32x32.png`
+- `bskyweb/static/favicon.png`, `bskyweb/static/favicon-16x16.png`, `bskyweb/static/favicon-32x32.png`
 - `bskyweb/static/apple-touch-icon.png`
 - `bskyweb/static/safari-pinned-tab.svg`
 - `bskyweb/static/social-card-default.png`, `bskyweb/static/social-card-default-gradient.png`
-- `bskyweb/embedr-static/favicon.png`, `favicon-16x16.png`, `favicon-32x32.png`
-- `modules/BlueskyClip/Images.xcassets/AppIcon.appiconset/`
+- `bskyweb/embedr-static/favicon.png`, `bskyweb/embedr-static/favicon-16x16.png`, `bskyweb/embedr-static/favicon-32x32.png`
+- `bskyweb/embedr-static/apple-touch-icon.png`, `bskyweb/embedr-static/safari-pinned-tab.svg`
+- `bskyembed/assets/logo.svg`
+- Inline vector path data in `src/brand/assets/Logo.tsx` and `src/brand/assets/Logotype.tsx`
 - Inline vector path data in `src/view/icons/Logo.tsx` and `src/view/icons/Logotype.tsx`
 
-We are not asking anyone to remove these files from the repository. They are here because the
-app needs them to build. Replacing them is a forker's responsibility, not ours.
+Brand configuration lives in `src/brand/brand.json`. Re-branding the app is a matter of
+changing that file and replacing the assets above, not of editing components. See
+`src/brand/README.md`.
 
-## 4. Community and contest artwork — credited, but not ours to license
+You may refer to Northsky by name to describe interoperability or origin. You may not use our
+marks as the identity of your own product, or in any way likely to suggest that Northsky
+publishes or endorses it.
 
-These are third-party artworks that appear in the app with attribution. We hold no license that
-lets us pass rights to them on to you.
+## 4. Third-party trademarks
 
-- `assets/kawaii.png`, `assets/kawaii_smol.png` — logo by
-  [@sawaratsuki.bsky.social](https://bsky.app/profile/sawaratsuki.bsky.social), shown as an
-  opt-in variant and credited in `src/view/shell/Drawer.tsx` and
-  `src/view/shell/desktop/RightNav.tsx`
-- `assets/icons/custom_logo_japan.svg` — the winning entry from the Bluesky Japan logo contest,
-  created by a contest entrant
+These marks belong to other companies and appear in the interface to identify their services.
+We neither grant nor withhold permission, because it is not ours to give.
 
-Replace these if you fork. If you want to use them, that is a conversation with the artist,
-not with us.
+- `assets/icons/community/` - Leaflet, Offprint, pckt, Standard.site, and Germ Network
+- Inline vector path data in `src/components/icons/Logo.tsx`, which is still imported by two
+  screens, and in the verification badges `src/components/icons/Verified.tsx`,
+  `src/components/icons/VerifiedCheck.tsx`, and `src/components/icons/VerifierCheck.tsx`
 
-## 5. Third-party trademarks
+The verification badges were deliberately left out of the icon conversion: they encode three
+distinct trust states that a generic icon set collapses into one rosette. They still need
+Northsky artwork.
 
-These marks belong to other companies. We include them to identify their services in our UI —
-sign-in buttons, store badges, and links to third-party applications. We are neither granting
-nor withholding permission, because it is not ours to give. Your use of them rests on your own
-nominative-use basis or on permission from the mark owner.
+## 5. Still to replace
 
-- `assets/icons/apple_logo.svg` — Apple Inc.
-- `assets/icons/android_logo.svg` — Google LLC
-- `assets/icons/community/` — Leaflet, Offprint, pckt (`pckt.svg`, `pckt-full.svg`),
-  Standard.site, and Germ Network (`germ_logo.webp`)
+These are inherited from upstream and still carry Bluesky's bytes. **Treat everything in this
+section as outside our MIT license and not licensed for your use.** We are working through it;
+until then, a fork of Northsky needs to replace these for the same reasons a fork of Bluesky
+would.
 
-Apple's and Google's marks in particular carry their own brand guidelines governing size,
-spacing, and permitted contexts. If you ship a sign-in button or a store badge, follow theirs,
-not ours.
+**Commissioned artwork.** `assets/illustrations/` - the landing-screen illustration by Owen D.
+Pomery, licensed to Bluesky exclusively. It cannot be sublicensed, so there is no point
+approaching the artist. Replace it.
 
-## 6. Third-party assets you may redistribute
+**Product imagery.** `assets/images/` - onboarding art, chat backgrounds, and announcement
+graphics. Some of it is commissioned. The line is drawn at the directory rather than file by
+file.
 
-These are licensed on terms that permit redistribution. Nothing in this document restricts them.
-Their license text travels with the files, and you must keep it there.
+**Bluesky marks still in the tree.**
 
-| Asset | Path | License | Notice |
-|---|---|---|---|
-| Inter typeface | `assets/fonts/inter/` | SIL Open Font License 1.1 | [`OFL.txt`](./assets/fonts/inter/OFL.txt) |
-| Inter typeface (OG card service) | `bskyogcard/src/assets/fonts/` | SIL Open Font License 1.1 | [`README.md`](./bskyogcard/src/assets/fonts/README.md) |
-| country-flag-icons | `assets/icons/flags/` | MIT, © @catamphetamine | [`README.md`](./assets/icons/flags/README.md) |
-| Material Icons | `bskyweb/static/media/MaterialIcons.*.ttf` | Apache License 2.0 | [`NOTICE.md`](./NOTICE.md) |
+- `assets/app-icons/` - all iOS and Android app icon variants
+- `assets/splash/` - splash screens and the splash logomark
+- `assets/logo.png`, `assets/default-avatar.png`
+- `assets/icon-android-foreground.png`, `assets/icon-android-monochrome.png`, `assets/icon-android-notification.png`
+- `assets/icons/starterPack_stroke2_corner0_rounded.svg`, `bskyembed/assets/starterPack.svg`
+- `modules/BlueskyClip/Images.xcassets/AppIcon.appiconset/`
 
-Build output under `bskyweb/static/media/` also contains compiled Inter files. They are the same
-OFL-licensed typeface, emitted by the web build.
 
-**One thing to watch on Inter:** OFL 1.1 includes a Reserved Font Name provision. If you modify
-or subset the font, the result cannot be distributed under the name "Inter."
+**Community artwork.** `assets/kawaii.png` and `assets/kawaii_smol.png`, by
+[@sawaratsuki.bsky.social](https://bsky.app/profile/sawaratsuki.bsky.social), and
+`assets/icons/custom_logo_japan.svg`, the winning entry from the Bluesky Japan logo contest.
+Credited in the app, but not ours to license on.
 
-See [`NOTICE.md`](./NOTICE.md) for the consolidated third-party notices.
-
-## 7. Product imagery — treat as not licensed to you
-
-**`assets/images/`**
-
-Product illustration and announcement imagery — onboarding value-prop art, chat backgrounds,
-feature announcement graphics, and similar.
-
-**Treat everything in this directory as outside the MIT license and not licensed for your use.**
-Some of it is commissioned work. Rather than have you guess file by file which is which, we are
-drawing the line at the directory.
-
-If you are forking, replace these or ship without them.
-See [`assets/images/README.md`](./assets/images/README.md).
+**Remaining upstream glyphs.** `bskyembed/assets/arrowBottom_stroke2_corner0_rounded.svg`,
+`bskyembed/assets/circleInfo_stroke2_corner0_rounded.svg`, and
+`bskyembed/assets/play_filled_corner0_rounded.svg` in the embed service are from the licensed
+icon system and were not part of the app-side conversion.
 
 ---
 
-## If you are forking
+## If you fork Northsky
 
-You have our blessing to fork this application. To do it cleanly:
+1. **Replace the Northsky marks** in [Section 3](#3-northsky-brand-assets) and set your own
+   values in `src/brand/brand.json`.
+2. **Replace everything in [Section 5](#5-still-to-replace)**, or ship without it. This is the
+   part that carries real licensing risk, because none of it is ours to pass on.
+3. **Keep the license files** for the third-party assets in [Section 1](#1-third-party-assets-we-ship).
+   They must travel with the files.
+4. **Check your own position** on the third-party marks in [Section 4](#4-third-party-trademarks).
+5. **Swap icons through the asset map**, not by editing generated modules. See
+   [Section 2](#2-icons-and-the-asset-map).
 
-1. **Replace `assets/illustrations/`.** Commissioned artwork, licensed to Bluesky only. See
-   [Section 1](#1-commissioned-artwork--licensed-to-bluesky-only).
-2. **Source your own UI icons.** The glyph set in `assets/icons/` is licensed to us for our own
-   use. See [Section 2](#2-licensed-icon-system--not-ours-to-pass-on).
-3. **Replace `assets/images/`.** Treat as not licensed to you. See
-   [Section 7](#7-product-imagery--treat-as-not-licensed-to-you).
-4. **Replace the Bluesky marks** listed in [Section 3](#3-bluesky-trademarks-and-brand-assets) —
-   app icons, favicons, logo files, and the inline logo paths in `src/view/icons/`.
-5. **Replace or remove the community artwork** in
-   [Section 4](#4-community-and-contest-artwork--credited-but-not-ours-to-license).
-6. **Check your own position on the third-party marks** in
-   [Section 5](#5-third-party-trademarks).
-7. **Keep the license notices** for the assets in
-   [Section 6](#6-third-party-assets-you-may-redistribute).
-8. **Change your branding, support links, and analytics** as described in the
-   [Forking guidelines](./README.md#forking-guidelines).
+## Keeping this document honest
 
-This list is about licensing. The [Forking guidelines](./README.md#forking-guidelines) in the
-README cover the rest of what makes a fork clearly distinguishable from Bluesky, which matters
-both for your users and for app store review.
+`scripts/check-asset-notices.mjs` verifies that every path named here and in `NOTICE.md` still
+exists. A notice that points at a moved or deleted file quietly stops meaning anything, which
+is the failure mode that produced the problem in the first place.
+
+```bash
+node scripts/check-asset-notices.mjs
+```
+
+Run it after moving or deleting an asset. If it fails, update the notice rather than silencing
+the check. The upstream CI workflow that runs this on every pull request has not been ported to
+this fork yet, so for now it is a manual step.
 
 ## Questions
 
-If something in this repository looks like it should be on this list and is not, or if you are
-unsure whether an asset is covered, open an issue or email us and we will sort it out. We would
-much rather answer the question than have someone guess.
+If something in this repository looks like it should be listed here and is not, or you are
+unsure whether an asset is covered, open an issue. We would much rather answer the question
+than have someone guess.
 
 ---
 
-*Last reviewed: August 2026. This document describes the licensing position of assets in this
-repository. It is not a grant of rights, and it does not modify the [MIT license](./LICENSE) as
-it applies to source code.*
+*This document describes the licensing position of assets in this repository. It is not a grant
+of rights, and it does not modify the MIT license in `LICENSE` as it applies to source code.*
