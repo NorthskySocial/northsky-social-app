@@ -49,6 +49,10 @@ type donationsConfig struct {
 	minCents       int64
 	maxCents       int64
 	returnBaseURL  string
+	// portalURL is the Stripe customer portal login page. A donor enters their
+	// email there and Stripe sends a one-time link, so this service stores no
+	// customer id. The URL differs between test mode and live mode.
+	portalURL string
 	// paymentMethodConfiguration selects which set of payment methods Stripe
 	// offers. The set itself is managed in the dashboard. IDs differ between
 	// test mode and live mode.
@@ -93,6 +97,10 @@ func (cfg *donationsConfig) clientConfigLiteral() string {
 	config["checkout"] = cfg.enabled()
 	if cfg.publishableKey != "" {
 		config["publishableKey"] = cfg.publishableKey
+	}
+	// The portal needs no secret key, so it is offered even when checkout is off.
+	if cfg.portalURL != "" {
+		config["portalUrl"] = cfg.portalURL
 	}
 
 	encoded, err := json.Marshal(config)

@@ -12,6 +12,11 @@ The Support screen takes donations two ways:
 Stripe emails the receipt, and nothing in our system changes state on payment,
 so there are no webhooks and no stored records.
 
+Monthly donors manage or cancel through the Stripe customer portal. The app
+links to the portal **login page**, where a donor enters their email and Stripe
+sends a one-time link. That keeps the no-state design: an API-created portal
+session needs a customer id, which we would have to store.
+
 ## Server
 
 The routes live in `bskyweb/cmd/bskyweb/donations.go` and are registered only
@@ -41,6 +46,7 @@ and they need HTTPS and a registered domain, so they never appear on
 | --- | --- | --- |
 | `STRIPE_SECRET_KEY` | Enables checkout. **A real secret: k8s Secret only.** | empty |
 | `STRIPE_PUBLISHABLE_KEY` | Sent to the app | empty |
+| `STRIPE_PORTAL_URL` | Customer portal login page. Empty hides the Manage Subscription button. | empty |
 | `DONATION_CURRENCY` | Three letter code | `usd` |
 | `DONATION_PRESETS_CENTS` | Comma separated amounts | `500,1000,2500,5000` |
 | `DONATION_MIN_CENTS` | Smallest accepted donation | `100` |
@@ -56,8 +62,9 @@ config into the page, and the app prefers that over anything in the bundle. So
 every web setting is pod environment, held in the deployment repository. Changing
 an amount, a preset or the payment method set is a pod restart, not a release.
 
-Only two values differ between environments: the payment method configuration id
-(`pmc_` ids are separate in test mode and live mode) and the return base URL.
+Three values differ between environments: the payment method configuration id
+and the portal URL (both are separate in test mode and live mode), and the
+return base URL.
 
 ```yaml
 # Secret: the only sensitive value in this feature
@@ -66,6 +73,7 @@ stringData:
 
 # Deployment env: none of these are secret
 - STRIPE_PUBLISHABLE_KEY: pk_live_...
+- STRIPE_PORTAL_URL: https://billing.stripe.com/p/login/...
 - DONATION_PAYMENT_METHOD_CONFIGURATION: pmc_...
 - DONATION_RETURN_BASE_URL: https://northsky.app
 - DONATION_CURRENCY: usd
@@ -107,6 +115,7 @@ only it knows, then writes the result into the page as
   "currency": "usd",
   "checkout": true,
   "publishableKey": "pk_live_...",
+  "portalUrl": "https://billing.stripe.com/p/login/...",
   "presetsCents": [500, 1000, 2500, 5000],
   "minCents": 100,
   "maxCents": 100000,
@@ -137,6 +146,9 @@ public by design. The secret key never leaves bskyweb.
 2. Otherwise: payment link buttons, one per configured tier, plus "Other amount"
    for the pay-what-you-want link.
 3. No config at all: a link to the website.
+
+A **Manage Subscription** button appears below whenever `portalUrl` is set. It
+does not depend on checkout, so an environment can offer the portal on its own.
 
 Stripe returns the donor to `/support?session_id=...`. The screen reads the
 status once, then removes the parameter so a reload does not repeat the

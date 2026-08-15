@@ -138,6 +138,13 @@ func run(args []string) {
 					EnvVars:  []string{"STRIPE_PUBLISHABLE_KEY"},
 				},
 				&cli.StringFlag{
+					Name:     "stripe-portal-url",
+					Usage:    "Stripe customer portal login page. The Manage Subscription button is hidden when empty",
+					Required: false,
+					Value:    "",
+					EnvVars:  []string{"STRIPE_PORTAL_URL"},
+				},
+				&cli.StringFlag{
 					Name:     "donation-currency",
 					Usage:    "three letter currency code for donations",
 					Required: false,

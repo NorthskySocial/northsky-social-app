@@ -78,6 +78,25 @@ func TestClientConfigLiteral(t *testing.T) {
 		}
 	})
 
+	t.Run("offers the portal even without a secret key", func(t *testing.T) {
+		t.Setenv("DONATION_LINKS", "")
+		cfg := testDonationsConfig("")
+		cfg.secretKey = ""
+		cfg.portalURL = "https://billing.stripe.com/p/login/tetsuo"
+
+		literal := cfg.clientConfigLiteral()
+		if !strings.Contains(literal, "billing.stripe.com/p/login/tetsuo") {
+			t.Errorf("expected the portal url to reach the page, got %s", literal)
+		}
+	})
+
+	t.Run("omits the portal url when it is unset", func(t *testing.T) {
+		t.Setenv("DONATION_LINKS", "")
+		if literal := testDonationsConfig("").clientConfigLiteral(); strings.Contains(literal, "portalUrl") {
+			t.Errorf("expected no portal url, got %s", literal)
+		}
+	})
+
 	t.Run("survives invalid links", func(t *testing.T) {
 		t.Setenv("DONATION_LINKS", "{nope")
 		if literal := testDonationsConfig("").clientConfigLiteral(); !strings.Contains(literal, `currency`) {

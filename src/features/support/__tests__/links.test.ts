@@ -51,8 +51,27 @@ describe('parseDonationsConfig', () => {
       presetsCents: [500, 1000],
       minCents: 100,
       maxCents: 100000,
+      portalUrl: 'https://billing.stripe.com/p/login/tetsuo',
     }
     expect(parseDonationsConfig(JSON.stringify(served))).toEqual(served)
+  })
+
+  it('keeps the portal url when checkout is off', () => {
+    expect(
+      parseDonationsConfig(
+        '{"currency":"usd","checkout":false,"portalUrl":"https://billing.stripe.com/p/login/tetsuo"}',
+      ),
+    ).toEqual({
+      currency: 'usd',
+      checkout: false,
+      portalUrl: 'https://billing.stripe.com/p/login/tetsuo',
+    })
+  })
+
+  it('returns null when the portal url is not a URL', () => {
+    expect(
+      parseDonationsConfig('{"currency":"usd","portalUrl":"akira"}'),
+    ).toBeNull()
   })
 })
 

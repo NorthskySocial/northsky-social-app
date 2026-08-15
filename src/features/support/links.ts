@@ -20,6 +20,11 @@ const donationsConfigSchema = z.object({
    */
   checkout: z.boolean().optional(),
   publishableKey: z.string().optional(),
+  /**
+   * Stripe customer portal login page. A donor enters their email and Stripe
+   * sends a one-time link, so this app stores no customer id.
+   */
+  portalUrl: z.string().url().optional(),
   presetsCents: z.array(z.number().int().positive()).optional(),
   minCents: z.number().int().positive().optional(),
   maxCents: z.number().int().positive().optional(),
