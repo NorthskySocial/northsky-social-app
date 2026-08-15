@@ -101,6 +101,8 @@ export function DraftItem({
                 numberOfLines={8}
                 value={post.text}
                 enableTags
+                // northsky: Preview Markdown formatting in saved drafts.
+                enableCode
                 disableMentionFacetValidation
               />
             )}
