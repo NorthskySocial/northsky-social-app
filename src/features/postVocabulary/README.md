@@ -31,8 +31,10 @@ re-apply during an upstream sync. See the fork rules in `AGENTS.md`.
 `usePostVocabulary()` returns the button strings for the current setting:
 
 ```tsx
-const vocab = usePostVocabulary()
-;<ButtonText>{vocab.newPost}</ButtonText>
+function ComposeButton() {
+  const vocab = usePostVocabulary()
+  return <ButtonText>{vocab.newPost}</ButtonText>
+}
 ```
 
 `usePostNaming()` returns `'post'` or `'skeet'`. Only the setting screen needs
