@@ -114,6 +114,9 @@ func (cfg *donationsConfig) clientConfigLiteral() string {
 	if cfg.publishableKey != "" {
 		config["publishableKey"] = cfg.publishableKey
 	}
+	// DONATION_LINKS carries payment links only. Drop a portal URL from it, so
+	// that the sanitized value below is the only one that can reach the page.
+	delete(config, "portalUrl")
 	// The portal needs no secret key, so it is offered even when checkout is off.
 	if cfg.portalURL != "" {
 		config["portalUrl"] = cfg.portalURL

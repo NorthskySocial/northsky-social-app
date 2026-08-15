@@ -97,6 +97,24 @@ func TestClientConfigLiteral(t *testing.T) {
 		}
 	})
 
+	t.Run("ignores a portal url from DONATION_LINKS", func(t *testing.T) {
+		t.Setenv("DONATION_LINKS", `{"portalUrl":"https://evil.example/p/login/akira"}`)
+
+		cfg := testDonationsConfig("")
+		if literal := cfg.clientConfigLiteral(); strings.Contains(literal, "evil.example") {
+			t.Errorf("expected the inherited portal url to be dropped, got %s", literal)
+		}
+
+		cfg.portalURL = "https://billing.stripe.com/p/login/tetsuo"
+		literal := cfg.clientConfigLiteral()
+		if strings.Contains(literal, "evil.example") {
+			t.Errorf("expected the server value to win, got %s", literal)
+		}
+		if !strings.Contains(literal, "billing.stripe.com/p/login/tetsuo") {
+			t.Errorf("expected the server portal url, got %s", literal)
+		}
+	})
+
 	t.Run("survives invalid links", func(t *testing.T) {
 		t.Setenv("DONATION_LINKS", "{nope")
 		if literal := testDonationsConfig("").clientConfigLiteral(); !strings.Contains(literal, `currency`) {
