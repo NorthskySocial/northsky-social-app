@@ -154,10 +154,12 @@ A wrong portal URL only removes that button. The server drops a value that is
 not https, and the app drops one that survives anyway, so the donation form
 still works.
 
-**Native builds need the portal URL in `DONATIONS_CONFIG`.** `STRIPE_PORTAL_URL`
-reaches the web app only. Native reads the build-time config, so add `portalUrl`
-to that secret before the next EAS build. Without it, native donors default to a
-monthly donation with no way to cancel inside the app.
+**Native builds need the portal URL in `EXPO_PUBLIC_DONATIONS_CONFIG`.**
+`STRIPE_PORTAL_URL` reaches the web app only. Add `portalUrl` to
+`EXPO_PUBLIC_DONATIONS_CONFIG` before the next EAS build. The build workflows
+write that variable from the `DONATIONS_CONFIG` repository secret, so edit the
+secret to change it. Without the URL, native donors default to a monthly
+donation with no way to cancel inside the app.
 
 Stripe returns the donor to `/support?session_id=...`. The screen reads the
 status once, then removes the parameter so a reload does not repeat the
