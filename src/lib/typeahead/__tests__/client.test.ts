@@ -193,6 +193,21 @@ describe('searchActorsTypeaheadVia', () => {
     })
   })
 
+  it('returns each account once', async () => {
+    serviceReturns([KUSANAGI, KUSANAGI, FAYE])
+    const agent = makeAgent({profiles: [KUSANAGI, FAYE]})
+
+    const result = await searchActorsTypeaheadVia(FALLBACK_APPVIEW, agent, {
+      q: 'a',
+      limit: 8,
+    })
+
+    expect(result.map(actor => actor.did)).toEqual([
+      'did:plc:kusanagi',
+      'did:plc:faye',
+    ])
+  })
+
   it('skips hydration when the service returns nothing', async () => {
     serviceReturns([])
     const agent = makeAgent()

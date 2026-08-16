@@ -95,11 +95,13 @@ async function hydrateViewerState(
   const byDid = new Map(res.data.profiles.map(p => [p.did, p]))
 
   const hydrated: AppBskyActorDefs.ProfileViewBasic[] = []
+  const emitted = new Set<string>()
   for (const actor of actors) {
     const profile = byDid.get(actor.did)
-    if (!profile) {
+    if (!profile || emitted.has(actor.did)) {
       continue
     }
+    emitted.add(actor.did)
     hydrated.push({...actor, viewer: profile.viewer, labels: profile.labels})
   }
   return hydrated
