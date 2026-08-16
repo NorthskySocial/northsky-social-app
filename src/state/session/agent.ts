@@ -405,6 +405,22 @@ function isRequest(input: RequestInfo | URL): input is Request {
   return typeof input === 'object' && input !== null && 'headers' in input
 }
 
+/*
+ * The path is compared exactly. A substring test also matches a request that
+ * carries a method name somewhere else, such as a search for that text, and
+ * would then send that request to the wrong service.
+ */
+function isPdsLocalMethodUrl(url: string): boolean {
+  try {
+    const {pathname} = new URL(url)
+    return PDS_LOCAL_PROXY_EXEMPT_METHODS.some(
+      method => pathname === `/xrpc/${method}`,
+    )
+  } catch {
+    return false
+  }
+}
+
 /**
  * northsky: removes the appview proxy header from requests to PDS-local
  * methods, and returns the `init` to send.
@@ -424,10 +440,7 @@ export function stripAppviewProxyForPdsLocalMethods(
   init: RequestInit | undefined,
 ): RequestInit | undefined {
   const url = isRequest(input) ? input.url : input.toString()
-  if (
-    !url ||
-    !PDS_LOCAL_PROXY_EXEMPT_METHODS.some(method => url.includes(method))
-  ) {
+  if (!isPdsLocalMethodUrl(url)) {
     return init
   }
 

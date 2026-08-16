@@ -131,6 +131,28 @@ describe('stripAppviewProxyForPdsLocalMethods', () => {
     expect(header(out, PROXY)).toBe(PROXY_VALUE)
   })
 
+  /*
+   * A search for the text of a method name puts it in the query string. That
+   * request must keep its proxy header and reach its own appview.
+   */
+  it('leaves a request that only mentions a method in its query alone', () => {
+    const init = authed()
+    const out = stripAppviewProxyForPdsLocalMethods(
+      'https://northsky.social/xrpc/app.bsky.feed.searchPostsV2?query=app.bsky.actor.getPreferences',
+      init,
+    )
+    expect(header(out, PROXY)).toBe(PROXY_VALUE)
+  })
+
+  it('leaves a method served under another namespace alone', () => {
+    const init = authed()
+    const out = stripAppviewProxyForPdsLocalMethods(
+      'https://northsky.social/xrpc/app.bsky.notification.getPreferences',
+      init,
+    )
+    expect(header(out, PROXY)).toBe(PROXY_VALUE)
+  })
+
   it('accepts a URL instance', () => {
     const out = stripAppviewProxyForPdsLocalMethods(
       new URL(GET_PREFS),
