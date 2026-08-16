@@ -406,15 +406,19 @@ function isRequest(input: RequestInfo | URL): input is Request {
 }
 
 /*
- * The path is compared exactly. A substring test also matches a request that
- * carries a method name somewhere else, such as a search for that text, and
- * would then send that request to the wrong service.
+ * northsky: this function compares the path exactly. A substring test also
+ * matches a request that carries a method name somewhere else, such as a
+ * search for that text, and sends that request to the wrong service.
+ *
+ * Some `URL` implementations add a trailing slash to a path that has no query
+ * string, so the comparison removes one. React Native does this, and its
+ * `URL` stands in whenever the Expo runtime does not replace it.
  */
 function isPdsLocalMethodUrl(url: string): boolean {
   try {
-    const {pathname} = new URL(url)
+    const path = new URL(url).pathname.replace(/\/$/, '')
     return PDS_LOCAL_PROXY_EXEMPT_METHODS.some(
-      method => pathname === `/xrpc/${method}`,
+      method => path === `/xrpc/${method}`,
     )
   } catch {
     return false

@@ -153,6 +153,15 @@ describe('stripAppviewProxyForPdsLocalMethods', () => {
     expect(header(out, PROXY)).toBe(PROXY_VALUE)
   })
 
+  /*
+   * The React Native URL adds a trailing slash to a path that has no query
+   * string. The strip must still find the method.
+   */
+  it('accepts a path with a trailing slash', () => {
+    const out = stripAppviewProxyForPdsLocalMethods(`${GET_PREFS}/`, authed())
+    expect(header(out, PROXY)).toBeNull()
+  })
+
   it('accepts a URL instance', () => {
     const out = stripAppviewProxyForPdsLocalMethods(
       new URL(GET_PREFS),
