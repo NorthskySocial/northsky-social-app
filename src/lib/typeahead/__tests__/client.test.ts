@@ -3,13 +3,17 @@ import {type AtpAgent} from '@atproto/api'
 import {type AppView} from '#/brand/appview'
 import {searchActorsTypeaheadVia} from '../client'
 
-const mockServiceSearch = jest.fn()
+const mockFetch = jest.fn()
+globalThis.fetch = mockFetch
 
-jest.mock('@atproto/api', () => ({
-  AtpAgent: jest.fn().mockImplementation(() => ({
-    searchActorsTypeahead: mockServiceSearch,
-  })),
-}))
+/** Answers as the typeahead service does, with a bare JSON body. */
+function serviceReturns(actors: unknown[]) {
+  mockFetch.mockResolvedValue({
+    ok: true,
+    status: 200,
+    json: () => Promise.resolve({actors}),
+  })
+}
 
 const OWN_APPVIEW: AppView = {
   url: 'https://api.blacksky.community',
@@ -55,7 +59,7 @@ describe('searchActorsTypeaheadVia', () => {
       q: 'kusa',
       limit: 8,
     })
-    expect(mockServiceSearch).not.toHaveBeenCalled()
+    expect(mockFetch).not.toHaveBeenCalled()
     expect(agent.getProfiles).not.toHaveBeenCalled()
   })
 
@@ -64,7 +68,7 @@ describe('searchActorsTypeaheadVia', () => {
    * until it is filled in from the account's own appview.
    */
   it('hydrates viewer and labels from the account appview', async () => {
-    mockServiceSearch.mockResolvedValue({data: {actors: [KUSANAGI]}})
+    serviceReturns([KUSANAGI])
     const agent = makeAgent({
       profiles: [{...KUSANAGI, viewer: {muted: true}, labels: [{val: 'spam'}]}],
     })
@@ -83,24 +87,44 @@ describe('searchActorsTypeaheadVia', () => {
     expect(agent.searchActorsTypeahead).not.toHaveBeenCalled()
   })
 
-  it('sends the attribution header to the service', async () => {
-    mockServiceSearch.mockResolvedValue({data: {actors: []}})
+  /*
+   * The service permits only Content-Type, Authorization, and X-Client at the
+   * CORS preflight. An atproto agent puts an `atproto-accept-labelers` header
+   * on every request, which the browser then blocks, so the request must carry
+   * the attribution header and nothing more.
+   */
+  it('sends only the attribution header to the service', async () => {
+    serviceReturns([])
 
     await searchActorsTypeaheadVia(FALLBACK_APPVIEW, makeAgent(), {
       q: 'faye',
       limit: 8,
     })
 
-    expect(mockServiceSearch).toHaveBeenCalledWith(
-      {q: 'faye', limit: 8},
-      expect.objectContaining({headers: {'X-Client': 'northsky.app'}}),
+    const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit]
+    expect(url).toBe(
+      'https://typeahead.waow.tech/xrpc/app.bsky.actor.searchActorsTypeahead?q=faye&limit=8',
     )
+    expect(init.headers).toEqual({'X-Client': 'northsky.app'})
+  })
+
+  it('surfaces a service error rather than returning nothing', async () => {
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 502,
+      json: () => Promise.resolve({}),
+    })
+
+    await expect(
+      searchActorsTypeaheadVia(FALLBACK_APPVIEW, makeAgent(), {
+        q: 'faye',
+        limit: 8,
+      }),
+    ).rejects.toThrow('502')
   })
 
   it('keeps the ranking the service returned', async () => {
-    mockServiceSearch.mockResolvedValue({
-      data: {actors: [UTENA, KUSANAGI, FAYE]},
-    })
+    serviceReturns([UTENA, KUSANAGI, FAYE])
     // The appview answers in a different order.
     const agent = makeAgent({profiles: [FAYE, UTENA, KUSANAGI]})
 
@@ -122,7 +146,7 @@ describe('searchActorsTypeaheadVia', () => {
    * unconditionally. Dropping it fails closed.
    */
   it('drops an account the appview does not return', async () => {
-    mockServiceSearch.mockResolvedValue({data: {actors: [KUSANAGI, FAYE]}})
+    serviceReturns([KUSANAGI, FAYE])
     const agent = makeAgent({profiles: [{...KUSANAGI, viewer: {muted: true}}]})
 
     const result = await searchActorsTypeaheadVia(FALLBACK_APPVIEW, agent, {
@@ -144,7 +168,7 @@ describe('searchActorsTypeaheadVia', () => {
       did: `did:plc:actor${i}`,
       handle: `actor${i}.northsky.social`,
     }))
-    mockServiceSearch.mockResolvedValue({data: {actors: many}})
+    serviceReturns(many)
     const agent = makeAgent({profiles: many.slice(0, 25)})
 
     const result = await searchActorsTypeaheadVia(FALLBACK_APPVIEW, agent, {
@@ -159,9 +183,7 @@ describe('searchActorsTypeaheadVia', () => {
   })
 
   it('asks for each account once', async () => {
-    mockServiceSearch.mockResolvedValue({
-      data: {actors: [KUSANAGI, KUSANAGI, FAYE]},
-    })
+    serviceReturns([KUSANAGI, KUSANAGI, FAYE])
     const agent = makeAgent({profiles: [KUSANAGI, FAYE]})
 
     await searchActorsTypeaheadVia(FALLBACK_APPVIEW, agent, {q: 'a', limit: 8})
@@ -172,7 +194,7 @@ describe('searchActorsTypeaheadVia', () => {
   })
 
   it('skips hydration when the service returns nothing', async () => {
-    mockServiceSearch.mockResolvedValue({data: {actors: []}})
+    serviceReturns([])
     const agent = makeAgent()
 
     const result = await searchActorsTypeaheadVia(FALLBACK_APPVIEW, agent, {
@@ -189,7 +211,7 @@ describe('searchActorsTypeaheadVia', () => {
    * hydration exists to close, so the failure must surface instead.
    */
   it('propagates a hydration failure', async () => {
-    mockServiceSearch.mockResolvedValue({data: {actors: [KUSANAGI]}})
+    serviceReturns([KUSANAGI])
     const agent = makeAgent()
     agent.getProfiles.mockRejectedValue(new Error('appview down'))
 

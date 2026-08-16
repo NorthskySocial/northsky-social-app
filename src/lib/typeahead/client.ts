@@ -1,4 +1,4 @@
-import {type AppBskyActorDefs, AtpAgent} from '@atproto/api'
+import {type AppBskyActorDefs, type AtpAgent} from '@atproto/api'
 
 import {type AppView} from '#/brand/appview'
 import {BRAND} from '#/brand/config'
@@ -8,20 +8,41 @@ const TIMEOUT_MS = 5_000
 /** Attribution value the typeahead service asks callers to send. */
 const X_CLIENT = 'northsky.app'
 
-const serviceAgents = new Map<string, AtpAgent>()
-
 /*
- * The service exposes an `app.bsky.actor.searchActorsTypeahead` alias with the
- * same parameters as the appview method, so a plain agent on its base URL
- * needs no request or response mapping.
+ * The service is called with plain `fetch`, as the other third-party services
+ * in `src/lib/slingshot/` are. An `AtpAgent` cannot be used: it puts an
+ * `atproto-accept-labelers` header on every request, and the service rejects
+ * that header at the CORS preflight. It permits only `Content-Type`,
+ * `Authorization`, and `X-Client`.
  */
-function getServiceAgent(url: string): AtpAgent {
-  let agent = serviceAgents.get(url)
-  if (!agent) {
-    agent = new AtpAgent({service: url})
-    serviceAgents.set(url, agent)
+async function fetchFallbackTypeahead(params: {
+  q: string
+  limit: number
+}): Promise<AppBskyActorDefs.ProfileViewBasic[]> {
+  const url = new URL(
+    '/xrpc/app.bsky.actor.searchActorsTypeahead',
+    BRAND.typeaheadServiceUrl,
+  )
+  url.searchParams.set('q', params.q)
+  url.searchParams.set('limit', String(params.limit))
+
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS)
+  try {
+    const res = await fetch(url.toString(), {
+      headers: {'X-Client': X_CLIENT},
+      signal: controller.signal,
+    })
+    if (!res.ok) {
+      throw new Error(`typeahead service responded with ${res.status}`)
+    }
+    const body = (await res.json()) as {
+      actors?: AppBskyActorDefs.ProfileViewBasic[]
+    }
+    return body.actors ?? []
+  } finally {
+    clearTimeout(timeout)
   }
-  return agent
 }
 
 /**
@@ -40,22 +61,7 @@ export async function searchActorsTypeaheadVia(
     return res.data.actors
   }
 
-  const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS)
-  let actors: AppBskyActorDefs.ProfileViewBasic[]
-  try {
-    const res = await getServiceAgent(
-      BRAND.typeaheadServiceUrl,
-    ).searchActorsTypeahead(params, {
-      signal: controller.signal,
-      headers: {'X-Client': X_CLIENT},
-    })
-    actors = res.data.actors
-  } finally {
-    clearTimeout(timeout)
-  }
-
-  return hydrateViewerState(agent, actors)
+  return hydrateViewerState(agent, await fetchFallbackTypeahead(params))
 }
 
 /** `app.bsky.actor.getProfiles` accepts at most 25 actors per call. */
