@@ -1,6 +1,7 @@
 import {type Did} from '@atproto/api'
 
 import packageJson from '#/../package.json'
+import {BRAND} from '#/brand/config'
 
 /**
  * The semver version of the app, as defined in `package.json.`
@@ -73,10 +74,11 @@ export const LOG_LEVEL = (process.env.EXPO_PUBLIC_LOG_LEVEL || 'info') as
 export const LOG_DEBUG: string = process.env.EXPO_PUBLIC_LOG_DEBUG || ''
 
 /**
- * The DID of the Bluesky appview to proxy to
+ * The DID of the appview to proxy to
  */
 export const BLUESKY_PROXY_DID: Did =
-  process.env.EXPO_PUBLIC_BLUESKY_PROXY_DID || 'did:web:api.bsky.app'
+  // northsky: fall back to the brand appview, not Bluesky
+  process.env.EXPO_PUBLIC_BLUESKY_PROXY_DID || BRAND.publicAppViewDid
 
 /**
  * The DID of the chat service to proxy to
