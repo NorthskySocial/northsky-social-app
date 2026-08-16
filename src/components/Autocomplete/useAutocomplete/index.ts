@@ -3,10 +3,12 @@ import {moderateProfile, type ModerationOpts} from '@atproto/api'
 import {keepPreviousData, useQuery} from '@tanstack/react-query'
 
 import {isJustAMute, moduiContainsHideableOffense} from '#/lib/moderation'
+// northsky: typeahead routing
+import {searchActorsTypeaheadVia} from '#/lib/typeahead/client'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {STALE} from '#/state/queries'
 import {DEFAULT_LOGGED_OUT_PREFERENCES} from '#/state/queries/preferences'
-import {useAgent} from '#/state/session'
+import {useAgent, useAppview} from '#/state/session'
 import {
   type AutocompleteApi,
   type AutocompleteItem,
@@ -32,6 +34,7 @@ export function useAutocomplete({
   showSearchFallback?: boolean
 }): AutocompleteApi {
   const agent = useAgent()
+  const appview = useAppview() // northsky: typeahead may come from another service
   const moderationOpts = useModerationOpts()
   const emojiSearch = useEmojiSearch()
 
@@ -42,6 +45,8 @@ export function useAutocomplete({
       {
         type,
         query: q,
+        // northsky: results differ per appview, so switching accounts must not reuse them
+        appview: appview.did,
       },
     ],
     async queryFn() {
@@ -52,12 +57,13 @@ export function useAutocomplete({
         // Going from "foo" to "foo." should not clear matches.
         q = q.toLowerCase().trim().replace(/\.$/, '')
 
-        const res = await agent.searchActorsTypeahead({
+        // northsky: appviews without typeahead use the brand service
+        const actors = await searchActorsTypeaheadVia(appview, agent, {
           q,
           limit: limit || 8,
         })
 
-        return (res?.data.actors || []).map(profile => ({
+        return actors.map(profile => ({
           key: profile.did,
           type: 'profile' as const,
           value: '@' + profile.handle,

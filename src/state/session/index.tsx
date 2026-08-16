@@ -14,6 +14,7 @@ import * as persisted from '#/state/persisted'
 import {useCloseAllActiveElements} from '#/state/util'
 import {useGlobalDialogsControlContext} from '#/components/dialogs/Context'
 import {AnalyticsContext, useAnalyticsBase, utils} from '#/analytics'
+import {type AppView} from '#/brand/appview'
 import {IS_WEB} from '#/env'
 import {emitSessionDropped} from '../events'
 import {
@@ -22,6 +23,7 @@ import {
   createAgentAndCreateAccount,
   createAgentAndLogin,
   createAgentAndResume,
+  getAppviewForAgent, // northsky: PDS-to-appview routing
   sessionAccountToSession,
 } from './agent'
 import {type Action, getInitialState, reducer, type State} from './reducer'
@@ -459,4 +461,13 @@ export function useAgent(): AtpAgent {
     throw Error('useAgent() must be below <SessionProvider>.')
   }
   return agent
+}
+
+/**
+ * northsky: returns the appview resolved for the current session's hosting
+ * provider at login / resume / account switch. Use this instead of a static
+ * appview constant for account-scoped calls.
+ */
+export function useAppview(): AppView {
+  return getAppviewForAgent(useAgent())
 }
