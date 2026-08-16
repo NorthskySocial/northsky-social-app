@@ -90,8 +90,8 @@ describe('searchActorsTypeaheadVia', () => {
   /*
    * The service permits only Content-Type, Authorization, and X-Client at the
    * CORS preflight. An atproto agent puts an `atproto-accept-labelers` header
-   * on every request, which the browser then blocks, so the request must carry
-   * the attribution header and nothing more.
+   * on every request, which the browser then blocks. The request must carry
+   * only the attribution header.
    */
   it('sends only the attribution header to the service', async () => {
     serviceReturns([])

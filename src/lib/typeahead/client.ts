@@ -9,11 +9,11 @@ const TIMEOUT_MS = 5_000
 const X_CLIENT = 'northsky.app'
 
 /*
- * The service is called with plain `fetch`, as the other third-party services
- * in `src/lib/slingshot/` are. An `AtpAgent` cannot be used: it puts an
- * `atproto-accept-labelers` header on every request, and the service rejects
- * that header at the CORS preflight. It permits only `Content-Type`,
- * `Authorization`, and `X-Client`.
+ * This function calls the service with plain `fetch`, as the other
+ * third-party clients in `src/lib/slingshot/` do. Do not use an atproto agent
+ * here. An agent puts an `atproto-accept-labelers` header on every request,
+ * and the service rejects that header at the CORS preflight. The service
+ * permits only `Content-Type`, `Authorization`, and `X-Client`.
  */
 async function fetchFallbackTypeahead(params: {
   q: string
