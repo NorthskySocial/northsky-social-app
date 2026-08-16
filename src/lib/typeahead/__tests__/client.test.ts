@@ -108,6 +108,42 @@ describe('searchActorsTypeaheadVia', () => {
     expect(init.headers).toEqual({'X-Client': 'northsky.app'})
   })
 
+  /*
+   * The service is a third party and plain fetch does not check the response
+   * against the lexicon, so a malformed body must not reach the caller.
+   */
+  it('ignores a response that is not a list of accounts', async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({actors: 'kusanagi'}),
+    })
+    const agent = makeAgent()
+
+    const result = await searchActorsTypeaheadVia(FALLBACK_APPVIEW, agent, {
+      q: 'kusa',
+      limit: 8,
+    })
+
+    expect(result).toEqual([])
+    expect(agent.getProfiles).not.toHaveBeenCalled()
+  })
+
+  it('drops entries that carry no DID', async () => {
+    serviceReturns([KUSANAGI, null, {handle: 'ghost.northsky.social'}])
+    const agent = makeAgent({profiles: [KUSANAGI]})
+
+    const result = await searchActorsTypeaheadVia(FALLBACK_APPVIEW, agent, {
+      q: 'kusa',
+      limit: 8,
+    })
+
+    expect(agent.getProfiles).toHaveBeenCalledWith({
+      actors: ['did:plc:kusanagi'],
+    })
+    expect(result.map(actor => actor.did)).toEqual(['did:plc:kusanagi'])
+  })
+
   it('surfaces a service error rather than returning nothing', async () => {
     mockFetch.mockResolvedValue({
       ok: false,

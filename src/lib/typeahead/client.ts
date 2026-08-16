@@ -36,10 +36,19 @@ async function fetchFallbackTypeahead(params: {
     if (!res.ok) {
       throw new Error(`typeahead service responded with ${res.status}`)
     }
-    const body = (await res.json()) as {
-      actors?: AppBskyActorDefs.ProfileViewBasic[]
+    const body = (await res.json()) as {actors?: unknown}
+    if (!Array.isArray(body.actors)) {
+      return []
     }
-    return body.actors ?? []
+    /*
+     * The agent checked the response against the lexicon. Plain fetch does
+     * not, and the service is a third party, so each entry must carry the one
+     * field the caller reads before hydration replaces the rest.
+     */
+    return body.actors.filter(
+      (actor): actor is AppBskyActorDefs.ProfileViewBasic =>
+        typeof (actor as {did?: unknown})?.did === 'string',
+    )
   } finally {
     clearTimeout(timeout)
   }
