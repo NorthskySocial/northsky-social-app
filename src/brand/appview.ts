@@ -15,6 +15,19 @@ import {BLUESKY_PROXY_DID} from '#/env'
 export interface AppView {
   url: string
   did: Did
+  /**
+   * Appview DID that post and actor search are pinned to. Set when this
+   * appview cannot serve `app.bsky.feed.searchPostsV2` or
+   * `app.bsky.actor.searchActors`.
+   */
+  searchProxyDid?: Did
+  /**
+   * Use `BRAND.typeaheadServiceUrl` for actor typeahead. Set when this appview
+   * cannot serve `app.bsky.actor.searchActorsTypeahead`. That service omits
+   * the `viewer` field, so callers must hydrate results before moderating
+   * them - see `src/lib/typeahead/client.ts`.
+   */
+  useFallbackTypeahead?: boolean
 }
 
 /** Appview for accounts whose PDS host matches no route. */
@@ -33,9 +46,16 @@ const DEV_APPVIEW: AppView | undefined =
     ? {url: DEV_ENV_APPVIEW, did: BLUESKY_PROXY_DID}
     : undefined
 
+/*
+ * Blacksky serves feeds and profiles, but every search method fails there:
+ * searchPostsV2 answers 400, searchActors and searchActorsTypeahead answer
+ * 502. Both search capabilities are routed away from it.
+ */
 const BLACKSKY_APPVIEW: AppView = {
   url: 'https://api.blacksky.community',
   did: 'did:web:api.blacksky.community',
+  searchProxyDid: FALLBACK_APPVIEW.did,
+  useFallbackTypeahead: true,
 }
 
 /**

@@ -55,6 +55,22 @@ describe('resolveAppViewForService', () => {
     expect(resolveAppViewForService('not a url')).toEqual(FALLBACK_APPVIEW)
   })
 
+  /*
+   * Every search method fails on the Blacksky appview, so both search
+   * capabilities must stay routed away from it.
+   */
+  it('routes search away from the Blacksky appview', () => {
+    const result = resolveAppViewForService('https://northsky.social')
+    expect(result.searchProxyDid).toBe(FALLBACK_APPVIEW.did)
+    expect(result.useFallbackTypeahead).toBe(true)
+  })
+
+  it('leaves search on the appview for unmatched hosts', () => {
+    const result = resolveAppViewForService('https://bsky.social')
+    expect(result.searchProxyDid).toBeUndefined()
+    expect(result.useFallbackTypeahead).toBeUndefined()
+  })
+
   it('does not match lookalike subdomains of known hosts', () => {
     for (const url of [
       'https://northsky.social.attacker.com',

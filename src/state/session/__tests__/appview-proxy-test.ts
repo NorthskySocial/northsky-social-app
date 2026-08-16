@@ -7,6 +7,7 @@ import {
   type BskyAppAgent,
   configureAppviewProxy,
   getAppviewForAgent,
+  stripAppviewProxyForPdsLocalMethods,
 } from '../agent'
 
 jest.mock('jwt-decode', () => ({
@@ -29,6 +30,8 @@ jest.mock('#/lib/notifications/notifications', () => ({
 const BLACKSKY_APPVIEW = {
   url: 'https://api.blacksky.community',
   did: 'did:web:api.blacksky.community',
+  searchProxyDid: FALLBACK_APPVIEW.did,
+  useFallbackTypeahead: true,
 }
 
 function makeAgent(serviceUrl: string | undefined) {
@@ -69,6 +72,103 @@ describe('configureAppviewProxy', () => {
     } finally {
       BLUESKY_PROXY_HEADER.override = undefined
     }
+  })
+})
+
+describe('stripAppviewProxyForPdsLocalMethods', () => {
+  const PROXY = 'atproto-proxy'
+  const PROXY_VALUE = 'did:web:api.blacksky.community#bsky_appview'
+  const GET_PREFS = 'https://northsky.social/xrpc/app.bsky.actor.getPreferences'
+  const PUT_PREFS = 'https://northsky.social/xrpc/app.bsky.actor.putPreferences'
+  const TIMELINE = 'https://northsky.social/xrpc/app.bsky.feed.getTimeline'
+
+  function authed(extra?: Record<string, string>): RequestInit {
+    return {
+      method: 'GET',
+      headers: {
+        [PROXY]: PROXY_VALUE,
+        authorization: 'Bearer kusanagi',
+        ...extra,
+      },
+    }
+  }
+
+  function header(init: RequestInit | undefined, name: string) {
+    return new Headers(init?.headers).get(name)
+  }
+
+  it('strips the proxy header on getPreferences', () => {
+    const out = stripAppviewProxyForPdsLocalMethods(GET_PREFS, authed())
+    expect(header(out, PROXY)).toBeNull()
+  })
+
+  it('strips the proxy header on putPreferences', () => {
+    const out = stripAppviewProxyForPdsLocalMethods(PUT_PREFS, authed())
+    expect(header(out, PROXY)).toBeNull()
+  })
+
+  it('keeps the other headers while stripping the proxy header', () => {
+    const out = stripAppviewProxyForPdsLocalMethods(GET_PREFS, authed())
+    expect(header(out, PROXY)).toBeNull()
+    expect(header(out, 'authorization')).toBe('Bearer kusanagi')
+  })
+
+  it('leaves the proxy header alone for other methods', () => {
+    const init = authed()
+    const out = stripAppviewProxyForPdsLocalMethods(TIMELINE, init)
+    expect(out).toBe(init)
+    expect(header(out, PROXY)).toBe(PROXY_VALUE)
+  })
+
+  /*
+   * Account creation calls these methods before a session exists. Stripping
+   * there made signup fail with a bare 401 in the Blacksky fork.
+   */
+  it('leaves requests without an authorization header alone', () => {
+    const init: RequestInit = {method: 'GET', headers: {[PROXY]: PROXY_VALUE}}
+    const out = stripAppviewProxyForPdsLocalMethods(GET_PREFS, init)
+    expect(out).toBe(init)
+    expect(header(out, PROXY)).toBe(PROXY_VALUE)
+  })
+
+  it('accepts a URL instance', () => {
+    const out = stripAppviewProxyForPdsLocalMethods(
+      new URL(GET_PREFS),
+      authed(),
+    )
+    expect(header(out, PROXY)).toBeNull()
+  })
+
+  /*
+   * The shape that actually reaches this code. CredentialSession.fetchHandler
+   * builds a Request and calls fetch with it alone, so `init` is undefined and
+   * the headers live on the request.
+   */
+  describe('when fetch is called with a Request and no init', () => {
+    it('strips the proxy header off the request', () => {
+      const req = new Request(GET_PREFS, authed())
+      stripAppviewProxyForPdsLocalMethods(req, undefined)
+      expect(req.headers.get(PROXY)).toBeNull()
+      expect(req.headers.get('authorization')).toBe('Bearer kusanagi')
+    })
+
+    it('strips the proxy header on putPreferences', () => {
+      const req = new Request(PUT_PREFS, {...authed(), method: 'POST'})
+      stripAppviewProxyForPdsLocalMethods(req, undefined)
+      expect(req.headers.get(PROXY)).toBeNull()
+    })
+
+    it('leaves the proxy header alone for other methods', () => {
+      const req = new Request(TIMELINE, authed())
+      stripAppviewProxyForPdsLocalMethods(req, undefined)
+      expect(req.headers.get(PROXY)).toBe(PROXY_VALUE)
+    })
+
+    it('leaves an unauthenticated request alone', () => {
+      const req = new Request(GET_PREFS, {headers: {[PROXY]: PROXY_VALUE}})
+      stripAppviewProxyForPdsLocalMethods(req, undefined)
+      expect(req.headers.get(PROXY)).toBe(PROXY_VALUE)
+    })
   })
 })
 
