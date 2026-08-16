@@ -3,7 +3,7 @@ import {type AppBskyActorDefs, BSKY_LABELER_DID} from '@atproto/api'
 
 import {type ProxyHeaderValue} from '#/state/session/agent'
 import {BRAND} from '#/brand/config'
-import {BLUESKY_PROXY_DID, CHAT_PROXY_DID, IS_DEV} from '#/env'
+import {CHAT_PROXY_DID, IS_DEV} from '#/env'
 
 export const LOCAL_DEV_SERVICE =
   Platform.OS === 'android' ? 'http://10.0.2.2:2583' : 'http://localhost:2583'
@@ -231,21 +231,17 @@ export const urls = {
   },
 }
 
-export const PUBLIC_APPVIEW = BRAND.publicAppViewUrl // northsky: brand override
-export const PUBLIC_APPVIEW_DID = BRAND.publicAppViewDid // northsky: brand override
 export const PUBLIC_STAGING_APPVIEW_DID = 'did:web:api.staging.bsky.dev'
 
 export const DEV_ENV_APPVIEW = `http://localhost:2584` // always the same
 export const DEV_ENV_APPVIEW_DID = `did:plc:dw4kbjf5mn7nhenabiqpkyh3` // always the same
 
 // temp hack for e2e - esb
+// northsky: override-only; configureAppviewProxy resolves the real header
 export const BLUESKY_PROXY_HEADER = {
-  value: `${BLUESKY_PROXY_DID}#bsky_appview`,
-  get() {
-    return this.value as ProxyHeaderValue
-  },
+  override: undefined as ProxyHeaderValue | undefined,
   set(value: string) {
-    this.value = value
+    this.override = value as ProxyHeaderValue
   },
 }
 
@@ -255,10 +251,6 @@ export const DM_SERVICE_HEADERS = {
 
 export const BLUESKY_MOD_SERVICE_HEADERS = {
   'atproto-proxy': `${BSKY_LABELER_DID}#atproto_labeler`,
-}
-
-export const BLUESKY_NOTIF_SERVICE_HEADERS = {
-  'atproto-proxy': `${BLUESKY_PROXY_DID}#bsky_notif`,
 }
 
 export const webLinks = {

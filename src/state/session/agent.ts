@@ -30,6 +30,12 @@ import {
 } from '#/ageAssurance/data'
 import {unsafeGetAndComputeAgeAssurance} from '#/ageAssurance/state'
 import {features} from '#/analytics'
+// northsky: PDS-to-appview routing
+import {
+  type AppView,
+  FALLBACK_APPVIEW,
+  resolveAppViewForService,
+} from '#/brand/appview'
 import {emitNetworkConfirmed, emitNetworkLost} from '../events'
 import {addSessionErrorLog} from './logging'
 import {
@@ -41,11 +47,44 @@ import {isSessionExpired, isSignupQueued} from './util'
 
 export type ProxyHeaderValue = `${Did}#${AtprotoServiceType}`
 
+/*
+ * northsky: configure the `atproto-proxy` header on `agent` so PDS requests
+ * for appview lexicons go to the appview routed for the hosting provider the
+ * user selected at login, and store the resolved appview on `agent.appview`
+ * for direct-to-appview call sites (notifications, age assurance). An E2E
+ * override via BLUESKY_PROXY_HEADER takes precedence over the header only;
+ * `agent.appview` still reflects the resolved route.
+ */
+export function configureAppviewProxy(agent: BskyAppAgent) {
+  const resolved = resolveAppViewForService(agent.serviceUrl?.toString())
+  agent.appview = resolved
+
+  const override = BLUESKY_PROXY_HEADER.override
+  if (override) {
+    agent.configureProxy(override)
+    return
+  }
+  agent.configureProxy(`${resolved.did}#bsky_appview`)
+}
+
+/**
+ * northsky: returns the resolved appview for the given agent. Agents that
+ * never went through configureAppviewProxy (e.g. the temporary agents built
+ * for logout push-token cleanup) resolve from their service URL.
+ */
+export function getAppviewForAgent(agent: AtpAgent | BaseAgent): AppView {
+  const appAgent = agent as BskyAppAgent
+  return (
+    appAgent.appview ??
+    resolveAppViewForService(appAgent.serviceUrl?.toString())
+  )
+}
+
 export function createPublicAgent() {
   configureModerationForGuest() // Side effect but only relevant for tests
 
   const agent = new BskyAppAgent({service: PUBLIC_BSKY_SERVICE})
-  agent.configureProxy(BLUESKY_PROXY_HEADER.get())
+  configureAppviewProxy(agent)
   return agent
 }
 
@@ -75,7 +114,7 @@ export async function createAgentAndResume(
   // after session is attached
   const aa = prefetchAgeAssuranceServerData({agent})
 
-  agent.configureProxy(BLUESKY_PROXY_HEADER.get())
+  configureAppviewProxy(agent)
 
   return agent.prepare({
     resolvers: [gates, moderation, aa],
@@ -114,7 +153,7 @@ export async function createAgentAndLogin(
   const moderation = configureModerationForAccount(agent, account)
   const aa = prefetchAgeAssuranceServerData({agent})
 
-  agent.configureProxy(BLUESKY_PROXY_HEADER.get())
+  configureAppviewProxy(agent)
 
   return agent.prepare({
     resolvers: [gates, moderation, aa],
@@ -274,7 +313,7 @@ export async function createAgentAndCreateAccount(
     logger.error(e, {message: `session: failed snoozeEmailConfirmationPrompt`})
   }
 
-  agent.configureProxy(BLUESKY_PROXY_HEADER.get())
+  configureAppviewProxy(agent)
 
   return agent.prepare({
     resolvers: [gates, moderation, aa],
@@ -353,6 +392,11 @@ let realFetch = globalThis.fetch
 class BskyAppAgent extends AtpAgent {
   persistSessionHandler: ((event: AtpSessionEvent) => void) | undefined =
     undefined
+  /*
+   * northsky: resolved appview for this agent's account. The default is the
+   * fallback; configureAppviewProxy replaces it once the PDS host is known.
+   */
+  appview: AppView = FALLBACK_APPVIEW
 
   constructor({service}: {service: string}) {
     super({
