@@ -41,21 +41,25 @@ export const DISCOVER_DEBUG_DIDS: Record<string, true> = {
 }
 
 const BASE_FEEDBACK_FORM_URL = BRAND.feedbackUrl // northsky: brand override
-export function FEEDBACK_FORM_URL({
-  email,
-  handle,
-}: {
+/**
+ * northsky: the brand feedback form is not Zendesk and does not accept
+ * pre-filled ticket fields. Do not put the email or the handle in the URL.
+ * Callers keep the upstream signature so the Zendesk pre-fill can come back.
+ */
+export function FEEDBACK_FORM_URL(_prefill: {
   email?: string
   handle?: string
 }): string {
   // northsky: URL API keeps params valid for brand URLs with hash routes
   const url = new URL(BASE_FEEDBACK_FORM_URL)
+  /* northsky: upstream Zendesk pre-fill. Restore it with a Zendesk form.
   if (email) {
     url.searchParams.set('tf_anonymous_requester_email', email)
     if (handle) {
       url.searchParams.set('tf_17205412673421', handle)
     }
   }
+  */
   return url.toString()
 }
 
