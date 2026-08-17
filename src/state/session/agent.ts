@@ -36,6 +36,8 @@ import {
   FALLBACK_APPVIEW,
   resolveAppViewForService,
 } from '#/brand/appview'
+// northsky: mute state import from the fallback appview
+import {reconcileMutes} from '#/features/muteSync'
 import {emitNetworkConfirmed, emitNetworkLost} from '../events'
 import {addSessionErrorLog} from './logging'
 import {
@@ -115,6 +117,8 @@ export async function createAgentAndResume(
   const aa = prefetchAgeAssuranceServerData({agent})
 
   configureAppviewProxy(agent)
+  // northsky: import mute state from the fallback appview, best-effort
+  void reconcileMutes(agent, agent.appview)
 
   return agent.prepare({
     resolvers: [gates, moderation, aa],
@@ -154,6 +158,8 @@ export async function createAgentAndLogin(
   const aa = prefetchAgeAssuranceServerData({agent})
 
   configureAppviewProxy(agent)
+  // northsky: import mute state from the fallback appview, best-effort
+  void reconcileMutes(agent, agent.appview)
 
   return agent.prepare({
     resolvers: [gates, moderation, aa],
