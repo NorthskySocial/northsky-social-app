@@ -38,6 +38,11 @@ import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {IS_NATIVE} from '#/env'
+// northsky: Northsky label refinement for the selected reason
+import {
+  NorthskyReportLabelPicker,
+  resolveNorthskyReportLabels,
+} from '#/features/northskyReportLabels'
 import {useSubmitReportMutation} from './action'
 import {
   BSKY_LABELER_ONLY_REPORT_REASONS,
@@ -254,6 +259,27 @@ function Inner(
   const isAlwaysBskyLabeler =
     hasSingleSupportedLabeler && (isBskyOnlyReason || isBskyOnlySubject)
 
+  /*
+   * northsky: optional refinement naming the Northsky label behind the chosen
+   * reason. `Inner` remounts on every dialog open, so this needs no reset. A
+   * choice that no longer fits is ignored rather than sent.
+   *
+   * This reads the supported labelers and the chosen service, so the picker
+   * stays hidden when the report cannot reach Northsky. Asking for a label
+   * that the submit step then drops would waste the reporter's time.
+   */
+  const [pickedModCustomLabel, setPickedNorthskyLabel] = useState<string>()
+  const modCustomLabelDefinitions = resolveNorthskyReportLabels({
+    reason: state.selectedOption?.reason,
+    labelers: supportedLabelers,
+    recipientDid: state.selectedLabeler?.creator.did,
+  })
+  const modCustomLabel = modCustomLabelDefinitions.some(
+    definition => definition.identifier === pickedModCustomLabel,
+  )
+    ? pickedModCustomLabel
+    : undefined
+
   const onSubmit = useCallback(async () => {
     dispatch({type: 'clearError'})
 
@@ -268,6 +294,7 @@ function Inner(
           subject: props.subject,
           state,
           videoTimestampSeconds,
+          modCustomLabel, // northsky:
         }),
       )
       setIsSuccess(true)
@@ -321,7 +348,16 @@ function Inner(
     } finally {
       setIsPending(false)
     }
-  }, [logger, submitReport, props, state, ax, l, videoTimestampSeconds])
+  }, [
+    logger,
+    submitReport,
+    props,
+    state,
+    ax,
+    l,
+    videoTimestampSeconds,
+    modCustomLabel, // northsky:
+  ])
 
   useCallOnce(() => {
     ax.metric('reportDialog:open', {
@@ -474,6 +510,12 @@ function Inner(
               {state.ncii && (
                 <NciiQualification ncii={state.ncii} dispatch={dispatch} />
               )}
+              {/* northsky: name the Northsky label behind the chosen reason */}
+              <NorthskyReportLabelPicker
+                definitions={modCustomLabelDefinitions}
+                selected={modCustomLabel}
+                onSelect={setPickedNorthskyLabel}
+              />
             </>
           ) : state.selectedCategory ? (
             <View style={[a.gap_sm]}>
