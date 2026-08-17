@@ -137,3 +137,6 @@ docs/superpowers/
 
 # pnpm
 .pnpm-store/
+
+# Workspace paths
+.rommie

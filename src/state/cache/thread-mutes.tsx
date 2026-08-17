@@ -7,7 +7,9 @@ import {
 } from 'react'
 
 import * as persisted from '#/state/persisted'
-import {useAgent, useSession} from '../session'
+// northsky: thread mutes are private per-appview state
+import {replayMuteWriteToFallback} from '#/features/muteSync'
+import {useAgent, useAppview, useSession} from '../session'
 
 type StateContext = Map<string, boolean>
 type SetStateContext = (uri: string, value: boolean) => void
@@ -57,6 +59,7 @@ export function useSetThreadMute() {
 
 function useMigrateMutes(setThreadMute: SetStateContext) {
   const agent = useAgent()
+  const appview = useAppview() // northsky: mutes are private per-appview state
   const {currentAccount} = useSession()
 
   useEffect(() => {
@@ -89,6 +92,12 @@ function useMigrateMutes(setThreadMute: SetStateContext) {
 
           await agent.api.app.bsky.graph
             .muteThread({root})
+            // northsky: replay to the fallback only after the primary write succeeds
+            .then(() =>
+              replayMuteWriteToFallback(appview, currentAccount.did, opts =>
+                agent.api.app.bsky.graph.muteThread({root}, opts),
+              ),
+            )
             // not a big deal if this fails, since the post might have been deleted
             .catch(console.error)
         }
@@ -100,5 +109,5 @@ function useMigrateMutes(setThreadMute: SetStateContext) {
         cancelled = true
       }
     }
-  }, [agent, currentAccount, setThreadMute])
+  }, [agent, appview, currentAccount, setThreadMute])
 }
