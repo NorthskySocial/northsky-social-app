@@ -3,6 +3,7 @@ import {type AtpAgent} from '@atproto/api'
 import {logger} from '#/logger'
 import {type AppView} from '#/brand/appview'
 import {type FallbackProxyOpts, fallbackProxyOpts} from './fanout'
+import {runImportMuteWrite, trackUserMuteWrites} from './ordering'
 
 const PAGE_SIZE = 100
 /*
@@ -80,10 +81,12 @@ async function collectActorMutes(
  * idempotent.
  *
  * Import is additive and missing-only: it never removes a mute and never
- * changes the scope of a mute that exists on both sides. An unmute made
- * elsewhere during the snapshot window can be re-imported; the next unmute
- * in this app heals it, since fan-out writes both appviews. Thread mutes
- * have no enumeration endpoint and cannot be reconciled.
+ * changes the scope of a mute that exists on both sides. A mute the user
+ * changes in this app during the run is dropped from the import, so the user
+ * action wins (see `./ordering`). An unmute made on another client during
+ * the snapshot window can still be re-imported; the next unmute in this app
+ * heals it, since fan-out writes both appviews. Thread mutes have no
+ * enumeration endpoint and cannot be reconciled.
  *
  * Both sides are read to the end of their cursor. A read that hits the page
  * bound is logged as truncated, so a partial comparison is never reported as
@@ -98,70 +101,95 @@ export async function reconcileMutes(
     return
   }
   try {
-    const [sourceLists, targetLists, sourceActors, targetActors] =
-      await Promise.all([
-        collectListMutes(agent, opts),
-        collectListMutes(agent),
-        collectActorMutes(agent, opts),
-        collectActorMutes(agent),
-      ])
+    await trackUserMuteWrites(() => importMissingMutes(agent, opts))
+  } catch (e) {
+    logger.warn('muteSync: mute reconciliation failed', {safeMessage: e})
+  }
+}
 
-    const truncated =
-      sourceLists.truncated ||
-      targetLists.truncated ||
-      sourceActors.truncated ||
-      targetActors.truncated
-    const missingLists = [...sourceLists.entries].filter(
-      uri => !targetLists.entries.has(uri),
-    )
-    const missingActors = [...sourceActors.entries].filter(
-      ([did]) => !targetActors.entries.has(did),
-    )
-    if (missingLists.length === 0 && missingActors.length === 0) {
-      const read = {
-        lists: sourceLists.entries.size,
-        actors: sourceActors.entries.size,
-      }
-      if (truncated) {
-        logger.warn('muteSync: mute comparison stopped at the page bound', read)
-      } else {
-        logger.info('muteSync: mute state already in step', read)
-      }
-      return
+/**
+ * Compares both appviews and writes the mutes the routed appview lacks. Each
+ * write runs through `runImportMuteWrite`, so a mute the user changed after
+ * the snapshot was read is dropped instead of restored.
+ */
+async function importMissingMutes(
+  agent: AtpAgent,
+  opts: FallbackProxyOpts,
+): Promise<void> {
+  const [sourceLists, targetLists, sourceActors, targetActors] =
+    await Promise.all([
+      collectListMutes(agent, opts),
+      collectListMutes(agent),
+      collectActorMutes(agent, opts),
+      collectActorMutes(agent),
+    ])
+
+  const truncated =
+    sourceLists.truncated ||
+    targetLists.truncated ||
+    sourceActors.truncated ||
+    targetActors.truncated
+  const missingLists = [...sourceLists.entries].filter(
+    uri => !targetLists.entries.has(uri),
+  )
+  const missingActors = [...sourceActors.entries].filter(
+    ([did]) => !targetActors.entries.has(did),
+  )
+  if (missingLists.length === 0 && missingActors.length === 0) {
+    const read = {
+      lists: sourceLists.entries.size,
+      actors: sourceActors.entries.size,
     }
+    if (truncated) {
+      logger.warn('muteSync: mute comparison stopped at the page bound', read)
+    } else {
+      logger.info('muteSync: mute state already in step', read)
+    }
+    return
+  }
 
-    const writes = [
-      ...missingLists.map(
-        list => () => agent.app.bsky.graph.muteActorList({list}),
-      ),
-      ...missingActors.map(
-        ([actor, flavor]) =>
-          () =>
+  const writes = [
+    ...missingLists.map(
+      list => () =>
+        runImportMuteWrite(list, () =>
+          agent.app.bsky.graph.muteActorList({list}),
+        ),
+    ),
+    ...missingActors.map(
+      ([actor, flavor]) =>
+        () =>
+          runImportMuteWrite(actor, () =>
             agent.app.bsky.graph.muteActor({
               actor,
               ...(flavor.onlyReposts ? {onlyReposts: true} : {}),
               ...(flavor.onlyQuoteposts ? {onlyQuoteposts: true} : {}),
             }),
-      ),
-    ]
-    let failed = 0
-    for (let i = 0; i < writes.length; i += WRITE_BATCH_SIZE) {
-      const batch = writes.slice(i, i + WRITE_BATCH_SIZE)
-      const results = await Promise.allSettled(batch.map(write => write()))
-      failed += results.filter(r => r.status === 'rejected').length
+          ),
+    ),
+  ]
+  let failed = 0
+  let superseded = 0
+  for (let i = 0; i < writes.length; i += WRITE_BATCH_SIZE) {
+    const batch = writes.slice(i, i + WRITE_BATCH_SIZE)
+    const results = await Promise.allSettled(batch.map(write => write()))
+    for (const result of results) {
+      if (result.status === 'rejected') {
+        failed++
+      } else if (result.value === 'superseded') {
+        superseded++
+      }
     }
-    const summary = {
-      lists: missingLists.length,
-      actors: missingActors.length,
-      failed,
-      truncated,
-    }
-    if (failed > 0) {
-      logger.warn('muteSync: some mute imports failed', summary)
-    } else {
-      logger.info('muteSync: imported mutes into the routed appview', summary)
-    }
-  } catch (e) {
-    logger.warn('muteSync: mute reconciliation failed', {safeMessage: e})
+  }
+  const summary = {
+    lists: missingLists.length,
+    actors: missingActors.length,
+    failed,
+    superseded,
+    truncated,
+  }
+  if (failed > 0) {
+    logger.warn('muteSync: some mute imports failed', summary)
+  } else {
+    logger.info('muteSync: imported mutes into the routed appview', summary)
   }
 }

@@ -22,6 +22,7 @@ jest.mock('react-native-mmkv', () => ({
 import {FALLBACK_APPVIEW} from '#/brand/appview'
 import {account} from '#/storage'
 import {fallbackProxyOpts, replayMuteWriteToFallback} from '../fanout'
+import {runImportMuteWrite, runUserMuteWrite} from '../ordering'
 import {reconcileMutes} from '../reconcile'
 
 const BLACKSKY_APPVIEW = {
@@ -312,5 +313,86 @@ describe('reconcileMutes', () => {
     await expect(
       reconcileMutes(agent, BLACKSKY_APPVIEW),
     ).resolves.toBeUndefined()
+  })
+
+  it('drops an import for an actor the user changed during the run', async () => {
+    const unmuted = 'did:plc:rei-ayanami'
+    const {agent, getMutes, muteActor} = makeAgent({
+      sourceMutes: [
+        {did: 'did:plc:shinji-ikari', viewer: {muted: true}},
+        {did: unmuted, viewer: {muted: true}},
+      ],
+      targetMutes: [],
+    })
+    const readTargetMutes = getMutes.getMockImplementation()!
+    getMutes.mockImplementation(async (params: unknown, opts?: CallOpts) => {
+      const res = await readTargetMutes(params, opts)
+      if (!opts?.headers?.['atproto-proxy']) {
+        /* The user unmutes while the snapshot is still being read. */
+        await runUserMuteWrite(unmuted, () => Promise.resolve())
+      }
+      return res
+    })
+    await reconcileMutes(agent, BLACKSKY_APPVIEW)
+    expect(muteActor).toHaveBeenCalledTimes(1)
+    expect(muteActor).toHaveBeenCalledWith({actor: 'did:plc:shinji-ikari'})
+  })
+
+  it('drops an import for a list the user changed during the run', async () => {
+    const unmuted = 'at://did:plc:nerv/app.bsky.graph.list/geofront'
+    const {agent, getListMutes, muteActorList} = makeAgent({
+      sourceLists: [{uri: unmuted}],
+      targetLists: [],
+    })
+    const readTargetLists = getListMutes.getMockImplementation()!
+    getListMutes.mockImplementation(
+      async (params: unknown, opts?: CallOpts) => {
+        const res = await readTargetLists(params, opts)
+        if (!opts?.headers?.['atproto-proxy']) {
+          await runUserMuteWrite(unmuted, () => Promise.resolve())
+        }
+        return res
+      },
+    )
+    await reconcileMutes(agent, BLACKSKY_APPVIEW)
+    expect(muteActorList).not.toHaveBeenCalled()
+  })
+
+  it('imports again on the next run after the user action', async () => {
+    const {agent, muteActor} = makeAgent({
+      sourceMutes: [{did: 'did:plc:kaworu-nagisa', viewer: {muted: true}}],
+      targetMutes: [],
+    })
+    await runUserMuteWrite('did:plc:kaworu-nagisa', () => Promise.resolve())
+    await reconcileMutes(agent, BLACKSKY_APPVIEW)
+    expect(muteActor).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('mute write ordering', () => {
+  it('runs a user write after an import write for the same subject', async () => {
+    const order: string[] = []
+    const subject = 'did:plc:gendo-ikari'
+    const importWrite = runImportMuteWrite(subject, async () => {
+      await new Promise(resolve => setTimeout(resolve, 10))
+      order.push('import')
+    })
+    const userWrite = runUserMuteWrite(subject, () => {
+      order.push('user')
+      return Promise.resolve()
+    })
+    await Promise.all([importWrite, userWrite])
+    expect(order).toEqual(['import', 'user'])
+  })
+
+  it('keeps the chain running after a failed write', async () => {
+    const subject = 'did:plc:ritsuko-akagi'
+    const failing = runUserMuteWrite(subject, () =>
+      Promise.reject(new Error('boom')),
+    )
+    await expect(failing).rejects.toThrow('boom')
+    await expect(
+      runUserMuteWrite(subject, () => Promise.resolve('ok')),
+    ).resolves.toBe('ok')
   })
 })

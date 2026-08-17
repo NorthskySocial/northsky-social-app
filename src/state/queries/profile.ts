@@ -38,7 +38,7 @@ import * as userActionHistory from '#/state/userActionHistory'
 import {useAnalytics} from '#/analytics'
 import {type Metrics, toClout} from '#/analytics/metrics'
 // northsky: mute writes are replayed to the fallback appview
-import {replayMuteWriteToFallback} from '#/features/muteSync'
+import {replayMuteWriteToFallback, runUserMuteWrite} from '#/features/muteSync'
 import type * as bsky from '#/types/bsky'
 import {
   ProgressGuideAction,
@@ -540,7 +540,8 @@ function useProfileMuteMutation() {
   const appview = useAppview() // northsky: mutes are private per-appview state
   return useMutation<void, Error, {did: string}>({
     mutationFn: async ({did}) => {
-      await agent.mute(did)
+      // northsky: this user action outranks an older reconciliation snapshot
+      await runUserMuteWrite(did, () => agent.mute(did))
       // northsky: keep the fallback appview's mute state in step
       void replayMuteWriteToFallback(appview, agent.session?.did, opts =>
         agent.app.bsky.graph.muteActor({actor: did}, opts),
@@ -558,7 +559,8 @@ function useProfileMuteRepostsMutation() {
   const appview = useAppview() // northsky: mutes are private per-appview state
   return useMutation<void, Error, {did: string}>({
     mutationFn: async ({did}) => {
-      await agent.mute(did, {onlyReposts: true})
+      // northsky: this user action outranks an older reconciliation snapshot
+      await runUserMuteWrite(did, () => agent.mute(did, {onlyReposts: true}))
       // northsky: keep the fallback appview's mute state in step
       void replayMuteWriteToFallback(appview, agent.session?.did, opts =>
         agent.app.bsky.graph.muteActor({actor: did, onlyReposts: true}, opts),
@@ -576,7 +578,8 @@ function useProfileUnmuteMutation() {
   const appview = useAppview() // northsky: mutes are private per-appview state
   return useMutation<void, Error, {did: string}>({
     mutationFn: async ({did}) => {
-      await agent.unmute(did)
+      // northsky: this user action outranks an older reconciliation snapshot
+      await runUserMuteWrite(did, () => agent.unmute(did))
       // northsky: keep the fallback appview's mute state in step
       void replayMuteWriteToFallback(appview, agent.session?.did, opts =>
         agent.app.bsky.graph.unmuteActor({actor: did}, opts),
