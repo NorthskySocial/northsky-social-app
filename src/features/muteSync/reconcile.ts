@@ -5,7 +5,12 @@ import {type AppView} from '#/brand/appview'
 import {type FallbackProxyOpts, fallbackProxyOpts} from './fanout'
 
 const PAGE_SIZE = 100
-const MAX_PAGES = 10
+/*
+ * A safety bound only. An appview that keeps returning a cursor must not
+ * spin forever. A read that hits the bound is reported as truncated and is
+ * never counted as a complete comparison.
+ */
+const MAX_PAGES = 1000
 /* Cap concurrent import writes so a large first import cannot burst. */
 const WRITE_BATCH_SIZE = 10
 
@@ -14,13 +19,20 @@ interface MuteFlavor {
   onlyQuoteposts: boolean
 }
 
+/** One side of the comparison, plus whether its read reached the end. */
+interface MuteSnapshot<T> {
+  entries: T
+  truncated: boolean
+}
+
 async function collectListMutes(
   agent: AtpAgent,
   opts?: FallbackProxyOpts,
-): Promise<Set<string>> {
+): Promise<MuteSnapshot<Set<string>>> {
   const uris = new Set<string>()
   let cursor: string | undefined
-  for (let page = 0; page < MAX_PAGES; page++) {
+  let page = 0
+  do {
     const res = await agent.app.bsky.graph.getListMutes(
       {limit: PAGE_SIZE, cursor},
       opts,
@@ -28,21 +40,21 @@ async function collectListMutes(
     for (const list of res.data.lists) {
       uris.add(list.uri)
     }
-    cursor = res.data.cursor
-    if (!cursor || res.data.lists.length === 0) {
-      break
-    }
-  }
-  return uris
+    /* An empty page is the end, even when the appview returns a cursor. */
+    cursor = res.data.lists.length > 0 ? res.data.cursor : undefined
+    page++
+  } while (cursor && page < MAX_PAGES)
+  return {entries: uris, truncated: Boolean(cursor)}
 }
 
 async function collectActorMutes(
   agent: AtpAgent,
   opts?: FallbackProxyOpts,
-): Promise<Map<string, MuteFlavor>> {
+): Promise<MuteSnapshot<Map<string, MuteFlavor>>> {
   const mutes = new Map<string, MuteFlavor>()
   let cursor: string | undefined
-  for (let page = 0; page < MAX_PAGES; page++) {
+  let page = 0
+  do {
     const res = await agent.app.bsky.graph.getMutes(
       {limit: PAGE_SIZE, cursor},
       opts,
@@ -53,12 +65,11 @@ async function collectActorMutes(
         onlyQuoteposts: Boolean(profile.viewer?.mutedOnlyQuoteposts),
       })
     }
-    cursor = res.data.cursor
-    if (!cursor || res.data.mutes.length === 0) {
-      break
-    }
-  }
-  return mutes
+    /* An empty page is the end, even when the appview returns a cursor. */
+    cursor = res.data.mutes.length > 0 ? res.data.cursor : undefined
+    page++
+  } while (cursor && page < MAX_PAGES)
+  return {entries: mutes, truncated: Boolean(cursor)}
 }
 
 /**
@@ -73,6 +84,10 @@ async function collectActorMutes(
  * elsewhere during the snapshot window can be re-imported; the next unmute
  * in this app heals it, since fan-out writes both appviews. Thread mutes
  * have no enumeration endpoint and cannot be reconciled.
+ *
+ * Both sides are read to the end of their cursor. A read that hits the page
+ * bound is logged as truncated, so a partial comparison is never reported as
+ * a complete one.
  */
 export async function reconcileMutes(
   agent: AtpAgent,
@@ -91,15 +106,27 @@ export async function reconcileMutes(
         collectActorMutes(agent),
       ])
 
-    const missingLists = [...sourceLists].filter(uri => !targetLists.has(uri))
-    const missingActors = [...sourceActors].filter(
-      ([did]) => !targetActors.has(did),
+    const truncated =
+      sourceLists.truncated ||
+      targetLists.truncated ||
+      sourceActors.truncated ||
+      targetActors.truncated
+    const missingLists = [...sourceLists.entries].filter(
+      uri => !targetLists.entries.has(uri),
+    )
+    const missingActors = [...sourceActors.entries].filter(
+      ([did]) => !targetActors.entries.has(did),
     )
     if (missingLists.length === 0 && missingActors.length === 0) {
-      logger.info('muteSync: mute state already in step', {
-        lists: sourceLists.size,
-        actors: sourceActors.size,
-      })
+      const read = {
+        lists: sourceLists.entries.size,
+        actors: sourceActors.entries.size,
+      }
+      if (truncated) {
+        logger.warn('muteSync: mute comparison stopped at the page bound', read)
+      } else {
+        logger.info('muteSync: mute state already in step', read)
+      }
       return
     }
 
@@ -127,6 +154,7 @@ export async function reconcileMutes(
       lists: missingLists.length,
       actors: missingActors.length,
       failed,
+      truncated,
     }
     if (failed > 0) {
       logger.warn('muteSync: some mute imports failed', summary)

@@ -254,6 +254,37 @@ describe('reconcileMutes', () => {
     expect(muteActorList).toHaveBeenCalledTimes(2)
   })
 
+  it('follows the cursor past the tenth page', async () => {
+    const {agent, getListMutes, muteActorList} = makeAgent({})
+    const pageCount = 12
+    let call = 0
+    getListMutes.mockImplementation((_params: unknown, opts?: CallOpts) => {
+      if (opts?.headers?.['atproto-proxy']) {
+        const page = call++
+        return pageResponse({
+          lists: [{uri: `at://did:plc:nerv/app.bsky.graph.list/page${page}`}],
+          cursor: page < pageCount - 1 ? `cursor-${page}` : undefined,
+        })
+      }
+      return pageResponse({lists: [] as {uri: string}[]})
+    })
+    await reconcileMutes(agent, BLACKSKY_APPVIEW)
+    expect(muteActorList).toHaveBeenCalledTimes(pageCount)
+    expect(muteActorList).toHaveBeenCalledWith({
+      list: 'at://did:plc:nerv/app.bsky.graph.list/page11',
+    })
+  })
+
+  it('stops paginating on an empty page that still carries a cursor', async () => {
+    const {agent, getListMutes, muteActorList} = makeAgent({})
+    getListMutes.mockImplementation(() =>
+      pageResponse({lists: [] as {uri: string}[], cursor: 'endless'}),
+    )
+    await reconcileMutes(agent, BLACKSKY_APPVIEW)
+    expect(getListMutes).toHaveBeenCalledTimes(2)
+    expect(muteActorList).not.toHaveBeenCalled()
+  })
+
   it('writes every missing mute and caps write concurrency', async () => {
     const sourceMutes = Array.from({length: 25}, (_, i) => ({
       did: `did:plc:eva-pilot-${i}`,
