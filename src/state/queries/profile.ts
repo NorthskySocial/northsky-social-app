@@ -37,6 +37,7 @@ import {useAgent, useAppview, useSession} from '#/state/session'
 import * as userActionHistory from '#/state/userActionHistory'
 import {useAnalytics} from '#/analytics'
 import {type Metrics, toClout} from '#/analytics/metrics'
+import {getProfileWithGlobalCounts} from '#/brand/globalProfileCounts'
 // northsky: mute writes are replayed to the fallback appview
 import {replayMuteWriteToFallback, runUserMuteWrite} from '#/features/muteSync'
 import type * as bsky from '#/types/bsky'
@@ -71,6 +72,7 @@ export function useProfileQuery({
   staleTime?: number
 }) {
   const agent = useAgent()
+  const appview = useAppview()
   const {getUnstableProfile} = useUnstableProfileViewCache()
   return useQuery<AppBskyActorDefs.ProfileViewDetailed>({
     // WARNING
@@ -81,8 +83,9 @@ export function useProfileQuery({
     refetchOnWindowFocus: true,
     queryKey: RQKEY(did ?? ''),
     queryFn: async () => {
-      const res = await agent.getProfile({actor: did ?? ''})
-      return res.data
+      return getProfileWithGlobalCounts(appview, 'getProfile', opts =>
+        agent.getProfile({actor: did ?? ''}, opts),
+      )
     },
     placeholderData: () => {
       if (!did) return
@@ -114,6 +117,7 @@ export function useProfilesQuery({
 
 export function usePrefetchProfileQuery() {
   const agent = useAgent()
+  const appview = useAppview()
   const queryClient = useQueryClient()
   const prefetchProfileQuery = useCallback(
     async (did: string) => {
@@ -121,12 +125,13 @@ export function usePrefetchProfileQuery() {
         staleTime: STALE.SECONDS.THIRTY,
         queryKey: RQKEY(did),
         queryFn: async () => {
-          const res = await agent.getProfile({actor: did || ''})
-          return res.data
+          return getProfileWithGlobalCounts(appview, 'getProfile', opts =>
+            agent.getProfile({actor: did || ''}, opts),
+          )
         },
       })
     },
-    [queryClient, agent],
+    [queryClient, agent, appview],
   )
   return prefetchProfileQuery
 }
