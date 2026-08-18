@@ -16,7 +16,9 @@ import {uploadBlob} from '#/lib/api'
 import {until} from '#/lib/async/until'
 import {type ImageMeta} from '#/state/gallery'
 import {STALE} from '#/state/queries'
-import {useAgent, useSession} from '#/state/session'
+import {useAgent, useAppview, useSession} from '#/state/session'
+// northsky: mute writes are replayed to the fallback appview
+import {replayMuteWriteToFallback, runUserMuteWrite} from '#/features/muteSync'
 import {FEED_INFO_RQKEY_ROOT} from './feed'
 import {invalidate as invalidateMyLists} from './my-lists'
 import {RQKEY as PROFILE_LISTS_RQKEY} from './profile-lists'
@@ -259,12 +261,23 @@ export function useListDeleteMutation() {
 export function useListMuteMutation() {
   const queryClient = useQueryClient()
   const agent = useAgent()
+  const appview = useAppview() // northsky: mutes are private per-appview state
   return useMutation<void, Error, {uri: string; mute: boolean}>({
     mutationFn: async ({uri, mute}) => {
       if (mute) {
-        await agent.muteModList(uri)
+        // northsky: this user action outranks an older reconciliation snapshot
+        await runUserMuteWrite(uri, () => agent.muteModList(uri))
+        // northsky: keep the fallback appview's mute state in step
+        void replayMuteWriteToFallback(appview, agent.session?.did, opts =>
+          agent.app.bsky.graph.muteActorList({list: uri}, opts),
+        )
       } else {
-        await agent.unmuteModList(uri)
+        // northsky: this user action outranks an older reconciliation snapshot
+        await runUserMuteWrite(uri, () => agent.unmuteModList(uri))
+        // northsky: keep the fallback appview's mute state in step
+        void replayMuteWriteToFallback(appview, agent.session?.did, opts =>
+          agent.app.bsky.graph.unmuteActorList({list: uri}, opts),
+        )
       }
 
       await whenAppViewReady(agent, uri, (v: AppBskyGraphGetList.Response) => {

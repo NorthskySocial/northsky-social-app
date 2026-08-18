@@ -3,25 +3,17 @@ import {type AppBskyAgeassuranceBegin, AtpAgent} from '@atproto/api'
 import {useMutation} from '@tanstack/react-query'
 
 import {wait} from '#/lib/async/wait'
-import {
-  DEV_ENV_APPVIEW,
-  PUBLIC_APPVIEW,
-  PUBLIC_APPVIEW_DID,
-} from '#/lib/constants'
 import {isNetworkError} from '#/lib/hooks/useCleanError'
-import {useAgent} from '#/state/session'
+import {useAgent, useAppview} from '#/state/session'
 import {usePatchAgeAssuranceServerState} from '#/ageAssurance'
 import {logger} from '#/ageAssurance/logger'
 import {useAnalytics} from '#/analytics'
-import {BLUESKY_PROXY_DID} from '#/env'
 import {useGeolocation} from '#/geolocation'
-
-const IS_DEV_ENV = BLUESKY_PROXY_DID !== PUBLIC_APPVIEW_DID
-const APPVIEW = IS_DEV_ENV ? DEV_ENV_APPVIEW : PUBLIC_APPVIEW
 
 export function useBeginAgeAssurance() {
   const ax = useAnalytics()
   const agent = useAgent()
+  const appview = useAppview() // northsky: appview routed for this account
   const geolocation = useGeolocation()
   const patchAgeAssuranceStateResponse = usePatchAgeAssuranceServerState()
 
@@ -41,11 +33,12 @@ export function useBeginAgeAssurance() {
       const {
         data: {token},
       } = await agent.com.atproto.server.getServiceAuth({
-        aud: BLUESKY_PROXY_DID,
+        // northsky: the token audience must match the appview that gets it
+        aud: appview.did,
         lxm: `app.bsky.ageassurance.begin`,
       })
 
-      const appView = new AtpAgent({service: APPVIEW})
+      const appView = new AtpAgent({service: appview.url})
       appView.sessionManager.session = {...agent.session!}
       appView.sessionManager.session.accessJwt = token
       appView.sessionManager.session.refreshJwt = ''

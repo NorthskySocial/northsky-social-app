@@ -3,7 +3,7 @@ import {type AppBskyActorDefs, BSKY_LABELER_DID} from '@atproto/api'
 
 import {type ProxyHeaderValue} from '#/state/session/agent'
 import {BRAND} from '#/brand/config'
-import {BLUESKY_PROXY_DID, CHAT_PROXY_DID, IS_DEV} from '#/env'
+import {CHAT_PROXY_DID, IS_DEV} from '#/env'
 
 export const LOCAL_DEV_SERVICE =
   Platform.OS === 'android' ? 'http://10.0.2.2:2583' : 'http://localhost:2583'
@@ -41,21 +41,25 @@ export const DISCOVER_DEBUG_DIDS: Record<string, true> = {
 }
 
 const BASE_FEEDBACK_FORM_URL = BRAND.feedbackUrl // northsky: brand override
-export function FEEDBACK_FORM_URL({
-  email,
-  handle,
-}: {
+/**
+ * northsky: the brand feedback form is not Zendesk and does not accept
+ * pre-filled ticket fields. Do not put the email or the handle in the URL.
+ * Callers keep the upstream signature so the Zendesk pre-fill can come back.
+ */
+export function FEEDBACK_FORM_URL(_prefill: {
   email?: string
   handle?: string
 }): string {
   // northsky: URL API keeps params valid for brand URLs with hash routes
   const url = new URL(BASE_FEEDBACK_FORM_URL)
+  /* northsky: upstream Zendesk pre-fill. Restore it with a Zendesk form.
   if (email) {
     url.searchParams.set('tf_anonymous_requester_email', email)
     if (handle) {
       url.searchParams.set('tf_17205412673421', handle)
     }
   }
+  */
   return url.toString()
 }
 
@@ -231,21 +235,17 @@ export const urls = {
   },
 }
 
-export const PUBLIC_APPVIEW = BRAND.publicAppViewUrl // northsky: brand override
-export const PUBLIC_APPVIEW_DID = BRAND.publicAppViewDid // northsky: brand override
 export const PUBLIC_STAGING_APPVIEW_DID = 'did:web:api.staging.bsky.dev'
 
 export const DEV_ENV_APPVIEW = `http://localhost:2584` // always the same
 export const DEV_ENV_APPVIEW_DID = `did:plc:dw4kbjf5mn7nhenabiqpkyh3` // always the same
 
 // temp hack for e2e - esb
+// northsky: override-only; configureAppviewProxy resolves the real header
 export const BLUESKY_PROXY_HEADER = {
-  value: `${BLUESKY_PROXY_DID}#bsky_appview`,
-  get() {
-    return this.value as ProxyHeaderValue
-  },
+  override: undefined as ProxyHeaderValue | undefined,
   set(value: string) {
-    this.value = value
+    this.override = value as ProxyHeaderValue
   },
 }
 
@@ -255,10 +255,6 @@ export const DM_SERVICE_HEADERS = {
 
 export const BLUESKY_MOD_SERVICE_HEADERS = {
   'atproto-proxy': `${BSKY_LABELER_DID}#atproto_labeler`,
-}
-
-export const BLUESKY_NOTIF_SERVICE_HEADERS = {
-  'atproto-proxy': `${BLUESKY_PROXY_DID}#bsky_notif`,
 }
 
 export const webLinks = {

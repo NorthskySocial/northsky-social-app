@@ -8,7 +8,8 @@ import {
 } from '@tanstack/react-query'
 
 import {STALE} from '#/state/queries'
-import {useAgent} from '#/state/session'
+import {useAgent, useAppview} from '#/state/session'
+import {searchProxyOpts} from '#/brand/searchRouting' // northsky: search routing
 
 export const RQKEY_ROOT = 'actor-search'
 export const RQKEY = (query: string, limit?: number) => [
@@ -29,6 +30,7 @@ export function useActorSearch({
   limit?: number
 }) {
   const agent = useAgent()
+  const appview = useAppview() // northsky: search may be pinned to another appview
   return useInfiniteQuery<
     AppBskyActorSearchActors.OutputSchema,
     Error,
@@ -37,13 +39,17 @@ export function useActorSearch({
     string | undefined
   >({
     staleTime: STALE.MINUTES.FIVE,
-    queryKey: RQKEY(query, limit),
+    // northsky: appended appview so switching accounts does not reuse results
+    queryKey: [...RQKEY(query, limit), appview.did],
     queryFn: async ({pageParam}) => {
-      const res = await agent.searchActors({
-        q: query,
-        limit,
-        cursor: pageParam,
-      })
+      const res = await agent.searchActors(
+        {
+          q: query,
+          limit,
+          cursor: pageParam,
+        },
+        searchProxyOpts(appview), // northsky: appviews without actor search route elsewhere
+      )
       return res.data
     },
     enabled: enabled && !!query,

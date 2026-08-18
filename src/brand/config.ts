@@ -30,6 +30,14 @@ export const BRAND = {
     'at://did:plc:23cnpffmuf4vkpsnwhgyvljw/app.bsky.feed.generator/NorthskySocial',
   slingshotServiceUrl: 'https://slingshot.microcosm.blue',
   constellationServiceUrl: 'https://constellation.microcosm.blue',
+  /*
+   * Actor typeahead for appviews that cannot serve it. This third-party
+   * service publishes no privacy policy, names no operator, and calls itself
+   * experimental. It sees which accounts users look for, including the
+   * accounts logged-out visitors look for. To stop all use of it, remove
+   * `useFallbackTypeahead` from the appviews in `./appview.ts`.
+   */
+  typeaheadServiceUrl: 'https://typeahead.waow.tech',
 } as const
 
 export type BrandConfig = typeof BRAND

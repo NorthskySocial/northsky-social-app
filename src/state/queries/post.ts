@@ -10,10 +10,12 @@ import {
 import {useToggleMutationQueue} from '#/lib/hooks/useToggleMutationQueue'
 import {updatePostShadow} from '#/state/cache/post-shadow'
 import {type Shadow} from '#/state/cache/types'
-import {useAgent, useSession} from '#/state/session'
+import {useAgent, useAppview, useSession} from '#/state/session'
 import * as userActionHistory from '#/state/userActionHistory'
 import {useAnalytics} from '#/analytics'
 import {type Metrics, toClout} from '#/analytics/metrics'
+// northsky: mute writes are replayed to the fallback appview
+import {replayMuteWriteToFallback} from '#/features/muteSync'
 import {useIsThreadMuted, useSetThreadMute} from '../cache/thread-mutes'
 import {findProfileQueryData} from './profile'
 
@@ -408,22 +410,34 @@ export function useThreadMuteMutationQueue(
 
 function useThreadMuteMutation() {
   const agent = useAgent()
+  const appview = useAppview() // northsky: mutes are private per-appview state
   return useMutation<
     {},
     Error,
     {uri: string} // the root post's uri
   >({
-    mutationFn: ({uri}) => {
-      return agent.api.app.bsky.graph.muteThread({root: uri})
+    mutationFn: async ({uri}) => {
+      const res = await agent.api.app.bsky.graph.muteThread({root: uri})
+      // northsky: keep the fallback appview's mute state in step
+      void replayMuteWriteToFallback(appview, agent.session?.did, opts =>
+        agent.api.app.bsky.graph.muteThread({root: uri}, opts),
+      )
+      return res
     },
   })
 }
 
 function useThreadUnmuteMutation() {
   const agent = useAgent()
+  const appview = useAppview() // northsky: mutes are private per-appview state
   return useMutation<{}, Error, {uri: string}>({
-    mutationFn: ({uri}) => {
-      return agent.api.app.bsky.graph.unmuteThread({root: uri})
+    mutationFn: async ({uri}) => {
+      const res = await agent.api.app.bsky.graph.unmuteThread({root: uri})
+      // northsky: keep the fallback appview's mute state in step
+      void replayMuteWriteToFallback(appview, agent.session?.did, opts =>
+        agent.api.app.bsky.graph.unmuteThread({root: uri}, opts),
+      )
+      return res
     },
   })
 }

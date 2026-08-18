@@ -132,18 +132,48 @@ This is exact and zero-maintenance, and it's what the sync workflow relies on.
 
 ## 4. Northsky customizations (current)
 
-| Area | Lives in | Upstream touch points (marked `// northsky:`) |
-| --- | --- | --- |
-| Brand identity/config | `src/brand/{brand.json,config.ts,index.ts}` | `src/lib/constants.ts`, `app.config.js` |
-| Brand theme | `src/brand/theme.ts` | root `ThemeProvider` in `src/App.tsx`, `src/App.web.tsx` |
-| Logo / web assets | `src/brand/assets/Logo.tsx`, in-place assets | `src/view/icons/Logo.tsx`, `web/index.html` |
-| Embed service branding | `bskyembed/src/brand.ts`, `bskyembed/assets/logo.svg` | `bskyembed/{index.html,post.html,snippet/embed.ts}`, `bskyembed/src/{components/post.tsx,screens/landing.tsx,screens/post.tsx}` |
-| Splash logomark | (brand logo) | `src/Splash.tsx`, `src/Splash.web.tsx` |
-| Pronouns | `src/screens/Profile/Header/pronouns.ts` | `EditProfileDialog.tsx`, `profile.ts`, `Handle.tsx`, `ThreadItemAnchor.tsx` |
-| Slingshot/Constellation | `src/lib/slingshot/*`, `src/state/queries/slingshot.ts` | `Post/Embed/index.tsx`, `UserAvatar.tsx` |
-| Custom lexicon rendering | `src/features/customRecords/*` | `Post/Embed/index.tsx` (`unknown` branch) |
-| Host-aware takedown/appeal routing | `src/brand/moderation.ts` | `src/screens/Takendown.tsx` |
-| Compose button wording ("They're called") | `src/features/postVocabulary/*` | `AppearanceSettings.tsx`, `LeftNav.tsx`, `Composer.tsx` |
+| Area                                                           | Lives in                                                | Upstream touch points (marked `// northsky:`)                                                                                   |
+| ----------------------------------------------------------------| ---------------------------------------------------------| ---------------------------------------------------------------------------------------------------------------------------------|
+| Brand identity/config                                          | `src/brand/{brand.json,config.ts,index.ts}`             | `src/lib/constants.ts`, `app.config.js`                                                                                         |
+| Brand theme                                                    | `src/brand/theme.ts`                                    | root `ThemeProvider` in `src/App.tsx`, `src/App.web.tsx`                                                                        |
+| Logo / web assets                                              | `src/brand/assets/Logo.tsx`, in-place assets            | `src/view/icons/Logo.tsx`, `web/index.html`                                                                                     |
+| Embed service branding                                         | `bskyembed/src/brand.ts`, `bskyembed/assets/logo.svg`   | `bskyembed/{index.html,post.html,snippet/embed.ts}`, `bskyembed/src/{components/post.tsx,screens/landing.tsx,screens/post.tsx}` |
+| Splash logomark                                                | (brand logo)                                            | `src/Splash.tsx`, `src/Splash.web.tsx`                                                                                          |
+| Pronouns                                                       | `src/screens/Profile/Header/pronouns.ts`                | `EditProfileDialog.tsx`, `profile.ts`, `Handle.tsx`, `ThreadItemAnchor.tsx`                                                     |
+| Slingshot/Constellation                                        | `src/lib/slingshot/*`, `src/state/queries/slingshot.ts` | `Post/Embed/index.tsx`, `UserAvatar.tsx`                                                                                        |
+| Custom lexicon rendering                                       | `src/features/customRecords/*`                          | `Post/Embed/index.tsx` (`unknown` branch)                                                                                       |
+| Host-aware takedown/appeal routing                             | `src/brand/moderation.ts`                               | `src/screens/Takendown.tsx`                                                                                                     |
+| App labelers: Northsky moderation on, regional authorities off | `src/brand/moderation.ts` (`APP_LABELER_DIDS`)          | `src/state/session/moderation.ts`                                                                                               |
+| Northsky label refinement in reports                           | `src/features/northskyReportLabels/*`                   | `ReportDialog/{index.tsx,action.ts}`                                                                                            |
+
+#### App labelers grant server-side redaction
+
+`APP_LABELER_DIDS` is not just a report-target list. The SDK emits every app
+labeler in the `atproto-accept-labelers` header with a `;redact` flag, and the
+appview honours that flag during hydration: `!takedown` and `!suspend` from a
+redacting labeler mark content as taken down, and `needs-review` and
+`impersonation` are actioned server-side. Content is removed before it reaches
+the client rather than being filtered in the app.
+
+That authority is the point — Northsky moderation is meant to be able to take
+content down for every user of the app, including users on other PDS hosts.
+A labeler the user merely subscribes to has no such power. So treat adding a
+DID to `APP_LABELER_DIDS` as granting takedown authority over the whole app,
+and keep the list to services Northsky itself operates.
+
+App labelers are also always on: users cannot unsubscribe from them, and
+`isAppLabeler` reports them as subscribed without a preference entry.
+
+#### Report reasons are an enum; Northsky labels are not
+
+`createReport` takes a `reasonType` from a fixed lexicon enum. Northsky's own
+label values (`ableism`, `transphobia`, ...) are not valid reason types and
+cannot be added as report options. `src/features/northskyReportLabels/` maps
+each label onto a reason type Northsky declares, and sends the chosen label two
+ways: at the head of the report comment, which Ozone shows to moderators, and as
+`modTool.meta.label`, which `queryEvents` can filter but the Ozone UI does not
+display. Widening report coverage is a change to the Ozone service
+record, not to this app.
 
 ### Anti-patterns (deliberately NOT done)
 
