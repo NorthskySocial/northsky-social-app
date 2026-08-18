@@ -13,8 +13,9 @@ import {
 } from '@tanstack/react-query'
 
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
-import {useAgent} from '#/state/session'
+import {useAgent, useAppview} from '#/state/session'
 import {type SearchFilters} from '#/screens/Search/searchParams'
+import {searchProxyOpts} from '#/brand/searchRouting' // northsky: search routing
 import {
   appendFromMe,
   buildSearchPostsV2Filters,
@@ -31,11 +32,14 @@ const searchPostsV2QueryKey = ({
   query,
   sort,
   filters,
+  appview,
 }: {
   query: string
   sort?: string
   filters?: SearchFilters
-}) => [searchPostsQueryKeyRoot, query, sort, filters]
+  // northsky: results differ per appview, so switching accounts must not reuse them
+  appview: string
+}) => [searchPostsQueryKeyRoot, query, sort, filters, appview]
 
 export function useSearchPostsV2Query({
   query,
@@ -49,6 +53,7 @@ export function useSearchPostsV2Query({
   filters?: SearchFilters
 }) {
   const agent = useAgent()
+  const appview = useAppview() // northsky: search may be pinned to another appview
   const moderationOpts = useModerationOpts()
   const selectArgs = useMemo(
     () => ({
@@ -71,7 +76,12 @@ export function useSearchPostsV2Query({
     QueryKey,
     string | undefined
   >({
-    queryKey: searchPostsV2QueryKey({query, sort, filters}),
+    queryKey: searchPostsV2QueryKey({
+      query,
+      sort,
+      filters,
+      appview: appview.did,
+    }),
     queryFn: async ({pageParam}) => {
       /*
        * Operators embedded in the query string (e.g. for back-compat links) are
@@ -81,18 +91,21 @@ export function useSearchPostsV2Query({
       const {q, ...embedded} = extractSearchPostsParams(query)
       const builtFilters = buildSearchPostsV2Filters(embedded, filters)
       const finalQuery = appendFromMe(q, filters?.from === 'me')
-      const res = await agent.app.bsky.feed.searchPostsV2({
-        ...builtFilters,
-        query: finalQuery,
-        limit: 25,
-        cursor: pageParam,
-        /*
-         * v2 calls the recency sort 'recent'; the rest of the app still uses
-         * the v1 'latest' label.
-         */
-        sort: sort === 'latest' ? 'recent' : sort,
-        allTime: true,
-      })
+      const res = await agent.app.bsky.feed.searchPostsV2(
+        {
+          ...builtFilters,
+          query: finalQuery,
+          limit: 25,
+          cursor: pageParam,
+          /*
+           * v2 calls the recency sort 'recent'; the rest of the app still uses
+           * the v1 'latest' label.
+           */
+          sort: sort === 'latest' ? 'recent' : sort,
+          allTime: true,
+        },
+        searchProxyOpts(appview), // northsky: appviews without v2 search route elsewhere
+      )
       return res.data
     },
     initialPageParam: undefined,

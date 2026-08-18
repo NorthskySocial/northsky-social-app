@@ -1,7 +1,11 @@
 import {BSKY_LABELER_DID} from '@atproto/api'
 
 import {BRAND} from '../config'
-import {getHostModerationInfo, getHostModServiceHeaders} from '../moderation'
+import {
+  APP_LABELER_DIDS,
+  getHostModerationInfo,
+  getHostModServiceHeaders,
+} from '../moderation'
 
 const NORTHSKY_MOD_DID = 'did:plc:p2cxrw3ank4dzs55mpm6ohq4'
 const BLACKSKY_MOD_DID = 'did:plc:d2mkddsbmnrgr3domzg5qexf'
@@ -90,6 +94,17 @@ describe('getHostModerationInfo', () => {
     ]) {
       expect(getHostModerationInfo(url).name).toBe('Northsky Social')
     }
+  })
+})
+
+describe('APP_LABELER_DIDS', () => {
+  /*
+   * The Northsky entry is read out of the host map by PDS URL, so a brand or
+   * map change that breaks the lookup would silently fall back to Bluesky and
+   * leave the app with Bluesky twice and no Northsky moderation.
+   */
+  it('applies Northsky moderation ahead of Bluesky', () => {
+    expect(APP_LABELER_DIDS).toEqual([NORTHSKY_MOD_DID, BSKY_LABELER_DID])
   })
 })
 

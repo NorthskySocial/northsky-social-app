@@ -5,18 +5,32 @@ import {getBadgeCountAsync, setBadgeCountAsync} from 'expo-notifications'
 import {type AppBskyNotificationRegisterPush, type AtpAgent} from '@atproto/api'
 import debounce from 'lodash.debounce'
 
-import {
-  BLUESKY_NOTIF_SERVICE_HEADERS,
-  PUBLIC_APPVIEW_DID,
-  PUBLIC_STAGING_APPVIEW_DID,
-} from '#/lib/constants'
+import {PUBLIC_STAGING_APPVIEW_DID} from '#/lib/constants'
 import {logger as notyLogger} from '#/lib/notifications/util'
 import {isNetworkError} from '#/lib/strings/errors'
 import {type SessionAccount, useAgent, useSession} from '#/state/session'
+// northsky: register push with the appview routed for the account
+import {getAppviewForAgent} from '#/state/session/agent'
 import BackgroundNotificationHandler from '#/../modules/expo-background-notification-handler'
 import {useAgeAssurance} from '#/ageAssurance'
 import {useAnalytics} from '#/analytics'
+import {type AppView, FALLBACK_APPVIEW} from '#/brand/appview'
 import {IS_DEV, IS_NATIVE} from '#/env'
+
+/*
+ * northsky: helpers so register/unregister talk to the notif service of the
+ * appview resolved for the account, not a static Bluesky constant.
+ */
+function notifServiceDid(appview: AppView, service: string | undefined) {
+  const usingFallback = appview.did === FALLBACK_APPVIEW.did
+  return usingFallback && service?.includes('staging')
+    ? PUBLIC_STAGING_APPVIEW_DID
+    : appview.did
+}
+
+function notifServiceHeaders(appview: AppView) {
+  return {'atproto-proxy': `${appview.did}#bsky_notif`}
+}
 
 /**
  * @private
@@ -36,10 +50,13 @@ async function _registerPushToken({
   }
 }) {
   try {
+    /*
+     * northsky: a route match points to the correct appview for the account.
+     * Apply the staging-vs-prod special case only on the fallback appview.
+     */
+    const appview = getAppviewForAgent(agent)
     const payload: AppBskyNotificationRegisterPush.InputSchema = {
-      serviceDid: currentAccount.service?.includes('staging')
-        ? PUBLIC_STAGING_APPVIEW_DID
-        : PUBLIC_APPVIEW_DID,
+      serviceDid: notifServiceDid(appview, currentAccount.service),
       platform: Platform.OS,
       token: token.data,
       appId: 'xyz.blueskyweb.app',
@@ -49,7 +66,7 @@ async function _registerPushToken({
     notyLogger.debug(`registerPushToken: registering`, {...payload})
 
     await agent.app.bsky.notification.registerPush(payload, {
-      headers: BLUESKY_NOTIF_SERVICE_HEADERS,
+      headers: notifServiceHeaders(appview),
     })
 
     notyLogger.debug(`registerPushToken: success`)
@@ -333,17 +350,17 @@ export async function unregisterPushToken(agents: AtpAgent[]) {
     const token = await getPushToken()
     if (token) {
       for (const agent of agents) {
+        // northsky: unregister against the appview routed for each account
+        const appview = getAppviewForAgent(agent)
         await agent.app.bsky.notification.unregisterPush(
           {
-            serviceDid: agent.serviceUrl.hostname.includes('staging')
-              ? PUBLIC_STAGING_APPVIEW_DID
-              : PUBLIC_APPVIEW_DID,
+            serviceDid: notifServiceDid(appview, agent.serviceUrl.hostname),
             platform: Platform.OS,
             token: token.data,
             appId: 'xyz.blueskyweb.app',
           },
           {
-            headers: BLUESKY_NOTIF_SERVICE_HEADERS,
+            headers: notifServiceHeaders(appview),
           },
         )
         notyLogger.debug(`Push token unregistered for ${agent.session?.handle}`)

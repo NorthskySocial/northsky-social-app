@@ -30,6 +30,14 @@ import {
 } from '#/ageAssurance/data'
 import {unsafeGetAndComputeAgeAssurance} from '#/ageAssurance/state'
 import {features} from '#/analytics'
+// northsky: PDS-to-appview routing
+import {
+  type AppView,
+  FALLBACK_APPVIEW,
+  resolveAppViewForService,
+} from '#/brand/appview'
+// northsky: mute state import from the fallback appview
+import {reconcileMutes} from '#/features/muteSync'
 import {emitNetworkConfirmed, emitNetworkLost} from '../events'
 import {addSessionErrorLog} from './logging'
 import {
@@ -41,11 +49,44 @@ import {isSessionExpired, isSignupQueued} from './util'
 
 export type ProxyHeaderValue = `${Did}#${AtprotoServiceType}`
 
+/*
+ * northsky: configure the `atproto-proxy` header on `agent` so PDS requests
+ * for appview lexicons go to the appview routed for the hosting provider the
+ * user selected at login, and store the resolved appview on `agent.appview`
+ * for direct-to-appview call sites (notifications, age assurance). An E2E
+ * override via BLUESKY_PROXY_HEADER takes precedence over the header only;
+ * `agent.appview` still reflects the resolved route.
+ */
+export function configureAppviewProxy(agent: BskyAppAgent) {
+  const resolved = resolveAppViewForService(agent.serviceUrl?.toString())
+  agent.appview = resolved
+
+  const override = BLUESKY_PROXY_HEADER.override
+  if (override) {
+    agent.configureProxy(override)
+    return
+  }
+  agent.configureProxy(`${resolved.did}#bsky_appview`)
+}
+
+/**
+ * northsky: returns the resolved appview for the given agent. Agents that
+ * never went through configureAppviewProxy (e.g. the temporary agents built
+ * for logout push-token cleanup) resolve from their service URL.
+ */
+export function getAppviewForAgent(agent: AtpAgent | BaseAgent): AppView {
+  const appAgent = agent as BskyAppAgent
+  return (
+    appAgent.appview ??
+    resolveAppViewForService(appAgent.serviceUrl?.toString())
+  )
+}
+
 export function createPublicAgent() {
   configureModerationForGuest() // Side effect but only relevant for tests
 
   const agent = new BskyAppAgent({service: PUBLIC_BSKY_SERVICE})
-  agent.configureProxy(BLUESKY_PROXY_HEADER.get())
+  configureAppviewProxy(agent)
   return agent
 }
 
@@ -75,7 +116,9 @@ export async function createAgentAndResume(
   // after session is attached
   const aa = prefetchAgeAssuranceServerData({agent})
 
-  agent.configureProxy(BLUESKY_PROXY_HEADER.get())
+  configureAppviewProxy(agent)
+  // northsky: import mute state from the fallback appview, best-effort
+  void reconcileMutes(agent, agent.appview)
 
   return agent.prepare({
     resolvers: [gates, moderation, aa],
@@ -114,7 +157,9 @@ export async function createAgentAndLogin(
   const moderation = configureModerationForAccount(agent, account)
   const aa = prefetchAgeAssuranceServerData({agent})
 
-  agent.configureProxy(BLUESKY_PROXY_HEADER.get())
+  configureAppviewProxy(agent)
+  // northsky: import mute state from the fallback appview, best-effort
+  void reconcileMutes(agent, agent.appview)
 
   return agent.prepare({
     resolvers: [gates, moderation, aa],
@@ -274,7 +319,7 @@ export async function createAgentAndCreateAccount(
     logger.error(e, {message: `session: failed snoozeEmailConfirmationPrompt`})
   }
 
-  agent.configureProxy(BLUESKY_PROXY_HEADER.get())
+  configureAppviewProxy(agent)
 
   return agent.prepare({
     resolvers: [gates, moderation, aa],
@@ -349,18 +394,103 @@ export class Agent extends BaseAgent {
 // WARN: In the factories above, we _manually set a proxy header_ for the agent after we do whatever it is we are supposed to do.
 // Ideally, we wouldn't be doing this. However, since there is so much logic that requires making calls to the PDS right now, it
 // feels safer to just let those run as-is and set the header afterward.
+/*
+ * northsky: `getPreferences` and `putPreferences` are served by the PDS
+ * itself, not by an appview. The agent sets a global `atproto-proxy` header
+ * and the PDS honors it, so it forwards these two calls to the Blacksky
+ * appview, which answers `501 MethodNotImplemented`. That breaks app load and
+ * makes setting writes fail silently. Remove the header for these methods so
+ * the PDS answers them locally.
+ */
+const PDS_LOCAL_PROXY_EXEMPT_METHODS = [
+  'app.bsky.actor.getPreferences',
+  'app.bsky.actor.putPreferences',
+]
+
+function isRequest(input: RequestInfo | URL): input is Request {
+  return typeof input === 'object' && input !== null && 'headers' in input
+}
+
+/*
+ * northsky: this function compares the path exactly. A substring test also
+ * matches a request that carries a method name somewhere else, such as a
+ * search for that text, and sends that request to the wrong service.
+ *
+ * Some `URL` implementations add a trailing slash to a path that has no query
+ * string, so the comparison removes one. React Native does this, and its
+ * `URL` stands in whenever the Expo runtime does not replace it.
+ */
+function isPdsLocalMethodUrl(url: string): boolean {
+  try {
+    const path = new URL(url).pathname.replace(/\/$/, '')
+    return PDS_LOCAL_PROXY_EXEMPT_METHODS.some(
+      method => path === `/xrpc/${method}`,
+    )
+  } catch {
+    return false
+  }
+}
+
+/**
+ * northsky: removes the appview proxy header from requests to PDS-local
+ * methods, and returns the `init` to send.
+ *
+ * `CredentialSession.fetchHandler` builds a `Request` and calls fetch with
+ * that alone, so the headers are on the request rather than in `init`. That
+ * request is edited in place, because rebuilding it would have to move the
+ * body as well.
+ *
+ * Requests without an `authorization` header are left alone. These methods
+ * need auth anyway, and the session manager only omits the header when there
+ * is no access token, which is the signup path. Stripping there made account
+ * creation fail with a bare 401 in the Blacksky fork.
+ */
+export function stripAppviewProxyForPdsLocalMethods(
+  input: RequestInfo | URL,
+  init: RequestInit | undefined,
+): RequestInit | undefined {
+  const url = isRequest(input) ? input.url : input.toString()
+  if (!isPdsLocalMethodUrl(url)) {
+    return init
+  }
+
+  const initHeaders = new Headers(init?.headers)
+  const hasAuth =
+    initHeaders.has('authorization') ||
+    (isRequest(input) && input.headers.has('authorization'))
+  if (!hasAuth) {
+    return init
+  }
+
+  if (isRequest(input)) {
+    input.headers.delete('atproto-proxy')
+  }
+  if (!init?.headers) {
+    return init
+  }
+  initHeaders.delete('atproto-proxy')
+  return {...init, headers: initHeaders}
+}
+
 let realFetch = globalThis.fetch
 class BskyAppAgent extends AtpAgent {
   persistSessionHandler: ((event: AtpSessionEvent) => void) | undefined =
     undefined
+  /*
+   * northsky: resolved appview for this agent's account. The default is the
+   * fallback; configureAppviewProxy replaces it once the PDS host is known.
+   */
+  appview: AppView = FALLBACK_APPVIEW
 
   constructor({service}: {service: string}) {
     super({
       service,
-      async fetch(...args) {
+      async fetch(input, init) {
+        // northsky: keep PDS-local methods off the appview proxy
+        const patchedInit = stripAppviewProxyForPdsLocalMethods(input, init)
         let success = false
         try {
-          const result = await realFetch(...args)
+          const result = await realFetch(input, patchedInit)
           success = true
           return result
         } catch (e) {

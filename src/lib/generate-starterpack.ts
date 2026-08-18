@@ -14,7 +14,8 @@ import {until} from '#/lib/async/until'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
 import {enforceLen} from '#/lib/strings/helpers'
-import {useAgent} from '#/state/session'
+import {useAgent, useAppview} from '#/state/session'
+import {searchProxyOpts} from '#/brand/searchRouting' // northsky: search routing
 import type * as bsky from '#/types/bsky'
 
 export const createStarterPackList = async ({
@@ -61,6 +62,7 @@ export function useGenerateStarterPackMutation({
 }) {
   const {_} = useLingui()
   const agent = useAgent()
+  const appview = useAppview() // northsky: search may be pinned to another appview
 
   return useMutation<{uri: string; cid: string}, Error, void>({
     mutationFn: async () => {
@@ -77,10 +79,13 @@ export function useGenerateStarterPackMutation({
         })(),
         (async () => {
           profiles = (
-            await agent.app.bsky.actor.searchActors({
-              q: encodeURIComponent('*'),
-              limit: 49,
-            })
+            await agent.app.bsky.actor.searchActors(
+              {
+                q: encodeURIComponent('*'),
+                limit: 49,
+              },
+              searchProxyOpts(appview), // northsky: appviews without actor search route elsewhere
+            )
           ).data.actors.filter(p => p.viewer?.following)
         })(),
       ])

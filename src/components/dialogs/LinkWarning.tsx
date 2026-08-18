@@ -11,6 +11,7 @@ import {atoms as a, useBreakpoints, useTheme, web} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
 import {Text} from '#/components/Typography'
+import {BRAND} from '#/brand' // northsky: use the brand name in the leaving-site warning
 import {useGlobalDialogsControlContext} from './Context'
 
 export function LinkWarningDialog() {
@@ -80,7 +81,7 @@ function LinkWarningDialogInner({
       label={
         potentiallyMisleading
           ? _(msg`Potentially misleading link warning`)
-          : _(msg`Leaving Bluesky`)
+          : _(msg`Leaving ${BRAND.appName}`)
       }>
       <View style={[a.gap_2xl]}>
         <View style={[a.gap_sm]}>
@@ -88,7 +89,7 @@ function LinkWarningDialogInner({
             {potentiallyMisleading ? (
               <Trans>Potentially misleading link</Trans>
             ) : (
-              <Trans>Leaving Bluesky</Trans>
+              <Trans>Leaving {BRAND.appName}</Trans>
             )}
           </Text>
           <Text style={[t.atoms.text_contrast_high, a.text_md, a.leading_snug]}>

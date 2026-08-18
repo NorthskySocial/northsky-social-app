@@ -1,3 +1,5 @@
+// northsky: the "They're called" setting, post wording vs skeet wording
+import {Provider as PostVocabularyProvider} from '#/features/postVocabulary'
 import {Provider as AltTextRequiredProvider} from './alt-text-required'
 import {Provider as AutoplayProvider} from './autoplay'
 import {Provider as DisableHapticsProvider} from './disable-haptics'
@@ -39,7 +41,9 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
                     <UsedStarterPacksProvider>
                       <SubtitlesProvider>
                         <TrendingSettingsProvider>
-                          <KawaiiProvider>{children}</KawaiiProvider>
+                          <PostVocabularyProvider>
+                            <KawaiiProvider>{children}</KawaiiProvider>
+                          </PostVocabularyProvider>
                         </TrendingSettingsProvider>
                       </SubtitlesProvider>
                     </UsedStarterPacksProvider>

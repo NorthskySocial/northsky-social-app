@@ -144,6 +144,8 @@ import {
   IS_WEB_SAFARI,
 } from '#/env'
 import {type Gif} from '#/features/gifPicker/types'
+// northsky: wording follows the "They're called" setting
+import {usePostVocabulary} from '#/features/postVocabulary'
 import {BottomSheetPortalProvider} from '../../../../modules/bottom-sheet'
 import {
   draftToComposerPosts,
@@ -1833,6 +1835,8 @@ function ComposerTopBar({
 }) {
   const t = useTheme()
   const {t: l} = useLingui()
+  // northsky: wording follows the "They're called" setting
+  const vocab = usePostVocabulary()
 
   return (
     <Animated.View
@@ -1885,6 +1889,7 @@ function ComposerTopBar({
             )}
             <Button
               testID="composerPublishBtn"
+              // northsky: post wording follows the "They're called" setting
               label={
                 isReply
                   ? isThread
@@ -1899,28 +1904,21 @@ function ComposerTopBar({
                           'Accessibility label for button to publish a single reply',
                       })
                   : isThread
-                    ? l({
-                        message: 'Publish posts',
-                        comment:
-                          'Accessibility label for button to publish multiple posts in a thread',
-                      })
-                    : l({
-                        message: 'Publish post',
-                        comment:
-                          'Accessibility label for button to publish a single post',
-                      })
+                    ? vocab.publishPosts
+                    : vocab.publishPost
               }
               color="primary"
               size="small"
               onPress={onPublish}
               disabled={!canPost || isPublishQueued}>
               <ButtonText style={[a.text_md]} maxFontSizeMultiplier={2}>
+                {/* northsky: wording follows the "They're called" setting */}
                 {isReply ? (
                   <Trans context="action">Reply</Trans>
                 ) : isThread ? (
-                  <Trans context="action">Post All</Trans>
+                  vocab.postAll
                 ) : (
-                  <Trans context="action">Post</Trans>
+                  vocab.post
                 )}
               </ButtonText>
             </Button>

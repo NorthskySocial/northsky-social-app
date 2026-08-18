@@ -63,6 +63,19 @@ export function getHostModerationInfo(
   return BLUESKY
 }
 
+/**
+ * The labelers the app applies to every user, whatever their PDS. They are
+ * always on and the user cannot unsubscribe from them. Northsky is listed
+ * first so it is the first report target offered, ahead of Bluesky.
+ *
+ * An app labeler also gets server-side redaction authority, so it can take
+ * content down for every user of the app. See AGENTS.md section 4.
+ */
+export const APP_LABELER_DIDS: Did[] = [
+  getHostModerationInfo(BRAND.pdsServiceUrl).modServiceDid,
+  BSKY_LABELER_DID,
+]
+
 export function getHostModServiceHeaders(serviceUrl: string | undefined) {
   const {modServiceDid} = getHostModerationInfo(serviceUrl)
   return {'atproto-proxy': `${modServiceDid}#atproto_labeler`}

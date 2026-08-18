@@ -64,6 +64,8 @@ export type Device = {
   threadgateNudged?: boolean
   // northsky: true after the user dismisses the unencrypted-chat warning
   chatServiceWarningDismissed?: boolean
+  // northsky: what the app calls a post, chosen in Settings > Appearance
+  postNaming?: 'post' | 'skeet'
   inviteFriendsFollowersPromoDismissed?: boolean
   pendingOTAUpdate?: {
     attemptedAt: number
