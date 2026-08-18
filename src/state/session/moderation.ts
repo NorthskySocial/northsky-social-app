@@ -1,15 +1,14 @@
 import {AtpAgent, BSKY_LABELER_DID} from '@atproto/api'
 
 import {IS_TEST_USER} from '#/lib/constants'
-import {configureAdditionalModerationAuthorities} from './additional-moderation-authorities'
+import {APP_LABELER_DIDS} from '#/brand/moderation'
 import {readLabelers} from './agent-config'
 import {type SessionAccount} from './types'
 
 export function configureModerationForGuest() {
   // This global mutation is *only* OK because this code is only relevant for testing.
   // Don't add any other global behavior here!
-  switchToBskyAppLabeler()
-  configureAdditionalModerationAuthorities()
+  switchToAppLabelers()
 }
 
 export async function configureModerationForAccount(
@@ -18,7 +17,7 @@ export async function configureModerationForAccount(
 ) {
   // This global mutation is *only* OK because this code is only relevant for testing.
   // Don't add any other global behavior here!
-  switchToBskyAppLabeler()
+  switchToAppLabelers()
   if (IS_TEST_USER(account.handle)) {
     await trySwitchToTestAppLabeler(agent)
   }
@@ -33,12 +32,11 @@ export async function configureModerationForAccount(
     // If there are no headers in the storage, we'll not send them on the initial requests.
     // If we wanted to fix this, we could block on the preferences query here.
   }
-
-  configureAdditionalModerationAuthorities()
 }
 
-function switchToBskyAppLabeler() {
-  AtpAgent.configure({appLabelers: [BSKY_LABELER_DID]})
+// northsky: Northsky moderation ships as an app labeler beside Bluesky.
+function switchToAppLabelers() {
+  AtpAgent.configure({appLabelers: [...APP_LABELER_DIDS]})
 }
 
 async function trySwitchToTestAppLabeler(agent: AtpAgent) {
