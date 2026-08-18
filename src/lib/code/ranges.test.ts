@@ -1,7 +1,12 @@
 import {RichText} from '@atproto/api'
 import {describe, expect, it} from '@jest/globals'
 
-import {hasFormatting, type RichTextItem, segmentsWithCode} from './ranges'
+import {
+  findFormattingRanges,
+  hasFormatting,
+  type RichTextItem,
+  segmentsWithCode,
+} from './ranges'
 
 function build(text: string) {
   const rt = new RichText({text})
@@ -36,6 +41,36 @@ function describeItems(items: RichTextItem[]): string[] {
 describe('hasFormatting', () => {
   it('is false for plain text', () => {
     expect(hasFormatting('just a normal post')).toBe(false)
+  })
+
+  describe('findFormattingRanges', () => {
+    it('reports complete and content ranges for editor decorations', () => {
+      const text = '**bold** and `code`'
+      const rt = new RichText({text})
+      rt.detectFacetsWithoutResolution()
+
+      expect(
+        findFormattingRanges(rt).map(range => ({
+          kind: range.kind,
+          source: text.slice(range.start, range.end),
+          content: text.slice(range.contentStart, range.contentEnd),
+        })),
+      ).toEqual([
+        {kind: 'emphasis', source: '**bold**', content: 'bold'},
+        {kind: 'code', source: '`code`', content: 'code'},
+      ])
+    })
+
+    it('does not report emphasis inside code or link facets', () => {
+      const rt = new RichText({
+        text: '`*literal*` https://example.com/a_b_c',
+      })
+      rt.detectFacetsWithoutResolution()
+
+      expect(findFormattingRanges(rt).map(range => range.kind)).toEqual([
+        'code',
+      ])
+    })
   })
 
   it('is true for code or emphasis markers', () => {
