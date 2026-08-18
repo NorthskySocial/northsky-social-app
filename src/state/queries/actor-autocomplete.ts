@@ -1,9 +1,5 @@
 import {useCallback} from 'react'
-import {
-  type AppBskyActorDefs,
-  moderateProfile,
-  type ModerationOpts,
-} from '@atproto/api'
+import {moderateProfile, type ModerationOpts} from '@bsky/sdk/moderation'
 import {keepPreviousData, useQuery, useQueryClient} from '@tanstack/react-query'
 
 import {isJustAMute, moduiContainsHideableOffense} from '#/lib/moderation'
@@ -11,7 +7,12 @@ import {isJustAMute, moduiContainsHideableOffense} from '#/lib/moderation'
 import {searchActorsTypeaheadVia} from '#/lib/typeahead/client'
 import {logger} from '#/logger'
 import {STALE} from '#/state/queries'
+<<<<<<< HEAD
 import {useAgent, useAppview} from '#/state/session'
+=======
+import {useAppviewClient} from '#/state/session'
+import {app} from '#/lexicons'
+>>>>>>> upstream/main
 import {useModerationOpts} from '../preferences/moderation-opts'
 import {DEFAULT_LOGGED_OUT_PREFERENCES} from './preferences'
 
@@ -29,8 +30,12 @@ export function useActorAutocompleteQuery(
   limit?: number,
 ) {
   const moderationOpts = useModerationOpts()
+<<<<<<< HEAD
   const agent = useAgent()
   const appview = useAppview() // northsky: typeahead may come from another service
+=======
+  const client = useAppviewClient()
+>>>>>>> upstream/main
 
   prefix = prefix.toLowerCase().trim()
   if (prefix.endsWith('.')) {
@@ -38,20 +43,30 @@ export function useActorAutocompleteQuery(
     prefix = prefix.slice(0, -1)
   }
 
-  return useQuery<AppBskyActorDefs.ProfileViewBasic[]>({
+  return useQuery<app.bsky.actor.defs.ProfileViewBasic[]>({
     staleTime: STALE.MINUTES.ONE,
     // northsky: appended appview so switching accounts does not reuse results
     queryKey: [...RQKEY(prefix || ''), appview.did],
     async queryFn() {
+<<<<<<< HEAD
       if (!prefix) return []
       // northsky: appviews without typeahead use the brand service
       return searchActorsTypeaheadVia(appview, agent, {
         q: prefix,
         limit: limit || 8,
       })
+=======
+      const data = prefix
+        ? await client.call(app.bsky.actor.searchActorsTypeahead, {
+            q: prefix,
+            limit: limit || 8,
+          })
+        : undefined
+      return data?.actors || []
+>>>>>>> upstream/main
     },
     select: useCallback(
-      (data: AppBskyActorDefs.ProfileViewBasic[]) => {
+      (data: app.bsky.actor.defs.ProfileViewBasic[]) => {
         return computeSuggestions({
           q: prefix,
           searched: data,
@@ -68,8 +83,12 @@ export type ActorAutocompleteFn = ReturnType<typeof useActorAutocompleteFn>
 export function useActorAutocompleteFn() {
   const queryClient = useQueryClient()
   const moderationOpts = useModerationOpts()
+<<<<<<< HEAD
   const agent = useAgent()
   const appview = useAppview() // northsky: typeahead may come from another service
+=======
+  const client = useAppviewClient()
+>>>>>>> upstream/main
 
   return useCallback(
     async ({query, limit = 8}: {query: string; limit?: number}) => {
@@ -83,7 +102,14 @@ export function useActorAutocompleteFn() {
             queryKey: [...RQKEY(query || ''), appview.did],
             // northsky: appviews without typeahead use the brand service
             queryFn: () =>
+<<<<<<< HEAD
               searchActorsTypeaheadVia(appview, agent, {q: query, limit}),
+=======
+              client.call(app.bsky.actor.searchActorsTypeahead, {
+                q: query,
+                limit,
+              }),
+>>>>>>> upstream/main
           })
         } catch (e) {
           logger.error('useActorSearch: searchActorsTypeahead failed', {
@@ -94,11 +120,19 @@ export function useActorAutocompleteFn() {
 
       return computeSuggestions({
         q: query,
+<<<<<<< HEAD
         searched: res,
         moderationOpts: moderationOpts || DEFAULT_MOD_OPTS,
       })
     },
     [queryClient, moderationOpts, agent, appview],
+=======
+        searched: res?.actors,
+        moderationOpts: moderationOpts || DEFAULT_MOD_OPTS,
+      })
+    },
+    [queryClient, moderationOpts, client],
+>>>>>>> upstream/main
   )
 }
 
@@ -108,10 +142,10 @@ function computeSuggestions({
   moderationOpts,
 }: {
   q?: string
-  searched?: AppBskyActorDefs.ProfileViewBasic[]
+  searched?: app.bsky.actor.defs.ProfileViewBasic[]
   moderationOpts: ModerationOpts
 }) {
-  let items: AppBskyActorDefs.ProfileViewBasic[] = []
+  let items: app.bsky.actor.defs.ProfileViewBasic[] = []
   for (const item of searched) {
     if (!items.find(item2 => item2.handle === item.handle)) {
       items.push(item)

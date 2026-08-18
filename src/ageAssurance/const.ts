@@ -1,8 +1,3 @@
-import {
-  ageAssuranceRuleIDs as ids,
-  type AppBskyAgeassuranceDefs,
-} from '@atproto/api'
-
 import {AgeAssuranceAccess} from '#/ageAssurance/types'
 import {BRAND} from '#/brand/config'
 import {
@@ -12,6 +7,7 @@ import {
   IS_IOS,
   IS_WEB,
 } from '#/env'
+import {app} from '#/lexicons'
 
 /**
  * northsky: whether the age assurance system is active. This flag controls the
@@ -81,19 +77,17 @@ export const AGE_ASSURANCE_PLATFORM: 'web' | 'ios' | 'android' = IS_WEB
 export const DEVICE_SIGNALS_SUPPORTED: boolean =
   (IS_IOS && IOS_MAJOR_VERSION >= 26) || (IS_ANDROID && ANDROID_API_LEVEL >= 23)
 
-export const FALLBACK_REGION_CONFIG: AppBskyAgeassuranceDefs.ConfigRegion = {
+export const FALLBACK_REGION_CONFIG: app.bsky.ageassurance.defs.ConfigRegion = {
   countryCode: '*',
   regionCode: undefined,
   minAccessAge: MIN_ACCESS_AGE,
   rules: [
-    {
-      $type: ids.IfDeclaredOverAge,
+    app.bsky.ageassurance.defs.configRegionRuleIfDeclaredOverAge.build({
       age: MIN_ACCESS_AGE,
       access: AgeAssuranceAccess.Full,
-    },
-    {
-      $type: ids.Default,
+    }),
+    app.bsky.ageassurance.defs.configRegionRuleDefault.build({
       access: AgeAssuranceAccess.None,
-    },
+    }),
   ],
 }

@@ -1,5 +1,5 @@
 import {useCallback, useMemo} from 'react'
-import {moderateProfile, type ModerationOpts} from '@atproto/api'
+import {moderateProfile, type ModerationOpts} from '@bsky/sdk/moderation'
 import {keepPreviousData, useQuery} from '@tanstack/react-query'
 
 import {isJustAMute, moduiContainsHideableOffense} from '#/lib/moderation'
@@ -8,13 +8,18 @@ import {searchActorsTypeaheadVia} from '#/lib/typeahead/client'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {STALE} from '#/state/queries'
 import {DEFAULT_LOGGED_OUT_PREFERENCES} from '#/state/queries/preferences'
+<<<<<<< HEAD
 import {useAgent, useAppview} from '#/state/session'
+=======
+import {useAppviewClient} from '#/state/session'
+>>>>>>> upstream/main
 import {
   type AutocompleteApi,
   type AutocompleteItem,
   type AutocompleteItemType,
   type AutocompleteProfile,
 } from '#/components/Autocomplete/types'
+import {app} from '#/lexicons'
 import {useEmojiSearch} from './useEmojiSearch'
 
 const DEFAULT_MOD_OPTS = {
@@ -33,8 +38,12 @@ export function useAutocomplete({
   limit?: number
   showSearchFallback?: boolean
 }): AutocompleteApi {
+<<<<<<< HEAD
   const agent = useAgent()
   const appview = useAppview() // northsky: typeahead may come from another service
+=======
+  const client = useAppviewClient()
+>>>>>>> upstream/main
   const moderationOpts = useModerationOpts()
   const emojiSearch = useEmojiSearch()
 
@@ -57,13 +66,21 @@ export function useAutocomplete({
         // Going from "foo" to "foo." should not clear matches.
         q = q.toLowerCase().trim().replace(/\.$/, '')
 
+<<<<<<< HEAD
         // northsky: appviews without typeahead use the brand service
         const actors = await searchActorsTypeaheadVia(appview, agent, {
+=======
+        const data = await client.call(app.bsky.actor.searchActorsTypeahead, {
+>>>>>>> upstream/main
           q,
           limit: limit || 8,
         })
 
+<<<<<<< HEAD
         return actors.map(profile => ({
+=======
+        return (data?.actors || []).map(profile => ({
+>>>>>>> upstream/main
           key: profile.did,
           type: 'profile' as const,
           value: '@' + profile.handle,

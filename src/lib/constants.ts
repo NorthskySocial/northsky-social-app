@@ -1,9 +1,15 @@
 import {type Insets, Platform} from 'react-native'
-import {type AppBskyActorDefs, BSKY_LABELER_DID} from '@atproto/api'
+import {type Service} from '@atproto/lex'
+import {api} from '@bsky/sdk'
 
+<<<<<<< HEAD
 import {type ProxyHeaderValue} from '#/state/session/agent'
 import {BRAND} from '#/brand/config'
 import {CHAT_PROXY_DID, IS_DEV} from '#/env'
+=======
+import {BLUESKY_PROXY_DID, CHAT_PROXY_DID, IS_DEV} from '#/env'
+import {type app} from '#/lexicons'
+>>>>>>> upstream/main
 
 export const LOCAL_DEV_SERVICE =
   Platform.OS === 'android' ? 'http://10.0.2.2:2583' : 'http://localhost:2583'
@@ -179,7 +185,7 @@ export const VIDEO_SAVED_FEED = {
 }
 
 export const RECOMMENDED_SAVED_FEEDS: Pick<
-  AppBskyActorDefs.SavedFeed,
+  app.bsky.actor.defs.SavedFeed,
   'type' | 'value' | 'pinned'
 >[] = [DISCOVER_SAVED_FEED, TIMELINE_SAVED_FEED]
 
@@ -243,20 +249,55 @@ export const DEV_ENV_APPVIEW_DID = `did:plc:dw4kbjf5mn7nhenabiqpkyh3` // always 
 // temp hack for e2e - esb
 // northsky: override-only; configureAppviewProxy resolves the real header
 export const BLUESKY_PROXY_HEADER = {
+<<<<<<< HEAD
   override: undefined as ProxyHeaderValue | undefined,
+=======
+  value: `${BLUESKY_PROXY_DID}#bsky_appview`,
+  get() {
+    return this.value as Service
+  },
+>>>>>>> upstream/main
   set(value: string) {
     this.override = value as ProxyHeaderValue
   },
 }
 
-export const DM_SERVICE_HEADERS = {
-  'atproto-proxy': `${CHAT_PROXY_DID}#bsky_chat`,
-}
+/**
+ * The chat service's proxy target, in the `did#service_id` form a lex client's
+ * `service` option takes. A client constructed with it emits `atproto-proxy:
+ * <this value>` on every request, which is what routes `chat.bsky.*` calls to
+ * the chat service.
+ *
+ * The DID comes from the env-configurable `CHAT_PROXY_DID` (via
+ * `EXPO_PUBLIC_CHAT_PROXY_DID`) rather than a hard-coded constant, so the
+ * target can be retargeted per environment.
+ */
+export const CHAT_PROXY_SERVICE: Service = `${CHAT_PROXY_DID}#bsky_chat`
 
-export const BLUESKY_MOD_SERVICE_HEADERS = {
-  'atproto-proxy': `${BSKY_LABELER_DID}#atproto_labeler`,
-}
+/**
+ * Bluesky's own moderation service, in the `did#service_id` form a lex client's
+ * per-call `service` option takes. Passing it emits `atproto-proxy: <this
+ * value>` on that one request, routing a `com.atproto.moderation.*` call to
+ * Bluesky's labeler.
+ *
+ * Reports and appeals aimed at a DIFFERENT labeler build their own value from
+ * that labeler's creator did instead, so this is a per-call option rather than a
+ * client-level one like {@link CHAT_PROXY_SERVICE}.
+ */
+export const MOD_PROXY_SERVICE: Service = `${api.moderation.did}#atproto_labeler`
 
+<<<<<<< HEAD
+=======
+/**
+ * The notification service's proxy target, in the `did#service_id` form a lex
+ * client's per-call `service` option takes. Passing it emits `atproto-proxy:
+ * <this value>` on that one request, which is what routes push registration to
+ * the notification service (replaces the old
+ * `BLUESKY_NOTIF_SERVICE_HEADERS`).
+ */
+export const NOTIF_SERVICE: Service = `${BLUESKY_PROXY_DID}#bsky_notif`
+
+>>>>>>> upstream/main
 export const webLinks = {
   tos: BRAND.termsOfServiceUrl, // northsky: brand override
   privacy: BRAND.privacyPolicyUrl, // northsky: brand override

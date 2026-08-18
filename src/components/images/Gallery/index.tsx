@@ -14,7 +14,6 @@ import Animated, {
   useAnimatedRef,
 } from 'react-native-reanimated'
 import {Image} from 'expo-image'
-import {type AppBskyEmbedImages} from '@atproto/api'
 import {utils} from '@bsky.app/alf'
 import {Trans, useLingui} from '@lingui/react/macro'
 import debounce from 'lodash.debounce'
@@ -43,12 +42,13 @@ import {useAnalytics} from '#/analytics'
 // northsky: size-independent press feedback
 import {PRESS_SHRINK_PX, scaleForDelta} from '#/brand'
 import {IS_ANDROID, IS_WEB} from '#/env'
+import {type app} from '#/lexicons'
 
 export * from './const'
 export * from './maybeApplyGalleryOffsetStyles'
 
 interface GalleryProps {
-  images: AppBskyEmbedImages.ViewImage[]
+  images: app.bsky.embed.images.ViewImage[]
   onPress?: (
     index: number,
     containerRefs: AnimatedRef<any>[],
@@ -406,7 +406,7 @@ function GalleryImage({
   onPreviewPress,
 }: {
   contentHeight: number
-  image: AppBskyEmbedImages.ViewImage
+  image: app.bsky.embed.images.ViewImage
   index: number
   imageCount: number
   onWidthChange: (index: number, width: number) => void

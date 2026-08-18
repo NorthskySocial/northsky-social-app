@@ -1,7 +1,11 @@
-import {type AppBskyGraphDefs, AtUri} from '@atproto/api'
+import {AtUri} from '@atproto/syntax'
 
 import {isInvalidHandle} from '#/lib/strings/handles'
+<<<<<<< HEAD
 import {BRAND} from '#/brand/config' // northsky: brand host for starter pack links
+=======
+import {type app} from '#/lexicons'
+>>>>>>> upstream/main
 
 export function makeProfileLink(
   info: {
@@ -45,8 +49,8 @@ export function makeSearchLink(props: {query: string; from?: 'me' | string}) {
 
 export function makeStarterPackLink(
   starterPackOrName:
-    | AppBskyGraphDefs.StarterPackViewBasic
-    | AppBskyGraphDefs.StarterPackView
+    | app.bsky.graph.defs.StarterPackViewBasic
+    | app.bsky.graph.defs.StarterPackView
     | string,
   rkey?: string,
 ) {

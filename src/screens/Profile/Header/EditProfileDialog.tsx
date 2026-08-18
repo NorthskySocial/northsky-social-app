@@ -1,6 +1,5 @@
 import {useCallback, useEffect, useState} from 'react'
 import {View} from 'react-native'
-import {type AppBskyActorDefs} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Plural, Trans} from '@lingui/react/macro'
@@ -25,15 +24,19 @@ import * as Prompt from '#/components/Prompt'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {useSimpleVerificationState} from '#/components/verification'
+<<<<<<< HEAD
 // northsky: pronouns field helpers
 import {MAX_PRONOUNS, normalizePronouns} from './pronouns'
+=======
+import {type app} from '#/lexicons'
+>>>>>>> upstream/main
 
 export function EditProfileDialog({
   profile,
   control,
   onUpdate,
 }: {
-  profile: AppBskyActorDefs.ProfileViewDetailed
+  profile: app.bsky.actor.defs.ProfileViewDetailed
   control: Dialog.DialogControlProps
   onUpdate?: () => void
 }) {
@@ -91,7 +94,7 @@ function DialogInner({
   setDirty,
   onPressCancel,
 }: {
-  profile: AppBskyActorDefs.ProfileViewDetailed
+  profile: app.bsky.actor.defs.ProfileViewDetailed
   onUpdate?: () => void
   setDirty: (dirty: boolean) => void
   onPressCancel: () => void

@@ -1,11 +1,5 @@
-import {
-  type $Typed,
-  type AppBskyActorDefs,
-  type AppBskyGraphGetStarterPack,
-  type AtpAgent,
-  type ComAtprotoRepoApplyWrites,
-  type Facet,
-} from '@atproto/api'
+import {type Client} from '@atproto/lex'
+import {type AtUriString, toDatetimeString} from '@atproto/syntax'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {useMutation} from '@tanstack/react-query'
@@ -14,8 +8,13 @@ import {until} from '#/lib/async/until'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
 import {enforceLen} from '#/lib/strings/helpers'
+<<<<<<< HEAD
 import {useAgent, useAppview} from '#/state/session'
 import {searchProxyOpts} from '#/brand/searchRouting' // northsky: search routing
+=======
+import {useAppviewClient, usePdsClient} from '#/state/session'
+import {app, com} from '#/lexicons'
+>>>>>>> upstream/main
 import type * as bsky from '#/types/bsky'
 
 export const createStarterPackList = async ({
@@ -23,30 +22,27 @@ export const createStarterPackList = async ({
   description,
   descriptionFacets,
   profiles,
-  agent,
+  client,
 }: {
   name: string
   description?: string
-  descriptionFacets?: Facet[]
+  descriptionFacets?: app.bsky.richtext.facet.Main[]
   profiles: bsky.profile.AnyProfileView[]
-  agent: AtpAgent
+  client: Client
 }): Promise<{uri: string; cid: string}> => {
   if (profiles.length === 0) throw new Error('No profiles given')
 
-  const list = await agent.app.bsky.graph.list.create(
-    {repo: agent.session!.did},
-    {
-      name,
-      description,
-      descriptionFacets,
-      avatar: undefined,
-      createdAt: new Date().toISOString(),
-      purpose: 'app.bsky.graph.defs#referencelist',
-    },
-  )
+  const list = await client.create(app.bsky.graph.list, {
+    name,
+    description,
+    descriptionFacets,
+    avatar: undefined,
+    createdAt: toDatetimeString(new Date()),
+    purpose: 'app.bsky.graph.defs#referencelist',
+  })
   if (!list) throw new Error('List creation failed')
-  await agent.com.atproto.repo.applyWrites({
-    repo: agent.session!.did,
+  await client.call(com.atproto.repo.applyWrites, {
+    repo: client.assertDid,
     writes: profiles.map(p => createListItem({did: p.did, listUri: list.uri})),
   })
 
@@ -61,24 +57,28 @@ export function useGenerateStarterPackMutation({
   onError: (e: Error) => void
 }) {
   const {_} = useLingui()
+<<<<<<< HEAD
   const agent = useAgent()
   const appview = useAppview() // northsky: search may be pinned to another appview
+=======
+  const appviewClient = useAppviewClient()
+  const pdsClient = usePdsClient()
+>>>>>>> upstream/main
 
   return useMutation<{uri: string; cid: string}, Error, void>({
     mutationFn: async () => {
-      let profile: AppBskyActorDefs.ProfileViewDetailed | undefined
-      let profiles: AppBskyActorDefs.ProfileView[] | undefined
+      let profile: app.bsky.actor.defs.ProfileViewDetailed | undefined
+      let profiles: app.bsky.actor.defs.ProfileView[] | undefined
 
       await Promise.all([
         (async () => {
-          profile = (
-            await agent.app.bsky.actor.getProfile({
-              actor: agent.session!.did,
-            })
-          ).data
+          profile = await appviewClient.call(app.bsky.actor.getProfile, {
+            actor: pdsClient.assertDid,
+          })
         })(),
         (async () => {
           profiles = (
+<<<<<<< HEAD
             await agent.app.bsky.actor.searchActors(
               {
                 q: encodeURIComponent('*'),
@@ -87,6 +87,13 @@ export function useGenerateStarterPackMutation({
               searchProxyOpts(appview), // northsky: appviews without actor search route elsewhere
             )
           ).data.actors.filter(p => p.viewer?.following)
+=======
+            await appviewClient.call(app.bsky.actor.searchActors, {
+              q: encodeURIComponent('*'),
+              limit: 49,
+            })
+          ).actors.filter(p => p.viewer?.following)
+>>>>>>> upstream/main
         })(),
       ])
 
@@ -111,23 +118,19 @@ export function useGenerateStarterPackMutation({
       const list = await createStarterPackList({
         name: starterPackName,
         profiles,
-        agent,
+        client: pdsClient,
       })
 
-      return await agent.app.bsky.graph.starterpack.create(
-        {
-          repo: agent.session!.did,
-        },
-        {
-          name: starterPackName,
-          list: list.uri,
-          createdAt: new Date().toISOString(),
-        },
-      )
+      return await pdsClient.create(app.bsky.graph.starterpack, {
+        name: starterPackName,
+        // `create` returns a plain string uri
+        list: list.uri as AtUriString,
+        createdAt: toDatetimeString(new Date()),
+      })
     },
     onSuccess: async data => {
-      await whenAppViewReady(agent, data.uri, v => {
-        return typeof v?.data.starterPack.uri === 'string'
+      await whenAppViewReady(appviewClient, data.uri, v => {
+        return typeof v?.starterPack.uri === 'string'
       })
       onSuccess(data)
     },
@@ -143,7 +146,7 @@ function createListItem({
 }: {
   did: string
   listUri: string
-}): $Typed<ComAtprotoRepoApplyWrites.Create> {
+}): com.atproto.repo.applyWrites.$InputBody['writes'][number] {
   return {
     $type: 'com.atproto.repo.applyWrites#create',
     collection: 'app.bsky.graph.listitem',
@@ -157,14 +160,17 @@ function createListItem({
 }
 
 async function whenAppViewReady(
-  agent: AtpAgent,
+  client: Client,
   uri: string,
-  fn: (res?: AppBskyGraphGetStarterPack.Response) => boolean,
+  fn: (res?: app.bsky.graph.getStarterPack.$OutputBody) => boolean,
 ) {
   await until(
     5, // 5 tries
     1e3, // 1s delay between tries
     fn,
-    () => agent.app.bsky.graph.getStarterPack({starterPack: uri}),
+    () =>
+      client.call(app.bsky.graph.getStarterPack, {
+        starterPack: uri as AtUriString,
+      }),
   )
 }
