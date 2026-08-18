@@ -28,13 +28,6 @@ export interface AppView {
    * them - see `src/lib/typeahead/client.ts`.
    */
   useFallbackTypeahead?: boolean
-  /**
-   * Replay mute writes to the fallback appview and import its mute state at
-   * session start. Set only on production appviews whose users also read
-   * from the fallback; the dev appview must not write to production.
-   * See `src/features/muteSync/`.
-   */
-  syncMutesWithFallback?: boolean
 }
 
 /** Appview for accounts whose PDS host matches no route. */
@@ -66,7 +59,6 @@ export const BLACKSKY_APPVIEW: AppView = {
   did: 'did:web:api.blacksky.community',
   searchProxyDid: FALLBACK_APPVIEW.did,
   useFallbackTypeahead: true,
-  syncMutesWithFallback: true,
 }
 
 /**

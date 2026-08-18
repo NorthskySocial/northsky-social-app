@@ -32,7 +32,6 @@ const BLACKSKY_APPVIEW = {
   did: 'did:web:api.blacksky.community',
   searchProxyDid: FALLBACK_APPVIEW.did,
   useFallbackTypeahead: true,
-  syncMutesWithFallback: true,
 }
 
 function makeAgent(serviceUrl: string | undefined) {
