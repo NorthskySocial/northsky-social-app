@@ -57,8 +57,11 @@ const DEV_APPVIEW: AppView | undefined =
  * Blacksky serves feeds and profiles, but every search method fails there:
  * searchPostsV2 answers 400, searchActors and searchActorsTypeahead answer
  * 502. Both search capabilities are routed away from it.
+ *
+ * Exported for the fixed endpoint pair in
+ * `src/features/appViewTransfer/endpoints.ts`.
  */
-const BLACKSKY_APPVIEW: AppView = {
+export const BLACKSKY_APPVIEW: AppView = {
   url: 'https://api.blacksky.community',
   did: 'did:web:api.blacksky.community',
   searchProxyDid: FALLBACK_APPVIEW.did,

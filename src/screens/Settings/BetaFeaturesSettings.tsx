@@ -17,6 +17,8 @@ import {Admonition} from '#/components/Admonition'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
 import * as Toggle from '#/components/forms/Toggle'
+// northsky: icon for the appview data transfer link
+import {ArrowBoxRight_Stroke2_Corner3_Rounded as TransferIcon} from '#/components/icons/ArrowBoxRight'
 import {Beaker_Stroke2_Corner2_Rounded as BeakerIcon} from '#/components/icons/Beaker'
 import {BubbleInfo_Stroke2_Corner2_Rounded as BubbleInfoIcon} from '#/components/icons/BubbleInfo'
 import * as Layout from '#/components/Layout'
@@ -145,6 +147,18 @@ export function BetaFeaturesSettingsScreen({}: Props) {
               <Toggle.Platform />
             </SettingsList.Item>
           </Toggle.Item>
+
+          {/* northsky: appview data transfer, beta users only */}
+          {isBetaUser && (
+            <SettingsList.LinkItem
+              to="/settings/beta-features/transfer-app-data"
+              label={l`Transfer app data`}>
+              <SettingsList.ItemIcon icon={TransferIcon} />
+              <SettingsList.ItemText>
+                <Trans>Transfer app data</Trans>
+              </SettingsList.ItemText>
+            </SettingsList.LinkItem>
+          )}
 
           <View style={[a.px_xl, a.gap_md]}>
             <Admonition type="info">
