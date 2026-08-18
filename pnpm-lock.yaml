@@ -7,52 +7,52 @@ importers:
     configDependencies: {}
     packageManagerDependencies:
       '@pnpm/exe':
-        specifier: 11.13.1
-        version: 11.13.1
+        specifier: 11.21.0
+        version: 11.21.0
       pnpm:
-        specifier: 11.13.1
-        version: 11.13.1
+        specifier: 11.21.0
+        version: 11.21.0
 
 packages:
 
-  '@pnpm/exe@11.13.1':
-    resolution: {integrity: sha512-P4euEK6lOFnd5oTHEc5M/HhvyF4XUhTnVsklEcM6rmY0QJxPD6xbT+u1+gskEIBp4nSRorz20IJQtAU1Nerggg==}
+  '@pnpm/exe@11.21.0':
+    resolution: {integrity: sha512-zawQxIewH1od72HhlmXWq3No6XyuWn+nMvQ9BjWWGNBVskmS+RDlTu7ey2ruL650PbbyuCATYSal1DaXFKBdcw==}
     hasBin: true
 
-  '@pnpm/linux-arm64@11.13.1':
-    resolution: {integrity: sha512-wB8zloqrYrudPyuA5qbuTCnJGe4eETPwqOjoPjoyyyvA4zFI5XfLpxgqOOcaY5UJBoqzckcGpRVDwhSRfsQ/6A==}
+  '@pnpm/linux-arm64@11.21.0':
+    resolution: {integrity: sha512-gOSfQKr6kZjEwHyoRwMt9qrqQ9sqbZmUm2hbgJJG8bp0ZR9YkQ4BZV2k4qlQA2jtsmHV1u1MwiaLcuK7DauvBg==}
     cpu: [arm64]
     os: [linux]
 
-  '@pnpm/linux-x64@11.13.1':
-    resolution: {integrity: sha512-A+wnEvzfWEvanXiwww3tnOPmtjPSrrf5tOP6vk8+K0BRFEe/Df0oPytm2nWgGcn5iwPnqtr1Btkof913McnSPA==}
+  '@pnpm/linux-x64@11.21.0':
+    resolution: {integrity: sha512-X+kBR8yscKyhhElO+WLrb6sFbl/3Ow70B+6fqZUYI8T8wtmlCw5GtcPXVBJPDJcLN5joe227h7lyCCZo4tdKdw==}
     cpu: [x64]
     os: [linux]
 
-  '@pnpm/linuxstatic-arm64@11.13.1':
-    resolution: {integrity: sha512-k4t65VeqRX4COMFe45TF58CVmCpmAsKZShaR1HobmUeleo98mWTctggKolrA2MHcVUeSS+12yB5Urb3uDazhmw==}
+  '@pnpm/linuxstatic-arm64@11.21.0':
+    resolution: {integrity: sha512-IUJfAclH0b3QxaHuQuVxXQIzEkDtTm0C+G3tgG0ET5tDRGc7wH7eU0GEM75ojHOwzqv7s0y00xPVVCIsxUM4Nw==}
     cpu: [arm64]
     os: [linux]
     libc: [musl]
 
-  '@pnpm/linuxstatic-x64@11.13.1':
-    resolution: {integrity: sha512-A65GqPzwCl0bAMk3kRWfbjSRBm5RRaqR2oMxV/9AYZrwO0X9yEfngbLBISCPHjt6/Qe4nH7DFemyhy6yODYwEw==}
+  '@pnpm/linuxstatic-x64@11.21.0':
+    resolution: {integrity: sha512-6Y2u+AfOUuTqWgTCpFhySL8HAcONDucCFixKle9tWoW7bm8RF0+fwQBRWNWGdx+Toau07wZ1LNZPqN8gpgeBDQ==}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  '@pnpm/macos-arm64@11.13.1':
-    resolution: {integrity: sha512-MJvOtyGOWSfBoqdVEfAH8ljmHs13mt82k/UxN4f+q7koDxJRR2n4Nie6Og6RwbnbaubCz0Fh2bTeL1+MxDSFpA==}
+  '@pnpm/macos-arm64@11.21.0':
+    resolution: {integrity: sha512-sLMGvVJXWdhFAouY2icjeZ2VCFmyPPZvvtHkfj1oeCWGppsbWcP5cExSw9yU1Uw7ALwrV0I2lRZv33yWYfDtcQ==}
     cpu: [arm64]
     os: [darwin]
 
-  '@pnpm/win-arm64@11.13.1':
-    resolution: {integrity: sha512-kl/g1cCKOJPe4HntspyrAJW0LRco0UHnVfxHSspezo4Zj4AanJAZ8WzLqfa6/w3lBSKHTEN4x0pb3m4J7B7Vpw==}
+  '@pnpm/win-arm64@11.21.0':
+    resolution: {integrity: sha512-79Nc+YI5B2ddH5MQD2YITL/PKnmXdcQKwmwx0HaD4QnsCco8DFaTho242e5sd9QfXKxYRvB9AOnuqIV4VjhAAw==}
     cpu: [arm64]
     os: [win32]
 
-  '@pnpm/win-x64@11.13.1':
-    resolution: {integrity: sha512-Bcb14NeBlbHS2Gq1qr8VnCiAz5eC1lYzXOls7zH0bnV0Taaj4/xyfm0HVO4dn9R2TQtVtz1qnBZHHL9PDFumqQ==}
+  '@pnpm/win-x64@11.21.0':
+    resolution: {integrity: sha512-zT3TufmVOroWPrzXTPPPgYvIsTZIsK13kjpmgXlICyEFrhd16RFLoTWFhP+8UqHXpTNmVbtTHzg+fEVYy9rlEQ==}
     cpu: [x64]
     os: [win32]
 
@@ -116,45 +116,45 @@ packages:
     resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
     engines: {node: '>=8'}
 
-  pnpm@11.13.1:
-    resolution: {integrity: sha512-svx2g7imUlQU59E+G6KMqt3elr9m7FQL+ut+cCuB8+C+TR8pXt9/n+A5Z0Co3ORQnFgt33mJH0VD/qMtN2RfJQ==}
+  pnpm@11.21.0:
+    resolution: {integrity: sha512-UhcFvOaJkk6scvWjWHEi82JonvZXHlW6gAdv1jfBETLs/62ib61Op5xIW/3b/T1aKlsFgFp36JPeceyKbMo7sQ==}
     engines: {node: '>=22.13'}
     hasBin: true
 
 snapshots:
 
-  '@pnpm/exe@11.13.1':
+  '@pnpm/exe@11.21.0':
     dependencies:
       '@reflink/reflink': 0.1.19
       detect-libc: 2.1.2
     optionalDependencies:
-      '@pnpm/linux-arm64': 11.13.1
-      '@pnpm/linux-x64': 11.13.1
-      '@pnpm/linuxstatic-arm64': 11.13.1
-      '@pnpm/linuxstatic-x64': 11.13.1
-      '@pnpm/macos-arm64': 11.13.1
-      '@pnpm/win-arm64': 11.13.1
-      '@pnpm/win-x64': 11.13.1
+      '@pnpm/linux-arm64': 11.21.0
+      '@pnpm/linux-x64': 11.21.0
+      '@pnpm/linuxstatic-arm64': 11.21.0
+      '@pnpm/linuxstatic-x64': 11.21.0
+      '@pnpm/macos-arm64': 11.21.0
+      '@pnpm/win-arm64': 11.21.0
+      '@pnpm/win-x64': 11.21.0
 
-  '@pnpm/linux-arm64@11.13.1':
+  '@pnpm/linux-arm64@11.21.0':
     optional: true
 
-  '@pnpm/linux-x64@11.13.1':
+  '@pnpm/linux-x64@11.21.0':
     optional: true
 
-  '@pnpm/linuxstatic-arm64@11.13.1':
+  '@pnpm/linuxstatic-arm64@11.21.0':
     optional: true
 
-  '@pnpm/linuxstatic-x64@11.13.1':
+  '@pnpm/linuxstatic-x64@11.21.0':
     optional: true
 
-  '@pnpm/macos-arm64@11.13.1':
+  '@pnpm/macos-arm64@11.21.0':
     optional: true
 
-  '@pnpm/win-arm64@11.13.1':
+  '@pnpm/win-arm64@11.21.0':
     optional: true
 
-  '@pnpm/win-x64@11.13.1':
+  '@pnpm/win-x64@11.21.0':
     optional: true
 
   '@reflink/reflink-darwin-arm64@0.1.19':
@@ -194,7 +194,7 @@ snapshots:
 
   detect-libc@2.1.2: {}
 
-  pnpm@11.13.1: {}
+  pnpm@11.21.0: {}
 
 ---
 lockfileVersion: '9.0'
@@ -243,8 +243,8 @@ importers:
   .:
     dependencies:
       '@atproto/api':
-        specifier: 0.20.37
-        version: 0.20.37
+        specifier: 0.20.39
+        version: 0.20.39
       '@atproto/common-web':
         specifier: 0.5.7
         version: 0.5.7
@@ -279,8 +279,8 @@ importers:
         specifier: ^0.3.2
         version: 0.3.2(expo@54.0.35(@babel/core@7.29.0)(react-native-webview@13.15.0(react-native@0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
       '@bsky.app/react-native-uitextview':
-        specifier: ^2.6.0
-        version: 2.6.0(react-native@0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
+        specifier: ^2.7.0
+        version: 2.7.0(react-native@0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
       '@bsky.app/sift':
         specifier: ^0.3.9
         version: 0.3.9(expo@54.0.35(@babel/core@7.29.0)(react-native-webview@13.15.0(react-native@0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native-safe-area-context@5.6.2(react-native@0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
@@ -304,7 +304,7 @@ importers:
         version: 0.12.5
       '@expo/webpack-config':
         specifier: ^19.0.1
-        version: 19.0.1(expo@54.0.35(@babel/core@7.29.0)(react-native-webview@13.15.0(react-native@0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(postcss@8.5.14)
+        version: 19.0.1(clean-css@5.3.3)(csso@5.0.5)(esbuild@0.25.12)(expo@54.0.35(@babel/core@7.29.0)(react-native-webview@13.15.0(react-native@0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(html-minifier-terser@6.1.0)(postcss@8.5.14)
       '@floating-ui/dom':
         specifier: ^1.6.3
         version: 1.7.6
@@ -893,16 +893,16 @@ packages:
       graphql:
         optional: true
 
-  '@atproto/api@0.20.37':
-    resolution: {integrity: sha512-TEt8oKMbuC+1GvqyLKDBLqmptnk1mh52FdHPQEomlPIWxh88YcNnk0g0iKNVBevaeeLtWZF1a7Am/t/q255u5Q==}
+  '@atproto/api@0.20.39':
+    resolution: {integrity: sha512-FRjwAmYe0kKlWsAe8IvfbmAAKyjpXnl2NV67vWEEjux0FwIEIG6JbOo6YkD5tjK2xjL0Daa429R0E8phmxRrrQ==}
     engines: {node: '>=22'}
 
   '@atproto/common-web@0.5.7':
     resolution: {integrity: sha512-lvU8lFO5UByacsl3AReXkpTWjcPBS8mBqt40B45HwCt+s58a+xT/YI/+AUpmzSmsPVZCpeCmP6wgsOSC8RILXg==}
     engines: {node: '>=22'}
 
-  '@atproto/common-web@0.5.8':
-    resolution: {integrity: sha512-GiYY2Jgbg1aWe9QGT3TswC/wZNicipBDz0nFo4FrP6XqENEJJRxGKAf/zjvqbesfIQFhHXi1VbSFY7GStB8v8w==}
+  '@atproto/common-web@0.5.9':
+    resolution: {integrity: sha512-2c5C6YV8352JJz9Z5fNfcsstllaKGAb3cQW9aO7unMAGh/FzTGFq+xOwNMW2lTeagO6z530uxYm8AiSRM6O+DQ==}
     engines: {node: '>=22'}
 
   '@atproto/lex-data@0.1.6':
@@ -921,20 +921,20 @@ packages:
     resolution: {integrity: sha512-mvrAd0lbyuecIHjyld8QN6MN6CBf4j0GCxLzegsvLh0SvDf+GbYWklkcQqmITL44yFQOwmA/QNIQj0Uvh7+R/g==}
     engines: {node: '>=22'}
 
-  '@atproto/lexicon@0.7.10':
-    resolution: {integrity: sha512-HH/3d3z5Qt0JoJ9iOuLP/YT++6lb5wWMQsvgQ2TGfgkbuzDQ6AX6X1H5uJ9luPci4/LaADfpwLZfeqyy/Hjfaw==}
+  '@atproto/lexicon@0.7.11':
+    resolution: {integrity: sha512-ukCZMCWmiu7fAlssBbLs+IMaf2K2R9mADaTKz2jEeC/xeZ3jT77Ka0S2G+ELBB+Dc9ijBACU0iPMQLhquOkuzQ==}
     engines: {node: '>=22'}
 
   '@atproto/syntax@0.7.2':
     resolution: {integrity: sha512-tZ1Tr0R9pK4bI4Zs69t29cjMlCFQvRNBeNkqJC5pGeNuCt64D0eoF7s/AlqeVmYppClmQ0xJquggGgsMDP6j7w==}
     engines: {node: '>=22'}
 
-  '@atproto/syntax@0.7.3':
-    resolution: {integrity: sha512-7LU8Ra79L5wCqVAZZst2352VMMwkU4KNagVMm6pnURrY/uS7+HrJl3XCuA4V2Gy2dEpkt1r6DBxlsP43/VjDBw==}
+  '@atproto/syntax@0.7.4':
+    resolution: {integrity: sha512-EHsEHtasH/DGPljBYecVDjweGMQ5eTu6Ns0GZ5z0qdqpOI8ipBvldWnMIxWkA+5HfZ9Dsu4V1MX0WP7wgL8cuA==}
     engines: {node: '>=22'}
 
-  '@atproto/xrpc@0.8.9':
-    resolution: {integrity: sha512-3jRiAuHCqYFoT8Nv25xFRmgrfmoo84yBnB5PfVP95JoRP+szIkwHS6mq72ZETYbWmLA1tNyR5QVEHrhHZ1LQhw==}
+  '@atproto/xrpc@0.8.10':
+    resolution: {integrity: sha512-++FNpTVF61fF8+3Kk1RYtdTO7xyUTdIc/Cmfk2CMn29Qw9tZD8bmW+M5db1Z0okYWFWK8Wqu7bc9VmF8tUB8Jg==}
     engines: {node: '>=22'}
 
   '@babel/code-frame@7.10.4':
@@ -1698,8 +1698,8 @@ packages:
       react: '*'
       react-native: '*'
 
-  '@bsky.app/react-native-uitextview@2.6.0':
-    resolution: {integrity: sha512-d6efoPKixj7ycaQWYSDr4JDB1jzIewWie6UtP4Pylgh+K//aXCNaudbLjHN4WP6RVGBfFqNac13hSh3tRikH7A==}
+  '@bsky.app/react-native-uitextview@2.7.0':
+    resolution: {integrity: sha512-Z++CL+y01bHUTH0L7YfSB1QYr0Qjk7/2XUTp8NAfxnw3QnlWkClZNV7n1YOJ51tOAAhtFaVlvFDlLILDYqo2GQ==}
     peerDependencies:
       react: '*'
       react-native: '>=0.81.5'
@@ -9592,12 +9592,12 @@ snapshots:
 
   '@0no-co/graphql.web@1.2.0': {}
 
-  '@atproto/api@0.20.37':
+  '@atproto/api@0.20.39':
     dependencies:
-      '@atproto/common-web': 0.5.8
-      '@atproto/lexicon': 0.7.10
-      '@atproto/syntax': 0.7.3
-      '@atproto/xrpc': 0.8.9
+      '@atproto/common-web': 0.5.9
+      '@atproto/lexicon': 0.7.11
+      '@atproto/syntax': 0.7.4
+      '@atproto/xrpc': 0.8.10
       await-lock: 3.0.0
       multiformats: 13.4.2
       tlds: 1.261.0
@@ -9610,11 +9610,11 @@ snapshots:
       '@atproto/syntax': 0.7.2
       zod: 3.25.76
 
-  '@atproto/common-web@0.5.8':
+  '@atproto/common-web@0.5.9':
     dependencies:
       '@atproto/lex-data': 0.1.7
       '@atproto/lex-json': 0.1.6
-      '@atproto/syntax': 0.7.3
+      '@atproto/syntax': 0.7.4
       zod: 3.25.76
 
   '@atproto/lex-data@0.1.6':
@@ -9639,10 +9639,10 @@ snapshots:
       '@atproto/lex-data': 0.1.7
       tslib: 2.8.1
 
-  '@atproto/lexicon@0.7.10':
+  '@atproto/lexicon@0.7.11':
     dependencies:
-      '@atproto/common-web': 0.5.8
-      '@atproto/syntax': 0.7.3
+      '@atproto/common-web': 0.5.9
+      '@atproto/syntax': 0.7.4
       multiformats: 13.4.2
       zod: 3.25.76
 
@@ -9651,14 +9651,14 @@ snapshots:
       iso-datestring-validator: 2.2.2
       tslib: 2.8.1
 
-  '@atproto/syntax@0.7.3':
+  '@atproto/syntax@0.7.4':
     dependencies:
       iso-datestring-validator: 2.2.2
       tslib: 2.8.1
 
-  '@atproto/xrpc@0.8.9':
+  '@atproto/xrpc@0.8.10':
     dependencies:
-      '@atproto/lexicon': 0.7.10
+      '@atproto/lexicon': 0.7.11
       zod: 3.25.76
 
   '@babel/code-frame@7.10.4':
@@ -10607,7 +10607,7 @@ snapshots:
       react: 19.1.0
       react-native: 0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0)
 
-  '@bsky.app/react-native-uitextview@2.6.0(react-native@0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)':
+  '@bsky.app/react-native-uitextview@2.7.0(react-native@0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)':
     dependencies:
       react: 19.1.0
       react-native: 0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0)
@@ -11087,7 +11087,7 @@ snapshots:
       react: 19.1.0
       react-native: 0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0)
 
-  '@expo/webpack-config@19.0.1(expo@54.0.35(@babel/core@7.29.0)(react-native-webview@13.15.0(react-native@0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(postcss@8.5.14)':
+  '@expo/webpack-config@19.0.1(clean-css@5.3.3)(csso@5.0.5)(esbuild@0.25.12)(expo@54.0.35(@babel/core@7.29.0)(react-native-webview@13.15.0(react-native@0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(html-minifier-terser@6.1.0)(postcss@8.5.14)':
     dependencies:
       '@babel/core': 7.29.0
       babel-loader: 8.4.1(@babel/core@7.29.0)(webpack@5.106.2(postcss@8.5.14))
@@ -11095,7 +11095,7 @@ snapshots:
       clean-webpack-plugin: 4.0.0(webpack@5.106.2(postcss@8.5.14))
       copy-webpack-plugin: 10.2.4(webpack@5.106.2(postcss@8.5.14))
       css-loader: 6.11.0(webpack@5.106.2(postcss@8.5.14))
-      css-minimizer-webpack-plugin: 3.4.1(webpack@5.106.2(postcss@8.5.14))
+      css-minimizer-webpack-plugin: 3.4.1(clean-css@5.3.3)(csso@5.0.5)(esbuild@0.25.12)(webpack@5.106.2(postcss@8.5.14))
       expo: 54.0.35(@babel/core@7.29.0)(react-native-webview@13.15.0(react-native@0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
       expo-pwa: 0.0.127(expo@54.0.35(@babel/core@7.29.0)(react-native-webview@13.15.0(react-native@0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(patch_hash=91fd85363059530dea649a5ca6012b933f79c8491737fbfdc685abc727e48403)(@babel/core@7.29.0)(@react-native/metro-config@0.86.0(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))
       find-up: 5.0.0
@@ -11109,7 +11109,7 @@ snapshots:
       semver: 7.5.4
       source-map-loader: 3.0.2(webpack@5.106.2(postcss@8.5.14))
       style-loader: 3.3.4(webpack@5.106.2(postcss@8.5.14))
-      terser-webpack-plugin: 5.6.0(postcss@8.5.14)(webpack@5.106.2(postcss@8.5.14))
+      terser-webpack-plugin: 5.6.0(clean-css@5.3.3)(csso@5.0.5)(esbuild@0.25.12)(html-minifier-terser@6.1.0)(postcss@8.5.14)(webpack@5.106.2(postcss@8.5.14))
       webpack: 5.106.2(postcss@8.5.14)
       webpack-dev-server: 4.15.2(webpack@5.106.2(postcss@8.5.14))
       webpack-manifest-plugin: 4.1.1(webpack@5.106.2(postcss@8.5.14))
@@ -14190,7 +14190,7 @@ snapshots:
 
   css-mediaquery@0.1.2: {}
 
-  css-minimizer-webpack-plugin@3.4.1(webpack@5.106.2(postcss@8.5.14)):
+  css-minimizer-webpack-plugin@3.4.1(clean-css@5.3.3)(csso@5.0.5)(esbuild@0.25.12)(webpack@5.106.2(postcss@8.5.14)):
     dependencies:
       cssnano: 5.1.15(postcss@8.5.14)
       jest-worker: 27.5.1
@@ -14199,6 +14199,10 @@ snapshots:
       serialize-javascript: 6.0.2
       source-map: 0.6.1
       webpack: 5.106.2(postcss@8.5.14)
+    optionalDependencies:
+      clean-css: 5.3.3
+      csso: 5.0.5
+      esbuild: 0.25.12
 
   css-select@4.3.0:
     dependencies:
@@ -19024,7 +19028,7 @@ snapshots:
       ansi-escapes: 4.3.2
       supports-hyperlinks: 2.3.0
 
-  terser-webpack-plugin@5.6.0(postcss@8.5.14)(webpack@5.106.2(postcss@8.5.14)):
+  terser-webpack-plugin@5.6.0(clean-css@5.3.3)(csso@5.0.5)(esbuild@0.25.12)(html-minifier-terser@6.1.0)(postcss@8.5.14)(webpack@5.106.2(postcss@8.5.14)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
@@ -19032,6 +19036,10 @@ snapshots:
       terser: 5.47.1
       webpack: 5.106.2(postcss@8.5.14)
     optionalDependencies:
+      clean-css: 5.3.3
+      csso: 5.0.5
+      esbuild: 0.25.12
+      html-minifier-terser: 6.1.0
       postcss: 8.5.14
 
   terser@5.47.1:
@@ -19486,7 +19494,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 4.3.3
       tapable: 2.3.3
-      terser-webpack-plugin: 5.6.0(postcss@8.5.14)(webpack@5.106.2(postcss@8.5.14))
+      terser-webpack-plugin: 5.6.0(clean-css@5.3.3)(csso@5.0.5)(esbuild@0.25.12)(html-minifier-terser@6.1.0)(postcss@8.5.14)(webpack@5.106.2(postcss@8.5.14))
       watchpack: 2.5.1
       webpack-sources: 3.4.1
     transitivePeerDependencies:

@@ -1065,7 +1065,10 @@
     }
   },
   "StarterPack.tsx": {
-    "StarterPack": {
+    "StarterPackMultiPathLarge": {
+      "tabler": "swipe"
+    },
+    "StarterPack_Stroke2_Corner0_Rounded": {
       "tabler": "swipe"
     }
   },
