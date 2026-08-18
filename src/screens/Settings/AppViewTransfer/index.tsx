@@ -154,7 +154,11 @@ export function AppViewTransferSettingsScreen({}: Props) {
         },
       })
       invalidateAppViewQueries()
-    } catch {
+    } catch (e) {
+      /* Pausing rejects the run, so only an unexpected fault is worth a log. */
+      if (!controller.signal.aborted) {
+        logger.error('AppView transfer stopped unexpectedly', {safeMessage: e})
+      }
       const latest = checkpointRef.current
       if (latest?.status === 'running') {
         saveCheckpoint({
@@ -219,8 +223,8 @@ export function AppViewTransferSettingsScreen({}: Props) {
   const confirmationDescription = selectedCollections.includes(
     'notificationPreferences',
   )
-    ? l`Copy the selected data from ${sourceName} to ${destinationName}? Existing items at the destination will be kept. Notification preferences at the destination will be replaced.`
-    : l`Copy the selected data from ${sourceName} to ${destinationName}? Existing items at the destination will be kept.`
+    ? l`Copy the selected data from ${sourceName} to ${destinationName}? Nothing at the destination will be deleted. Notification preferences at the destination will be replaced.`
+    : l`Copy the selected data from ${sourceName} to ${destinationName}? Nothing at the destination will be deleted.`
 
   return (
     <Layout.Screen testID="appViewTransferSettingsScreen">

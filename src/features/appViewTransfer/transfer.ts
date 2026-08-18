@@ -4,10 +4,12 @@
  * 3407eb8, rewritten from `@atproto/lex` onto `AtpAgent` with per-call
  * `atproto-proxy` headers.
  *
- * Semantics: an import, not a sync. Additive collections never remove
- * destination items and never change items that exist on both sides.
- * `notificationPreferences` is the exception - it replaces the destination's
- * preference set. Later removals at the source do not carry over.
+ * Semantics: an import, not a sync. No collection deletes an item at the
+ * destination. Most collections leave an item that exists on both sides
+ * untouched. `activitySubscriptions` merges instead: an item on both sides
+ * keeps every notification type that either side subscribes to.
+ * `notificationPreferences` replaces the destination preference set. A later
+ * removal at the source does not carry over.
  */
 import {
   type AppBskyNotificationDefs,
@@ -24,6 +26,8 @@ import {
 } from './types'
 
 const PAGE_SIZE = 100
+/* Bounds a run against an appview whose cursor never ends. */
+const MAX_PAGES = 500
 
 type TransferItem = {
   key: string
@@ -259,17 +263,25 @@ export function createTransferCheckpoint({
   selectedCollections: AppViewTransferCollectionId[]
 }): AppViewTransferCheckpoint {
   const now = new Date().toISOString()
+  /*
+   * The caller collects the selection in the order the user toggled it. Sort
+   * it into transfer order so the screen names the collection the run is
+   * actually working on.
+   */
+  const ordered = APP_VIEW_TRANSFER_COLLECTIONS.filter(id =>
+    selectedCollections.includes(id),
+  )
   return {
     version: 1,
     accountDid,
     source,
     destination,
-    selectedCollections,
+    selectedCollections: ordered,
     status: 'paused',
     startedAt: now,
     updatedAt: now,
     collections: Object.fromEntries(
-      selectedCollections.map(id => [id, initialCollectionProgress()]),
+      ordered.map(id => [id, initialCollectionProgress()]),
     ),
   }
 }
@@ -538,10 +550,18 @@ async function readAllItems({
     for (const item of page.items) {
       items.set(item.key, item)
     }
-    /* An empty page is the end, even when the appview returns a cursor. */
-    if (!page.cursor || page.items.length === 0) return items
+    if (!page.cursor) return items
     if (seenCursors.has(page.cursor)) {
       throw new Error('AppView returned a repeated pagination cursor')
+    }
+    /*
+     * An empty page with a new cursor is not the end. An appview can drop a
+     * whole page while it hydrates the results. Follow the cursor, but stop
+     * at a page bound so a broken cursor cannot page without end. Both stops
+     * fail the collection, because a short read must not report success.
+     */
+    if (seenCursors.size >= MAX_PAGES) {
+      throw new Error('AppView exceeded the pagination page limit')
     }
     seenCursors.add(page.cursor)
     cursor = page.cursor
@@ -582,10 +602,15 @@ function maxRetries(error: unknown): number {
   return error instanceof XRPCError && statusOf(error) === 429 ? 4 : 2
 }
 
+/**
+ * `XRPCError` maps an HTTP status to the nearest `ResponseType`, so only the
+ * statuses in that enum can appear here. A 408 or 425 arrives as 400 and is
+ * not retried, because 400 also covers requests this client must not repeat.
+ */
 function isRetryableError(error: unknown): boolean {
   if (!(error instanceof XRPCError)) return false
   /* ResponseType.Unknown (1) is a network failure without a response. */
-  return [1, 408, 425, 429, 500, 502, 503, 504].includes(statusOf(error))
+  return [1, 429, 500, 502, 503, 504].includes(statusOf(error))
 }
 
 function retryDelay(error: unknown, attempt: number): number {

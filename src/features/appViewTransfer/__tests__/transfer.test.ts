@@ -446,6 +446,49 @@ describe('runAppViewTransfer', () => {
     })
   })
 
+  it('reads past an empty page that carries a new cursor', async () => {
+    /* An appview can drop a whole page while it hydrates the results. */
+    const pages: Record<string, {lists: {uri: string}[]; cursor?: string}> = {
+      start: {lists: [{uri: 'at://did:plc:ryoko/one'}], cursor: 'second'},
+      second: {lists: [], cursor: 'third'},
+      third: {lists: [{uri: 'at://did:plc:ryoko/two'}]},
+    }
+    const {agent} = makeAgent((nsid, input, service) => {
+      if (nsid === 'app.bsky.graph.muteActorList') return undefined
+      if (nsid !== 'app.bsky.graph.getListMutes') {
+        throw new Error(`Unexpected method: ${nsid}`)
+      }
+      if (service !== SOURCE_SERVICE) return {lists: []}
+      return pages[(input.cursor as string) ?? 'start']
+    })
+
+    const result = await runAppViewTransfer({
+      agent,
+      initialCheckpoint: checkpointFor(['mutedLists']),
+      signal: new AbortController().signal,
+      onProgress: () => {},
+    })
+
+    expect(result.collections.mutedLists).toMatchObject({
+      status: 'complete',
+      sourceCount: 2,
+      transferredCount: 2,
+    })
+  })
+
+  it('sorts the selection into transfer order', () => {
+    const checkpoint = checkpointFor([
+      'notificationPreferences',
+      'mutedAccounts',
+      'bookmarks',
+    ])
+    expect(checkpoint.selectedCollections).toEqual([
+      'mutedAccounts',
+      'bookmarks',
+      'notificationPreferences',
+    ])
+  })
+
   it('rejects when aborted so the caller can persist a paused checkpoint', async () => {
     const controller = new AbortController()
     const {agent} = makeAgent(nsid => {
