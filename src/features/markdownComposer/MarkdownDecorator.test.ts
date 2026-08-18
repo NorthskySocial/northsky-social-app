@@ -39,7 +39,8 @@ function doc(...content: ReturnType<typeof paragraph>[]) {
 }
 
 function attrs(decoration: Decoration): Record<string, string> {
-  return (decoration.type as unknown as {attrs: Record<string, string>}).attrs
+  return (decoration as unknown as {type: {attrs: Record<string, string>}}).type
+    .attrs
 }
 
 describe('documentToSourceMap', () => {
