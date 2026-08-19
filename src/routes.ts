@@ -52,7 +52,7 @@ export const router = new Router<AllNavigatableRoutes>({
   AppearanceSettings: '/settings/appearance',
   BetaFeaturesSettings: '/settings/beta-features',
   // northsky: user-initiated data transfer between the two fixed appviews
-  AppViewTransferSettings: '/settings/beta-features/transfer-app-data',
+  AppViewTransferSettings: '/settings/transfer-app-data',
   SavedFeeds: '/settings/saved-feeds',
   AccountSettings: '/settings/account',
   AutomationLabelSettings: '/settings/automation-label',

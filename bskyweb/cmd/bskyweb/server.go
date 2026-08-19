@@ -367,10 +367,10 @@ func serve(cctx *cli.Context) error {
 	e.GET("/settings/about", server.WebGenericNoindex)
 	e.GET("/settings/notifications", server.WebGenericNoindex)
 	e.GET("/settings/notifications/activity", server.WebGenericNoindex)
-	// northsky: appview data transfer. The parent route is also listed here,
-	// because an unlisted path gets the error page instead of the app.
+	// northsky: an unlisted path gets the error page instead of the app, so
+	// list the beta features screen and the appview data transfer screen.
 	e.GET("/settings/beta-features", server.WebGenericNoindex)
-	e.GET("/settings/beta-features/transfer-app-data", server.WebGenericNoindex)
+	e.GET("/settings/transfer-app-data", server.WebGenericNoindex)
 	e.GET("/sys/debug", server.WebGenericNoindex)
 	e.GET("/sys/debug-mod", server.WebGenericNoindex)
 	e.GET("/sys/log", server.WebGenericNoindex)
