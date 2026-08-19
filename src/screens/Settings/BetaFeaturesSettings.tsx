@@ -198,15 +198,41 @@ export function BetaFeaturesSettingsScreen({}: Props) {
                 </Text>
               </View>
             ) : (
-              <>
-                {/* northsky: the beaker stays as the backdrop of this section */}
-                <View style={[a.align_center, a.py_lg]}>
-                  <BeakerIcon size="4xl" fill={t.palette.contrast_100} />
-                </View>
-                <Text style={[a.text_md, a.font_semi_bold]}>
-                  <Trans>Current beta features</Trans>
-                </Text>
-                <View style={[a.gap_sm]}>
+              <Text style={[a.text_md, a.font_semi_bold]}>
+                <Trans>Current beta features</Trans>
+              </Text>
+            )}
+          </View>
+
+          {hasBetaFeatures && (
+            /* northsky: the beaker sits behind the list, so the list needs a
+             * positioning parent and the beaker must not take presses. */
+            <View style={[a.relative]}>
+              <View
+                style={[
+                  a.absolute,
+                  a.inset_0,
+                  a.align_center,
+                  a.justify_center,
+                ]}
+                pointerEvents="none">
+                <BeakerIcon size="4xl" fill={t.palette.contrast_100} />
+              </View>
+
+              {/* northsky: appview data transfer, listed for beta users */}
+              {isBetaUser && (
+                <SettingsList.LinkItem
+                  to="/settings/transfer-app-data"
+                  label={l`Transfer app data`}>
+                  <SettingsList.ItemIcon icon={TransferIcon} />
+                  <SettingsList.ItemText>
+                    <Trans>Transfer app data</Trans>
+                  </SettingsList.ItemText>
+                </SettingsList.LinkItem>
+              )}
+
+              {betaFeatures.length > 0 && (
+                <View style={[a.px_xl, a.pt_md, a.gap_sm]}>
                   {betaFeatures.map(feature => (
                     <View
                       key={feature.key}
@@ -236,20 +262,8 @@ export function BetaFeaturesSettingsScreen({}: Props) {
                     </View>
                   ))}
                 </View>
-              </>
-            )}
-          </View>
-
-          {/* northsky: appview data transfer, listed for beta users */}
-          {isBetaUser && (
-            <SettingsList.LinkItem
-              to="/settings/transfer-app-data"
-              label={l`Transfer app data`}>
-              <SettingsList.ItemIcon icon={TransferIcon} />
-              <SettingsList.ItemText>
-                <Trans>Transfer app data</Trans>
-              </SettingsList.ItemText>
-            </SettingsList.LinkItem>
+              )}
+            </View>
           )}
         </SettingsList.Container>
       </Layout.Content>
