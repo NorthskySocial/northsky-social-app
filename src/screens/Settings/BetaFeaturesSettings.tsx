@@ -17,10 +17,10 @@ import {atoms as a, useTheme} from '#/alf'
 import {Admonition} from '#/components/Admonition'
 import {ButtonIcon, ButtonText} from '#/components/Button'
 import * as Toggle from '#/components/forms/Toggle'
-// northsky: icon for the appview data transfer link
-import {ArrowBoxRight_Stroke2_Corner3_Rounded as TransferIcon} from '#/components/icons/ArrowBoxRight'
 import {Beaker_Stroke2_Corner2_Rounded as BeakerIcon} from '#/components/icons/Beaker'
 import {BubbleInfo_Stroke2_Corner2_Rounded as BubbleInfoIcon} from '#/components/icons/BubbleInfo'
+// northsky: icon for the appview data transfer link
+import {Transfer_Stroke2_Corner0_Rounded as TransferIcon} from '#/components/icons/Transfer'
 import * as Layout from '#/components/Layout'
 import {Link} from '#/components/Link'
 import * as Toast from '#/components/Toast'
