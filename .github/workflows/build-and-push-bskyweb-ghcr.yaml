@@ -43,7 +43,8 @@ jobs:
           set -euo pipefail
           if [ -n "${RELEASE_TAG}" ]; then
             version="${RELEASE_TAG#v}"
-            if ! printf '%s' "${version}" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?$'; then
+            # Build metadata is not accepted. A Docker tag cannot contain "+".
+            if ! printf '%s' "${version}" | grep -Eq '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?$'; then
               echo "The release tag '${RELEASE_TAG}' is not a semver version." >&2
               exit 1
             fi
