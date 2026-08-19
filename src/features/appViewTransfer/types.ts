@@ -1,9 +1,9 @@
 import {type Did} from '@atproto/api'
 
 /**
- * Transfer order is fixed so progress renders in a stable sequence.
- * `notificationPreferences` is last and is the only collection that replaces
- * destination state instead of adding to it.
+ * The transfer order is fixed, so progress renders in a stable sequence.
+ * `notificationPreferences` is last, because it is the only collection that
+ * replaces destination state instead of adding to it.
  */
 export const APP_VIEW_TRANSFER_COLLECTIONS = [
   'mutedAccounts',
@@ -16,7 +16,7 @@ export const APP_VIEW_TRANSFER_COLLECTIONS = [
 export type AppViewTransferCollectionId =
   (typeof APP_VIEW_TRANSFER_COLLECTIONS)[number]
 
-/** Collections pre-selected in the UI. Excludes the destructive one. */
+/** The collections the screen checks by default. Each one only adds items. */
 export const DEFAULT_TRANSFER_COLLECTIONS: AppViewTransferCollectionId[] = [
   'mutedAccounts',
   'mutedLists',
@@ -27,9 +27,8 @@ export const DEFAULT_TRANSFER_COLLECTIONS: AppViewTransferCollectionId[] = [
 export type TransferEndpointId = 'bluesky' | 'blacksky'
 
 /**
- * One side of a transfer. A fixed preset, not a user-supplied URL - see
- * `./endpoints.ts`. Stored in the checkpoint so a resume targets the same
- * services as the original run.
+ * One side of a transfer. The checkpoint stores it, so a resume targets the
+ * same services as the original run.
  */
 export interface TransferEndpoint {
   id: TransferEndpointId
@@ -52,13 +51,13 @@ export interface AppViewTransferCollectionProgress {
   sourceScanned?: boolean
   processedCount?: number
   transferredCount: number
-  /** Count of per-item writes that failed after retries in the last pass. */
+  /** Items the last pass could not copy, after the retries. */
   failedCount?: number
   destinationBefore?: number
   destinationScanned?: boolean
   destinationAfter?: number
   unsupportedAt?: 'source' | 'destination'
-  /** Safe XRPC details retained for troubleshooting without item data. */
+  /** XRPC details for troubleshooting. Holds no item data. */
   failureAt?: 'source' | 'destination'
   failureStatus?: number
   failureName?: string

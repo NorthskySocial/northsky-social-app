@@ -20,9 +20,9 @@ const DESTINATION_SERVICE = `${DESTINATION.did}#bsky_appview`
 type Recorded = {nsid: string; input: unknown; service: string | undefined}
 
 /**
- * Builds a minimal AtpAgent double. Every namespace method routes through
- * `handler` with its nsid and the per-call `atproto-proxy` header, so tests
- * assert both behavior and request targeting.
+ * Builds a minimal AtpAgent double. Every method routes through `handler` with
+ * its nsid and the per-call `atproto-proxy` header, so a test can assert both
+ * the behavior and the appview each request goes to.
  */
 function makeAgent(
   handler: (
@@ -40,7 +40,7 @@ function makeAgent(
     ) => {
       const service = opts?.headers?.['atproto-proxy']
       calls.push({nsid, input, service})
-      /* Yield once so concurrent workers interleave like real requests. */
+      // Yield once, so concurrent workers interleave like real requests.
       await Promise.resolve()
       return {data: await handler(nsid, input, service)}
     }
@@ -217,7 +217,7 @@ describe('runAppViewTransfer', () => {
       'did:plc:tuxedo-mask',
     ])
     expect(destination.preferences).toEqual(source.preferences)
-    /* Merge keeps the destination-only reply subscription. */
+    // The merge keeps the destination-only reply subscription.
     expect(destination.subscriptions.get('did:plc:sailor-mercury')).toEqual({
       post: true,
       reply: true,
@@ -237,12 +237,12 @@ describe('runAppViewTransfer', () => {
           return service === SOURCE_SERVICE
             ? {
                 mutes: [
-                  /* Missing at destination, repost-scoped. */
+                  // Missing at the destination, scoped to reposts.
                   {
                     did: 'did:plc:ryoko',
                     viewer: {mutedOnlyReposts: true},
                   },
-                  /* Present at destination with a different scope. */
+                  // Present at the destination with a different scope.
                   {did: 'did:plc:ayeka', viewer: {}},
                 ],
               }
@@ -319,7 +319,7 @@ describe('runAppViewTransfer', () => {
       destinationBefore: 0,
       destinationAfter: 2,
     })
-    /* The complete collection is not re-read or re-written. */
+    // The run does not read or write the complete collection again.
     expect(result.collections.mutedLists).toMatchObject({
       status: 'complete',
       transferredCount: 3,
@@ -456,8 +456,8 @@ describe('runAppViewTransfer', () => {
 
   it('leaves a scoped mute at the destination alone', async () => {
     /*
-     * An appview lists only accounts that are muted in full, so a mute of
-     * just the reposts looks absent. Writing over it would widen the scope.
+     * An appview lists only accounts that are muted in full, so a mute of just
+     * the reposts looks absent. A write over it would widen the scope.
      */
     const writes: string[] = []
     const {agent} = makeAgent((nsid, input, service) => {
@@ -511,7 +511,7 @@ describe('runAppViewTransfer', () => {
             did: 'did:plc:ryoko',
             viewer: {activitySubscription: {post: true, reply: false}},
           },
-          /* The subject no longer accepts subscriptions from this account. */
+          // The subject no longer accepts subscriptions from this account.
           {did: 'did:plc:ayeka', viewer: {}},
         ],
       }
@@ -534,7 +534,7 @@ describe('runAppViewTransfer', () => {
   })
 
   it('reads past an empty page that carries a new cursor', async () => {
-    /* An appview can drop a whole page while it hydrates the results. */
+    // An appview can drop a whole page while it hydrates the results.
     const pages: Record<string, {lists: {uri: string}[]; cursor?: string}> = {
       start: {lists: [{uri: 'at://did:plc:ryoko/one'}], cursor: 'second'},
       second: {lists: [], cursor: 'third'},

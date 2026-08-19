@@ -107,9 +107,9 @@ export function BetaFeaturesSettingsScreen({}: Props) {
   }
 
   /*
-   * northsky: the app data transfer is a local beta feature rather than a
-   * remote gate, so a beta user always has one even when `getTargetedFeatures`
-   * returns nothing.
+   * northsky: the app data transfer is a local beta feature, not a remote
+   * gate, so a beta user always has one. `getTargetedFeatures` reports only
+   * the remote gates.
    */
   const hasBetaFeatures = isBetaUser || betaFeatures.length > 0
 
@@ -205,9 +205,11 @@ export function BetaFeaturesSettingsScreen({}: Props) {
           </View>
 
           {hasBetaFeatures && (
-            /* northsky: the beaker is a watermark over the list, so the list
+            /*
+             * northsky: the beaker is a watermark over the list, so the list
              * needs a positioning parent. The minimum height gives the 64px
-             * beaker room, because Android clips a child that overflows. */
+             * beaker room, because Android clips a child that overflows.
+             */
             <View style={[a.relative, {minHeight: 96}]}>
               {/* northsky: appview data transfer, listed for beta users */}
               {isBetaUser && (
@@ -255,9 +257,9 @@ export function BetaFeaturesSettingsScreen({}: Props) {
               )}
 
               {/*
-               * northsky: the beaker draws last so a row's hover fill, which is
-               * opaque, cannot hide it. It takes no presses, so the rows below
-               * stay tappable.
+               * northsky: the beaker draws last, because a row hover fill is
+               * opaque and would hide it. The beaker takes no presses, so the
+               * rows below stay tappable.
                */}
               <View
                 style={[

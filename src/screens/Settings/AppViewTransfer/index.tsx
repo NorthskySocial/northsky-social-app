@@ -95,10 +95,10 @@ export function AppViewTransferSettingsScreen({}: Props) {
 
   /*
    * The engine reports progress once per written item, so a large collection
-   * would serialize and store the whole checkpoint thousands of times. Cap the
-   * write rate while the run continues, and always store a terminal state. A
-   * dropped write costs at most one second of progress, and a resume rereads
-   * the destination anyway, so no item is written twice.
+   * would store the whole checkpoint thousands of times. Cap the write rate
+   * while the run continues, and always store a terminal state. A dropped
+   * write costs one second of progress, and a resume rereads the destination,
+   * so no item is written twice.
    */
   const saveCheckpoint = (next: AppViewTransferCheckpoint) => {
     checkpointRef.current = next
@@ -112,7 +112,7 @@ export function AppViewTransferSettingsScreen({}: Props) {
 
   useEffect(() => {
     mountedRef.current = true
-    /* A stored 'running' checkpoint means a previous session died mid-run. */
+    // A stored 'running' checkpoint means a previous session died mid-run.
     const current = checkpointRef.current
     if (current?.status === 'running') {
       const paused: AppViewTransferCheckpoint = {
@@ -173,7 +173,7 @@ export function AppViewTransferSettingsScreen({}: Props) {
         },
       })
     } catch (e) {
-      /* Pausing rejects the run, so only an unexpected fault is worth a log. */
+      // A pause rejects the run, so only an unexpected fault is worth a log.
       if (!controller.signal.aborted) {
         logger.error('AppView transfer stopped unexpectedly', {safeMessage: e})
       }
@@ -186,7 +186,7 @@ export function AppViewTransferSettingsScreen({}: Props) {
         })
       }
     } finally {
-      /* A pause still leaves written items behind, so always refresh. */
+      // A pause still leaves written items behind, so always refresh.
       invalidateAppViewQueries()
       if (abortRef.current === controller) {
         abortRef.current = undefined
@@ -196,7 +196,7 @@ export function AppViewTransferSettingsScreen({}: Props) {
   }
 
   /*
-   * The active session may read from either appview, so refresh every
+   * The active session can read from either appview, so refresh every
    * collection the transfer can touch.
    */
   const invalidateAppViewQueries = () => {
@@ -500,7 +500,7 @@ function TransferProgress({
 }) {
   const {t: l} = useLingui()
   const t = useTheme()
-  /* A checkpoint from an older build holds the order the user toggled in. */
+  // A checkpoint from an older build holds the order the user toggled in.
   const ordered = orderedCollections(checkpoint)
   const activeId =
     ordered.find(id => {

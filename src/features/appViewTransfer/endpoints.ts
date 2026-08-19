@@ -2,10 +2,10 @@ import {BLACKSKY_APPVIEW, FALLBACK_APPVIEW} from '#/brand/appview'
 import {type TransferEndpoint, type TransferEndpointId} from './types'
 
 /**
- * The only endpoints a transfer can touch. A fixed pair, unlike eurosky's
- * user-supplied appview URLs: Northsky routes accounts between exactly these
- * two appviews (see `src/brand/appview.ts`), and a free-form URL field would
- * add a DID-resolution and validation surface this feature does not need.
+ * The only endpoints a transfer can touch. Northsky routes accounts between
+ * exactly these two appviews, so the pair is fixed. The eurosky original took
+ * a URL from the user, which needs DID resolution and validation that this
+ * feature can do without.
  */
 export const TRANSFER_ENDPOINTS: readonly TransferEndpoint[] = [
   {id: 'bluesky', did: FALLBACK_APPVIEW.did, url: FALLBACK_APPVIEW.url},
@@ -14,8 +14,8 @@ export const TRANSFER_ENDPOINTS: readonly TransferEndpoint[] = [
 
 /**
  * A checkpoint stored by an older build can name an endpoint this build no
- * longer has. Callers that read an id from storage must filter it through this
- * guard, because the stored type is not proof of the current endpoint set.
+ * longer has. A caller that reads an id from storage must filter it through
+ * this guard, because the stored type does not prove the id is still valid.
  */
 export function isTransferEndpointId(
   id: string | undefined,

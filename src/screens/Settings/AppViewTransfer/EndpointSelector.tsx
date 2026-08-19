@@ -8,8 +8,8 @@ import {TRANSFER_ENDPOINTS} from '#/features/appViewTransfer/endpoints'
 import {type TransferEndpointId} from '#/features/appViewTransfer/types'
 
 /**
- * Cut-down port of eurosky's AppViewSelector: the two fixed endpoints only,
- * no custom URL input and no DID-document validation.
+ * Picks one of the two fixed endpoints. The eurosky original also accepted a
+ * custom URL, which this port drops.
  */
 export function EndpointSelector({
   titleText,

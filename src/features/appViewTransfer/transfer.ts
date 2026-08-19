@@ -1,20 +1,13 @@
 /**
- * User-initiated, one-directional import of private appview state between the
- * two fixed appview endpoints. Ported from eurosky-social-app (MIT) commit
- * 3407eb8, rewritten from `@atproto/lex` onto `AtpAgent` with per-call
- * `atproto-proxy` headers.
+ * One-directional import of private appview state between the two fixed
+ * endpoints. Ported from eurosky-social-app (MIT) commit 3407eb8, rewritten
+ * from `@atproto/lex` onto `AtpAgent`.
  *
- * Semantics: an import, not a sync. No collection deletes an item at the
+ * This is an import, not a sync. No collection deletes an item at the
  * destination. Most collections leave an item that exists on both sides
  * untouched. `activitySubscriptions` merges instead: an item on both sides
  * keeps every notification type that either side subscribes to.
- * `notificationPreferences` replaces the destination preference set. A later
- * removal at the source does not carry over.
- *
- * An appview lists only accounts that are muted in full, so a mute limited to
- * reposts or quote posts does not transfer. The write pass reads the viewer
- * state to find such a mute at the destination and leaves it alone, because
- * `muteActor` would replace its scope.
+ * `notificationPreferences` replaces the destination preference set.
  */
 import {
   type AppBskyNotificationDefs,
@@ -32,9 +25,9 @@ import {
 } from './types'
 
 const PAGE_SIZE = 100
-/* Bounds a run against an appview whose cursor never ends. */
+// Bounds a run against an appview whose cursor never ends.
 const MAX_PAGES = 500
-/* `app.bsky.actor.getProfiles` accepts 25 actors per call. */
+// `app.bsky.actor.getProfiles` accepts 25 actors per call.
 const PROFILE_BATCH_SIZE = 25
 
 type TransferItem = {
@@ -45,13 +38,13 @@ type TransferItem = {
 type TransferPage = {
   items: TransferItem[]
   cursor?: string
-  /* Items the appview listed but would not give a value for. */
+  // Items the appview listed but would not give a value for.
   skipped?: number
 }
 
 type RequestTarget = {
   agent: AtpAgent
-  /* Per-call options: proxy header pinning the appview, plus the abort signal. */
+  // The proxy header pins the appview. Each call also takes the abort signal.
   opts: {headers: {'atproto-proxy': string}; signal: AbortSignal}
 }
 
@@ -97,9 +90,8 @@ const collectionAdapters: Record<
       )
       /*
        * Both appviews list only accounts that are muted in full, so the scope
-       * fields read false and a scoped mute never reaches the destination.
-       * Read them anyway, so an appview that does list a scoped mute keeps
-       * its scope instead of arriving as a mute of the whole account.
+       * fields read false today. Read them anyway, so an appview that does
+       * list a scoped mute keeps that scope at the destination.
        */
       return {
         cursor: res.data.cursor,
@@ -127,16 +119,15 @@ const collectionAdapters: Record<
         target.opts.signal,
       )
     },
-    /* Missing-only: never change the scope of a mute both sides already have. */
+    // Missing-only: a mute both sides hold keeps the destination scope.
     valuesEqual: () => true,
+    /*
+     * `getMutes` omits a mute that covers only reposts or only quote posts, so
+     * such a mute looks absent at the destination. `muteActor` replaces the
+     * stored scope, so a write would widen it to the whole account. Read the
+     * viewer state to find those accounts, so the write pass skips them.
+     */
     async findHiddenDestinationKeys(target, keys) {
-      /*
-       * `getMutes` lists only accounts that are muted in full, so a mute that
-       * covers just reposts or just quote posts looks absent. `muteActor`
-       * replaces the stored scope, so a write would widen that mute to the
-       * whole account. Read the viewer state to find those accounts and leave
-       * them alone.
-       */
       const hidden: string[] = []
       for (let start = 0; start < keys.length; start += PROFILE_BATCH_SIZE) {
         const actors = keys.slice(start, start + PROFILE_BATCH_SIZE)
@@ -211,9 +202,9 @@ const collectionAdapters: Record<
         target.opts.signal,
       )
     },
-    /* A bookmark is identified by URI; a differing historical CID is not a second bookmark. */
+    // A bookmark is identified by its URI. An older CID is the same bookmark.
     valuesEqual: () => true,
-    /* Bookmark writes are independent but numerous, so use a bounded pool. */
+    // Bookmark writes are independent but numerous, so bound the pool.
     writeConcurrency: 5,
   },
   activitySubscriptions: {
@@ -281,7 +272,7 @@ const collectionAdapters: Record<
           target.agent.app.bsky.notification.getPreferences({}, target.opts),
         target.opts.signal,
       )
-      /* Chat preferences belong to the chat service, not the appview. */
+      // Chat preferences belong to the chat service, not the appview.
       const {chat: _chat, $type: _type, ...preferences} = res.data.preferences
       return {
         items: [{key: 'preferences', value: preferences}],
@@ -315,8 +306,8 @@ export function createTransferCheckpoint({
   const now = new Date().toISOString()
   /*
    * The caller collects the selection in the order the user toggled it. Sort
-   * it into transfer order so the screen names the collection the run is
-   * actually working on.
+   * it into transfer order, so the screen names the collection the run works
+   * on.
    */
   const ordered = APP_VIEW_TRANSFER_COLLECTIONS.filter(id =>
     selectedCollections.includes(id),
@@ -435,7 +426,7 @@ export async function runAppViewTransfer({
       /*
        * Runs after the counts, so the summary keeps reporting what the
        * destination lists. It only holds the write pass back from an item the
-       * destination already has in a form the list leaves out.
+       * destination already holds in a form the list leaves out.
        */
       const hiddenKeys = new Set<string>()
       if (adapter.findHiddenDestinationKeys) {
@@ -476,7 +467,7 @@ export async function runAppViewTransfer({
       /*
        * A skipped item is one the source listed but would not describe, so it
        * could not be copied. Report it with the write failures, because the
-       * user needs the same answer: this item did not arrive.
+       * user needs the same answer: the item did not arrive.
        */
       const missedCount = failedCount + sourceRead.skipped
       if (missedCount > 0) {
@@ -491,8 +482,10 @@ export async function runAppViewTransfer({
         continue
       }
 
-      /* Successful idempotent writes update the in-memory destination set, so
-       * another full pagination pass would only slow large collections down. */
+      /*
+       * A successful write updates the in-memory destination set, so a second
+       * pagination pass would only slow a large collection down.
+       */
       updateCollection(id, {
         status: 'complete',
         destinationAfter: destinationItems.size,
@@ -545,11 +538,10 @@ function makeTarget(
 }
 
 /**
- * Writes the source items the destination lacks. Unlike the eurosky original,
- * a per-item failure does not halt the pass: every pending item is attempted,
- * failures are counted, and the first error is kept for reporting. One
- * deactivated account must not block the rest of a mute import. An abort
- * still stops immediately.
+ * Writes the source items the destination lacks. A failed item does not halt
+ * the pass, unlike the eurosky original: the pass attempts every item, counts
+ * the failures, and keeps the first error. One deactivated account must not
+ * block the rest of a mute import. An abort still stops the pass at once.
  */
 async function writeMissingItems({
   adapter,
@@ -682,6 +674,9 @@ function statusOf(error: XRPCError): number {
   return error.status
 }
 
+// `ResponseType.Unknown`, which a network failure without a response reports.
+const STATUS_NO_RESPONSE = 1
+
 function maxRetries(error: unknown): number {
   return error instanceof XRPCError && statusOf(error) === 429 ? 4 : 2
 }
@@ -693,8 +688,7 @@ function maxRetries(error: unknown): number {
  */
 function isRetryableError(error: unknown): boolean {
   if (!(error instanceof XRPCError)) return false
-  /* ResponseType.Unknown (1) is a network failure without a response. */
-  return [1, 429, 500, 502, 503, 504].includes(statusOf(error))
+  return [STATUS_NO_RESPONSE, 429, 500, 502, 503, 504].includes(statusOf(error))
 }
 
 function retryDelay(error: unknown, attempt: number): number {
@@ -750,8 +744,7 @@ function safeFailureDetails(error: unknown): {
   failureName: string
 } {
   if (error instanceof XRPCError) {
-    /* ResponseType.Unknown (1) is a network failure without a response. */
-    if (statusOf(error) === 1) {
+    if (statusOf(error) === STATUS_NO_RESPONSE) {
       return {failureName: 'NetworkError'}
     }
     return {failureStatus: statusOf(error), failureName: error.error}
