@@ -47,6 +47,9 @@ function makeAgent(
   const agent = {
     app: {
       bsky: {
+        actor: {
+          getProfiles: method('app.bsky.actor.getProfiles'),
+        },
         graph: {
           getMutes: method('app.bsky.graph.getMutes'),
           muteActor: method('app.bsky.graph.muteActor'),
@@ -117,6 +120,8 @@ describe('runAppViewTransfer', () => {
     const {agent, calls} = makeAgent((nsid, input, service) => {
       const state = service === SOURCE_SERVICE ? source : destination
       switch (nsid) {
+        case 'app.bsky.actor.getProfiles':
+          return {profiles: []}
         case 'app.bsky.graph.getMutes':
           return {mutes: [...state.mutes.keys()].map(did => ({did}))}
         case 'app.bsky.graph.muteActor':
@@ -226,6 +231,8 @@ describe('runAppViewTransfer', () => {
     const writes: Record<string, unknown>[] = []
     const {agent} = makeAgent((nsid, input, service) => {
       switch (nsid) {
+        case 'app.bsky.actor.getProfiles':
+          return {profiles: []}
         case 'app.bsky.graph.getMutes':
           return service === SOURCE_SERVICE
             ? {
@@ -273,6 +280,7 @@ describe('runAppViewTransfer', () => {
     const sourceMutes = ['did:plc:ryoko', 'did:plc:sasami']
     const destinationMutes = new Set(['did:plc:ryoko'])
     const {agent, calls} = makeAgent((nsid, input, service) => {
+      if (nsid === 'app.bsky.actor.getProfiles') return {profiles: []}
       if (nsid === 'app.bsky.graph.getMutes') {
         const mutes =
           service === SOURCE_SERVICE ? sourceMutes : [...destinationMutes]
@@ -443,6 +451,85 @@ describe('runAppViewTransfer', () => {
     expect(result.collections.mutedLists).toMatchObject({
       status: 'failed',
       failureName: 'UnexpectedError',
+    })
+  })
+
+  it('leaves a scoped mute at the destination alone', async () => {
+    /*
+     * An appview lists only accounts that are muted in full, so a mute of
+     * just the reposts looks absent. Writing over it would widen the scope.
+     */
+    const writes: string[] = []
+    const {agent} = makeAgent((nsid, input, service) => {
+      if (nsid === 'app.bsky.graph.getMutes') {
+        return service === SOURCE_SERVICE
+          ? {mutes: [{did: 'did:plc:ryoko'}, {did: 'did:plc:sasami'}]}
+          : {mutes: []}
+      }
+      if (nsid === 'app.bsky.actor.getProfiles') {
+        expect(input.actors).toEqual(['did:plc:ryoko', 'did:plc:sasami'])
+        return {
+          profiles: [
+            {did: 'did:plc:ryoko', viewer: {mutedOnlyReposts: true}},
+            {did: 'did:plc:sasami', viewer: {}},
+          ],
+        }
+      }
+      if (nsid === 'app.bsky.graph.muteActor') {
+        writes.push(input.actor as string)
+        return undefined
+      }
+      throw new Error(`Unexpected method: ${nsid}`)
+    })
+
+    const result = await runAppViewTransfer({
+      agent,
+      initialCheckpoint: checkpointFor(['mutedAccounts']),
+      signal: new AbortController().signal,
+      onProgress: () => {},
+    })
+
+    expect(writes).toEqual(['did:plc:sasami'])
+    expect(result.collections.mutedAccounts).toMatchObject({
+      status: 'complete',
+      transferredCount: 1,
+    })
+  })
+
+  it('counts an activity subscription the source will not describe', async () => {
+    const {agent} = makeAgent((nsid, _input, service) => {
+      if (nsid === 'app.bsky.notification.putActivitySubscription') {
+        return {}
+      }
+      if (nsid !== 'app.bsky.notification.listActivitySubscriptions') {
+        throw new Error(`Unexpected method: ${nsid}`)
+      }
+      if (service !== SOURCE_SERVICE) return {subscriptions: []}
+      return {
+        subscriptions: [
+          {
+            did: 'did:plc:ryoko',
+            viewer: {activitySubscription: {post: true, reply: false}},
+          },
+          /* The subject no longer accepts subscriptions from this account. */
+          {did: 'did:plc:ayeka', viewer: {}},
+        ],
+      }
+    })
+
+    const result = await runAppViewTransfer({
+      agent,
+      initialCheckpoint: checkpointFor(['activitySubscriptions']),
+      signal: new AbortController().signal,
+      onProgress: () => {},
+    })
+
+    expect(result.collections.activitySubscriptions).toMatchObject({
+      status: 'failed',
+      sourceCount: 2,
+      transferredCount: 1,
+      failedCount: 1,
+      failureAt: 'source',
     })
   })
 

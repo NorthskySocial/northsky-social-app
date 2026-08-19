@@ -10,6 +10,11 @@
  * keeps every notification type that either side subscribes to.
  * `notificationPreferences` replaces the destination preference set. A later
  * removal at the source does not carry over.
+ *
+ * An appview lists only accounts that are muted in full, so a mute limited to
+ * reposts or quote posts does not transfer. The write pass reads the viewer
+ * state to find such a mute at the destination and leaves it alone, because
+ * `muteActor` would replace its scope.
  */
 import {
   type AppBskyNotificationDefs,
@@ -28,6 +33,8 @@ import {
 const PAGE_SIZE = 100
 /* Bounds a run against an appview whose cursor never ends. */
 const MAX_PAGES = 500
+/* `app.bsky.actor.getProfiles` accepts 25 actors per call. */
+const PROFILE_BATCH_SIZE = 25
 
 type TransferItem = {
   key: string
@@ -37,6 +44,8 @@ type TransferItem = {
 type TransferPage = {
   items: TransferItem[]
   cursor?: string
+  /* Items the appview listed but would not give a value for. */
+  skipped?: number
 }
 
 type RequestTarget = {
@@ -52,6 +61,15 @@ type CollectionAdapter = {
   valuesEqual?: (left: unknown, right: unknown) => boolean
   mergeValues?: (source: unknown, destination: unknown) => unknown
   writeConcurrency?: number
+  /**
+   * Reports which of `keys` the destination already holds in a form that
+   * `readPage` cannot list. The engine treats each returned key as present,
+   * so the write pass leaves it alone.
+   */
+  findHiddenDestinationKeys?: (
+    target: RequestTarget,
+    keys: string[],
+  ) => Promise<string[]>
 }
 
 type MuteFlavor = {
@@ -76,6 +94,12 @@ const collectionAdapters: Record<
           ),
         target.opts.signal,
       )
+      /*
+       * Both appviews list only accounts that are muted in full, so the scope
+       * fields read false and a scoped mute never reaches the destination.
+       * Read them anyway, so an appview that does list a scoped mute keeps
+       * its scope instead of arriving as a mute of the whole account.
+       */
       return {
         cursor: res.data.cursor,
         items: res.data.mutes.map(profile => ({
@@ -104,6 +128,30 @@ const collectionAdapters: Record<
     },
     /* Missing-only: never change the scope of a mute both sides already have. */
     valuesEqual: () => true,
+    async findHiddenDestinationKeys(target, keys) {
+      /*
+       * `getMutes` lists only accounts that are muted in full, so a mute that
+       * covers just reposts or just quote posts looks absent. `muteActor`
+       * replaces the stored scope, so a write would widen that mute to the
+       * whole account. Read the viewer state to find those accounts and leave
+       * them alone.
+       */
+      const hidden: string[] = []
+      for (let start = 0; start < keys.length; start += PROFILE_BATCH_SIZE) {
+        const actors = keys.slice(start, start + PROFILE_BATCH_SIZE)
+        const res = await callWithRetry(
+          () => target.agent.app.bsky.actor.getProfiles({actors}, target.opts),
+          target.opts.signal,
+        )
+        for (const profile of res.data.profiles) {
+          const viewer = profile.viewer
+          if (viewer?.mutedOnlyReposts || viewer?.mutedOnlyQuoteposts) {
+            hidden.push(profile.did)
+          }
+        }
+      }
+      return hidden
+    },
   },
   mutedLists: {
     id: 'mutedLists',
@@ -178,22 +226,28 @@ const collectionAdapters: Record<
           ),
         target.opts.signal,
       )
-      return {
-        cursor: res.data.cursor,
-        items: res.data.subscriptions.map(profile => {
-          const subscription = profile.viewer?.activitySubscription
-          if (!subscription) {
-            throw new UnsupportedCollectionDataError()
-          }
-          return {
-            key: profile.did,
-            value: {
-              post: subscription.post,
-              reply: subscription.reply,
-            } satisfies ActivitySubscription,
-          }
-        }),
+      const items: TransferItem[] = []
+      let skipped = 0
+      for (const profile of res.data.subscriptions) {
+        const subscription = profile.viewer?.activitySubscription
+        /*
+         * The appview withholds the value when the subject no longer accepts
+         * activity subscriptions from this account. The subscription is real,
+         * but its settings cannot be read, so it cannot be copied.
+         */
+        if (!subscription) {
+          skipped++
+          continue
+        }
+        items.push({
+          key: profile.did,
+          value: {
+            post: subscription.post,
+            reply: subscription.reply,
+          } satisfies ActivitySubscription,
+        })
       }
+      return {cursor: res.data.cursor, items, skipped}
     },
     async write(target, item) {
       await callWithRetry(
@@ -248,8 +302,6 @@ const collectionAdapters: Record<
     valuesEqual: deepEqual,
   },
 }
-
-class UnsupportedCollectionDataError extends Error {}
 
 export function createTransferCheckpoint({
   accountDid,
@@ -353,21 +405,24 @@ export async function runAppViewTransfer({
         failureStatus: undefined,
         failureName: undefined,
       })
-      const sourceItems = await readAllItems({
+      const sourceRead = await readAllItems({
         adapter,
         target: makeTarget(agent, checkpoint.source, signal),
       })
+      const sourceItems = sourceRead.items
       updateCollection(id, {
-        sourceCount: sourceItems.size,
+        sourceCount: sourceItems.size + sourceRead.skipped,
         sourceScanned: true,
       })
 
       endpoint = 'destination'
       updateCollection(id, {status: 'countingDestination'})
-      const destinationItems = await readAllItems({
-        adapter,
-        target: makeTarget(agent, checkpoint.destination, signal),
-      })
+      const destinationItems = (
+        await readAllItems({
+          adapter,
+          target: makeTarget(agent, checkpoint.destination, signal),
+        })
+      ).items
       const progressAfterCount =
         checkpoint.collections[id] ?? initialCollectionProgress()
       const destinationBefore =
@@ -379,11 +434,31 @@ export async function runAppViewTransfer({
         status: 'transferring',
       })
 
+      /*
+       * Runs after the counts, so the summary keeps reporting what the
+       * destination lists. It only holds the write pass back from an item the
+       * destination already has in a form the list leaves out.
+       */
+      const hiddenKeys = new Set<string>()
+      if (adapter.findHiddenDestinationKeys) {
+        const candidates = [...sourceItems.keys()].filter(
+          key => !destinationItems.has(key),
+        )
+        if (candidates.length > 0) {
+          const hidden = await adapter.findHiddenDestinationKeys(
+            makeTarget(agent, checkpoint.destination, signal),
+            candidates,
+          )
+          for (const key of hidden) hiddenKeys.add(key)
+        }
+      }
+
       const {failedCount, firstError} = await writeMissingItems({
         adapter,
         items: [...sourceItems.values()],
         target: makeTarget(agent, checkpoint.destination, signal),
         destinationItems,
+        hiddenKeys,
         onPrepared(pendingCount) {
           updateCollection(id, {
             processedCount: sourceItems.size - pendingCount,
@@ -400,14 +475,20 @@ export async function runAppViewTransfer({
         },
       })
 
-      if (failedCount > 0) {
-        onCollectionError?.(id, firstError)
+      /*
+       * A skipped item is one the source listed but would not describe, so it
+       * could not be copied. Report it with the write failures, because the
+       * user needs the same answer: this item did not arrive.
+       */
+      const missedCount = failedCount + sourceRead.skipped
+      if (missedCount > 0) {
+        if (firstError) onCollectionError?.(id, firstError)
         updateCollection(id, {
           status: 'failed',
-          failedCount,
-          failureAt: 'destination',
+          failedCount: missedCount,
+          failureAt: failedCount > 0 ? 'destination' : 'source',
           destinationAfter: destinationItems.size,
-          ...safeFailureDetails(firstError),
+          ...(firstError ? safeFailureDetails(firstError) : {}),
         })
         continue
       }
@@ -477,6 +558,7 @@ async function writeMissingItems({
   items,
   target,
   destinationItems,
+  hiddenKeys,
   onPrepared,
   onWritten,
 }: {
@@ -484,11 +566,13 @@ async function writeMissingItems({
   items: TransferItem[]
   target: RequestTarget
   destinationItems: Map<string, TransferItem>
+  hiddenKeys: Set<string>
   onPrepared: (pendingCount: number) => void
   onWritten: () => void
 }): Promise<{failedCount: number; firstError?: unknown}> {
   const valuesEqual = adapter.valuesEqual ?? deepEqual
   const pending = items.flatMap(item => {
+    if (hiddenKeys.has(item.key)) return []
     const destinationItem = destinationItems.get(item.key)
     const desiredItem =
       destinationItem && adapter.mergeValues
@@ -539,9 +623,10 @@ async function readAllItems({
 }: {
   adapter: CollectionAdapter
   target: RequestTarget
-}): Promise<Map<string, TransferItem>> {
+}): Promise<{items: Map<string, TransferItem>; skipped: number}> {
   const items = new Map<string, TransferItem>()
   const seenCursors = new Set<string>()
+  let skipped = 0
   let cursor: string | undefined
 
   while (true) {
@@ -550,7 +635,8 @@ async function readAllItems({
     for (const item of page.items) {
       items.set(item.key, item)
     }
-    if (!page.cursor) return items
+    skipped += page.skipped ?? 0
+    if (!page.cursor) return {items, skipped}
     if (seenCursors.has(page.cursor)) {
       throw new Error('AppView returned a repeated pagination cursor')
     }
@@ -652,13 +738,12 @@ function throwIfAborted(signal: AbortSignal) {
 
 function isUnsupportedCollectionError(error: unknown): boolean {
   return (
-    error instanceof UnsupportedCollectionDataError ||
-    (error instanceof XRPCError &&
-      (statusOf(error) === 404 ||
-        statusOf(error) === 501 ||
-        ['XRPCNotSupported', 'MethodNotFound', 'NotSupported'].includes(
-          error.error,
-        )))
+    error instanceof XRPCError &&
+    (statusOf(error) === 404 ||
+      statusOf(error) === 501 ||
+      ['XRPCNotSupported', 'MethodNotFound', 'NotSupported'].includes(
+        error.error,
+      ))
   )
 }
 

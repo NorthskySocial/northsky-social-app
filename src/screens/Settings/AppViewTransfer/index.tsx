@@ -153,7 +153,6 @@ export function AppViewTransferSettingsScreen({}: Props) {
           })
         },
       })
-      invalidateAppViewQueries()
     } catch (e) {
       /* Pausing rejects the run, so only an unexpected fault is worth a log. */
       if (!controller.signal.aborted) {
@@ -168,6 +167,8 @@ export function AppViewTransferSettingsScreen({}: Props) {
         })
       }
     } finally {
+      /* A pause still leaves written items behind, so always refresh. */
+      invalidateAppViewQueries()
       if (abortRef.current === controller) {
         abortRef.current = undefined
         runningRef.current = false
@@ -327,7 +328,10 @@ export function AppViewTransferSettingsScreen({}: Props) {
                   <Trans>
                     Notification preferences from the source replace
                     notification preferences at the destination. Other selected
-                    data is added without removing destination-only items.
+                    data is added without removing destination-only items. An
+                    activity subscription that exists on both sides keeps the
+                    notifications of both. Mutes that cover only reposts or only
+                    quote posts are left where they are.
                   </Trans>
                 </Text>
               </SettingsList.Group>
@@ -472,11 +476,13 @@ function TransferProgress({
 }) {
   const {t: l} = useLingui()
   const t = useTheme()
+  /* A checkpoint from an older build holds the order the user toggled in. */
+  const ordered = orderedCollections(checkpoint)
   const activeId =
-    checkpoint.selectedCollections.find(id => {
+    ordered.find(id => {
       const status = checkpoint.collections[id]?.status ?? 'pending'
       return !['complete', 'failed', 'unsupported'].includes(status)
-    }) ?? checkpoint.selectedCollections.at(-1)
+    }) ?? ordered.at(-1)
   const totalProgress = checkpoint.selectedCollections.reduce((total, id) => {
     const progress = checkpoint.collections[id] ?? emptyProgress()
     return total + collectionProgress(progress)
@@ -530,6 +536,12 @@ function TransferProgress({
         )}
       </Text>
     </SettingsList.Group>
+  )
+}
+
+function orderedCollections(checkpoint: AppViewTransferCheckpoint) {
+  return APP_VIEW_TRANSFER_COLLECTIONS.filter(id =>
+    checkpoint.selectedCollections.includes(id),
   )
 }
 
@@ -589,6 +601,11 @@ function TransferStatus({
             other: "Couldn't copy # items",
           })
         }
+        if (progress.failureName === 'UnexpectedError') {
+          return progress.failureAt === 'source'
+            ? l`Couldn't read the data from ${sourceName}`
+            : l`Couldn't write the data to ${destinationName}`
+        }
         return progress.failureAt === 'source'
           ? l`${sourceName} unavailable`
           : l`${destinationName} unavailable`
@@ -610,7 +627,7 @@ function TransferStatus({
         )}
       </SettingsList.ItemText>
       <View style={[a.w_full]}>
-        {checkpoint.selectedCollections.map((id, index) => {
+        {orderedCollections(checkpoint).map((id, index) => {
           const progress = checkpoint.collections[id] ?? emptyProgress()
           const before = progress.destinationBefore
           const current = progress.destinationAfter ?? before
