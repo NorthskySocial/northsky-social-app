@@ -18,6 +18,7 @@
  */
 import {
   type AppBskyNotificationDefs,
+  type AppBskyNotificationPutPreferencesV2,
   type AtpAgent,
   XRPCError,
 } from '@atproto/api'
@@ -290,10 +291,7 @@ const collectionAdapters: Record<
       await callWithRetry(
         () =>
           target.agent.app.bsky.notification.putPreferencesV2(
-            item.value as Omit<
-              AppBskyNotificationDefs.Preferences,
-              'chat' | '$type'
-            >,
+            item.value as AppBskyNotificationPutPreferencesV2.InputSchema,
             {...target.opts, encoding: 'application/json'},
           ),
         target.opts.signal,
