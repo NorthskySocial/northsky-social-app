@@ -27,6 +27,8 @@ import {
 import {EditorContent, type JSONContent, useEditor} from '@tiptap/react'
 import {splitGraphemes} from 'unicode-segmenter/grapheme'
 
+import {DARK_COLORS, LIGHT_COLORS, PANEL_BG} from '#/lib/code/palette'
+import {MONO_FONT} from '#/lib/code/theme'
 import {useColorSchemeStyle} from '#/lib/hooks/useColorSchemeStyle'
 import {blobToDataUri, isUriImage} from '#/lib/media/util'
 import {useActorAutocompleteFn} from '#/state/queries/actor-autocomplete'
@@ -40,6 +42,7 @@ import {normalizeTextStyles} from '#/alf/typography'
 import {type Emoji} from '#/components/EmojiPicker'
 import {Portal} from '#/components/Portal'
 import {Text} from '#/components/Typography'
+import {MarkdownDecorator} from '#/features/markdownComposer/MarkdownDecorator'
 import {type TextInputProps} from './TextInput.types'
 import {type AutocompleteRef, createSuggestion} from './web/Autocomplete'
 import {LinkDecorator} from './web/LinkDecorator'
@@ -59,16 +62,28 @@ export function TextInput({
   onFocus,
   autoFocus,
 }: TextInputProps) {
-  const {theme: t, fonts} = useAlf()
+  const {theme: t, themeName, fonts} = useAlf()
   const autocomplete = useActorAutocompleteFn()
   const modeClass = useColorSchemeStyle('ProseMirror-light', 'ProseMirror-dark')
 
   const [isDropping, setIsDropping] = useState(false)
   const autocompleteRef = useRef<AutocompleteRef>(null)
+  // northsky: render complete Markdown ranges until the cursor enters them.
+  const markdownDecorator = useMemo(
+    () =>
+      MarkdownDecorator.configure({
+        codeBackground: PANEL_BG[themeName] ?? PANEL_BG.dark,
+        codeColors: themeName === 'light' ? LIGHT_COLORS : DARK_COLORS,
+        inlineCodeBackground: t.atoms.bg_contrast_50.backgroundColor,
+        monoFont: MONO_FONT,
+      }),
+    [t, themeName],
+  )
 
   const extensions = useMemo(
     () => [
       Document,
+      markdownDecorator,
       LinkDecorator,
       TagDecorator,
       Mention.configure({
@@ -85,7 +100,7 @@ export function TextInput({
       History,
       Hardbreak,
     ],
-    [autocomplete, placeholder],
+    [autocomplete, markdownDecorator, placeholder],
   )
 
   useEffect(() => {
@@ -284,7 +299,7 @@ export function TextInput({
         }
       },
     },
-    [modeClass],
+    [modeClass, markdownDecorator],
   )
 
   const onEmojiInserted = useCallback(

@@ -31,12 +31,13 @@
 import {type RichText as RichTextAPI, type RichTextSegment} from '@atproto/api'
 
 import {
+  type EmphasisMatch,
   type EmphasisStyle,
   findEmphasis,
   hasEmphasis,
   styleAt,
 } from './emphasis'
-import {type CodeToken, findCodeSpans, hasCode} from './parse'
+import {type CodeSpan, type CodeToken, findCodeSpans, hasCode} from './parse'
 
 export type RichTextItem =
   /** A facet segment (mention/link/tag) rendered whole, optionally styled. */
@@ -47,6 +48,10 @@ export type RichTextItem =
   | {kind: 'code'; token: Exclude<CodeToken, {type: 'text'}>}
 
 type Range = {start: number; end: number}
+
+export type FormattingRange =
+  | ({kind: 'code'} & CodeSpan)
+  | ({kind: 'emphasis'} & EmphasisMatch)
 
 /** Fast guard: skip the whole pipeline for text with no formatting markers. */
 export function hasFormatting(text: string): boolean {
@@ -69,6 +74,41 @@ function covering(ranges: readonly Range[], index: number): Range | undefined {
   return ranges.find(r => index >= r.start && index < r.end)
 }
 
+function formattingContext(richText: RichTextAPI) {
+  const text = richText.text
+  const codeSpans = findCodeSpans(text)
+
+  const placed: {start: number; end: number; segment: RichTextSegment}[] = []
+  let cursor = 0
+  for (const segment of richText.segments()) {
+    const start = cursor
+    cursor += segment.text.length
+    placed.push({start, end: cursor, segment})
+  }
+
+  const facetRanges = placed
+    .filter(p => p.segment.facet && !codeSpans.some(c => overlaps(c, p)))
+    .map(({start, end}) => ({start, end}))
+
+  const emphasis = findEmphasis(text, [...codeSpans, ...facetRanges])
+  return {codeSpans, placed, emphasis}
+}
+
+/**
+ * Complete source ranges used by cursor-aware editors. Published rendering
+ * still consumes `segmentsWithCode`; both paths share the same precedence.
+ */
+export function findFormattingRanges(richText: RichTextAPI): FormattingRange[] {
+  const {codeSpans, emphasis} = formattingContext(richText)
+  return [
+    ...codeSpans.map(span => ({kind: 'code' as const, ...span})),
+    ...emphasis.matches.map(match => ({
+      kind: 'emphasis' as const,
+      ...match,
+    })),
+  ].sort((a, b) => a.start - b.start || b.end - a.end)
+}
+
 /**
  * Resolves `richText` into one ordered stream of items.
  *
@@ -82,27 +122,11 @@ export function segmentsWithCode(
   {renderCode = true}: {renderCode?: boolean} = {},
 ): RichTextItem[] {
   const text = richText.text
-  const codeSpans = findCodeSpans(text)
-
-  // Place each segment in the source text by accumulating lengths.
-  const placed: {start: number; end: number; segment: RichTextSegment}[] = []
-  let cursor = 0
-  for (const segment of richText.segments()) {
-    const start = cursor
-    cursor += segment.text.length
-    placed.push({start, end: cursor, segment})
-  }
-
-  // Facets that survive code (a facet inside a fence is part of the code) are
-  // opaque to emphasis, alongside the code spans themselves.
-  const facetRanges = placed
-    .filter(p => p.segment.facet && !codeSpans.some(c => overlaps(c, p)))
-    .map(({start, end}) => ({start, end}))
-
-  const {spans: emphasis, hidden} = findEmphasis(text, [
-    ...codeSpans,
-    ...facetRanges,
-  ])
+  const {
+    codeSpans,
+    placed,
+    emphasis: {spans: emphasis, hidden},
+  } = formattingContext(richText)
 
   const items: RichTextItem[] = []
 
