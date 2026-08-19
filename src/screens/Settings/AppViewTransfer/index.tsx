@@ -21,7 +21,10 @@ import {Check_Stroke2_Corner0_Rounded as CheckIcon} from '#/components/icons/Che
 import * as Layout from '#/components/Layout'
 import * as Prompt from '#/components/Prompt'
 import {Text} from '#/components/Typography'
-import {getTransferEndpoint} from '#/features/appViewTransfer/endpoints'
+import {
+  getTransferEndpoint,
+  isTransferEndpointId,
+} from '#/features/appViewTransfer/endpoints'
 import {
   createTransferCheckpoint,
   runAppViewTransfer,
@@ -64,11 +67,15 @@ export function AppViewTransferSettingsScreen({}: Props) {
   const abortRef = useRef<AbortController | undefined>(undefined)
   const confirmControl = Prompt.usePromptControl()
   const [error, setError] = useState<string>()
-  const [sourceId, setSourceId] = useState<TransferEndpointId>(
-    () => initialCheckpoint?.source.id ?? 'bluesky',
+  const [sourceId, setSourceId] = useState<TransferEndpointId>(() =>
+    isTransferEndpointId(initialCheckpoint?.source.id)
+      ? initialCheckpoint.source.id
+      : 'bluesky',
   )
-  const [destinationId, setDestinationId] = useState<TransferEndpointId>(
-    () => initialCheckpoint?.destination.id ?? 'blacksky',
+  const [destinationId, setDestinationId] = useState<TransferEndpointId>(() =>
+    isTransferEndpointId(initialCheckpoint?.destination.id)
+      ? initialCheckpoint.destination.id
+      : 'blacksky',
   )
   const [selectedCollections, setSelectedCollections] = useState<
     AppViewTransferCollectionId[]
