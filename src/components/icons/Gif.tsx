@@ -17,7 +17,7 @@ export const Gif_Stroke2_Corner0_Rounded = createTablerIcon({
 })
 
 /** Tabler: gif (outline) */
-export const GifSquare_Stroke2_Corner0_Rounded = createTablerIcon({
+export const GifSquare_Stroke2_Corner2_Rounded = createTablerIcon({
   paths: [
     'M8 8h-2a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2v-4h-1',
     'M12 8v8',

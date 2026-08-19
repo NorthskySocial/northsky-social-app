@@ -53,7 +53,10 @@ function render(ui: ReactElement) {
   return rtlRender(<I18nProvider i18n={i18n}>{ui}</I18nProvider>)
 }
 
-function view(uri: string, title?: string): CustomEmbedComponentProps['view'] {
+function view(
+  uri: CustomEmbedComponentProps['view']['uri'],
+  title?: string,
+): CustomEmbedComponentProps['view'] {
   return {uri, title: title ?? '', description: ''}
 }
 

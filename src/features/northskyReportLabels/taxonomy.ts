@@ -1,4 +1,4 @@
-import {ToolsOzoneReportDefs as OzoneReportDefs} from '@atproto/api'
+import {tools} from '#/lexicons'
 
 /**
  * Northsky label values that refine each report reason.
@@ -13,15 +13,18 @@ import {ToolsOzoneReportDefs as OzoneReportDefs} from '@atproto/api'
  * Northsky for that reason and the labels below stay unreachable.
  */
 export const REASON_TO_NORTHSKY_LABELS: Partial<
-  Record<OzoneReportDefs.ReasonType, readonly string[]>
+  Record<tools.ozone.report.defs.ReasonType, readonly string[]>
 > = {
-  [OzoneReportDefs.REASONHARASSMENTTARGETED]: ['harassment', 'stalking'],
-  [OzoneReportDefs.REASONHARASSMENTDOXXING]: ['doxing'],
-  [OzoneReportDefs.REASONHARASSMENTOTHER]: [
+  [tools.ozone.report.defs.reasonHarassmentTargeted.value]: [
+    'harassment',
+    'stalking',
+  ],
+  [tools.ozone.report.defs.reasonHarassmentDoxxing.value]: ['doxing'],
+  [tools.ozone.report.defs.reasonHarassmentOther.value]: [
     'apologia-abuse',
     'undermining-wrecking',
   ],
-  [OzoneReportDefs.REASONHARASSMENTHATESPEECH]: [
+  [tools.ozone.report.defs.reasonHarassmentHateSpeech.value]: [
     'ableism',
     'antisemitism',
     'islamophobia',
@@ -37,11 +40,20 @@ export const REASON_TO_NORTHSKY_LABELS: Partial<
     'transphobia',
     'apologia-transphobia',
   ],
-  [OzoneReportDefs.REASONCHILDSAFETYHARASSMENT]: ['endangering-minor'],
-  [OzoneReportDefs.REASONSEXUALUNLABELED]: ['nsfw-doesnt-tag'],
-  [OzoneReportDefs.REASONSEXUALANIMAL]: ['bestiality', 'apologia-zoophilia'],
-  [OzoneReportDefs.REASONVIOLENCEGRAPHICCONTENT]: ['graphic-media'],
-  [OzoneReportDefs.REASONMISLEADINGIMPERSONATION]: ['impersonation'],
+  [tools.ozone.report.defs.reasonChildSafetyHarassment.value]: [
+    'endangering-minor',
+  ],
+  [tools.ozone.report.defs.reasonSexualUnlabeled.value]: ['nsfw-doesnt-tag'],
+  [tools.ozone.report.defs.reasonSexualAnimal.value]: [
+    'bestiality',
+    'apologia-zoophilia',
+  ],
+  [tools.ozone.report.defs.reasonViolenceGraphicContent.value]: [
+    'graphic-media',
+  ],
+  [tools.ozone.report.defs.reasonMisleadingImpersonation.value]: [
+    'impersonation',
+  ],
 }
 
 /**
@@ -64,7 +76,7 @@ export const EXCLUDED_NORTHSKY_LABELS: readonly string[] = [
 
 /** The Northsky label values that refine the given reason, if any. */
 export function getNorthskyLabelsForReason(
-  reason: OzoneReportDefs.ReasonType,
+  reason: tools.ozone.report.defs.ReasonType,
 ): readonly string[] {
   return REASON_TO_NORTHSKY_LABELS[reason] ?? []
 }

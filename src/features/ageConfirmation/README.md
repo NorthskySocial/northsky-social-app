@@ -14,9 +14,10 @@ age, so the app keeps the upstream date field and asks nothing extra.
 
 ## Why a synthetic birthdate
 
-The app cannot store a boolean age declaration. `DeclaredAgePref`
-(`isOverAge13` / `isOverAge16` / `isOverAge18`) in `@atproto/api` is read-only,
-and the PDS derives it from the birthdate that `setPersonalDetails` writes.
+The app cannot store a boolean age declaration. The `declaredAge` preference
+(`isOverAge13` / `isOverAge16` / `isOverAge18`, part of `BskyPreferences` in
+`@bsky/sdk`) is read-only, and the PDS derives it from the birthdate that
+`setPersonalDetails` writes.
 
 So `birthdateFromAgeConfirmation` turns the answers into a birthdate:
 

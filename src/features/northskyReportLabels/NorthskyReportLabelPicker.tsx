@@ -1,5 +1,5 @@
 import {View} from 'react-native'
-import {type InterpretedLabelValueDefinition} from '@atproto/api'
+import {type InterpretedLabelValueDefinition} from '@bsky/sdk/moderation'
 import {useLingui} from '@lingui/react/macro'
 
 import {useGlobalLabelStrings} from '#/lib/moderation/useGlobalLabelStrings'

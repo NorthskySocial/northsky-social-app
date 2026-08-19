@@ -1,4 +1,6 @@
-import {BSKY_LABELER_DID, type Did} from '@atproto/api'
+import {type Service} from '@atproto/lex'
+import {type DidString} from '@atproto/syntax'
+import {api} from '@bsky/sdk'
 
 import {BRAND} from './config'
 
@@ -13,13 +15,13 @@ export interface HostModerationInfo {
   /** Operator name, shown to the user. */
   name: string
   tosUrl: string
-  modServiceDid: Did
+  modServiceDid: DidString
 }
 
 const BLUESKY: HostModerationInfo = {
   name: 'Bluesky Social',
   tosUrl: 'https://bsky.social/about/support/tos',
-  modServiceDid: BSKY_LABELER_DID,
+  modServiceDid: api.moderation.did,
 }
 
 /** Keyed by lower-case PDS hostname, i.e. `new URL(account.service).hostname`. */
@@ -71,12 +73,18 @@ export function getHostModerationInfo(
  * An app labeler also gets server-side redaction authority, so it can take
  * content down for every user of the app. See AGENTS.md section 4.
  */
-export const APP_LABELER_DIDS: Did[] = [
+export const APP_LABELER_DIDS: DidString[] = [
   getHostModerationInfo(BRAND.pdsServiceUrl).modServiceDid,
-  BSKY_LABELER_DID,
+  api.moderation.did,
 ]
 
-export function getHostModServiceHeaders(serviceUrl: string | undefined) {
+/**
+ * The per-call proxy target for the moderation service of the given PDS host,
+ * for the `service` option of `client.call`.
+ */
+export function getHostModServiceProxy(
+  serviceUrl: string | undefined,
+): Service {
   const {modServiceDid} = getHostModerationInfo(serviceUrl)
-  return {'atproto-proxy': `${modServiceDid}#atproto_labeler`}
+  return `${modServiceDid}#atproto_labeler`
 }

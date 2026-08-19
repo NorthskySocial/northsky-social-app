@@ -54,9 +54,10 @@ export function withLegalAdultAnswer(
 /**
  * Converts the answers into the birthdate the rest of the app already reads.
  *
- * The app has no way to store a boolean age declaration. `DeclaredAgePref` in
- * `@atproto/api` is read-only, and the PDS derives it from the birthdate that
- * `setPersonalDetails` writes. So the answers become a synthetic birthdate,
+ * The app has no way to store a boolean age declaration. The `declaredAge`
+ * preference (`BskyPreferences` in `@bsky/sdk`) is read-only, and the PDS
+ * derives it from the birthdate that `setPersonalDetails` writes. So the
+ * answers become a synthetic birthdate,
  * and every consumer of `declaredAge` keeps working without a change.
  *
  * A person who denies the minimum access age gets a birthdate below that

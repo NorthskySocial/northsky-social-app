@@ -1,4 +1,3 @@
-import {type AppBskyActorSearchActors} from '@atproto/api'
 import {
   type InfiniteData,
   keepPreviousData,
@@ -8,8 +7,9 @@ import {
 } from '@tanstack/react-query'
 
 import {STALE} from '#/state/queries'
-import {useAgent, useAppview} from '#/state/session'
+import {useAppview, useAppviewClient} from '#/state/session'
 import {searchProxyOpts} from '#/brand/searchRouting' // northsky: search routing
+import {app} from '#/lexicons'
 
 export const RQKEY_ROOT = 'actor-search'
 export const RQKEY = (query: string, limit?: number) => [
@@ -29,12 +29,12 @@ export function useActorSearch({
   maintainData?: boolean
   limit?: number
 }) {
-  const agent = useAgent()
+  const client = useAppviewClient()
   const appview = useAppview() // northsky: search may be pinned to another appview
   return useInfiniteQuery<
-    AppBskyActorSearchActors.OutputSchema,
+    app.bsky.actor.searchActors.$OutputBody,
     Error,
-    InfiniteData<AppBskyActorSearchActors.OutputSchema>,
+    InfiniteData<app.bsky.actor.searchActors.$OutputBody>,
     QueryKey,
     string | undefined
   >({
@@ -42,7 +42,8 @@ export function useActorSearch({
     // northsky: appended appview so switching accounts does not reuse results
     queryKey: [...RQKEY(query, limit), appview.did],
     queryFn: async ({pageParam}) => {
-      const res = await agent.searchActors(
+      return await client.call(
+        app.bsky.actor.searchActors,
         {
           q: query,
           limit,
@@ -50,7 +51,6 @@ export function useActorSearch({
         },
         searchProxyOpts(appview), // northsky: appviews without actor search route elsewhere
       )
-      return res.data
     },
     enabled: enabled && !!query,
     initialPageParam: undefined,
@@ -60,7 +60,7 @@ export function useActorSearch({
   })
 }
 
-function select(data: InfiniteData<AppBskyActorSearchActors.OutputSchema>) {
+function select(data: InfiniteData<app.bsky.actor.searchActors.$OutputBody>) {
   // enforce uniqueness
   const dids = new Set()
 
@@ -83,7 +83,7 @@ export function* findAllProfilesInQueryData(
   did: string,
 ) {
   const queryDatas = queryClient.getQueriesData<
-    InfiniteData<AppBskyActorSearchActors.OutputSchema>
+    InfiniteData<app.bsky.actor.searchActors.$OutputBody>
   >({
     queryKey: [RQKEY_ROOT],
   })

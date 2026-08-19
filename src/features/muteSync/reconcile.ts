@@ -1,7 +1,9 @@
-import {type AtpAgent} from '@atproto/api'
+import {type Client} from '@atproto/lex'
+import {type AtUriString, type DidString} from '@atproto/syntax'
 
 import {logger} from '#/logger'
 import {type AppView} from '#/brand/appview'
+import {app} from '#/lexicons'
 import {type FallbackProxyOpts, fallbackProxyOpts} from './fanout'
 import {runImportMuteWrite, trackUserMuteWrites} from './ordering'
 
@@ -27,47 +29,49 @@ interface MuteSnapshot<T> {
 }
 
 async function collectListMutes(
-  agent: AtpAgent,
+  client: Client,
   opts?: FallbackProxyOpts,
-): Promise<MuteSnapshot<Set<string>>> {
-  const uris = new Set<string>()
+): Promise<MuteSnapshot<Set<AtUriString>>> {
+  const uris = new Set<AtUriString>()
   let cursor: string | undefined
   let page = 0
   do {
-    const res = await agent.app.bsky.graph.getListMutes(
+    const res = await client.call(
+      app.bsky.graph.getListMutes,
       {limit: PAGE_SIZE, cursor},
       opts,
     )
-    for (const list of res.data.lists) {
+    for (const list of res.lists) {
       uris.add(list.uri)
     }
     /* An empty page is the end, even when the appview returns a cursor. */
-    cursor = res.data.lists.length > 0 ? res.data.cursor : undefined
+    cursor = res.lists.length > 0 ? res.cursor : undefined
     page++
   } while (cursor && page < MAX_PAGES)
   return {entries: uris, truncated: Boolean(cursor)}
 }
 
 async function collectActorMutes(
-  agent: AtpAgent,
+  client: Client,
   opts?: FallbackProxyOpts,
-): Promise<MuteSnapshot<Map<string, MuteFlavor>>> {
-  const mutes = new Map<string, MuteFlavor>()
+): Promise<MuteSnapshot<Map<DidString, MuteFlavor>>> {
+  const mutes = new Map<DidString, MuteFlavor>()
   let cursor: string | undefined
   let page = 0
   do {
-    const res = await agent.app.bsky.graph.getMutes(
+    const res = await client.call(
+      app.bsky.graph.getMutes,
       {limit: PAGE_SIZE, cursor},
       opts,
     )
-    for (const profile of res.data.mutes) {
+    for (const profile of res.mutes) {
       mutes.set(profile.did, {
         onlyReposts: Boolean(profile.viewer?.mutedOnlyReposts),
         onlyQuoteposts: Boolean(profile.viewer?.mutedOnlyQuoteposts),
       })
     }
     /* An empty page is the end, even when the appview returns a cursor. */
-    cursor = res.data.mutes.length > 0 ? res.data.cursor : undefined
+    cursor = res.mutes.length > 0 ? res.cursor : undefined
     page++
   } while (cursor && page < MAX_PAGES)
   return {entries: mutes, truncated: Boolean(cursor)}
@@ -93,15 +97,16 @@ async function collectActorMutes(
  * a complete one.
  */
 export async function reconcileMutes(
-  agent: AtpAgent,
+  client: Client,
   appview: AppView,
+  did: string | undefined,
 ): Promise<void> {
-  const opts = fallbackProxyOpts(appview, agent.session?.did)
-  if (!opts || !agent.session) {
+  const opts = fallbackProxyOpts(appview, did)
+  if (!opts || !did) {
     return
   }
   try {
-    await trackUserMuteWrites(() => importMissingMutes(agent, opts))
+    await trackUserMuteWrites(() => importMissingMutes(client, opts))
   } catch (e) {
     logger.warn('muteSync: mute reconciliation failed', {safeMessage: e})
   }
@@ -113,15 +118,15 @@ export async function reconcileMutes(
  * the snapshot was read is dropped instead of restored.
  */
 async function importMissingMutes(
-  agent: AtpAgent,
+  client: Client,
   opts: FallbackProxyOpts,
 ): Promise<void> {
   const [sourceLists, targetLists, sourceActors, targetActors] =
     await Promise.all([
-      collectListMutes(agent, opts),
-      collectListMutes(agent),
-      collectActorMutes(agent, opts),
-      collectActorMutes(agent),
+      collectListMutes(client, opts),
+      collectListMutes(client),
+      collectActorMutes(client, opts),
+      collectActorMutes(client),
     ])
 
   const truncated =
@@ -152,14 +157,14 @@ async function importMissingMutes(
     ...missingLists.map(
       list => () =>
         runImportMuteWrite(list, () =>
-          agent.app.bsky.graph.muteActorList({list}),
+          client.call(app.bsky.graph.muteActorList, {list}),
         ),
     ),
     ...missingActors.map(
       ([actor, flavor]) =>
         () =>
           runImportMuteWrite(actor, () =>
-            agent.app.bsky.graph.muteActor({
+            client.call(app.bsky.graph.muteActor, {
               actor,
               ...(flavor.onlyReposts ? {onlyReposts: true} : {}),
               ...(flavor.onlyQuoteposts ? {onlyQuoteposts: true} : {}),

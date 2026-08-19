@@ -1,12 +1,11 @@
 import {
-  type AppBskyLabelerDefs,
   type InterpretedLabelValueDefinition,
   interpretLabelValueDefinitions,
-  type ToolsOzoneReportDefs as OzoneReportDefs,
-} from '@atproto/api'
+} from '@bsky/sdk/moderation'
 
 import {BRAND} from '#/brand/config'
 import {getHostModerationInfo} from '#/brand/moderation'
+import {type app, type tools} from '#/lexicons'
 import {getNorthskyLabelsForReason} from './taxonomy'
 
 const NORTHSKY_MOD_SERVICE_DID = getHostModerationInfo(
@@ -57,8 +56,8 @@ export function resolveNorthskyReportLabels({
   labelers,
   recipientDid,
 }: {
-  reason?: OzoneReportDefs.ReasonType
-  labelers?: AppBskyLabelerDefs.LabelerViewDetailed[]
+  reason?: tools.ozone.report.defs.ReasonType
+  labelers?: app.bsky.labeler.defs.LabelerViewDetailed[]
   /** The chosen service, if the reporter has chosen one yet. */
   recipientDid?: string
 }): InterpretedLabelValueDefinition[] {

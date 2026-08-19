@@ -1,5 +1,5 @@
 import {useCallback, useMemo} from 'react'
-import {moderateProfile, type ModerationOpts} from '@atproto/api'
+import {moderateProfile, type ModerationOpts} from '@bsky/sdk/moderation'
 import {keepPreviousData, useQuery} from '@tanstack/react-query'
 
 import {isJustAMute, moduiContainsHideableOffense} from '#/lib/moderation'
@@ -8,7 +8,7 @@ import {searchActorsTypeaheadVia} from '#/lib/typeahead/client'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {STALE} from '#/state/queries'
 import {DEFAULT_LOGGED_OUT_PREFERENCES} from '#/state/queries/preferences'
-import {useAgent, useAppview} from '#/state/session'
+import {useAppview, useAppviewClient} from '#/state/session'
 import {
   type AutocompleteApi,
   type AutocompleteItem,
@@ -33,7 +33,7 @@ export function useAutocomplete({
   limit?: number
   showSearchFallback?: boolean
 }): AutocompleteApi {
-  const agent = useAgent()
+  const client = useAppviewClient()
   const appview = useAppview() // northsky: typeahead may come from another service
   const moderationOpts = useModerationOpts()
   const emojiSearch = useEmojiSearch()
@@ -58,7 +58,7 @@ export function useAutocomplete({
         q = q.toLowerCase().trim().replace(/\.$/, '')
 
         // northsky: appviews without typeahead use the brand service
-        const actors = await searchActorsTypeaheadVia(appview, agent, {
+        const actors = await searchActorsTypeaheadVia(appview, client, {
           q,
           limit: limit || 8,
         })

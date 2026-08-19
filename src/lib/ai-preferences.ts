@@ -1,6 +1,6 @@
 /**
  * northsky: types and pure helpers for the community.lexicon.preference.ai
- * lexicon, which has no codegen in `@atproto/api`. See
+ * lexicon, which has no generated schema in `#/lexicons`. See
  * https://lexicon.garden/lexicon/did:plc:mtr7qrqtcyseedx3jyr5o7db/community.lexicon.preference.ai
  */
 export const AI_PREFERENCES_COLLECTION = 'community.lexicon.preference.ai'

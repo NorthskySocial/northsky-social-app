@@ -1,6 +1,7 @@
-import {type AtpAgent} from '@atproto/api'
+import {type Client} from '@atproto/lex'
 
 import {type AppView} from '#/brand/appview'
+import {app} from '#/lexicons'
 import {searchActorsTypeaheadVia} from '../client'
 
 const mockFetch = jest.fn()
@@ -25,17 +26,32 @@ const KUSANAGI = {did: 'did:plc:kusanagi', handle: 'kusanagi.northsky.social'}
 const FAYE = {did: 'did:plc:faye', handle: 'faye.northsky.social'}
 const UTENA = {did: 'did:plc:utena', handle: 'utena.northsky.social'}
 
-function makeAgent({
+/**
+ * A lex client stub that dispatches `call` to one jest mock per lexicon
+ * method, so tests can assert on each endpoint on its own.
+ */
+function makeClient({
   profiles = [],
   actors = [],
 }: {
   profiles?: unknown[]
   actors?: unknown[]
 } = {}) {
+  const searchActorsTypeahead = jest.fn().mockResolvedValue({actors})
+  const getProfiles = jest.fn().mockResolvedValue({profiles})
   return {
-    searchActorsTypeahead: jest.fn().mockResolvedValue({data: {actors}}),
-    getProfiles: jest.fn().mockResolvedValue({data: {profiles}}),
-  } as unknown as AtpAgent & {
+    call: (method: unknown, params: unknown) => {
+      if (method === app.bsky.actor.searchActorsTypeahead) {
+        return searchActorsTypeahead(params)
+      }
+      if (method === app.bsky.actor.getProfiles) {
+        return getProfiles(params)
+      }
+      throw new Error('unexpected lexicon method')
+    },
+    searchActorsTypeahead,
+    getProfiles,
+  } as unknown as Client & {
     searchActorsTypeahead: jest.Mock
     getProfiles: jest.Mock
   }
@@ -47,20 +63,20 @@ beforeEach(() => {
 
 describe('searchActorsTypeaheadVia', () => {
   it('uses the appview when it serves typeahead itself', async () => {
-    const agent = makeAgent({actors: [KUSANAGI]})
+    const client = makeClient({actors: [KUSANAGI]})
 
-    const result = await searchActorsTypeaheadVia(OWN_APPVIEW, agent, {
+    const result = await searchActorsTypeaheadVia(OWN_APPVIEW, client, {
       q: 'kusa',
       limit: 8,
     })
 
     expect(result).toEqual([KUSANAGI])
-    expect(agent.searchActorsTypeahead).toHaveBeenCalledWith({
+    expect(client.searchActorsTypeahead).toHaveBeenCalledWith({
       q: 'kusa',
       limit: 8,
     })
     expect(mockFetch).not.toHaveBeenCalled()
-    expect(agent.getProfiles).not.toHaveBeenCalled()
+    expect(client.getProfiles).not.toHaveBeenCalled()
   })
 
   /*
@@ -69,11 +85,11 @@ describe('searchActorsTypeaheadVia', () => {
    */
   it('hydrates viewer and labels from the account appview', async () => {
     serviceReturns([KUSANAGI])
-    const agent = makeAgent({
+    const client = makeClient({
       profiles: [{...KUSANAGI, viewer: {muted: true}, labels: [{val: 'spam'}]}],
     })
 
-    const result = await searchActorsTypeaheadVia(FALLBACK_APPVIEW, agent, {
+    const result = await searchActorsTypeaheadVia(FALLBACK_APPVIEW, client, {
       q: 'kusa',
       limit: 8,
     })
@@ -81,22 +97,22 @@ describe('searchActorsTypeaheadVia', () => {
     expect(result).toEqual([
       {...KUSANAGI, viewer: {muted: true}, labels: [{val: 'spam'}]},
     ])
-    expect(agent.getProfiles).toHaveBeenCalledWith({
+    expect(client.getProfiles).toHaveBeenCalledWith({
       actors: ['did:plc:kusanagi'],
     })
-    expect(agent.searchActorsTypeahead).not.toHaveBeenCalled()
+    expect(client.searchActorsTypeahead).not.toHaveBeenCalled()
   })
 
   /*
    * The service permits only Content-Type, Authorization, and X-Client at the
-   * CORS preflight. An atproto agent puts an `atproto-accept-labelers` header
-   * on every request, which the browser then blocks. The request must carry
-   * only the attribution header.
+   * CORS preflight. A lex client puts an `atproto-accept-labelers` header on
+   * every request, which the browser then blocks. The request must carry only
+   * the attribution header.
    */
   it('sends only the attribution header to the service', async () => {
     serviceReturns([])
 
-    await searchActorsTypeaheadVia(FALLBACK_APPVIEW, makeAgent(), {
+    await searchActorsTypeaheadVia(FALLBACK_APPVIEW, makeClient(), {
       q: 'faye',
       limit: 8,
     })
@@ -118,27 +134,27 @@ describe('searchActorsTypeaheadVia', () => {
       status: 200,
       json: () => Promise.resolve({actors: 'kusanagi'}),
     })
-    const agent = makeAgent()
+    const client = makeClient()
 
-    const result = await searchActorsTypeaheadVia(FALLBACK_APPVIEW, agent, {
+    const result = await searchActorsTypeaheadVia(FALLBACK_APPVIEW, client, {
       q: 'kusa',
       limit: 8,
     })
 
     expect(result).toEqual([])
-    expect(agent.getProfiles).not.toHaveBeenCalled()
+    expect(client.getProfiles).not.toHaveBeenCalled()
   })
 
   it('drops entries that carry no DID', async () => {
     serviceReturns([KUSANAGI, null, {handle: 'ghost.northsky.social'}])
-    const agent = makeAgent({profiles: [KUSANAGI]})
+    const client = makeClient({profiles: [KUSANAGI]})
 
-    const result = await searchActorsTypeaheadVia(FALLBACK_APPVIEW, agent, {
+    const result = await searchActorsTypeaheadVia(FALLBACK_APPVIEW, client, {
       q: 'kusa',
       limit: 8,
     })
 
-    expect(agent.getProfiles).toHaveBeenCalledWith({
+    expect(client.getProfiles).toHaveBeenCalledWith({
       actors: ['did:plc:kusanagi'],
     })
     expect(result.map(actor => actor.did)).toEqual(['did:plc:kusanagi'])
@@ -152,7 +168,7 @@ describe('searchActorsTypeaheadVia', () => {
     })
 
     await expect(
-      searchActorsTypeaheadVia(FALLBACK_APPVIEW, makeAgent(), {
+      searchActorsTypeaheadVia(FALLBACK_APPVIEW, makeClient(), {
         q: 'faye',
         limit: 8,
       }),
@@ -162,9 +178,9 @@ describe('searchActorsTypeaheadVia', () => {
   it('keeps the ranking the service returned', async () => {
     serviceReturns([UTENA, KUSANAGI, FAYE])
     // The appview answers in a different order.
-    const agent = makeAgent({profiles: [FAYE, UTENA, KUSANAGI]})
+    const client = makeClient({profiles: [FAYE, UTENA, KUSANAGI]})
 
-    const result = await searchActorsTypeaheadVia(FALLBACK_APPVIEW, agent, {
+    const result = await searchActorsTypeaheadVia(FALLBACK_APPVIEW, client, {
       q: 'a',
       limit: 8,
     })
@@ -183,9 +199,11 @@ describe('searchActorsTypeaheadVia', () => {
    */
   it('drops an account the appview does not return', async () => {
     serviceReturns([KUSANAGI, FAYE])
-    const agent = makeAgent({profiles: [{...KUSANAGI, viewer: {muted: true}}]})
+    const client = makeClient({
+      profiles: [{...KUSANAGI, viewer: {muted: true}}],
+    })
 
-    const result = await searchActorsTypeaheadVia(FALLBACK_APPVIEW, agent, {
+    const result = await searchActorsTypeaheadVia(FALLBACK_APPVIEW, client, {
       q: 'a',
       limit: 8,
     })
@@ -205,14 +223,14 @@ describe('searchActorsTypeaheadVia', () => {
       handle: `actor${i}.northsky.social`,
     }))
     serviceReturns(many)
-    const agent = makeAgent({profiles: many.slice(0, 25)})
+    const client = makeClient({profiles: many.slice(0, 25)})
 
-    const result = await searchActorsTypeaheadVia(FALLBACK_APPVIEW, agent, {
+    const result = await searchActorsTypeaheadVia(FALLBACK_APPVIEW, client, {
       q: 'actor',
       limit: 30,
     })
 
-    expect(agent.getProfiles).toHaveBeenCalledWith({
+    expect(client.getProfiles).toHaveBeenCalledWith({
       actors: many.slice(0, 25).map(a => a.did),
     })
     expect(result).toHaveLength(25)
@@ -220,20 +238,20 @@ describe('searchActorsTypeaheadVia', () => {
 
   it('asks for each account once', async () => {
     serviceReturns([KUSANAGI, KUSANAGI, FAYE])
-    const agent = makeAgent({profiles: [KUSANAGI, FAYE]})
+    const client = makeClient({profiles: [KUSANAGI, FAYE]})
 
-    await searchActorsTypeaheadVia(FALLBACK_APPVIEW, agent, {q: 'a', limit: 8})
+    await searchActorsTypeaheadVia(FALLBACK_APPVIEW, client, {q: 'a', limit: 8})
 
-    expect(agent.getProfiles).toHaveBeenCalledWith({
+    expect(client.getProfiles).toHaveBeenCalledWith({
       actors: ['did:plc:kusanagi', 'did:plc:faye'],
     })
   })
 
   it('returns each account once', async () => {
     serviceReturns([KUSANAGI, KUSANAGI, FAYE])
-    const agent = makeAgent({profiles: [KUSANAGI, FAYE]})
+    const client = makeClient({profiles: [KUSANAGI, FAYE]})
 
-    const result = await searchActorsTypeaheadVia(FALLBACK_APPVIEW, agent, {
+    const result = await searchActorsTypeaheadVia(FALLBACK_APPVIEW, client, {
       q: 'a',
       limit: 8,
     })
@@ -246,15 +264,15 @@ describe('searchActorsTypeaheadVia', () => {
 
   it('skips hydration when the service returns nothing', async () => {
     serviceReturns([])
-    const agent = makeAgent()
+    const client = makeClient()
 
-    const result = await searchActorsTypeaheadVia(FALLBACK_APPVIEW, agent, {
+    const result = await searchActorsTypeaheadVia(FALLBACK_APPVIEW, client, {
       q: 'nobody',
       limit: 8,
     })
 
     expect(result).toEqual([])
-    expect(agent.getProfiles).not.toHaveBeenCalled()
+    expect(client.getProfiles).not.toHaveBeenCalled()
   })
 
   /*
@@ -263,11 +281,11 @@ describe('searchActorsTypeaheadVia', () => {
    */
   it('propagates a hydration failure', async () => {
     serviceReturns([KUSANAGI])
-    const agent = makeAgent()
-    agent.getProfiles.mockRejectedValue(new Error('appview down'))
+    const client = makeClient()
+    client.getProfiles.mockRejectedValue(new Error('appview down'))
 
     await expect(
-      searchActorsTypeaheadVia(FALLBACK_APPVIEW, agent, {q: 'kusa', limit: 8}),
+      searchActorsTypeaheadVia(FALLBACK_APPVIEW, client, {q: 'kusa', limit: 8}),
     ).rejects.toThrow('appview down')
   })
 })

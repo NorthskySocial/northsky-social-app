@@ -1,11 +1,11 @@
 import {type ComponentType} from 'react'
-import {type AppBskyEmbedExternal} from '@atproto/api'
 
 import {tangledStringHandler} from '#/features/customEmbeds/tangledString'
 import {
   type CustomEmbedComponentProps,
   type CustomEmbedHandler,
 } from '#/features/customEmbeds/types'
+import {type app} from '#/lexicons'
 
 /**
  * northsky: ordered list of custom embed handlers. To add one, implement a
@@ -16,7 +16,7 @@ import {
 const handlers: CustomEmbedHandler[] = [tangledStringHandler]
 
 export function matchCustomEmbed(
-  view: AppBskyEmbedExternal.ViewExternal,
+  view: app.bsky.embed.external.ViewExternal,
 ): CustomEmbedHandler | null {
   return handlers.find(handler => handler.match(view)) ?? null
 }
@@ -30,7 +30,7 @@ export function matchCustomEmbed(
  * composing.
  */
 export function matchCustomEmbedPreview(
-  view: AppBskyEmbedExternal.ViewExternal,
+  view: app.bsky.embed.external.ViewExternal,
 ): ComponentType<CustomEmbedComponentProps> | null {
   const handler = matchCustomEmbed(view)
   if (!handler) return null

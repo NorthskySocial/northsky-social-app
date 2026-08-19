@@ -2,20 +2,37 @@ import {useCallback, useEffect} from 'react'
 import {Platform} from 'react-native'
 import * as Notifications from 'expo-notifications'
 import {getBadgeCountAsync, setBadgeCountAsync} from 'expo-notifications'
-import {type AppBskyNotificationRegisterPush, type AtpAgent} from '@atproto/api'
+import {type Client, type Service} from '@atproto/lex'
 import debounce from 'lodash.debounce'
 
 import {PUBLIC_STAGING_APPVIEW_DID} from '#/lib/constants'
 import {logger as notyLogger} from '#/lib/notifications/util'
 import {isNetworkError} from '#/lib/strings/errors'
-import {type SessionAccount, useAgent, useSession} from '#/state/session'
-// northsky: register push with the appview routed for the account
-import {getAppviewForAgent} from '#/state/session/agent'
+import {type SessionAccount, usePdsClient, useSession} from '#/state/session'
 import BackgroundNotificationHandler from '#/../modules/expo-background-notification-handler'
 import {useAgeAssurance} from '#/ageAssurance'
 import {useAnalytics} from '#/analytics'
-import {type AppView, FALLBACK_APPVIEW} from '#/brand/appview'
+// northsky: register push with the appview routed for the account
+import {
+  type AppView,
+  FALLBACK_APPVIEW,
+  resolveAppViewForService,
+} from '#/brand/appview'
 import {IS_DEV, IS_NATIVE} from '#/env'
+import {app} from '#/lexicons'
+
+/**
+ * A resumed single-use account client paired with the account's service origin
+ * and handle. Produced by `createTemporaryClientsAndResume` (session util) and
+ * consumed by {@link unregisterPushToken}, which needs the service host to pick
+ * the appview DID and the handle for a debug log line without reaching into the
+ * session internals.
+ */
+export type TemporaryPushClient = {
+  client: Client
+  service: string
+  handle: string
+}
 
 /*
  * northsky: helpers so register/unregister talk to the notif service of the
@@ -28,8 +45,8 @@ function notifServiceDid(appview: AppView, service: string | undefined) {
     : appview.did
 }
 
-function notifServiceHeaders(appview: AppView) {
-  return {'atproto-proxy': `${appview.did}#bsky_notif`}
+function notifProxyService(appview: AppView): Service {
+  return `${appview.did}#bsky_notif`
 }
 
 /**
@@ -37,12 +54,12 @@ function notifServiceHeaders(appview: AppView) {
  * Registers the device's push notification token with the Bluesky server.
  */
 async function _registerPushToken({
-  agent,
+  client,
   currentAccount,
   token,
   extra = {},
 }: {
-  agent: AtpAgent
+  client: Client
   currentAccount: SessionAccount
   token: Notifications.DevicePushToken
   extra?: {
@@ -54,8 +71,8 @@ async function _registerPushToken({
      * northsky: a route match points to the correct appview for the account.
      * Apply the staging-vs-prod special case only on the fallback appview.
      */
-    const appview = getAppviewForAgent(agent)
-    const payload: AppBskyNotificationRegisterPush.InputSchema = {
+    const appview = resolveAppViewForService(currentAccount.service)
+    const payload: app.bsky.notification.registerPush.$InputBody = {
       serviceDid: notifServiceDid(appview, currentAccount.service),
       platform: Platform.OS,
       token: token.data,
@@ -65,8 +82,9 @@ async function _registerPushToken({
 
     notyLogger.debug(`registerPushToken: registering`, {...payload})
 
-    await agent.app.bsky.notification.registerPush(payload, {
-      headers: notifServiceHeaders(appview),
+    await client.call(app.bsky.notification.registerPush, payload, {
+      // northsky: route to the notif service of the account's appview
+      service: notifProxyService(appview),
     })
 
     notyLogger.debug(`registerPushToken: success`)
@@ -91,7 +109,7 @@ const _registerPushTokenDebounced = debounce(_registerPushToken, 100)
  * `_registerPushTokenDebounced` directly.
  */
 export function useRegisterPushToken() {
-  const agent = useAgent()
+  const client = usePdsClient()
   const {currentAccount} = useSession()
 
   return useCallback(
@@ -104,7 +122,7 @@ export function useRegisterPushToken() {
     }) => {
       if (!currentAccount) return
       return _registerPushTokenDebounced({
-        agent,
+        client,
         currentAccount,
         token,
         extra: {
@@ -112,7 +130,7 @@ export function useRegisterPushToken() {
         },
       })
     },
-    [agent, currentAccount],
+    [client, currentAccount],
   )
 }
 
@@ -343,27 +361,28 @@ export async function resetBadgeCount() {
   await setBadgeCountAsync(0)
 }
 
-export async function unregisterPushToken(agents: AtpAgent[]) {
+export async function unregisterPushToken(clients: TemporaryPushClient[]) {
   if (!IS_NATIVE) return
 
   try {
     const token = await getPushToken()
     if (token) {
-      for (const agent of agents) {
+      for (const {client, service, handle} of clients) {
         // northsky: unregister against the appview routed for each account
-        const appview = getAppviewForAgent(agent)
-        await agent.app.bsky.notification.unregisterPush(
+        const appview = resolveAppViewForService(service)
+        await client.call(
+          app.bsky.notification.unregisterPush,
           {
-            serviceDid: notifServiceDid(appview, agent.serviceUrl.hostname),
+            serviceDid: notifServiceDid(appview, service),
             platform: Platform.OS,
             token: token.data,
             appId: 'xyz.blueskyweb.app',
           },
           {
-            headers: notifServiceHeaders(appview),
+            service: notifProxyService(appview),
           },
         )
-        notyLogger.debug(`Push token unregistered for ${agent.session?.handle}`)
+        notyLogger.debug(`Push token unregistered for ${handle}`)
       }
     } else {
       notyLogger.debug('Tried to unregister push token, but could not find one')

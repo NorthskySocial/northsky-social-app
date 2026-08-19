@@ -1,14 +1,13 @@
+import {type $Typed, type LexMap} from '@atproto/lex'
 import {
-  type $Typed,
-  type AppBskyActorDefs,
-  type AppBskyEmbedExternal,
-  type AppBskyEmbedImages,
-  type AppBskyEmbedRecord,
-  type AppBskyEmbedRecordWithMedia,
-  type AppBskyFeedDefs,
-  AppBskyFeedPost,
-} from '@atproto/api'
+  type AtUriString,
+  type DatetimeString,
+  toDatetimeString,
+  type UriString,
+} from '@atproto/syntax'
 
+import {app} from '#/lexicons'
+import * as bsky from '#/types/bsky'
 import {buildPdsBlobUrl} from './blobs'
 import {type PostInteractionCounts, type SlingshotMiniDoc} from './types'
 
@@ -30,29 +29,34 @@ function isBlobRef(v: unknown): v is BlobRef {
   )
 }
 
+/*
+ * Slingshot returns raw record JSON, so every URL and date below arrives as a
+ * plain string. The casts to the branded lexicon string types assert what the
+ * surrounding checks already established.
+ */
+
 function hydrateImagesEmbed(
   embed: Record<string, unknown>,
   pdsUrl: string,
   did: string,
-): $Typed<AppBskyEmbedImages.View> | undefined {
+): $Typed<app.bsky.embed.images.View> | undefined {
   const images = embed.images
   if (!Array.isArray(images)) return undefined
 
-  const viewImages: AppBskyEmbedImages.ViewImage[] = []
+  const viewImages: app.bsky.embed.images.ViewImage[] = []
   for (const rawImg of images) {
     if (typeof rawImg !== 'object' || rawImg == null) continue
     const img = rawImg as Record<string, unknown>
     const blob = img.image
     if (!isBlobRef(blob)) continue
-    const url = buildPdsBlobUrl(pdsUrl, did, blob.ref.$link)
+    const url = buildPdsBlobUrl(pdsUrl, did, blob.ref.$link) as UriString
     viewImages.push({
       $type: 'app.bsky.embed.images#viewImage',
       thumb: url,
       fullsize: url,
       alt: typeof img.alt === 'string' ? img.alt : '',
-      aspectRatio: img.aspectRatio as
-        | {width: number; height: number}
-        | undefined,
+      aspectRatio:
+        img.aspectRatio as app.bsky.embed.images.ViewImage['aspectRatio'],
     })
   }
   if (viewImages.length === 0) return undefined
@@ -67,21 +71,21 @@ function hydrateExternalEmbed(
   embed: Record<string, unknown>,
   pdsUrl: string,
   did: string,
-): $Typed<AppBskyEmbedExternal.View> | undefined {
+): $Typed<app.bsky.embed.external.View> | undefined {
   const ext = embed.external
   if (typeof ext !== 'object' || ext == null) return undefined
   const e = ext as Record<string, unknown>
 
-  let thumb: string | undefined
+  let thumb: UriString | undefined
   if (isBlobRef(e.thumb)) {
-    thumb = buildPdsBlobUrl(pdsUrl, did, e.thumb.ref.$link)
+    thumb = buildPdsBlobUrl(pdsUrl, did, e.thumb.ref.$link) as UriString
   }
 
   return {
     $type: 'app.bsky.embed.external#view',
     external: {
       $type: 'app.bsky.embed.external#viewExternal',
-      uri: typeof e.uri === 'string' ? e.uri : '',
+      uri: (typeof e.uri === 'string' ? e.uri : '') as UriString,
       title: typeof e.title === 'string' ? e.title : '',
       description: typeof e.description === 'string' ? e.description : '',
       thumb,
@@ -91,7 +95,7 @@ function hydrateExternalEmbed(
 
 function hydrateRecordEmbed(
   embed: Record<string, unknown>,
-): $Typed<AppBskyEmbedRecord.View> | undefined {
+): $Typed<app.bsky.embed.record.View> | undefined {
   const record = embed.record
   if (typeof record !== 'object' || record == null) return undefined
   const r = record as Record<string, unknown>
@@ -104,7 +108,7 @@ function hydrateRecordEmbed(
     $type: 'app.bsky.embed.record#view',
     record: {
       $type: 'app.bsky.embed.record#viewNotFound',
-      uri,
+      uri: uri as AtUriString,
       notFound: true,
     },
   }
@@ -115,10 +119,10 @@ function hydrateEmbed(
   pdsUrl: string,
   did: string,
 ):
-  | $Typed<AppBskyEmbedImages.View>
-  | $Typed<AppBskyEmbedExternal.View>
-  | $Typed<AppBskyEmbedRecord.View>
-  | $Typed<AppBskyEmbedRecordWithMedia.View>
+  | $Typed<app.bsky.embed.images.View>
+  | $Typed<app.bsky.embed.external.View>
+  | $Typed<app.bsky.embed.record.View>
+  | $Typed<app.bsky.embed.recordWithMedia.View>
   | undefined {
   const type = rawEmbed.$type
 
@@ -155,19 +159,29 @@ function hydrateEmbed(
   return undefined
 }
 
+function hydrateIndexedAt(record: Record<string, unknown>): DatetimeString {
+  return typeof record.createdAt === 'string'
+    ? (record.createdAt as DatetimeString)
+    : toDatetimeString(new Date())
+}
+
+function hydrateAuthor(
+  miniDoc: SlingshotMiniDoc,
+): app.bsky.actor.defs.ProfileViewBasic {
+  return {
+    $type: 'app.bsky.actor.defs#profileViewBasic',
+    did: miniDoc.did as app.bsky.actor.defs.ProfileViewBasic['did'],
+    handle: miniDoc.handle as app.bsky.actor.defs.ProfileViewBasic['handle'],
+  }
+}
+
 export function hydratePostView(
   record: Record<string, unknown>,
   uri: string,
   cid: string,
   miniDoc: SlingshotMiniDoc,
   counts?: PostInteractionCounts,
-): AppBskyFeedDefs.PostView {
-  const author: AppBskyActorDefs.ProfileViewBasic = {
-    $type: 'app.bsky.actor.defs#profileViewBasic',
-    did: miniDoc.did,
-    handle: miniDoc.handle,
-  }
-
+): app.bsky.feed.defs.PostView {
   const rawEmbed = record.embed as Record<string, unknown> | undefined
   const embed = rawEmbed
     ? hydrateEmbed(rawEmbed, miniDoc.pds, miniDoc.did)
@@ -175,19 +189,16 @@ export function hydratePostView(
 
   return {
     $type: 'app.bsky.feed.defs#postView',
-    uri,
+    uri: uri as AtUriString,
     cid,
-    author,
-    record,
+    author: hydrateAuthor(miniDoc),
+    record: record as LexMap,
     embed,
     replyCount: counts?.replyCount ?? 0,
     repostCount: counts?.repostCount ?? 0,
     likeCount: counts?.likeCount ?? 0,
     quoteCount: counts?.quoteCount ?? 0,
-    indexedAt:
-      typeof record.createdAt === 'string'
-        ? record.createdAt
-        : new Date().toISOString(),
+    indexedAt: hydrateIndexedAt(record),
   }
 }
 
@@ -197,13 +208,7 @@ export function hydratePostViewRecord(
   cid: string,
   miniDoc: SlingshotMiniDoc,
   counts?: PostInteractionCounts,
-): $Typed<AppBskyEmbedRecord.ViewRecord> {
-  const author: AppBskyActorDefs.ProfileViewBasic = {
-    $type: 'app.bsky.actor.defs#profileViewBasic',
-    did: miniDoc.did,
-    handle: miniDoc.handle,
-  }
-
+): $Typed<app.bsky.embed.record.ViewRecord> {
   const rawEmbed = record.embed as Record<string, unknown> | undefined
   const embed = rawEmbed
     ? hydrateEmbed(rawEmbed, miniDoc.pds, miniDoc.did)
@@ -211,19 +216,16 @@ export function hydratePostViewRecord(
 
   return {
     $type: 'app.bsky.embed.record#viewRecord',
-    uri,
+    uri: uri as AtUriString,
     cid,
-    author,
-    value: record,
+    author: hydrateAuthor(miniDoc),
+    value: record as LexMap,
     embeds: embed ? [embed] : undefined,
     replyCount: counts?.replyCount ?? 0,
     repostCount: counts?.repostCount ?? 0,
     likeCount: counts?.likeCount ?? 0,
     quoteCount: counts?.quoteCount ?? 0,
-    indexedAt:
-      typeof record.createdAt === 'string'
-        ? record.createdAt
-        : new Date().toISOString(),
+    indexedAt: hydrateIndexedAt(record),
   }
 }
 
@@ -231,7 +233,7 @@ export function hydrateAvatarUrl(
   record: Record<string, unknown>,
   miniDoc: SlingshotMiniDoc,
 ): string | undefined {
-  if (!AppBskyFeedPost.isRecord(record)) {
+  if (!bsky.isType(app.bsky.feed.post, record)) {
     // This is a profile record, not a post
     const avatar = record.avatar
     if (!isBlobRef(avatar)) return undefined

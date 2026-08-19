@@ -1,6 +1,6 @@
 import {type ReactNode, useMemo} from 'react'
 import {type StyleProp, type TextStyle, View} from 'react-native'
-import {AppBskyRichtextFacet, RichText as RichTextAPI} from '@atproto/api'
+import {RichText as RichTextAPI} from '@bsky/sdk/richtext'
 
 // northsky: Markdown-style code and emphasis in post text
 import {hasEmphasis} from '#/lib/code/emphasis'
@@ -22,6 +22,8 @@ import {
 } from '#/components/RichTextCode'
 import {RichTextTag} from '#/components/RichTextTag'
 import {Text, type TextProps} from '#/components/Typography'
+import {app} from '#/lexicons'
+import * as bsky from '#/types/bsky'
 
 const WORD_WRAP = {wordWrap: 1}
 // lifted from facet detection in `RichText` impl, _without_ `gm` flags
@@ -275,7 +277,7 @@ export function RichText({
     if (
       mention &&
       (disableMentionFacetValidation ||
-        AppBskyRichtextFacet.validateMention(mention).success) &&
+        bsky.matches(app.bsky.richtext.facet.mention, mention)) &&
       !disableLinks
     ) {
       parts.push({
@@ -295,7 +297,7 @@ export function RichText({
           </ProfileHoverCard>
         ),
       })
-    } else if (link && AppBskyRichtextFacet.validateLink(link).success) {
+    } else if (link && bsky.matches(app.bsky.richtext.facet.link, link)) {
       const isValidLink = URL_REGEX.test(link.uri)
       if (!isValidLink || disableLinks) {
         parts.push({block: false, node: toShortUrl(segment.text)})
@@ -323,7 +325,7 @@ export function RichText({
       !disableLinks &&
       enableTags &&
       tag &&
-      AppBskyRichtextFacet.validateTag(tag).success
+      bsky.matches(app.bsky.richtext.facet.tag, tag)
     ) {
       parts.push({
         block: false,

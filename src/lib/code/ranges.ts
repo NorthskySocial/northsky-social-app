@@ -28,7 +28,7 @@
  * use on the wire. Segment text concatenates back to `richText.text`, so a
  * running length is enough to place each segment and no conversion is needed.
  */
-import {type RichText as RichTextAPI, type RichTextSegment} from '@atproto/api'
+import {type RichText as RichTextAPI} from '@bsky/sdk/richtext'
 
 import {
   type EmphasisStyle,
@@ -37,6 +37,13 @@ import {
   styleAt,
 } from './emphasis'
 import {type CodeToken, findCodeSpans, hasCode} from './parse'
+
+/*
+ * Derived from the `segments()` iterator so this file does not depend on the
+ * sdk exporting a named segment type.
+ */
+type RichTextSegment =
+  ReturnType<RichTextAPI['segments']> extends Iterable<infer T> ? T : never
 
 export type RichTextItem =
   /** A facet segment (mention/link/tag) rendered whole, optionally styled. */
@@ -114,7 +121,7 @@ export function segmentsWithCode(
       if (buffer) items.push({kind: 'text', text: buffer, style})
       buffer = ''
     }
-    for (let i = start; i < end; ) {
+    for (let i = start; i < end;) {
       const hide = covering(hidden, i)
       if (hide) {
         i = Math.min(hide.end, end)

@@ -1,5 +1,6 @@
 import {useMemo} from 'react'
 import {type StyleProp, View, type ViewStyle} from 'react-native'
+import {type UriString} from '@atproto/lex'
 
 import {cleanError} from '#/lib/strings/errors'
 import {
@@ -34,9 +35,9 @@ export const ExternalEmbedGif = ({
     () =>
       data && {
         title: data.title ?? data.uri,
-        uri: data.uri,
+        uri: data.uri as UriString,
         description: data.description ?? '',
-        thumb: data.thumb?.source.path,
+        thumb: data.thumb?.source.path as UriString | undefined,
       },
     [data],
   )
@@ -82,7 +83,7 @@ export const ExternalEmbedLink = ({
   hasQuote,
   onRemove,
 }: {
-  uri: string
+  uri: UriString
   hasQuote: boolean
   onRemove: () => void
 }) => {
@@ -97,7 +98,8 @@ export const ExternalEmbedLink = ({
           uri,
           title: data.title || uri,
           description: data.description || '',
-          thumb: data.thumb?.source.path,
+          /* a local composer file path stands in for the thumb URI here */
+          thumb: data.thumb?.source.path as UriString | undefined,
         }
         const CustomPreview = matchCustomEmbedPreview(externalView)
         if (CustomPreview) {
@@ -114,7 +116,8 @@ export const ExternalEmbedLink = ({
                 description:
                   data.view?.external?.description || data.description,
                 // prefer opengraph data to atproto record-derived image
-                thumb: data.thumb?.source.path || data.view?.external?.thumb,
+                thumb: (data.thumb?.source.path ||
+                  data.view?.external?.thumb) as UriString | undefined,
               }}
             />
           )
@@ -125,7 +128,7 @@ export const ExternalEmbedLink = ({
               title: data.title || uri,
               uri,
               description: data.description,
-              thumb: data.thumb?.source.path,
+              thumb: data.thumb?.source.path as UriString | undefined,
             }}
             hideAlt
           />

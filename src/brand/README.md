@@ -13,7 +13,7 @@ upstream sync don't turn into a nightmare.
   `src/lib/constants.ts`, otherwise from `#/brand`.
 - `moderation.ts` - known-PDS-host table (operator name, terms of service,
   moderation service DID) behind `getHostModerationInfo` /
-  `getHostModServiceHeaders`. A takedown is issued by the account's own host,
+  `getHostModServiceProxy`. A takedown is issued by the account's own host,
   so the Takendown screen attributes it and routes appeals accordingly, falling
   back to Bluesky for unknown hosts. Keys are `new URL(account.service).hostname`
   and every `modServiceDid` must expose an `#atproto_labeler` service in its DID

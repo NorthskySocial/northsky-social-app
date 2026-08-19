@@ -73,7 +73,7 @@ function findRuns(
   const runs: Run[] = []
   const inSkip = (i: number) => skip.some(s => i >= s.start && i < s.end)
 
-  for (let i = 0; i < text.length; ) {
+  for (let i = 0; i < text.length;) {
     const char = text[i]
     if (char !== '*' && char !== '_' && char !== '~') {
       i++

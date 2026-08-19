@@ -1,4 +1,4 @@
-import {type AtpAgent} from '@atproto/api'
+import {type Client} from '@atproto/lex'
 import {beforeEach, describe, expect, it, jest} from '@jest/globals'
 
 jest.mock('react-native-mmkv', () => ({
@@ -19,25 +19,26 @@ jest.mock('react-native-mmkv', () => ({
   },
 }))
 
-import {FALLBACK_APPVIEW} from '#/brand/appview'
+import {type AppView, FALLBACK_APPVIEW} from '#/brand/appview'
+import {app} from '#/lexicons'
 import {account} from '#/storage'
 import {fallbackProxyOpts, replayMuteWriteToFallback} from '../fanout'
 import {runImportMuteWrite, runUserMuteWrite} from '../ordering'
 import {reconcileMutes} from '../reconcile'
 
-const BLACKSKY_APPVIEW = {
+const BLACKSKY_APPVIEW: AppView = {
   url: 'https://api.blacksky.community',
-  did: 'did:web:api.blacksky.community' as const,
+  did: 'did:web:api.blacksky.community',
   syncMutesWithFallback: true,
 }
 
-const DEV_APPVIEW = {
+const DEV_APPVIEW: AppView = {
   url: 'http://localhost:2584',
-  did: 'did:web:localhost' as const,
+  did: 'did:web:localhost',
 }
 
 const FALLBACK_OPTS = {
-  headers: {'atproto-proxy': `${FALLBACK_APPVIEW.did}#bsky_appview`},
+  service: `${FALLBACK_APPVIEW.did}#bsky_appview`,
 }
 
 /* Mute sync is beta-gated; the session account opts in, the outsider not. */
@@ -50,7 +51,7 @@ beforeEach(() => {
 })
 
 describe('fallbackProxyOpts', () => {
-  it('returns the fallback proxy header for a routed appview', () => {
+  it('returns the fallback proxy options for a routed appview', () => {
     expect(fallbackProxyOpts(BLACKSKY_APPVIEW, SESSION_DID)).toEqual(
       FALLBACK_OPTS,
     )
@@ -72,7 +73,7 @@ describe('fallbackProxyOpts', () => {
 })
 
 describe('replayMuteWriteToFallback', () => {
-  it('replays the write with the fallback proxy header', async () => {
+  it('replays the write with the fallback proxy options', async () => {
     const replay = jest.fn<() => Promise<unknown>>().mockResolvedValue({})
     await replayMuteWriteToFallback(BLACKSKY_APPVIEW, SESSION_DID, replay)
     expect(replay).toHaveBeenCalledWith(FALLBACK_OPTS)
@@ -100,42 +101,35 @@ describe('replayMuteWriteToFallback', () => {
   })
 })
 
-type Page<T> = {data: T}
-
-function pageResponse<T>(data: T): Promise<Page<T>> {
-  return Promise.resolve({data})
-}
-
 /*
- * Builds a mock agent whose graph endpoints answer from fixtures. The
- * fallback appview responds when the call carries the fallback proxy
- * header; the routed appview responds otherwise.
+ * Builds a mock client whose `call` dispatches on the graph method object to
+ * per-endpoint jest mocks answering from fixtures. The fallback appview
+ * responds when the call carries the fallback `service` option; the routed
+ * appview responds otherwise. Bodies are returned directly, as `client.call`
+ * does. Write endpoints receive only their params, matching how reconcile
+ * issues them (no proxy options).
  */
-type CallOpts = {headers?: Record<string, string>}
+type CallOpts = {service?: string}
 
-function makeAgent({
+function makeClient({
   sourceLists = [],
   targetLists = [],
   sourceMutes = [],
   targetMutes = [],
-  hasSession = true,
-  sessionDid = SESSION_DID,
 }: {
   sourceLists?: {uri: string}[]
   targetLists?: {uri: string}[]
   sourceMutes?: {did: string; viewer?: object}[]
   targetMutes?: {did: string; viewer?: object}[]
-  hasSession?: boolean
-  sessionDid?: string
 }) {
   const isFallbackCall = (opts?: CallOpts) =>
-    opts?.headers?.['atproto-proxy'] === `${FALLBACK_APPVIEW.did}#bsky_appview`
+    opts?.service === `${FALLBACK_APPVIEW.did}#bsky_appview`
   const getListMutes = jest.fn(
     (
       _params: unknown,
       opts?: CallOpts,
-    ): Promise<Page<{lists: {uri: string}[]; cursor?: string}>> =>
-      pageResponse({
+    ): Promise<{lists: {uri: string}[]; cursor?: string}> =>
+      Promise.resolve({
         lists: isFallbackCall(opts) ? sourceLists : targetLists,
       }),
   )
@@ -143,24 +137,34 @@ function makeAgent({
     (
       _params: unknown,
       opts?: CallOpts,
-    ): Promise<
-      Page<{mutes: {did: string; viewer?: object}[]; cursor?: string}>
-    > =>
-      pageResponse({
+    ): Promise<{mutes: {did: string; viewer?: object}[]; cursor?: string}> =>
+      Promise.resolve({
         mutes: isFallbackCall(opts) ? sourceMutes : targetMutes,
       }),
   )
-  const muteActorList = jest.fn(() => pageResponse({}))
-  const muteActor = jest.fn(() => pageResponse({}))
-  const agent = {
-    session: hasSession ? {did: sessionDid} : undefined,
-    app: {
-      bsky: {
-        graph: {getListMutes, getMutes, muteActorList, muteActor},
-      },
+  const muteActorList = jest.fn((_params: unknown): Promise<object> =>
+    Promise.resolve({}),
+  )
+  const muteActor = jest.fn((_params: unknown): Promise<object> =>
+    Promise.resolve({}),
+  )
+  const client = {
+    call: (method: unknown, params: unknown, opts?: CallOpts) => {
+      switch (method) {
+        case app.bsky.graph.getListMutes:
+          return getListMutes(params, opts)
+        case app.bsky.graph.getMutes:
+          return getMutes(params, opts)
+        case app.bsky.graph.muteActorList:
+          return muteActorList(params)
+        case app.bsky.graph.muteActor:
+          return muteActor(params)
+        default:
+          return Promise.reject(new Error('unexpected method'))
+      }
     },
-  } as unknown as AtpAgent
-  return {agent, getListMutes, getMutes, muteActorList, muteActor}
+  } as unknown as Client
+  return {client, getListMutes, getMutes, muteActorList, muteActor}
 }
 
 describe('reconcileMutes', () => {
@@ -169,32 +173,32 @@ describe('reconcileMutes', () => {
   })
 
   it('does nothing when the routed appview is the fallback', async () => {
-    const {agent, getListMutes} = makeAgent({})
-    await reconcileMutes(agent, FALLBACK_APPVIEW)
+    const {client, getListMutes} = makeClient({})
+    await reconcileMutes(client, FALLBACK_APPVIEW, SESSION_DID)
     expect(getListMutes).not.toHaveBeenCalled()
   })
 
   it('does nothing without a session', async () => {
-    const {agent, getListMutes} = makeAgent({hasSession: false})
-    await reconcileMutes(agent, BLACKSKY_APPVIEW)
+    const {client, getListMutes} = makeClient({})
+    await reconcileMutes(client, BLACKSKY_APPVIEW, undefined)
     expect(getListMutes).not.toHaveBeenCalled()
   })
 
   it('does nothing when the account is not a beta user', async () => {
-    const {agent, getListMutes} = makeAgent({sessionDid: NON_BETA_DID})
-    await reconcileMutes(agent, BLACKSKY_APPVIEW)
+    const {client, getListMutes} = makeClient({})
+    await reconcileMutes(client, BLACKSKY_APPVIEW, NON_BETA_DID)
     expect(getListMutes).not.toHaveBeenCalled()
   })
 
   it('imports list mutes missing from the routed appview', async () => {
-    const {agent, muteActorList} = makeAgent({
+    const {client, muteActorList} = makeClient({
       sourceLists: [
         {uri: 'at://did:plc:nerv/app.bsky.graph.list/tokyo3'},
         {uri: 'at://did:plc:nerv/app.bsky.graph.list/geofront'},
       ],
       targetLists: [{uri: 'at://did:plc:nerv/app.bsky.graph.list/geofront'}],
     })
-    await reconcileMutes(agent, BLACKSKY_APPVIEW)
+    await reconcileMutes(client, BLACKSKY_APPVIEW, SESSION_DID)
     expect(muteActorList).toHaveBeenCalledTimes(1)
     expect(muteActorList).toHaveBeenCalledWith({
       list: 'at://did:plc:nerv/app.bsky.graph.list/tokyo3',
@@ -202,7 +206,7 @@ describe('reconcileMutes', () => {
   })
 
   it('imports actor mutes and keeps the mute scope', async () => {
-    const {agent, muteActor} = makeAgent({
+    const {client, muteActor} = makeClient({
       sourceMutes: [
         {did: 'did:plc:shinji-ikari', viewer: {muted: true}},
         {
@@ -212,7 +216,7 @@ describe('reconcileMutes', () => {
       ],
       targetMutes: [],
     })
-    await reconcileMutes(agent, BLACKSKY_APPVIEW)
+    await reconcileMutes(client, BLACKSKY_APPVIEW, SESSION_DID)
     expect(muteActor).toHaveBeenCalledTimes(2)
     expect(muteActor).toHaveBeenCalledWith({actor: 'did:plc:shinji-ikari'})
     expect(muteActor).toHaveBeenCalledWith({
@@ -222,19 +226,19 @@ describe('reconcileMutes', () => {
   })
 
   it('writes nothing when both appviews agree', async () => {
-    const {agent, muteActor, muteActorList} = makeAgent({
+    const {client, muteActor, muteActorList} = makeClient({
       sourceLists: [{uri: 'at://did:plc:nerv/app.bsky.graph.list/tokyo3'}],
       targetLists: [{uri: 'at://did:plc:nerv/app.bsky.graph.list/tokyo3'}],
       sourceMutes: [{did: 'did:plc:misato-katsuragi', viewer: {muted: true}}],
       targetMutes: [{did: 'did:plc:misato-katsuragi', viewer: {muted: true}}],
     })
-    await reconcileMutes(agent, BLACKSKY_APPVIEW)
+    await reconcileMutes(client, BLACKSKY_APPVIEW, SESSION_DID)
     expect(muteActorList).not.toHaveBeenCalled()
     expect(muteActor).not.toHaveBeenCalled()
   })
 
   it('follows pagination cursors from the fallback appview', async () => {
-    const {agent, getListMutes, muteActorList} = makeAgent({})
+    const {client, getListMutes, muteActorList} = makeClient({})
     const pages: {lists: {uri: string}[]; cursor?: string}[] = [
       {
         lists: [{uri: 'at://did:plc:nerv/app.bsky.graph.list/page1'}],
@@ -246,30 +250,30 @@ describe('reconcileMutes', () => {
     ]
     let call = 0
     getListMutes.mockImplementation((_params: unknown, opts?: CallOpts) => {
-      if (opts?.headers?.['atproto-proxy']) {
-        return pageResponse(pages[Math.min(call++, pages.length - 1)])
+      if (opts?.service) {
+        return Promise.resolve(pages[Math.min(call++, pages.length - 1)])
       }
-      return pageResponse({lists: [] as {uri: string}[]})
+      return Promise.resolve({lists: [] as {uri: string}[]})
     })
-    await reconcileMutes(agent, BLACKSKY_APPVIEW)
+    await reconcileMutes(client, BLACKSKY_APPVIEW, SESSION_DID)
     expect(muteActorList).toHaveBeenCalledTimes(2)
   })
 
   it('follows the cursor past the tenth page', async () => {
-    const {agent, getListMutes, muteActorList} = makeAgent({})
+    const {client, getListMutes, muteActorList} = makeClient({})
     const pageCount = 12
     let call = 0
     getListMutes.mockImplementation((_params: unknown, opts?: CallOpts) => {
-      if (opts?.headers?.['atproto-proxy']) {
+      if (opts?.service) {
         const page = call++
-        return pageResponse({
+        return Promise.resolve({
           lists: [{uri: `at://did:plc:nerv/app.bsky.graph.list/page${page}`}],
           cursor: page < pageCount - 1 ? `cursor-${page}` : undefined,
         })
       }
-      return pageResponse({lists: [] as {uri: string}[]})
+      return Promise.resolve({lists: [] as {uri: string}[]})
     })
-    await reconcileMutes(agent, BLACKSKY_APPVIEW)
+    await reconcileMutes(client, BLACKSKY_APPVIEW, SESSION_DID)
     expect(muteActorList).toHaveBeenCalledTimes(pageCount)
     expect(muteActorList).toHaveBeenCalledWith({
       list: 'at://did:plc:nerv/app.bsky.graph.list/page11',
@@ -277,11 +281,11 @@ describe('reconcileMutes', () => {
   })
 
   it('stops paginating on an empty page that still carries a cursor', async () => {
-    const {agent, getListMutes, muteActorList} = makeAgent({})
+    const {client, getListMutes, muteActorList} = makeClient({})
     getListMutes.mockImplementation(() =>
-      pageResponse({lists: [] as {uri: string}[], cursor: 'endless'}),
+      Promise.resolve({lists: [] as {uri: string}[], cursor: 'endless'}),
     )
-    await reconcileMutes(agent, BLACKSKY_APPVIEW)
+    await reconcileMutes(client, BLACKSKY_APPVIEW, SESSION_DID)
     expect(getListMutes).toHaveBeenCalledTimes(2)
     expect(muteActorList).not.toHaveBeenCalled()
   })
@@ -291,7 +295,7 @@ describe('reconcileMutes', () => {
       did: `did:plc:eva-pilot-${i}`,
       viewer: {muted: true},
     }))
-    const {agent, muteActor} = makeAgent({sourceMutes, targetMutes: []})
+    const {client, muteActor} = makeClient({sourceMutes, targetMutes: []})
     let inFlight = 0
     let maxInFlight = 0
     muteActor.mockImplementation(async () => {
@@ -299,25 +303,25 @@ describe('reconcileMutes', () => {
       maxInFlight = Math.max(maxInFlight, inFlight)
       await Promise.resolve()
       inFlight--
-      return {data: {}}
+      return {}
     })
-    await reconcileMutes(agent, BLACKSKY_APPVIEW)
+    await reconcileMutes(client, BLACKSKY_APPVIEW, SESSION_DID)
     expect(muteActor).toHaveBeenCalledTimes(25)
     /* Matches WRITE_BATCH_SIZE in reconcile.ts. */
     expect(maxInFlight).toBeLessThanOrEqual(10)
   })
 
   it('swallows a reconciliation failure', async () => {
-    const {agent, getListMutes} = makeAgent({})
+    const {client, getListMutes} = makeClient({})
     getListMutes.mockImplementation(() => Promise.reject(new Error('boom')))
     await expect(
-      reconcileMutes(agent, BLACKSKY_APPVIEW),
+      reconcileMutes(client, BLACKSKY_APPVIEW, SESSION_DID),
     ).resolves.toBeUndefined()
   })
 
   it('drops an import for an actor the user changed during the run', async () => {
     const unmuted = 'did:plc:rei-ayanami'
-    const {agent, getMutes, muteActor} = makeAgent({
+    const {client, getMutes, muteActor} = makeClient({
       sourceMutes: [
         {did: 'did:plc:shinji-ikari', viewer: {muted: true}},
         {did: unmuted, viewer: {muted: true}},
@@ -327,20 +331,20 @@ describe('reconcileMutes', () => {
     const readTargetMutes = getMutes.getMockImplementation()!
     getMutes.mockImplementation(async (params: unknown, opts?: CallOpts) => {
       const res = await readTargetMutes(params, opts)
-      if (!opts?.headers?.['atproto-proxy']) {
+      if (!opts?.service) {
         /* The user unmutes while the snapshot is still being read. */
         await runUserMuteWrite(unmuted, () => Promise.resolve())
       }
       return res
     })
-    await reconcileMutes(agent, BLACKSKY_APPVIEW)
+    await reconcileMutes(client, BLACKSKY_APPVIEW, SESSION_DID)
     expect(muteActor).toHaveBeenCalledTimes(1)
     expect(muteActor).toHaveBeenCalledWith({actor: 'did:plc:shinji-ikari'})
   })
 
   it('drops an import for a list the user changed during the run', async () => {
     const unmuted = 'at://did:plc:nerv/app.bsky.graph.list/geofront'
-    const {agent, getListMutes, muteActorList} = makeAgent({
+    const {client, getListMutes, muteActorList} = makeClient({
       sourceLists: [{uri: unmuted}],
       targetLists: [],
     })
@@ -348,23 +352,23 @@ describe('reconcileMutes', () => {
     getListMutes.mockImplementation(
       async (params: unknown, opts?: CallOpts) => {
         const res = await readTargetLists(params, opts)
-        if (!opts?.headers?.['atproto-proxy']) {
+        if (!opts?.service) {
           await runUserMuteWrite(unmuted, () => Promise.resolve())
         }
         return res
       },
     )
-    await reconcileMutes(agent, BLACKSKY_APPVIEW)
+    await reconcileMutes(client, BLACKSKY_APPVIEW, SESSION_DID)
     expect(muteActorList).not.toHaveBeenCalled()
   })
 
   it('imports again on the next run after the user action', async () => {
-    const {agent, muteActor} = makeAgent({
+    const {client, muteActor} = makeClient({
       sourceMutes: [{did: 'did:plc:kaworu-nagisa', viewer: {muted: true}}],
       targetMutes: [],
     })
     await runUserMuteWrite('did:plc:kaworu-nagisa', () => Promise.resolve())
-    await reconcileMutes(agent, BLACKSKY_APPVIEW)
+    await reconcileMutes(client, BLACKSKY_APPVIEW, SESSION_DID)
     expect(muteActor).toHaveBeenCalledTimes(1)
   })
 })

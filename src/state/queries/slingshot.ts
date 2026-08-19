@@ -1,4 +1,3 @@
-import {type AppBskyEmbedRecord} from '@atproto/api'
 import {TID} from '@atproto/common-web'
 import {useQuery} from '@tanstack/react-query'
 
@@ -6,6 +5,7 @@ import {getRecordByUri, resolveMiniDoc} from '#/lib/slingshot/client'
 import {getPostInteractionCounts} from '#/lib/slingshot/constellation'
 import {hydrateAvatarUrl, hydratePostViewRecord} from '#/lib/slingshot/hydrate'
 import {STALE} from '#/state/queries'
+import {type app} from '#/lexicons'
 
 const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000
 const SEVEN_DAYS_US = 7 * 24 * 60 * 60 * 1_000_000 // microseconds
@@ -45,7 +45,7 @@ export function useSlingshotRecordQuery({
   atUri: string
   enabled?: boolean
 }) {
-  return useQuery<AppBskyEmbedRecord.ViewRecord | undefined>({
+  return useQuery<app.bsky.embed.record.ViewRecord | undefined>({
     queryKey: ['slingshot-record', atUri],
     queryFn: async () => {
       // Extract DID from at-uri for identity resolution
