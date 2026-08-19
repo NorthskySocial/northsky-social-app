@@ -205,20 +205,10 @@ export function BetaFeaturesSettingsScreen({}: Props) {
           </View>
 
           {hasBetaFeatures && (
-            /* northsky: the beaker sits behind the list, so the list needs a
-             * positioning parent and the beaker must not take presses. */
-            <View style={[a.relative]}>
-              <View
-                style={[
-                  a.absolute,
-                  a.inset_0,
-                  a.align_center,
-                  a.justify_center,
-                ]}
-                pointerEvents="none">
-                <BeakerIcon size="4xl" fill={t.palette.contrast_100} />
-              </View>
-
+            /* northsky: the beaker is a watermark over the list, so the list
+             * needs a positioning parent. The minimum height gives the 64px
+             * beaker room, because Android clips a child that overflows. */
+            <View style={[a.relative, {minHeight: 96}]}>
               {/* northsky: appview data transfer, listed for beta users */}
               {isBetaUser && (
                 <SettingsList.LinkItem
@@ -263,6 +253,24 @@ export function BetaFeaturesSettingsScreen({}: Props) {
                   ))}
                 </View>
               )}
+
+              {/*
+               * northsky: the beaker draws last so a row's hover fill, which is
+               * opaque, cannot hide it. It takes no presses, so the rows below
+               * stay tappable.
+               */}
+              <View
+                style={[
+                  a.absolute,
+                  a.inset_0,
+                  a.align_center,
+                  a.justify_center,
+                ]}
+                pointerEvents="none"
+                accessibilityElementsHidden
+                importantForAccessibility="no-hide-descendants">
+                <BeakerIcon size="4xl" fill={t.palette.contrast_100} />
+              </View>
             </View>
           )}
         </SettingsList.Container>
