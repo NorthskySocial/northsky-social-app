@@ -60,6 +60,7 @@ export function AppViewTransferSettingsScreen({}: Props) {
   const checkpointRef = useRef(checkpoint)
   const mountedRef = useRef(false)
   const runningRef = useRef(false)
+  const lastWriteRef = useRef(0)
   const abortRef = useRef<AbortController | undefined>(undefined)
   const confirmControl = Prompt.usePromptControl()
   const [error, setError] = useState<string>()
@@ -85,9 +86,20 @@ export function AppViewTransferSettingsScreen({}: Props) {
     ),
   )
 
+  /*
+   * The engine reports progress once per written item, so a large collection
+   * would serialize and store the whole checkpoint thousands of times. Cap the
+   * write rate while the run continues, and always store a terminal state. A
+   * dropped write costs at most one second of progress, and a resume rereads
+   * the destination anyway, so no item is written twice.
+   */
   const saveCheckpoint = (next: AppViewTransferCheckpoint) => {
     checkpointRef.current = next
-    account.set([accountDid, 'appViewTransfer'], next)
+    const now = Date.now()
+    if (next.status !== 'running' || now - lastWriteRef.current >= 1000) {
+      lastWriteRef.current = now
+      account.set([accountDid, 'appViewTransfer'], next)
+    }
     if (mountedRef.current) setCheckpoint(next)
   }
 
