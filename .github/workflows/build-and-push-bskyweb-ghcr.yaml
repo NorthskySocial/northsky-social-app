@@ -3,11 +3,15 @@ on:
   push:
     branches:
       - main
+  release:
+    types:
+      - published
   workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  IS_RELEASE: ${{ github.event_name == 'release' && github.event.release.prerelease == false }}
 
 permissions:
   contents: read
@@ -25,6 +29,27 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      # The release tag sets the version that the app shows. A main build gets a
+      # prerelease version so that staging is never mistaken for a release.
+      - name: Resolve the release version
+        id: version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [ -n "${RELEASE_TAG}" ]; then
+            version="${RELEASE_TAG#v}"
+            if ! printf '%s' "${version}" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?$'; then
+              echo "The release tag '${RELEASE_TAG}' is not a semver version." >&2
+              exit 1
+            fi
+          else
+            version="$(node -p "require('./package.json').version")-main.g${COMMIT_SHA:0:7}"
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "Resolved the release version: ${version}"
 
       - name: Setup Docker buildx
         uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
@@ -45,7 +70,9 @@ jobs:
           tags: |
             type=sha,enable=true,priority=100,format=long
             type=ref,event=branch
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=v${{ steps.version.outputs.version }},enable=${{ env.IS_RELEASE }}
+            type=raw,value=stable,enable=${{ env.IS_RELEASE }}
+            type=raw,value=latest,enable=${{ env.IS_RELEASE }}
 
       - name: Build and push Docker image
         id: build-and-push
@@ -56,6 +83,9 @@ jobs:
           file: ./Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            EXPO_PUBLIC_RELEASE_VERSION=${{ steps.version.outputs.version }}
+            EXPO_PUBLIC_BUNDLE_IDENTIFIER=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -66,32 +96,60 @@ jobs:
           subject-digest: ${{ steps.build-and-push.outputs.digest }}
           push-to-registry: true
 
-  deploy_app:
+  deploy_staging:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: bskyweb-container-ghcr
     steps:
-      - name: Trigger release through webhook
+      - name: Trigger the staging deployment through webhook
         uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # v4.0.1
         with:
           token: ${{ secrets.DEPLOYMENT_WEBHOOK_TOKEN }}
           repository: ${{ secrets.DEPLOYMENT_WEBHOOK_REPOSITORY }}
-          event-type: restart-northsky-social-app
+          event-type: deploy-northsky-social-app-staging
 
-  notify_deployment:
+  notify_staging:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    needs: deploy_app
+    needs: deploy_staging
     steps:
-      - name: Wait for successful deployment
+      - name: Give the rollout time to start
         run: sleep 30s
 
-      - name: Notify Discord of successful deployment
+      - name: Notify Discord
         uses: rjstone/discord-webhook-notify@c2597273488aeda841dd1e891321952b51f7996f # v2.2.1
         with:
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
           severity: info
           username: 'Github Actions deployment'
-          title: 'Northsky Social App deployment successful!'
-          description: 'Latest Northsky Social App build has been deployed successfully!'
+          title: 'Northsky Social App staging deployment'
+          description: 'staging.northsky.app is rolling out the latest main build.'
           details: 'Commit: ${{ github.event.head_commit.message }}'
+
+  deploy_production:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.release.prerelease == false
+    needs: bskyweb-container-ghcr
+    steps:
+      - name: Trigger the production deployment through webhook
+        uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # v4.0.1
+        with:
+          token: ${{ secrets.DEPLOYMENT_WEBHOOK_TOKEN }}
+          repository: ${{ secrets.DEPLOYMENT_WEBHOOK_REPOSITORY }}
+          event-type: deploy-northsky-social-app-production
+
+  notify_production:
+    runs-on: ubuntu-latest
+    needs: deploy_production
+    steps:
+      - name: Give the rollout time to start
+        run: sleep 30s
+
+      - name: Notify Discord
+        uses: rjstone/discord-webhook-notify@c2597273488aeda841dd1e891321952b51f7996f # v2.2.1
+        with:
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+          severity: info
+          username: 'Github Actions deployment'
+          title: 'Northsky Social App production deployment'
+          description: 'northsky.app is rolling out release ${{ github.event.release.tag_name }}.'
+          details: 'Release: ${{ github.event.release.name }}'
