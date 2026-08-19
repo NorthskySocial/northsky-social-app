@@ -223,9 +223,11 @@ jobs:
           RISK=$(comm -12 <(printf '%s\n' "$MARKED") <(printf '%s\n' "$UPFILES") || true)
 
           # Largest incoming changes by total lines touched.
+          # Limit in awk, not head: head closes the pipe early, and sort then
+          # fails with EPIPE and exit code 2 under pipefail on large syncs.
           LARGEST=$(git diff --numstat "$RANGE" \
             | awk '{added=($1=="-"?0:$1); removed=($2=="-"?0:$2); print added+removed"\t"$3}' \
-            | sort -rn | head -10 | awk -F'\t' '{printf "- `%s` (%s lines)\n", $2, $1}')
+            | sort -rn | awk -F'\t' 'NR<=10 {printf "- `%s` (%s lines)\n", $2, $1}')
 
           mark() {
             case "$1" in
