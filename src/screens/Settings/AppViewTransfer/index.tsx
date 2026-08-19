@@ -620,10 +620,10 @@ function TransferStatus({
         return l`Complete`
       case 'failed':
         if (progress.failedCount) {
-          return plural(progress.failedCount, {
+          return l`${plural(progress.failedCount, {
             one: "Couldn't copy # item",
             other: "Couldn't copy # items",
-          })
+          })}`
         }
         if (progress.failureName === 'UnexpectedError') {
           return progress.failureAt === 'source'
