@@ -19,6 +19,8 @@ permissions:
 jobs:
   embedr-container-ghcr:
     runs-on: ubuntu-latest
+    # A prerelease must not push an image, not even a sha-tagged one.
+    if: github.event_name != 'release' || github.event.release.prerelease == false
     permissions:
       contents: read
       packages: write
