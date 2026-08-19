@@ -2,30 +2,22 @@ import {useCallback, useEffect} from 'react'
 import {Platform} from 'react-native'
 import * as Notifications from 'expo-notifications'
 import {getBadgeCountAsync, setBadgeCountAsync} from 'expo-notifications'
-import {type Client} from '@atproto/lex'
+import {type Client, type Service} from '@atproto/lex'
 import debounce from 'lodash.debounce'
 
-<<<<<<< HEAD
 import {PUBLIC_STAGING_APPVIEW_DID} from '#/lib/constants'
 import {logger as notyLogger} from '#/lib/notifications/util'
 import {isNetworkError} from '#/lib/strings/errors'
-import {type SessionAccount, useAgent, useSession} from '#/state/session'
-// northsky: register push with the appview routed for the account
-import {getAppviewForAgent} from '#/state/session/agent'
-=======
-import {
-  NOTIF_SERVICE,
-  PUBLIC_APPVIEW_DID,
-  PUBLIC_STAGING_APPVIEW_DID,
-} from '#/lib/constants'
-import {logger as notyLogger} from '#/lib/notifications/util'
-import {isNetworkError} from '#/lib/strings/errors'
 import {type SessionAccount, usePdsClient, useSession} from '#/state/session'
->>>>>>> upstream/main
 import BackgroundNotificationHandler from '#/../modules/expo-background-notification-handler'
 import {useAgeAssurance} from '#/ageAssurance'
 import {useAnalytics} from '#/analytics'
-import {type AppView, FALLBACK_APPVIEW} from '#/brand/appview'
+// northsky: register push with the appview routed for the account
+import {
+  type AppView,
+  FALLBACK_APPVIEW,
+  resolveAppViewForService,
+} from '#/brand/appview'
 import {IS_DEV, IS_NATIVE} from '#/env'
 import {app} from '#/lexicons'
 
@@ -53,8 +45,8 @@ function notifServiceDid(appview: AppView, service: string | undefined) {
     : appview.did
 }
 
-function notifServiceHeaders(appview: AppView) {
-  return {'atproto-proxy': `${appview.did}#bsky_notif`}
+function notifProxyService(appview: AppView): Service {
+  return `${appview.did}#bsky_notif`
 }
 
 /**
@@ -75,20 +67,13 @@ async function _registerPushToken({
   }
 }) {
   try {
-<<<<<<< HEAD
     /*
      * northsky: a route match points to the correct appview for the account.
      * Apply the staging-vs-prod special case only on the fallback appview.
      */
-    const appview = getAppviewForAgent(agent)
-    const payload: AppBskyNotificationRegisterPush.InputSchema = {
-      serviceDid: notifServiceDid(appview, currentAccount.service),
-=======
+    const appview = resolveAppViewForService(currentAccount.service)
     const payload: app.bsky.notification.registerPush.$InputBody = {
-      serviceDid: currentAccount.service?.includes('staging')
-        ? PUBLIC_STAGING_APPVIEW_DID
-        : PUBLIC_APPVIEW_DID,
->>>>>>> upstream/main
+      serviceDid: notifServiceDid(appview, currentAccount.service),
       platform: Platform.OS,
       token: token.data,
       appId: 'xyz.blueskyweb.app',
@@ -97,13 +82,9 @@ async function _registerPushToken({
 
     notyLogger.debug(`registerPushToken: registering`, {...payload})
 
-<<<<<<< HEAD
-    await agent.app.bsky.notification.registerPush(payload, {
-      headers: notifServiceHeaders(appview),
-=======
     await client.call(app.bsky.notification.registerPush, payload, {
-      service: NOTIF_SERVICE,
->>>>>>> upstream/main
+      // northsky: route to the notif service of the account's appview
+      service: notifProxyService(appview),
     })
 
     notyLogger.debug(`registerPushToken: success`)
@@ -386,32 +367,19 @@ export async function unregisterPushToken(clients: TemporaryPushClient[]) {
   try {
     const token = await getPushToken()
     if (token) {
-<<<<<<< HEAD
-      for (const agent of agents) {
-        // northsky: unregister against the appview routed for each account
-        const appview = getAppviewForAgent(agent)
-        await agent.app.bsky.notification.unregisterPush(
-          {
-            serviceDid: notifServiceDid(appview, agent.serviceUrl.hostname),
-=======
       for (const {client, service, handle} of clients) {
+        // northsky: unregister against the appview routed for each account
+        const appview = resolveAppViewForService(service)
         await client.call(
           app.bsky.notification.unregisterPush,
           {
-            serviceDid: service.includes('staging')
-              ? PUBLIC_STAGING_APPVIEW_DID
-              : PUBLIC_APPVIEW_DID,
->>>>>>> upstream/main
+            serviceDid: notifServiceDid(appview, service),
             platform: Platform.OS,
             token: token.data,
             appId: 'xyz.blueskyweb.app',
           },
           {
-<<<<<<< HEAD
-            headers: notifServiceHeaders(appview),
-=======
-            service: NOTIF_SERVICE,
->>>>>>> upstream/main
+            service: notifProxyService(appview),
           },
         )
         notyLogger.debug(`Push token unregistered for ${handle}`)

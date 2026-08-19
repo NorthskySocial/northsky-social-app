@@ -10,14 +10,14 @@ describe('searchProxyOpts', () => {
   it('pins search to the configured appview', () => {
     expect(
       searchProxyOpts({...APPVIEW, searchProxyDid: 'did:web:api.bsky.app'}),
-    ).toEqual({headers: {'atproto-proxy': 'did:web:api.bsky.app#bsky_appview'}})
+    ).toEqual({service: 'did:web:api.bsky.app#bsky_appview'})
   })
 
   /*
-   * An unpinned appview must not set the header at all, so the request keeps
-   * following the one the agent already carries.
+   * An unpinned appview must not override the service at all, so the request
+   * keeps targeting the appview the client already talks to.
    */
   it('returns no options when the appview serves search itself', () => {
-    expect(searchProxyOpts(APPVIEW)).toEqual({})
+    expect(searchProxyOpts(APPVIEW)).toBeUndefined()
   })
 })

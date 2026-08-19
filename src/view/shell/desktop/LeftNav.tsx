@@ -88,12 +88,9 @@ import {useAnalytics} from '#/analytics'
 import {type Events} from '#/analytics/metrics/types'
 import {navItemHoverWash} from '#/brand/gradients' // northsky: nav hover wash
 import {useActorStatus} from '#/features/liveNow'
-<<<<<<< HEAD
 // northsky: wording follows the "They're called" setting
 import {usePostVocabulary} from '#/features/postVocabulary'
-=======
 import {type app} from '#/lexicons'
->>>>>>> upstream/main
 import {router} from '#/routes'
 import {PlatformInfo} from '../../../../modules/expo-bluesky-swiss-army'
 

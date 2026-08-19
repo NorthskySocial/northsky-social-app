@@ -7,12 +7,8 @@ import {isJustAMute, moduiContainsHideableOffense} from '#/lib/moderation'
 import {searchActorsTypeaheadVia} from '#/lib/typeahead/client'
 import {logger} from '#/logger'
 import {STALE} from '#/state/queries'
-<<<<<<< HEAD
-import {useAgent, useAppview} from '#/state/session'
-=======
-import {useAppviewClient} from '#/state/session'
-import {app} from '#/lexicons'
->>>>>>> upstream/main
+import {useAppview, useAppviewClient} from '#/state/session'
+import {type app} from '#/lexicons'
 import {useModerationOpts} from '../preferences/moderation-opts'
 import {DEFAULT_LOGGED_OUT_PREFERENCES} from './preferences'
 
@@ -30,12 +26,8 @@ export function useActorAutocompleteQuery(
   limit?: number,
 ) {
   const moderationOpts = useModerationOpts()
-<<<<<<< HEAD
-  const agent = useAgent()
-  const appview = useAppview() // northsky: typeahead may come from another service
-=======
   const client = useAppviewClient()
->>>>>>> upstream/main
+  const appview = useAppview() // northsky: typeahead may come from another service
 
   prefix = prefix.toLowerCase().trim()
   if (prefix.endsWith('.')) {
@@ -48,22 +40,12 @@ export function useActorAutocompleteQuery(
     // northsky: appended appview so switching accounts does not reuse results
     queryKey: [...RQKEY(prefix || ''), appview.did],
     async queryFn() {
-<<<<<<< HEAD
       if (!prefix) return []
       // northsky: appviews without typeahead use the brand service
-      return searchActorsTypeaheadVia(appview, agent, {
+      return searchActorsTypeaheadVia(appview, client, {
         q: prefix,
         limit: limit || 8,
       })
-=======
-      const data = prefix
-        ? await client.call(app.bsky.actor.searchActorsTypeahead, {
-            q: prefix,
-            limit: limit || 8,
-          })
-        : undefined
-      return data?.actors || []
->>>>>>> upstream/main
     },
     select: useCallback(
       (data: app.bsky.actor.defs.ProfileViewBasic[]) => {
@@ -83,12 +65,8 @@ export type ActorAutocompleteFn = ReturnType<typeof useActorAutocompleteFn>
 export function useActorAutocompleteFn() {
   const queryClient = useQueryClient()
   const moderationOpts = useModerationOpts()
-<<<<<<< HEAD
-  const agent = useAgent()
-  const appview = useAppview() // northsky: typeahead may come from another service
-=======
   const client = useAppviewClient()
->>>>>>> upstream/main
+  const appview = useAppview() // northsky: typeahead may come from another service
 
   return useCallback(
     async ({query, limit = 8}: {query: string; limit?: number}) => {
@@ -102,14 +80,7 @@ export function useActorAutocompleteFn() {
             queryKey: [...RQKEY(query || ''), appview.did],
             // northsky: appviews without typeahead use the brand service
             queryFn: () =>
-<<<<<<< HEAD
-              searchActorsTypeaheadVia(appview, agent, {q: query, limit}),
-=======
-              client.call(app.bsky.actor.searchActorsTypeahead, {
-                q: query,
-                limit,
-              }),
->>>>>>> upstream/main
+              searchActorsTypeaheadVia(appview, client, {q: query, limit}),
           })
         } catch (e) {
           logger.error('useActorSearch: searchActorsTypeahead failed', {
@@ -120,19 +91,11 @@ export function useActorAutocompleteFn() {
 
       return computeSuggestions({
         q: query,
-<<<<<<< HEAD
         searched: res,
         moderationOpts: moderationOpts || DEFAULT_MOD_OPTS,
       })
     },
-    [queryClient, moderationOpts, agent, appview],
-=======
-        searched: res?.actors,
-        moderationOpts: moderationOpts || DEFAULT_MOD_OPTS,
-      })
-    },
-    [queryClient, moderationOpts, client],
->>>>>>> upstream/main
+    [queryClient, moderationOpts, client, appview],
   )
 }
 

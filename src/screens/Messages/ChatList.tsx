@@ -56,12 +56,9 @@ import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {useAgeAssurance} from '#/ageAssurance'
 import {IS_NATIVE, IS_WEB} from '#/env'
-<<<<<<< HEAD
 // northsky: one-time unencrypted-chat warning
 import {ChatServiceWarning} from '#/features/chatServiceWarning/ChatServiceWarning'
-=======
 import {type chat} from '#/lexicons'
->>>>>>> upstream/main
 import {ChatDisabled} from './components/ChatDisabled'
 import {ChatListItem} from './components/ChatListItem'
 import {InboxRequests} from './components/InboxRequests'

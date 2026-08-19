@@ -1,9 +1,4 @@
-<<<<<<< HEAD
-import {getAgeAssuranceRegionConfig} from '@atproto/api'
-
 import {AgeAssuranceAccess, AgeAssuranceStatus} from '#/ageAssurance/types'
-=======
->>>>>>> upstream/main
 import {getAgeAssuranceRegionConfigForGeolocation} from '#/ageAssurance/util'
 import {type app} from '#/lexicons'
 

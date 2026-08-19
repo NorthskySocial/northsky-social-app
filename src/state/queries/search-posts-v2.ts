@@ -9,15 +9,10 @@ import {
 } from '@tanstack/react-query'
 
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
-<<<<<<< HEAD
-import {useAgent, useAppview} from '#/state/session'
+import {useAppview, useAppviewClient} from '#/state/session'
 import {type SearchFilters} from '#/screens/Search/searchParams'
 import {searchProxyOpts} from '#/brand/searchRouting' // northsky: search routing
-=======
-import {useAppviewClient} from '#/state/session'
-import {type SearchFilters} from '#/screens/Search/searchParams'
 import {app} from '#/lexicons'
->>>>>>> upstream/main
 import {
   appendFromMe,
   buildSearchPostsV2Filters,
@@ -54,12 +49,8 @@ export function useSearchPostsV2Query({
   enabled?: boolean
   filters?: SearchFilters
 }) {
-<<<<<<< HEAD
-  const agent = useAgent()
-  const appview = useAppview() // northsky: search may be pinned to another appview
-=======
   const client = useAppviewClient()
->>>>>>> upstream/main
+  const appview = useAppview() // northsky: search may be pinned to another appview
   const moderationOpts = useModerationOpts()
   const selectArgs = useMemo(
     () => ({
@@ -106,8 +97,8 @@ export function useSearchPostsV2Query({
         filters,
       ) as app.bsky.feed.searchPostsV2.$Params
       const finalQuery = appendFromMe(q, filters?.from === 'me')
-<<<<<<< HEAD
-      const res = await agent.app.bsky.feed.searchPostsV2(
+      return await client.call(
+        app.bsky.feed.searchPostsV2,
         {
           ...builtFilters,
           query: finalQuery,
@@ -122,21 +113,6 @@ export function useSearchPostsV2Query({
         },
         searchProxyOpts(appview), // northsky: appviews without v2 search route elsewhere
       )
-      return res.data
-=======
-      return await client.call(app.bsky.feed.searchPostsV2, {
-        ...builtFilters,
-        query: finalQuery,
-        limit: 25,
-        cursor: pageParam,
-        /*
-         * v2 calls the recency sort 'recent'; the rest of the app still uses
-         * the v1 'latest' label.
-         */
-        sort: sort === 'latest' ? 'recent' : sort,
-        allTime: true,
-      })
->>>>>>> upstream/main
     },
     initialPageParam: undefined,
     getNextPageParam: lastPage => lastPage.cursor,

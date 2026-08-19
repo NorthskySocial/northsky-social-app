@@ -8,13 +8,9 @@ import {until} from '#/lib/async/until'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
 import {enforceLen} from '#/lib/strings/helpers'
-<<<<<<< HEAD
-import {useAgent, useAppview} from '#/state/session'
+import {useAppview, useAppviewClient, usePdsClient} from '#/state/session'
 import {searchProxyOpts} from '#/brand/searchRouting' // northsky: search routing
-=======
-import {useAppviewClient, usePdsClient} from '#/state/session'
 import {app, com} from '#/lexicons'
->>>>>>> upstream/main
 import type * as bsky from '#/types/bsky'
 
 export const createStarterPackList = async ({
@@ -57,13 +53,9 @@ export function useGenerateStarterPackMutation({
   onError: (e: Error) => void
 }) {
   const {_} = useLingui()
-<<<<<<< HEAD
-  const agent = useAgent()
-  const appview = useAppview() // northsky: search may be pinned to another appview
-=======
   const appviewClient = useAppviewClient()
   const pdsClient = usePdsClient()
->>>>>>> upstream/main
+  const appview = useAppview() // northsky: search may be pinned to another appview
 
   return useMutation<{uri: string; cid: string}, Error, void>({
     mutationFn: async () => {
@@ -78,22 +70,15 @@ export function useGenerateStarterPackMutation({
         })(),
         (async () => {
           profiles = (
-<<<<<<< HEAD
-            await agent.app.bsky.actor.searchActors(
+            await appviewClient.call(
+              app.bsky.actor.searchActors,
               {
                 q: encodeURIComponent('*'),
                 limit: 49,
               },
               searchProxyOpts(appview), // northsky: appviews without actor search route elsewhere
             )
-          ).data.actors.filter(p => p.viewer?.following)
-=======
-            await appviewClient.call(app.bsky.actor.searchActors, {
-              q: encodeURIComponent('*'),
-              limit: 49,
-            })
           ).actors.filter(p => p.viewer?.following)
->>>>>>> upstream/main
         })(),
       ])
 

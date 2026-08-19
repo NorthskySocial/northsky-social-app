@@ -5,8 +5,7 @@ import {useLingui} from '@lingui/react'
 import {useMutation} from '@tanstack/react-query'
 
 import {logger} from '#/logger'
-<<<<<<< HEAD
-import {useAgent} from '#/state/session'
+import {useAppviewClient} from '#/state/session'
 import {IS_DEV} from '#/env'
 /*
  * northsky: imported from the modules, not the feature barrel. The barrel also
@@ -15,10 +14,7 @@ import {IS_DEV} from '#/env'
  */
 import {composeReportComment} from '#/features/northskyReportLabels/comment'
 import {resolveLabelForRecipient} from '#/features/northskyReportLabels/labels'
-=======
-import {useAppviewClient} from '#/state/session'
 import {com} from '#/lexicons'
->>>>>>> upstream/main
 import {NEW_TO_OLD_REASONS_MAP, REPORT_MOD_TOOL_NAME} from './const'
 import {type ReportState} from './state'
 import {type ParsedReportSubject} from './types'
@@ -78,7 +74,6 @@ export function useSubmitReportMutation() {
         reasonType = backwardsCompatibleReasonType
       }
 
-<<<<<<< HEAD
       /*
        * northsky: the reporter picks the label before the service, so a report
        * can carry a label and then go elsewhere. Only Northsky understands
@@ -94,16 +89,7 @@ export function useSubmitReportMutation() {
         details: state.details,
       })
 
-      let report:
-        | ComAtprotoModerationCreateReport.InputSchema
-        | (Omit<ComAtprotoModerationCreateReport.InputSchema, 'subject'> & {
-            subject:
-              | $Typed<ChatBskyConvoDefs.MessageRef>
-              | $Typed<ChatBskyConvoDefs.ConvoRef>
-          })
-=======
       let report: ReportInput
->>>>>>> upstream/main
 
       switch (subject.type) {
         case 'account': {
@@ -138,13 +124,8 @@ export function useSubmitReportMutation() {
         case 'convoMessage': {
           report = {
             reasonType,
-<<<<<<< HEAD
             reason, // northsky:
-            subject: {
-=======
-            reason: state.details,
             subject: toOpenSubject({
->>>>>>> upstream/main
               $type: 'chat.bsky.convo.defs#messageRef',
               messageId: subject.message.id,
               convoId: subject.convoId,
@@ -156,13 +137,8 @@ export function useSubmitReportMutation() {
         case 'convo': {
           report = {
             reasonType,
-<<<<<<< HEAD
             reason, // northsky:
-            subject: {
-=======
-            reason: state.details,
             subject: toOpenSubject({
->>>>>>> upstream/main
               $type: 'chat.bsky.convo.defs#convoRef',
               convoId: subject.convoId,
               did: subject.did,

@@ -38,15 +38,12 @@ import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {IS_NATIVE} from '#/env'
-<<<<<<< HEAD
 // northsky: Northsky label refinement for the selected reason
 import {
   NorthskyReportLabelPicker,
   resolveNorthskyReportLabels,
 } from '#/features/northskyReportLabels'
-=======
 import {type app} from '#/lexicons'
->>>>>>> upstream/main
 import {useSubmitReportMutation} from './action'
 import {
   BSKY_LABELER_ONLY_REPORT_REASONS,

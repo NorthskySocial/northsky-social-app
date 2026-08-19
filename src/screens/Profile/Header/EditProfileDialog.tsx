@@ -24,12 +24,9 @@ import * as Prompt from '#/components/Prompt'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {useSimpleVerificationState} from '#/components/verification'
-<<<<<<< HEAD
+import {type app} from '#/lexicons'
 // northsky: pronouns field helpers
 import {MAX_PRONOUNS, normalizePronouns} from './pronouns'
-=======
-import {type app} from '#/lexicons'
->>>>>>> upstream/main
 
 export function EditProfileDialog({
   profile,

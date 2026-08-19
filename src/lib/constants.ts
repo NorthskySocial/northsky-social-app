@@ -2,14 +2,9 @@ import {type Insets, Platform} from 'react-native'
 import {type Service} from '@atproto/lex'
 import {api} from '@bsky/sdk'
 
-<<<<<<< HEAD
-import {type ProxyHeaderValue} from '#/state/session/agent'
 import {BRAND} from '#/brand/config'
 import {CHAT_PROXY_DID, IS_DEV} from '#/env'
-=======
-import {BLUESKY_PROXY_DID, CHAT_PROXY_DID, IS_DEV} from '#/env'
 import {type app} from '#/lexicons'
->>>>>>> upstream/main
 
 export const LOCAL_DEV_SERVICE =
   Platform.OS === 'android' ? 'http://10.0.2.2:2583' : 'http://localhost:2583'
@@ -241,6 +236,8 @@ export const urls = {
   },
 }
 
+export const PUBLIC_APPVIEW = 'https://api.bsky.app'
+export const PUBLIC_APPVIEW_DID = 'did:web:api.bsky.app'
 export const PUBLIC_STAGING_APPVIEW_DID = 'did:web:api.staging.bsky.dev'
 
 export const DEV_ENV_APPVIEW = `http://localhost:2584` // always the same
@@ -249,16 +246,9 @@ export const DEV_ENV_APPVIEW_DID = `did:plc:dw4kbjf5mn7nhenabiqpkyh3` // always 
 // temp hack for e2e - esb
 // northsky: override-only; configureAppviewProxy resolves the real header
 export const BLUESKY_PROXY_HEADER = {
-<<<<<<< HEAD
-  override: undefined as ProxyHeaderValue | undefined,
-=======
-  value: `${BLUESKY_PROXY_DID}#bsky_appview`,
-  get() {
-    return this.value as Service
-  },
->>>>>>> upstream/main
+  override: undefined as Service | undefined,
   set(value: string) {
-    this.override = value as ProxyHeaderValue
+    this.override = value as Service
   },
 }
 
@@ -286,18 +276,6 @@ export const CHAT_PROXY_SERVICE: Service = `${CHAT_PROXY_DID}#bsky_chat`
  */
 export const MOD_PROXY_SERVICE: Service = `${api.moderation.did}#atproto_labeler`
 
-<<<<<<< HEAD
-=======
-/**
- * The notification service's proxy target, in the `did#service_id` form a lex
- * client's per-call `service` option takes. Passing it emits `atproto-proxy:
- * <this value>` on that one request, which is what routes push registration to
- * the notification service (replaces the old
- * `BLUESKY_NOTIF_SERVICE_HEADERS`).
- */
-export const NOTIF_SERVICE: Service = `${BLUESKY_PROXY_DID}#bsky_notif`
-
->>>>>>> upstream/main
 export const webLinks = {
   tos: BRAND.termsOfServiceUrl, // northsky: brand override
   privacy: BRAND.privacyPolicyUrl, // northsky: brand override

@@ -13,11 +13,13 @@ jest.mock('jwt-decode', () => ({
   },
 }))
 
-import {BLUESKY_PROXY_HEADER, CHAT_PROXY_SERVICE} from '#/lib/constants'
+import {CHAT_PROXY_SERVICE} from '#/lib/constants'
 import {
   invalidateCachedIsBetaUser,
   setCachedIsBetaUser,
 } from '#/state/preferences/beta-user-cache'
+// northsky: buildAppviewClient routes by the resolved appview, not a header
+import {FALLBACK_APPVIEW} from '#/brand/appview'
 import {app, chat, com} from '#/lexicons'
 import {account} from '#/storage'
 import {configureGlobalAppLabelers} from '../additional-moderation-authorities'
@@ -94,13 +96,13 @@ describe('buildAppviewClient', () => {
   })
 
   it('passes through the session did', () => {
-    const client = buildAppviewClient(makeSession(fetchMock))
+    const client = buildAppviewClient(makeSession(fetchMock), FALLBACK_APPVIEW)
     expect(client).toBeInstanceOf(Client)
     expect(client.did).toBe(DID)
   })
 
   it('routes client.call through the session to the network', async () => {
-    const client = buildAppviewClient(makeSession(fetchMock))
+    const client = buildAppviewClient(makeSession(fetchMock), FALLBACK_APPVIEW)
 
     const body = await client.call(app.bsky.actor.getProfile, {actor: HANDLE})
 
@@ -109,19 +111,22 @@ describe('buildAppviewClient', () => {
   })
 
   it('emits the appview proxy header', async () => {
-    const client = buildAppviewClient(makeSession(fetchMock))
+    const client = buildAppviewClient(makeSession(fetchMock), FALLBACK_APPVIEW)
 
     await client.call(app.bsky.actor.getProfile, {actor: HANDLE})
 
     expect(
       headersFor(fetchMock, 'app.bsky.actor.getProfile').get('atproto-proxy'),
-    ).toBe(BLUESKY_PROXY_HEADER.get())
+    ).toBe(`${FALLBACK_APPVIEW.did}#bsky_appview`)
   })
 
   it.each([true, false])(
     'emits the current beta user header when the cached value is %s',
     async isBetaUser => {
-      const client = buildAppviewClient(makeSession(fetchMock))
+      const client = buildAppviewClient(
+        makeSession(fetchMock),
+        FALLBACK_APPVIEW,
+      )
       setCachedIsBetaUser(DID, isBetaUser)
 
       await client.call(app.bsky.actor.getProfile, {actor: HANDLE})
@@ -135,7 +140,7 @@ describe('buildAppviewClient', () => {
   )
 
   it('omits the beta user header when the preference is not cached', async () => {
-    const client = buildAppviewClient(makeSession(fetchMock))
+    const client = buildAppviewClient(makeSession(fetchMock), FALLBACK_APPVIEW)
 
     await client.call(app.bsky.actor.getProfile, {actor: HANDLE})
 
@@ -149,7 +154,7 @@ describe('buildAppviewClient', () => {
   it('reads the persisted beta preference only once', async () => {
     account.set([DID, 'isBetaUser'], true)
     const getSpy = jest.spyOn(account, 'get')
-    const client = buildAppviewClient(makeSession(fetchMock))
+    const client = buildAppviewClient(makeSession(fetchMock), FALLBACK_APPVIEW)
 
     await client.call(app.bsky.actor.getProfile, {actor: HANDLE})
     await client.call(app.bsky.actor.getProfile, {actor: HANDLE})
@@ -159,7 +164,7 @@ describe('buildAppviewClient', () => {
   })
 
   it('emits an account subscription exactly once', async () => {
-    const client = buildAppviewClient(makeSession(fetchMock))
+    const client = buildAppviewClient(makeSession(fetchMock), FALLBACK_APPVIEW)
     client.setLabelers(['did:plc:labeler'])
 
     await client.call(app.bsky.actor.getProfile, {actor: HANDLE})
@@ -185,7 +190,7 @@ describe('buildAppviewClient', () => {
      * non-redacting entry, which is what `applyLabelersToClient` filters against.
      */
     configureGlobalAppLabelers(['did:plc:global-labeler'])
-    const client = buildAppviewClient(makeSession(fetchMock))
+    const client = buildAppviewClient(makeSession(fetchMock), FALLBACK_APPVIEW)
 
     await client.call(app.bsky.actor.getProfile, {actor: HANDLE})
 
@@ -200,7 +205,7 @@ describe('buildAppviewClient', () => {
   })
 
   it('sends the session access token', async () => {
-    const client = buildAppviewClient(makeSession(fetchMock))
+    const client = buildAppviewClient(makeSession(fetchMock), FALLBACK_APPVIEW)
 
     await client.call(app.bsky.actor.getProfile, {actor: HANDLE})
 
@@ -220,7 +225,9 @@ describe('buildPdsClient', () => {
 
   it('is a distinct client from the appview client over the same session', () => {
     const session = makeSession(fetchMock)
-    expect(buildPdsClient(session)).not.toBe(buildAppviewClient(session))
+    expect(buildPdsClient(session)).not.toBe(
+      buildAppviewClient(session, FALLBACK_APPVIEW),
+    )
   })
 
   it('sends the session access token', async () => {

@@ -1,12 +1,6 @@
-<<<<<<< HEAD
 import {type ReactNode, useMemo} from 'react'
 import {type StyleProp, type TextStyle, View} from 'react-native'
-import {AppBskyRichtextFacet, RichText as RichTextAPI} from '@atproto/api'
-=======
-import {useMemo} from 'react'
-import {type StyleProp, type TextStyle} from 'react-native'
 import {RichText as RichTextAPI} from '@bsky/sdk/richtext'
->>>>>>> upstream/main
 
 // northsky: Markdown-style code and emphasis in post text
 import {hasEmphasis} from '#/lib/code/emphasis'
@@ -286,7 +280,6 @@ export function RichText({
         bsky.matches(app.bsky.richtext.facet.mention, mention)) &&
       !disableLinks
     ) {
-<<<<<<< HEAD
       parts.push({
         block: false,
         node: (
@@ -304,24 +297,7 @@ export function RichText({
           </ProfileHoverCard>
         ),
       })
-    } else if (link && AppBskyRichtextFacet.validateLink(link).success) {
-=======
-      els.push(
-        <ProfileHoverCard key={key} did={mention.did}>
-          <InlineLinkText
-            selectable={selectable}
-            to={`/profile/${mention.did}`}
-            style={interactiveStyles}
-            // @ts-ignore TODO
-            dataSet={WORD_WRAP}
-            shouldProxy={shouldProxyLinks}
-            onPress={onLinkPress}>
-            {segment.text}
-          </InlineLinkText>
-        </ProfileHoverCard>,
-      )
     } else if (link && bsky.matches(app.bsky.richtext.facet.link, link)) {
->>>>>>> upstream/main
       const isValidLink = URL_REGEX.test(link.uri)
       if (!isValidLink || disableLinks) {
         parts.push({block: false, node: toShortUrl(segment.text)})

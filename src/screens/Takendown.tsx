@@ -8,14 +8,7 @@ import {Trans} from '@lingui/react/macro'
 import {useMutation} from '@tanstack/react-query'
 import {countGraphemes} from 'unicode-segmenter/grapheme'
 
-<<<<<<< HEAD
 import {MAX_REPORT_REASON_GRAPHEME_LENGTH} from '#/lib/constants'
-=======
-import {
-  MAX_REPORT_REASON_GRAPHEME_LENGTH,
-  MOD_PROXY_SERVICE,
-} from '#/lib/constants'
->>>>>>> upstream/main
 import {cleanError} from '#/lib/strings/errors'
 import {useAppviewClient, useSession, useSessionApi} from '#/state/session'
 import {CharProgress} from '#/view/com/composer/char-progress/CharProgress'
@@ -27,10 +20,7 @@ import {SimpleInlineLinkText} from '#/components/Link'
 import {Loader} from '#/components/Loader'
 import {P, Text} from '#/components/Typography'
 // northsky: takedowns come from the account's PDS, which may not be Northsky
-import {
-  getHostModerationInfo,
-  getHostModServiceHeaders,
-} from '#/brand/moderation'
+import {getHostModerationInfo, getHostModServiceProxy} from '#/brand/moderation'
 import {IS_WEB} from '#/env'
 import {com, tools} from '#/lexicons'
 
@@ -71,15 +61,8 @@ export function Takendown() {
           },
           reason: appealText,
         },
-<<<<<<< HEAD
-        {
-          encoding: 'application/json',
-          // northsky: appeal to the mod service of the account's own PDS
-          headers: getHostModServiceHeaders(currentAccount.service),
-        },
-=======
-        {service: MOD_PROXY_SERVICE},
->>>>>>> upstream/main
+        // northsky: appeal to the mod service of the account's own PDS
+        {service: getHostModServiceProxy(currentAccount.service)},
       )
     },
     onSuccess: () => setReason(''),

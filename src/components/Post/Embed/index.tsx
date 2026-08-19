@@ -25,15 +25,12 @@ import {isStandardSiteEmbed} from '#/components/Post/Embed/StandardSiteEmbed/uti
 import {RichText} from '#/components/RichText'
 import {Embed as StarterPackCard} from '#/components/StarterPack/StarterPackCard'
 import {SubtleHover} from '#/components/SubtleHover'
-<<<<<<< HEAD
 import {GradientRing} from '#/brand/GradientRing' // northsky: gradient-ring quote frame
 // northsky: custom-lexicon rendering extension point
 // northsky: rich rendering for recognized external links (e.g. Tangled snippets)
 import {matchCustomEmbed} from '#/features/customEmbeds/registry'
 import {CustomRecordRenderer} from '#/features/customRecords/CustomRecordRenderer'
-=======
 import {app} from '#/lexicons'
->>>>>>> upstream/main
 import * as bsky from '#/types/bsky'
 import {
   type Embed as TEmbed,

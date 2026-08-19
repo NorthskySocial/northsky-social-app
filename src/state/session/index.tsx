@@ -20,21 +20,9 @@ import {type AppView} from '#/brand/appview'
 import {IS_WEB} from '#/env'
 import {com} from '#/lexicons'
 import {emitSessionDropped} from '../events'
-<<<<<<< HEAD
-import {
-  agentToSessionAccount,
-  type BskyAppAgent,
-  createAgentAndCreateAccount,
-  createAgentAndLogin,
-  createAgentAndResume,
-  getAppviewForAgent, // northsky: PDS-to-appview routing
-  sessionAccountToSession,
-} from './agent'
-=======
 import {getPublicAppviewClient} from './clients'
 import {createSessionBundleAndCreateAccount} from './create-account'
 import {pickExpiryRescueCandidate} from './expiry-rescue'
->>>>>>> upstream/main
 import {type Action, getInitialState, reducer, type State} from './reducer'
 import {
   type AtpSessionEvent,
@@ -845,5 +833,9 @@ export function usePublicAppviewClient(): Client {
  * appview constant for account-scoped calls.
  */
 export function useAppview(): AppView {
-  return getAppviewForAgent(useAgent())
+  const bundle = useContext(BundleContext)
+  if (!bundle) {
+    throw Error('useAppview() must be below <SessionProvider>.')
+  }
+  return bundle.appview
 }

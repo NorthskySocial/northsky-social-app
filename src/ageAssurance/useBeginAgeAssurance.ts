@@ -3,12 +3,8 @@ import {useMutation} from '@tanstack/react-query'
 
 import {wait} from '#/lib/async/wait'
 import {isNetworkError} from '#/lib/hooks/useCleanError'
-<<<<<<< HEAD
-import {useAgent, useAppview} from '#/state/session'
-=======
 import {createLexClient} from '#/lib/lexClient'
-import {usePdsClient} from '#/state/session'
->>>>>>> upstream/main
+import {useAppview, usePdsClient} from '#/state/session'
 import {usePatchAgeAssuranceServerState} from '#/ageAssurance'
 import {logger} from '#/ageAssurance/logger'
 import {useAnalytics} from '#/analytics'
@@ -17,12 +13,8 @@ import {app, com} from '#/lexicons'
 
 export function useBeginAgeAssurance() {
   const ax = useAnalytics()
-<<<<<<< HEAD
-  const agent = useAgent()
-  const appview = useAppview() // northsky: appview routed for this account
-=======
   const pdsClient = usePdsClient()
->>>>>>> upstream/main
+  const appview = useAppview() // northsky: appview routed for this account
   const geolocation = useGeolocation()
   const patchAgeAssuranceStateResponse = usePatchAgeAssuranceServerState()
 
@@ -39,22 +31,9 @@ export function useBeginAgeAssurance() {
         throw new Error(`Geolocation not available, cannot init age assurance.`)
       }
 
-<<<<<<< HEAD
-      const {
-        data: {token},
-      } = await agent.com.atproto.server.getServiceAuth({
+      const {token} = await pdsClient.call(com.atproto.server.getServiceAuth, {
         // northsky: the token audience must match the appview that gets it
         aud: appview.did,
-        lxm: `app.bsky.ageassurance.begin`,
-      })
-
-      const appView = new AtpAgent({service: appview.url})
-      appView.sessionManager.session = {...agent.session!}
-      appView.sessionManager.session.accessJwt = token
-      appView.sessionManager.session.refreshJwt = ''
-=======
-      const {token} = await pdsClient.call(com.atproto.server.getServiceAuth, {
-        aud: BLUESKY_PROXY_DID,
         lxm: `app.bsky.ageassurance.begin`,
       })
 
@@ -66,10 +45,10 @@ export function useBeginAgeAssurance() {
        * also makes the old `refreshJwt = ''` clone unnecessary.
        */
       const scopedClient = createLexClient({
-        service: APPVIEW,
+        // northsky: talk to the appview routed for this account
+        service: appview.url,
         headers: {authorization: `Bearer ${token}`},
       })
->>>>>>> upstream/main
 
       ax.metric('ageAssurance:api:begin', {
         platform: Platform.OS,

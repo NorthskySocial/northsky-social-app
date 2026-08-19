@@ -90,6 +90,9 @@ jest.mock('jwt-decode', () => ({
   },
 }))
 
+// northsky: the brand PDS is the hosted service, so isSelfHosted still
+// derives correctly when the fixtures use it instead of bsky.social
+import {BSKY_SERVICE} from '#/lib/constants'
 import {
   type AtpSessionEvent,
   buildBundle,
@@ -130,28 +133,24 @@ function makeSessionData(overrides: Partial<SessionData> = {}): SessionData {
     emailConfirmed: true,
     emailAuthFactor: false,
     active: true,
-    service: 'https://bsky.social',
+    service: BSKY_SERVICE,
     ...overrides,
   }
 }
 
 describe('sessionDataToSessionAccount', () => {
   it('returns undefined for a missing session', () => {
-    expect(sessionDataToSessionAccount(undefined, 'https://bsky.social')).toBe(
-      undefined,
-    )
-    expect(sessionDataToSessionAccount(null, 'https://bsky.social')).toBe(
-      undefined,
-    )
+    expect(sessionDataToSessionAccount(undefined, BSKY_SERVICE)).toBe(undefined)
+    expect(sessionDataToSessionAccount(null, BSKY_SERVICE)).toBe(undefined)
   })
 
   it('maps fields for a hosted account (no didDoc)', () => {
     const account = sessionDataToSessionAccount(
       makeSessionData(),
-      'https://bsky.social',
+      BSKY_SERVICE,
     )!
     expect(account).toEqual({
-      service: 'https://bsky.social/',
+      service: `${BSKY_SERVICE}/`,
       did: DID,
       handle: HANDLE,
       email: 'alice@example.com',
@@ -170,15 +169,15 @@ describe('sessionDataToSessionAccount', () => {
   it('serializes service as a normalized URL', () => {
     const account = sessionDataToSessionAccount(
       makeSessionData(),
-      'https://bsky.social',
+      BSKY_SERVICE,
     )!
-    expect(account.service).toBe('https://bsky.social/')
+    expect(account.service).toBe(`${BSKY_SERVICE}/`)
   })
 
   it('serializes the didDoc PDS endpoint as a normalized URL', () => {
     const account = sessionDataToSessionAccount(
       makeSessionData({didDoc: synthDidDoc(DID, PDS_URL)}),
-      'https://bsky.social',
+      BSKY_SERVICE,
     )!
     expect(account.pdsUrl).toBe(`${PDS_URL}/`)
   })
@@ -186,7 +185,7 @@ describe('sessionDataToSessionAccount', () => {
   it('leaves pdsUrl undefined for hosted accounts (no service fallback)', () => {
     const account = sessionDataToSessionAccount(
       makeSessionData({didDoc: undefined}),
-      'https://bsky.social',
+      BSKY_SERVICE,
     )!
     expect(account.pdsUrl).toBe(undefined)
   })
@@ -194,17 +193,14 @@ describe('sessionDataToSessionAccount', () => {
   it('retains the stored PDS when a valid didDoc has no PDS service', () => {
     const account = sessionDataToSessionAccount(
       makeSessionData({didDoc: {id: DID}}),
-      'https://bsky.social',
+      BSKY_SERVICE,
       PDS_URL,
     )!
     expect(account.pdsUrl).toBe(`${PDS_URL}/`)
   })
 
   it('derives isSelfHosted from the service URL', () => {
-    const hosted = sessionDataToSessionAccount(
-      makeSessionData(),
-      'https://bsky.social',
-    )!
+    const hosted = sessionDataToSessionAccount(makeSessionData(), BSKY_SERVICE)!
     expect(hosted.isSelfHosted).toBe(false)
 
     const selfHosted = sessionDataToSessionAccount(
@@ -217,13 +213,13 @@ describe('sessionDataToSessionAccount', () => {
   it('derives signupQueued from the access token scope', () => {
     const queued = sessionDataToSessionAccount(
       makeSessionData({accessJwt: 'queued-access-jwt'}),
-      'https://bsky.social',
+      BSKY_SERVICE,
     )!
     expect(queued.signupQueued).toBe(true)
 
     const notQueued = sessionDataToSessionAccount(
       makeSessionData(),
-      'https://bsky.social',
+      BSKY_SERVICE,
     )!
     expect(notQueued.signupQueued).toBe(false)
   })
@@ -235,7 +231,7 @@ describe('sessionDataToSessionAccount', () => {
         emailConfirmed: undefined,
         emailAuthFactor: undefined,
       }),
-      'https://bsky.social',
+      BSKY_SERVICE,
     )!
     expect(account.email).toBe(undefined)
     expect(account.emailConfirmed).toBe(false)
@@ -249,10 +245,10 @@ describe('sessionDataToSessionAccount', () => {
      */
     const account = sessionDataToSessionAccount(
       makeSessionData({didDoc: synthDidDoc(DID, PDS_URL)}),
-      'https://bsky.social',
+      BSKY_SERVICE,
     )!
     const golden: SessionAccount = {
-      service: 'https://bsky.social/',
+      service: `${BSKY_SERVICE}/`,
       did: DID,
       handle: HANDLE,
       email: 'alice@example.com',
@@ -273,7 +269,7 @@ describe('sessionDataToSessionAccount', () => {
 
 describe('sessionAccountToSessionData', () => {
   const baseAccount: SessionAccount = {
-    service: 'https://bsky.social/',
+    service: `${BSKY_SERVICE}/`,
     did: DID,
     handle: HANDLE,
     email: 'alice@example.com',
@@ -300,7 +296,7 @@ describe('sessionAccountToSessionData', () => {
     expect(data.active).toBe(true)
     expect(data.did).toBe(DID)
     expect(data.handle).toBe(HANDLE)
-    expect(data.service).toBe('https://bsky.social/')
+    expect(data.service).toBe(`${BSKY_SERVICE}/`)
   })
 
   it('omits didDoc when the account has no stored pdsUrl', () => {

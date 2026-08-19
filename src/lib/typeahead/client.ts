@@ -1,7 +1,8 @@
-import {type AppBskyActorDefs, type AtpAgent} from '@atproto/api'
+import {type Client} from '@atproto/lex'
 
 import {type AppView} from '#/brand/appview'
 import {BRAND} from '#/brand/config'
+import {app} from '#/lexicons'
 
 const TIMEOUT_MS = 5_000
 
@@ -10,15 +11,15 @@ const X_CLIENT = 'northsky.app'
 
 /*
  * This function calls the service with plain `fetch`, as the other
- * third-party clients in `src/lib/slingshot/` do. Do not use an atproto agent
- * here. An agent puts an `atproto-accept-labelers` header on every request,
+ * third-party clients in `src/lib/slingshot/` do. Do not use a lex client
+ * here. A client puts an `atproto-accept-labelers` header on every request,
  * and the service rejects that header at the CORS preflight. The service
  * permits only `Content-Type`, `Authorization`, and `X-Client`.
  */
 async function fetchFallbackTypeahead(params: {
   q: string
   limit: number
-}): Promise<AppBskyActorDefs.ProfileViewBasic[]> {
+}): Promise<app.bsky.actor.defs.ProfileViewBasic[]> {
   const url = new URL(
     '/xrpc/app.bsky.actor.searchActorsTypeahead',
     BRAND.typeaheadServiceUrl,
@@ -41,12 +42,12 @@ async function fetchFallbackTypeahead(params: {
       return []
     }
     /*
-     * The agent checked the response against the lexicon. Plain fetch does
+     * A lex client checks the response against the lexicon. Plain fetch does
      * not, and the service is a third party, so each entry must carry the one
      * field the caller reads before hydration replaces the rest.
      */
     return body.actors.filter(
-      (actor): actor is AppBskyActorDefs.ProfileViewBasic =>
+      (actor): actor is app.bsky.actor.defs.ProfileViewBasic =>
         typeof (actor as {did?: unknown})?.did === 'string',
     )
   } finally {
@@ -62,15 +63,15 @@ async function fetchFallbackTypeahead(params: {
  */
 export async function searchActorsTypeaheadVia(
   appview: AppView,
-  agent: AtpAgent,
+  client: Client,
   params: {q: string; limit: number},
-): Promise<AppBskyActorDefs.ProfileViewBasic[]> {
+): Promise<app.bsky.actor.defs.ProfileViewBasic[]> {
   if (!appview.useFallbackTypeahead) {
-    const res = await agent.searchActorsTypeahead(params)
-    return res.data.actors
+    const res = await client.call(app.bsky.actor.searchActorsTypeahead, params)
+    return res.actors
   }
 
-  return hydrateViewerState(agent, await fetchFallbackTypeahead(params))
+  return hydrateViewerState(client, await fetchFallbackTypeahead(params))
 }
 
 /** `app.bsky.actor.getProfiles` accepts at most 25 actors per call. */
@@ -92,18 +93,18 @@ const HYDRATION_LIMIT = 25
  * what `getProfiles` accepts.
  */
 async function hydrateViewerState(
-  agent: AtpAgent,
-  actors: AppBskyActorDefs.ProfileViewBasic[],
-): Promise<AppBskyActorDefs.ProfileViewBasic[]> {
+  client: Client,
+  actors: app.bsky.actor.defs.ProfileViewBasic[],
+): Promise<app.bsky.actor.defs.ProfileViewBasic[]> {
   if (actors.length === 0) {
     return actors
   }
 
   const dids = [...new Set(actors.map(a => a.did))].slice(0, HYDRATION_LIMIT)
-  const res = await agent.getProfiles({actors: dids})
-  const byDid = new Map(res.data.profiles.map(p => [p.did, p]))
+  const res = await client.call(app.bsky.actor.getProfiles, {actors: dids})
+  const byDid = new Map(res.profiles.map(p => [p.did, p]))
 
-  const hydrated: AppBskyActorDefs.ProfileViewBasic[] = []
+  const hydrated: app.bsky.actor.defs.ProfileViewBasic[] = []
   const emitted = new Set<string>()
   for (const actor of actors) {
     const profile = byDid.get(actor.did)

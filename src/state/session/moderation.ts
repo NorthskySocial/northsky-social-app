@@ -1,19 +1,14 @@
 import {type Client} from '@atproto/lex'
 import {type DidString} from '@atproto/syntax'
-import {api} from '@bsky/sdk'
 
 import {IS_TEST_USER} from '#/lib/constants'
-<<<<<<< HEAD
+// northsky: Northsky moderation ships as an app labeler beside Bluesky;
+// regional authorities stay off, so configureAdditionalModerationAuthorities
+// is not imported.
 import {APP_LABELER_DIDS} from '#/brand/moderation'
-import {readLabelers} from './agent-config'
-=======
 import {com} from '#/lexicons'
 import {account as accountStorage} from '#/storage'
-import {
-  configureAdditionalModerationAuthorities,
-  configureGlobalAppLabelers,
-} from './additional-moderation-authorities'
->>>>>>> upstream/main
+import {configureGlobalAppLabelers} from './additional-moderation-authorities'
 import {type SessionAccount} from './types'
 
 /** The moderation surface of a session bundle. */
@@ -58,7 +53,10 @@ export function applyLabelersToClient(
   subscribedDids: string[],
 ) {
   client.setLabelers(
-    subscribedDids.filter(did => did !== api.moderation.did) as DidString[],
+    // northsky: every APP_LABELER_DID is global and redacting, not just Bluesky's
+    subscribedDids.filter(
+      did => !APP_LABELER_DIDS.includes(did as DidString),
+    ) as DidString[],
   )
 }
 
@@ -95,14 +93,9 @@ export function configureModerationForAccount(
   }
 }
 
-<<<<<<< HEAD
 // northsky: Northsky moderation ships as an app labeler beside Bluesky.
 function switchToAppLabelers() {
-  AtpAgent.configure({appLabelers: [...APP_LABELER_DIDS]})
-=======
-function switchToBskyAppLabeler() {
-  configureGlobalAppLabelers([api.moderation.did])
->>>>>>> upstream/main
+  configureGlobalAppLabelers([...APP_LABELER_DIDS])
 }
 
 /** Resolve and install the test environment's moderation authority. */

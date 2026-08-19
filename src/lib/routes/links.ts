@@ -1,11 +1,8 @@
 import {AtUri} from '@atproto/syntax'
 
 import {isInvalidHandle} from '#/lib/strings/handles'
-<<<<<<< HEAD
 import {BRAND} from '#/brand/config' // northsky: brand host for starter pack links
-=======
 import {type app} from '#/lexicons'
->>>>>>> upstream/main
 
 export function makeProfileLink(
   info: {

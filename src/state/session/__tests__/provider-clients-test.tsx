@@ -3,6 +3,8 @@ import {PasswordSession} from '@atproto/lex-password-session'
 import {beforeEach, describe, expect, it, jest} from '@jest/globals'
 import {act, render} from '@testing-library/react-native'
 
+// northsky: resolve the appview the bundle routes to
+import {resolveAppViewForService} from '#/brand/appview'
 import {type SessionAccount} from '../types'
 
 /*
@@ -99,9 +101,12 @@ function makeBundle(account: SessionAccount): SessionBundle {
   const session = new PasswordSession(sessionAccountToSessionData(account), {
     fetch: asFetch(fetchMock),
   })
+  // northsky: the bundle carries the resolved appview for routing
+  const appview = resolveAppViewForService(account.service)
   return {
     session,
-    appviewClient: buildAppviewClient(session),
+    appview,
+    appviewClient: buildAppviewClient(session, appview),
     pdsClient: buildPdsClient(session),
     chatClient: buildChatClient(session),
     service: new URL(account.service),

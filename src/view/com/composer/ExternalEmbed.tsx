@@ -98,7 +98,8 @@ export const ExternalEmbedLink = ({
           uri,
           title: data.title || uri,
           description: data.description || '',
-          thumb: data.thumb?.source.path,
+          /* a local composer file path stands in for the thumb URI here */
+          thumb: data.thumb?.source.path as UriString | undefined,
         }
         const CustomPreview = matchCustomEmbedPreview(externalView)
         if (CustomPreview) {

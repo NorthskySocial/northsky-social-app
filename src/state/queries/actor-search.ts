@@ -7,13 +7,9 @@ import {
 } from '@tanstack/react-query'
 
 import {STALE} from '#/state/queries'
-<<<<<<< HEAD
-import {useAgent, useAppview} from '#/state/session'
+import {useAppview, useAppviewClient} from '#/state/session'
 import {searchProxyOpts} from '#/brand/searchRouting' // northsky: search routing
-=======
-import {useAppviewClient} from '#/state/session'
 import {app} from '#/lexicons'
->>>>>>> upstream/main
 
 export const RQKEY_ROOT = 'actor-search'
 export const RQKEY = (query: string, limit?: number) => [
@@ -33,12 +29,8 @@ export function useActorSearch({
   maintainData?: boolean
   limit?: number
 }) {
-<<<<<<< HEAD
-  const agent = useAgent()
-  const appview = useAppview() // northsky: search may be pinned to another appview
-=======
   const client = useAppviewClient()
->>>>>>> upstream/main
+  const appview = useAppview() // northsky: search may be pinned to another appview
   return useInfiniteQuery<
     app.bsky.actor.searchActors.$OutputBody,
     Error,
@@ -50,8 +42,8 @@ export function useActorSearch({
     // northsky: appended appview so switching accounts does not reuse results
     queryKey: [...RQKEY(query, limit), appview.did],
     queryFn: async ({pageParam}) => {
-<<<<<<< HEAD
-      const res = await agent.searchActors(
+      return await client.call(
+        app.bsky.actor.searchActors,
         {
           q: query,
           limit,
@@ -59,14 +51,6 @@ export function useActorSearch({
         },
         searchProxyOpts(appview), // northsky: appviews without actor search route elsewhere
       )
-      return res.data
-=======
-      return await client.call(app.bsky.actor.searchActors, {
-        q: query,
-        limit,
-        cursor: pageParam,
-      })
->>>>>>> upstream/main
     },
     enabled: enabled && !!query,
     initialPageParam: undefined,

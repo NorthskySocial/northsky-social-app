@@ -100,18 +100,13 @@ export function StepFinished() {
 
       await Promise.all([
         bulkWriteFollows(
-<<<<<<< HEAD
-          agent,
+          pdsClient,
+          appviewClient,
           [
             BSKY_APP_ACCOUNT_DID,
             NORTHSKY_APP_ACCOUNT_DID, // northsky:
             ...(listItems?.map(i => i.subject.did) ?? []),
           ],
-=======
-          pdsClient,
-          appviewClient,
-          [BSKY_APP_ACCOUNT_DID, ...(listItems?.map(i => i.subject.did) ?? [])],
->>>>>>> upstream/main
           starterPack
             ? {uri: starterPack.uri, cid: starterPack.cid}
             : undefined,

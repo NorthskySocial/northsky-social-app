@@ -68,15 +68,9 @@ describe('session', () => {
     expect(printState(state)).toMatchInlineSnapshot(`
       {
         "accounts": [],
-<<<<<<< HEAD
-        "currentAgentState": {
-          "agent": {
-            "service": "https://api.blacksky.community/",
-=======
         "currentBundleState": {
           "bundle": {
-            "service": "https://public.api.bsky.app/",
->>>>>>> upstream/main
+            "service": "https://api.blacksky.community/",
           },
           "did": undefined,
         },
@@ -163,15 +157,9 @@ describe('session', () => {
             "status": undefined,
           },
         ],
-<<<<<<< HEAD
-        "currentAgentState": {
-          "agent": {
-            "service": "https://api.blacksky.community/",
-=======
         "currentBundleState": {
           "bundle": {
-            "service": "https://public.api.bsky.app/",
->>>>>>> upstream/main
+            "service": "https://api.blacksky.community/",
           },
           "did": undefined,
         },
@@ -507,15 +495,9 @@ describe('session', () => {
             "status": undefined,
           },
         ],
-<<<<<<< HEAD
-        "currentAgentState": {
-          "agent": {
-            "service": "https://api.blacksky.community/",
-=======
         "currentBundleState": {
           "bundle": {
-            "service": "https://public.api.bsky.app/",
->>>>>>> upstream/main
+            "service": "https://api.blacksky.community/",
           },
           "did": undefined,
         },
@@ -575,15 +557,9 @@ describe('session', () => {
             "status": undefined,
           },
         ],
-<<<<<<< HEAD
-        "currentAgentState": {
-          "agent": {
-            "service": "https://api.blacksky.community/",
-=======
         "currentBundleState": {
           "bundle": {
-            "service": "https://public.api.bsky.app/",
->>>>>>> upstream/main
+            "service": "https://api.blacksky.community/",
           },
           "did": undefined,
         },
@@ -674,15 +650,9 @@ describe('session', () => {
     expect(printState(state)).toMatchInlineSnapshot(`
       {
         "accounts": [],
-<<<<<<< HEAD
-        "currentAgentState": {
-          "agent": {
-            "service": "https://api.blacksky.community/",
-=======
         "currentBundleState": {
           "bundle": {
-            "service": "https://public.api.bsky.app/",
->>>>>>> upstream/main
+            "service": "https://api.blacksky.community/",
           },
           "did": undefined,
         },
@@ -860,15 +830,9 @@ describe('session', () => {
             "status": undefined,
           },
         ],
-<<<<<<< HEAD
-        "currentAgentState": {
-          "agent": {
-            "service": "https://api.blacksky.community/",
-=======
         "currentBundleState": {
           "bundle": {
-            "service": "https://public.api.bsky.app/",
->>>>>>> upstream/main
+            "service": "https://api.blacksky.community/",
           },
           "did": undefined,
         },
@@ -1558,81 +1522,9 @@ describe('session', () => {
             "status": undefined,
           },
         ],
-<<<<<<< HEAD
-        "currentAgentState": {
-          "agent": {
-            "service": "https://api.blacksky.community/",
-          },
-          "did": undefined,
-        },
-        "needsPersist": true,
-      }
-    `)
-  })
-
-  it('resets tokens on created-failed event', () => {
-    let state = getInitialState([])
-
-    const agent1 = new AtpAgent({service: 'https://alice.com'})
-    agent1.sessionManager.session = {
-      active: true,
-      did: 'alice-did',
-      handle: 'alice.test',
-      accessJwt: 'alice-access-jwt-1',
-      refreshJwt: 'alice-refresh-jwt-1',
-    }
-    state = run(state, [
-      {
-        type: 'switched-to-account',
-        newAgent: agent1,
-        newAccount: agentToSessionAccountOrThrow(agent1),
-      },
-    ])
-    expect(state.accounts.length).toBe(1)
-    expect(state.accounts[0].accessJwt).toBe('alice-access-jwt-1')
-    expect(state.currentAgentState.did).toBe('alice-did')
-
-    agent1.sessionManager.session = undefined
-    state = run(state, [
-      {
-        type: 'received-agent-event',
-        accountDid: 'alice-did',
-        agent: agent1,
-        refreshedAccount: undefined,
-        sessionEvent: 'create-failed',
-      },
-    ])
-    expect(state.accounts.length).toBe(1)
-    expect(state.accounts[0].accessJwt).toBe(undefined)
-    expect(state.accounts[0].refreshJwt).toBe(undefined)
-    expect(state.currentAgentState.did).toBe(undefined)
-    expect(printState(state)).toMatchInlineSnapshot(`
-      {
-        "accounts": [
-          {
-            "accessJwt": undefined,
-            "active": true,
-            "did": "alice-did",
-            "email": undefined,
-            "emailAuthFactor": false,
-            "emailConfirmed": false,
-            "handle": "alice.test",
-            "isSelfHosted": true,
-            "pdsUrl": undefined,
-            "refreshJwt": undefined,
-            "service": "https://alice.com/",
-            "signupQueued": false,
-            "status": undefined,
-          },
-        ],
-        "currentAgentState": {
-          "agent": {
-            "service": "https://api.blacksky.community/",
-=======
         "currentBundleState": {
           "bundle": {
-            "service": "https://public.api.bsky.app/",
->>>>>>> upstream/main
+            "service": "https://api.blacksky.community/",
           },
           "did": undefined,
         },
@@ -1787,15 +1679,9 @@ describe('session', () => {
             "status": undefined,
           },
         ],
-<<<<<<< HEAD
-        "currentAgentState": {
-          "agent": {
-            "service": "https://api.blacksky.community/",
-=======
         "currentBundleState": {
           "bundle": {
-            "service": "https://public.api.bsky.app/",
->>>>>>> upstream/main
+            "service": "https://api.blacksky.community/",
           },
           "did": undefined,
         },

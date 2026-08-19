@@ -8,14 +8,10 @@ import {
 import {type AtUriString} from '@atproto/syntax'
 
 import * as persisted from '#/state/persisted'
-<<<<<<< HEAD
 // northsky: thread mutes are private per-appview state
 import {replayMuteWriteToFallback} from '#/features/muteSync'
-import {useAgent, useAppview, useSession} from '../session'
-=======
 import {app} from '#/lexicons'
-import {useAppviewClient, useSession} from '../session'
->>>>>>> upstream/main
+import {useAppview, useAppviewClient, useSession} from '../session'
 
 type StateContext = Map<string, boolean>
 type SetStateContext = (uri: string, value: boolean) => void
@@ -64,12 +60,8 @@ export function useSetThreadMute() {
 }
 
 function useMigrateMutes(setThreadMute: SetStateContext) {
-<<<<<<< HEAD
-  const agent = useAgent()
-  const appview = useAppview() // northsky: mutes are private per-appview state
-=======
   const client = useAppviewClient()
->>>>>>> upstream/main
+  const appview = useAppview() // northsky: mutes are private per-appview state
   const {currentAccount} = useSession()
 
   useEffect(() => {
@@ -100,22 +92,21 @@ function useMigrateMutes(setThreadMute: SetStateContext) {
 
           setThreadMute(root, true)
 
-<<<<<<< HEAD
-          await agent.api.app.bsky.graph
-            .muteThread({root})
-            // northsky: replay to the fallback only after the primary write succeeds
-            .then(() =>
-              replayMuteWriteToFallback(appview, currentAccount.did, opts =>
-                agent.api.app.bsky.graph.muteThread({root}, opts),
-              ),
-            )
-=======
           await client
             .call(app.bsky.graph.muteThread, {
               // the persisted list only ever holds post at-uris
               root: root as AtUriString,
             })
->>>>>>> upstream/main
+            // northsky: replay to the fallback only after the primary write succeeds
+            .then(() =>
+              replayMuteWriteToFallback(appview, currentAccount.did, opts =>
+                client.call(
+                  app.bsky.graph.muteThread,
+                  {root: root as AtUriString},
+                  opts,
+                ),
+              ),
+            )
             // not a big deal if this fails, since the post might have been deleted
             .catch(console.error)
         }
@@ -127,9 +118,5 @@ function useMigrateMutes(setThreadMute: SetStateContext) {
         cancelled = true
       }
     }
-<<<<<<< HEAD
-  }, [agent, appview, currentAccount, setThreadMute])
-=======
-  }, [client, currentAccount, setThreadMute])
->>>>>>> upstream/main
+  }, [client, appview, currentAccount, setThreadMute])
 }

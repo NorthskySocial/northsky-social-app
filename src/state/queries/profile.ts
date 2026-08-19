@@ -37,21 +37,19 @@ import {
   useUnstableProfileViewCache,
 } from '#/state/queries/unstable-profile-cache'
 import {useUpdateProfileVerificationCache} from '#/state/queries/verification/useUpdateProfileVerificationCache'
-<<<<<<< HEAD
-import {useAgent, useAppview, useSession} from '#/state/session'
+import {
+  useAppview,
+  useAppviewClient,
+  usePdsClient,
+  useSession,
+} from '#/state/session'
 import * as userActionHistory from '#/state/userActionHistory'
 import {useAnalytics} from '#/analytics'
 import {type Metrics, toClout} from '#/analytics/metrics'
 import {getProfileWithGlobalCounts} from '#/brand/globalProfileCounts'
 // northsky: mute writes are replayed to the fallback appview
 import {replayMuteWriteToFallback, runUserMuteWrite} from '#/features/muteSync'
-=======
-import {useAppviewClient, usePdsClient, useSession} from '#/state/session'
-import * as userActionHistory from '#/state/userActionHistory'
-import {useAnalytics} from '#/analytics'
-import {type Metrics, toClout} from '#/analytics/metrics'
 import {app} from '#/lexicons'
->>>>>>> upstream/main
 import type * as bsky from '#/types/bsky'
 import {
   ProgressGuideAction,
@@ -83,12 +81,8 @@ export function useProfileQuery({
   did: string | undefined
   staleTime?: number
 }) {
-<<<<<<< HEAD
-  const agent = useAgent()
-  const appview = useAppview()
-=======
   const client = useAppviewClient()
->>>>>>> upstream/main
+  const appview = useAppview()
   const {getUnstableProfile} = useUnstableProfileViewCache()
   return useQuery<app.bsky.actor.defs.ProfileViewDetailed>({
     // WARNING
@@ -99,15 +93,13 @@ export function useProfileQuery({
     refetchOnWindowFocus: true,
     queryKey: RQKEY(did ?? ''),
     queryFn: async () => {
-<<<<<<< HEAD
       return getProfileWithGlobalCounts(appview, 'getProfile', opts =>
-        agent.getProfile({actor: did ?? ''}, opts),
+        client.call(
+          app.bsky.actor.getProfile,
+          {actor: (did ?? '') as AtIdentifierString},
+          opts,
+        ),
       )
-=======
-      return await client.call(app.bsky.actor.getProfile, {
-        actor: (did ?? '') as AtIdentifierString,
-      })
->>>>>>> upstream/main
     },
     placeholderData: () => {
       if (!did) return
@@ -139,12 +131,8 @@ export function useProfilesQuery({
 }
 
 export function usePrefetchProfileQuery() {
-<<<<<<< HEAD
-  const agent = useAgent()
-  const appview = useAppview()
-=======
   const client = useAppviewClient()
->>>>>>> upstream/main
+  const appview = useAppview()
   const queryClient = useQueryClient()
   const prefetchProfileQuery = useCallback(
     async (did: string) => {
@@ -152,23 +140,17 @@ export function usePrefetchProfileQuery() {
         staleTime: STALE.SECONDS.THIRTY,
         queryKey: RQKEY(did),
         queryFn: async () => {
-<<<<<<< HEAD
           return getProfileWithGlobalCounts(appview, 'getProfile', opts =>
-            agent.getProfile({actor: did || ''}, opts),
+            client.call(
+              app.bsky.actor.getProfile,
+              {actor: (did || '') as AtIdentifierString},
+              opts,
+            ),
           )
         },
       })
     },
-    [queryClient, agent, appview],
-=======
-          return await client.call(app.bsky.actor.getProfile, {
-            actor: (did || '') as AtIdentifierString,
-          })
-        },
-      })
-    },
-    [queryClient, client],
->>>>>>> upstream/main
+    [queryClient, client, appview],
   )
   return prefetchProfileQuery
 }
@@ -567,23 +549,19 @@ export function useProfileMuteRepostsMutationQueue(
 
 function useProfileMuteMutation() {
   const queryClient = useQueryClient()
-<<<<<<< HEAD
-  const agent = useAgent()
-  const appview = useAppview() // northsky: mutes are private per-appview state
-  return useMutation<void, Error, {did: string}>({
-    mutationFn: async ({did}) => {
-      // northsky: this user action outranks an older reconciliation snapshot
-      await runUserMuteWrite(did, () => agent.mute(did))
-      // northsky: keep the fallback appview's mute state in step
-      void replayMuteWriteToFallback(appview, agent.session?.did, opts =>
-        agent.app.bsky.graph.muteActor({actor: did}, opts),
-      )
-=======
+  const {currentAccount} = useSession()
   const appviewClient = useAppviewClient()
+  const appview = useAppview() // northsky: mutes are private per-appview state
   return useMutation({
     mutationFn: async ({did}: {did: DidString}) => {
-      await appviewClient.call(muteActor, {actor: did})
->>>>>>> upstream/main
+      // northsky: this user action outranks an older reconciliation snapshot
+      await runUserMuteWrite(did, () =>
+        appviewClient.call(muteActor, {actor: did}),
+      )
+      // northsky: keep the fallback appview's mute state in step
+      void replayMuteWriteToFallback(appview, currentAccount?.did, opts =>
+        appviewClient.call(app.bsky.graph.muteActor, {actor: did}, opts),
+      )
     },
     onSuccess() {
       void queryClient.invalidateQueries({queryKey: RQKEY_MY_MUTED()})
@@ -593,26 +571,26 @@ function useProfileMuteMutation() {
 
 function useProfileMuteRepostsMutation() {
   const queryClient = useQueryClient()
-<<<<<<< HEAD
-  const agent = useAgent()
-  const appview = useAppview() // northsky: mutes are private per-appview state
-  return useMutation<void, Error, {did: string}>({
-    mutationFn: async ({did}) => {
-      // northsky: this user action outranks an older reconciliation snapshot
-      await runUserMuteWrite(did, () => agent.mute(did, {onlyReposts: true}))
-      // northsky: keep the fallback appview's mute state in step
-      void replayMuteWriteToFallback(appview, agent.session?.did, opts =>
-        agent.app.bsky.graph.muteActor({actor: did, onlyReposts: true}, opts),
-      )
-=======
+  const {currentAccount} = useSession()
   const appviewClient = useAppviewClient()
+  const appview = useAppview() // northsky: mutes are private per-appview state
   return useMutation({
     mutationFn: async ({did}: {did: DidString}) => {
-      await appviewClient.call(muteActor, {
-        actor: did,
-        onlyReposts: true,
-      })
->>>>>>> upstream/main
+      // northsky: this user action outranks an older reconciliation snapshot
+      await runUserMuteWrite(did, () =>
+        appviewClient.call(muteActor, {
+          actor: did,
+          onlyReposts: true,
+        }),
+      )
+      // northsky: keep the fallback appview's mute state in step
+      void replayMuteWriteToFallback(appview, currentAccount?.did, opts =>
+        appviewClient.call(
+          app.bsky.graph.muteActor,
+          {actor: did, onlyReposts: true},
+          opts,
+        ),
+      )
     },
     onSuccess() {
       void queryClient.invalidateQueries({queryKey: RQKEY_MY_MUTED()})
@@ -622,23 +600,19 @@ function useProfileMuteRepostsMutation() {
 
 function useProfileUnmuteMutation() {
   const queryClient = useQueryClient()
-<<<<<<< HEAD
-  const agent = useAgent()
-  const appview = useAppview() // northsky: mutes are private per-appview state
-  return useMutation<void, Error, {did: string}>({
-    mutationFn: async ({did}) => {
-      // northsky: this user action outranks an older reconciliation snapshot
-      await runUserMuteWrite(did, () => agent.unmute(did))
-      // northsky: keep the fallback appview's mute state in step
-      void replayMuteWriteToFallback(appview, agent.session?.did, opts =>
-        agent.app.bsky.graph.unmuteActor({actor: did}, opts),
-      )
-=======
+  const {currentAccount} = useSession()
   const appviewClient = useAppviewClient()
+  const appview = useAppview() // northsky: mutes are private per-appview state
   return useMutation({
     mutationFn: async ({did}: {did: DidString}) => {
-      await appviewClient.call(unmuteActor, {actor: did})
->>>>>>> upstream/main
+      // northsky: this user action outranks an older reconciliation snapshot
+      await runUserMuteWrite(did, () =>
+        appviewClient.call(unmuteActor, {actor: did}),
+      )
+      // northsky: keep the fallback appview's mute state in step
+      void replayMuteWriteToFallback(appview, currentAccount?.did, opts =>
+        appviewClient.call(app.bsky.graph.unmuteActor, {actor: did}, opts),
+      )
     },
     onSuccess() {
       void queryClient.invalidateQueries({queryKey: RQKEY_MY_MUTED()})

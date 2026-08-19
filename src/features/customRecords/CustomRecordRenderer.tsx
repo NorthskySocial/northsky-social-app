@@ -1,6 +1,6 @@
 import {createElement} from 'react'
-import {type AppBskyFeedDefs} from '@atproto/api'
 
+import {type app} from '#/lexicons'
 import {getCustomRecordRenderer} from './registry'
 
 /**
@@ -13,9 +13,15 @@ import {getCustomRecordRenderer} from './registry'
 export function CustomRecordRenderer({
   embed,
 }: {
-  embed: AppBskyFeedDefs.PostView['embed']
+  embed: app.bsky.feed.defs.PostView['embed']
 }) {
-  const $type = typeof embed?.$type === 'string' ? embed.$type : undefined
+  // Structural check instead of `embed?.$type`: the union's unknown-embed
+  // member is not guaranteed to declare `$type`, so property access on the
+  // whole union may not typecheck.
+  const $type =
+    embed && '$type' in embed && typeof embed.$type === 'string'
+      ? embed.$type
+      : undefined
   if (!$type) return null
 
   const renderer = getCustomRecordRenderer($type)

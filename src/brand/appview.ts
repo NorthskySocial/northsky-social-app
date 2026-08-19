@@ -1,4 +1,4 @@
-import {type Did} from '@atproto/api'
+import {type DidString} from '@atproto/syntax'
 
 import {DEV_ENV_APPVIEW} from '#/lib/constants'
 import {BLUESKY_PROXY_DID} from '#/env'
@@ -14,13 +14,13 @@ import {BLUESKY_PROXY_DID} from '#/env'
  */
 export interface AppView {
   url: string
-  did: Did
+  did: DidString
   /**
    * Appview DID that post and actor search are pinned to. Set when this
    * appview cannot serve `app.bsky.feed.searchPostsV2` or
    * `app.bsky.actor.searchActors`.
    */
-  searchProxyDid?: Did
+  searchProxyDid?: DidString
   /**
    * Use `BRAND.typeaheadServiceUrl` for actor typeahead. Set when this appview
    * cannot serve `app.bsky.actor.searchActorsTypeahead`. That service omits

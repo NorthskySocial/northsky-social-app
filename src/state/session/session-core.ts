@@ -10,6 +10,9 @@ import {canParseUrl} from '#/lib/strings/url-helpers'
 import {logger} from '#/logger'
 import {prefetchAgeAssuranceServerData} from '#/ageAssurance/data'
 import {features} from '#/analytics'
+// northsky: appview routing per account service + mute reconciliation
+import {type AppView, resolveAppViewForService} from '#/brand/appview'
+import {reconcileMutes} from '#/features/muteSync'
 import {
   buildAppviewClient,
   buildChatClient,
@@ -56,6 +59,8 @@ function deriveServiceUrl(session: PasswordSession | null): URL {
 /** The three clients over one `PasswordSession`, the bundle's sole auth core. */
 export type SessionBundle = {
   session: PasswordSession
+  // northsky: the appview route resolved for the session's service
+  appview: AppView
   appviewClient: Client
   pdsClient: Client
   chatClient: Client
@@ -106,9 +111,12 @@ export function buildBundle(
     storedPdsUrl && canParseUrl(storedPdsUrl)
       ? routeSessionToPds(session, storedPdsUrl)
       : session
+  // northsky: a route match on the login service picks the appview
+  const appview = resolveAppViewForService(deriveServiceUrl(session).toString())
   return {
     session,
-    appviewClient: buildAppviewClient(agent),
+    appview,
+    appviewClient: buildAppviewClient(agent, appview),
     pdsClient: buildPdsClient(agent),
     chatClient: buildChatClient(agent),
     get service() {
@@ -201,6 +209,8 @@ export function makeSessionHooks({
 /** The clients exposed while logged out. */
 export type PublicSessionBundle = {
   session: null
+  // northsky: the appview route serving the public client
+  appview: AppView
   appviewClient: Client
   pdsClient: Client
   chatClient: Client
@@ -225,6 +235,9 @@ export function createPublicSessionBundle(): PublicSessionBundle {
   configureModerationForGuest()
   return {
     session: null,
+    // northsky: the public service is branded, so this resolves the same
+    // appview the public client already points at
+    appview: resolveAppViewForService(PUBLIC_BSKY_SERVICE),
     appviewClient: getPublicAppviewClient(),
     pdsClient: getUnauthenticatedThrowingClient(),
     chatClient: getUnauthenticatedThrowingClient(),
@@ -321,6 +334,8 @@ export async function createSessionBundleAndResume(
     ) ?? storedAccount
 
   configureModerationForAccount(bundle, earlyAccount)
+  // northsky: import mute state from the fallback appview, best-effort
+  void reconcileMutes(bundle.appviewClient, bundle.appview, earlyAccount.did)
   const aa = prefetchAgeAssuranceServerData({
     appviewClient: bundle.appviewClient,
     accountClient: bundle.pdsClient,
@@ -383,6 +398,8 @@ export async function createSessionBundleAndLogin(
 
   const gates = features.refresh({strategy: 'prefer-fresh-gates'})
   configureModerationForAccount(bundle, earlyAccount)
+  // northsky: import mute state from the fallback appview, best-effort
+  void reconcileMutes(bundle.appviewClient, bundle.appview, earlyAccount.did)
   const aa = prefetchAgeAssuranceServerData({
     appviewClient: bundle.appviewClient,
     accountClient: bundle.pdsClient,

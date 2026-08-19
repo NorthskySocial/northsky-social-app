@@ -11,15 +11,12 @@ import {matchXrpcError} from '#/lib/xrpc-error'
 import {useSessionApi} from '#/state/session'
 import {useOnboardingDispatch} from '#/state/shell'
 import {type AnalyticsContextType, useAnalytics} from '#/analytics'
-<<<<<<< HEAD
 import {
   type AgeConfirmation,
   EMPTY_AGE_CONFIRMATION,
 } from '#/features/ageConfirmation/types'
 import {birthdateFromAgeConfirmation} from '#/features/ageConfirmation/util'
-=======
 import {com} from '#/lexicons'
->>>>>>> upstream/main
 
 export type ServiceDescription = com.atproto.server.describeServer.$OutputBody
 

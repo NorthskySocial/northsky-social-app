@@ -19,12 +19,9 @@ import {Image} from 'expo-image'
 import * as SplashScreen from 'expo-splash-screen'
 
 import {Logotype} from '#/view/icons/Logotype'
-<<<<<<< HEAD
+import {atoms as a} from '#/alf'
 // northsky: splash logomark comes from the brand module (no dynamic loader)
 import {BrandLogo} from '#/brand/assets/Logo'
-=======
-import {atoms as a} from '#/alf'
->>>>>>> upstream/main
 // @ts-ignore
 import splashImagePointer from '../assets/splash/splash.png'
 // @ts-ignore

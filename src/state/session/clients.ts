@@ -8,6 +8,8 @@ import {
 } from '#/lib/constants'
 import {createLexClient} from '#/lib/lexClient'
 import {getCachedIsBetaUser} from '#/state/preferences/beta-user-cache'
+// northsky: appview routing per account service
+import {type AppView} from '#/brand/appview'
 import {networkAwareFetch} from './network'
 
 const IS_BETA_USER_HEADER = 'X-Bsky-Is-Beta-User'
@@ -37,10 +39,12 @@ function withAppviewRequestHeaders(agent: Agent): Agent {
 /**
  * Build the signed-in appview {@link Client}.
  *
- * {@link BLUESKY_PROXY_HEADER} is passed as the client's `service`, so lex sets
- * `atproto-proxy: <that value>` on every request and raw calls are proxied to
- * the appview. Record helpers force `service: null`, so they still target the
- * account host.
+ * northsky: the `service` is the appview resolved for the account's login
+ * service (see `resolveAppViewForService`), so lex sets `atproto-proxy:
+ * <appview did>#bsky_appview` on every request and raw calls are proxied to
+ * the routed appview. The e2e override in {@link BLUESKY_PROXY_HEADER} still
+ * wins when set. Record helpers force `service: null`, so they still target
+ * the account host.
  *
  * The class-wide `Client.appLabelers` static is deliberately NOT suppressed
  * here: this client is the only producer of `atproto-accept-labelers` on an
@@ -52,9 +56,10 @@ function withAppviewRequestHeaders(agent: Agent): Agent {
  * No `fetch` option: a client built over a session uses that session's own
  * fetch, which is `networkAwareFetch` wrapped in the disposal kill switch.
  */
-export function buildAppviewClient(agent: Agent): Client {
+export function buildAppviewClient(agent: Agent, appview: AppView): Client {
   return createLexClient(withAppviewRequestHeaders(agent), {
-    service: BLUESKY_PROXY_HEADER.get(),
+    // northsky: route to the resolved appview; the e2e override wins
+    service: BLUESKY_PROXY_HEADER.override ?? `${appview.did}#bsky_appview`,
   })
 }
 

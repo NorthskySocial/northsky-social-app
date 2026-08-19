@@ -1,15 +1,18 @@
+import {type Service} from '@atproto/lex'
+
 import {logger} from '#/logger'
 import {type AppView, FALLBACK_APPVIEW} from '#/brand/appview'
 import {account} from '#/storage'
 
 /**
- * Per-call `atproto-proxy` options that target the fallback appview. Mutes
- * are private appview state, so a write through the routed appview is not
- * visible on the fallback. Callers replay each mute write with these options
- * to keep both appviews in step.
+ * Per-call `service` options that target the fallback appview. A lex client
+ * emits `atproto-proxy: <service>` for the call. Mutes are private appview
+ * state, so a write through the routed appview is not visible on the
+ * fallback. Callers replay each mute write with these options to keep both
+ * appviews in step.
  */
 export interface FallbackProxyOpts {
-  headers: {'atproto-proxy': string}
+  service: Service
 }
 
 /**
@@ -41,7 +44,7 @@ export function fallbackProxyOpts(
     return null
   }
   return {
-    headers: {'atproto-proxy': `${FALLBACK_APPVIEW.did}#bsky_appview`},
+    service: `${FALLBACK_APPVIEW.did}#bsky_appview`,
   }
 }
 

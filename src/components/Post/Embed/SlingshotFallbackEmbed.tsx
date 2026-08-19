@@ -1,8 +1,9 @@
 import {useMemo} from 'react'
-import {type $Typed, type AppBskyEmbedRecord} from '@atproto/api'
+import {type $Typed} from '@atproto/lex'
 import {Trans} from '@lingui/react/macro'
 
 import {isRecentTid, useSlingshotRecordQuery} from '#/state/queries/slingshot'
+import {type app} from '#/lexicons'
 import {type EmbedType} from '#/types/bsky/post'
 import {QuoteEmbed} from './index'
 import {PostPlaceholder as PostPlaceholderText} from './PostPlaceholder'
@@ -56,7 +57,7 @@ export function SlingshotFallbackEmbed({
   if (viewRecord) {
     const quoteEmbed: EmbedType<'post'> = {
       type: 'post',
-      view: viewRecord as $Typed<AppBskyEmbedRecord.ViewRecord>,
+      view: viewRecord as $Typed<app.bsky.embed.record.ViewRecord>,
     }
 
     return (

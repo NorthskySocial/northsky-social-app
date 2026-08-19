@@ -144,13 +144,10 @@ import {
   IS_WEB_SAFARI,
 } from '#/env'
 import {type Gif} from '#/features/gifPicker/types'
-<<<<<<< HEAD
 // northsky: wording follows the "They're called" setting
 import {usePostVocabulary} from '#/features/postVocabulary'
-=======
 import {app, chat} from '#/lexicons'
 import * as bsky from '#/types/bsky'
->>>>>>> upstream/main
 import {BottomSheetPortalProvider} from '../../../../modules/bottom-sheet'
 import {
   draftToComposerPosts,

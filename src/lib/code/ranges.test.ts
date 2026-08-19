@@ -1,4 +1,4 @@
-import {RichText} from '@atproto/api'
+import {RichText} from '@bsky/sdk/richtext'
 import {describe, expect, it} from '@jest/globals'
 
 import {hasFormatting, type RichTextItem, segmentsWithCode} from './ranges'
