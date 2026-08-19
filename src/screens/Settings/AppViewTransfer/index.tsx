@@ -393,7 +393,8 @@ export function AppViewTransferSettingsScreen({}: Props) {
                 label={l`Pause transfer`}
                 size="large"
                 color="secondary"
-                onPress={pauseTransfer}>
+                onPress={pauseTransfer}
+                testID="pauseAppViewTransferButton">
                 <ButtonText>
                   <Trans>Pause transfer</Trans>
                 </ButtonText>
@@ -405,7 +406,8 @@ export function AppViewTransferSettingsScreen({}: Props) {
                   label={l`Resume transfer`}
                   size="large"
                   color="primary"
-                  onPress={resumeTransfer}>
+                  onPress={resumeTransfer}
+                  testID="resumeAppViewTransferButton">
                   <ButtonText>
                     <Trans>Resume transfer</Trans>
                   </ButtonText>
@@ -414,7 +416,8 @@ export function AppViewTransferSettingsScreen({}: Props) {
                   label={l`Start over`}
                   size="large"
                   color="secondary"
-                  onPress={startOver}>
+                  onPress={startOver}
+                  testID="startOverAppViewTransferButton">
                   <ButtonText>
                     <Trans>Start over</Trans>
                   </ButtonText>
@@ -426,7 +429,8 @@ export function AppViewTransferSettingsScreen({}: Props) {
                 label={l`Retry incomplete items`}
                 size="large"
                 color="primary"
-                onPress={resumeTransfer}>
+                onPress={resumeTransfer}
+                testID="retryAppViewTransferButton">
                 <ButtonText>
                   <Trans>Retry incomplete items</Trans>
                 </ButtonText>
@@ -437,7 +441,8 @@ export function AppViewTransferSettingsScreen({}: Props) {
                 label={l`Start a new transfer`}
                 size="large"
                 color={hasFailedCollections ? 'secondary' : 'primary'}
-                onPress={startOver}>
+                onPress={startOver}
+                testID="newAppViewTransferButton">
                 <ButtonText>
                   <Trans>Start a new transfer</Trans>
                 </ButtonText>
