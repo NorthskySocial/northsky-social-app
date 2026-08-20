@@ -3,6 +3,8 @@ import {View} from 'react-native'
 import {Trans, useLingui} from '@lingui/react/macro'
 import {type NativeStackScreenProps} from '@react-navigation/native-stack'
 
+// northsky: the brand feedback form replaces the in-app feedback dialog
+import {FEEDBACK_FORM_URL} from '#/lib/constants'
 import {type CommonNavigatorParams} from '#/lib/routes/types'
 import {logger} from '#/logger'
 import {
@@ -10,16 +12,17 @@ import {
   useSetIsBetaUserMutation,
 } from '#/state/queries/preferences'
 import {useSession} from '#/state/session'
-import {BetaFeaturesFeedbackDialog} from '#/screens/Settings/components/BetaFeaturesFeedbackDialog'
 import * as SettingsList from '#/screens/Settings/components/SettingsList'
 import {atoms as a, useTheme} from '#/alf'
 import {Admonition} from '#/components/Admonition'
-import {Button, ButtonIcon, ButtonText} from '#/components/Button'
-import * as Dialog from '#/components/Dialog'
+import {ButtonIcon, ButtonText} from '#/components/Button'
 import * as Toggle from '#/components/forms/Toggle'
 import {Beaker_Stroke2_Corner2_Rounded as BeakerIcon} from '#/components/icons/Beaker'
 import {BubbleInfo_Stroke2_Corner2_Rounded as BubbleInfoIcon} from '#/components/icons/BubbleInfo'
+// northsky: icon for the appview data transfer link
+import {Transfer_Stroke2_Corner0_Rounded as TransferIcon} from '#/components/icons/Transfer'
 import * as Layout from '#/components/Layout'
+import {Link} from '#/components/Link'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {features, useAnalytics} from '#/analytics'
@@ -41,7 +44,6 @@ export function BetaFeaturesSettingsScreen({}: Props) {
   const {mutateAsync: setIsBetaUser} = useSetIsBetaUserMutation()
   const isBetaUser = preferences?.bskyAppState?.isBetaUser ?? false
   const [isPending, setIsPending] = useState(false)
-  const feedbackControl = Dialog.useDialogControl()
 
   /*
    * `getTargetedFeatures` reads the GrowthBook singleton synchronously, but
@@ -102,10 +104,14 @@ export function BetaFeaturesSettingsScreen({}: Props) {
     ax.metric('betaFeatures:feedback:open', {
       betaFeatureKeys: betaFeatures.map(feature => feature.key),
     })
-    feedbackControl.open()
   }
 
-  const canSubmitFeedback = !isPending && isBetaUser && betaFeatures.length > 0
+  /*
+   * northsky: the app data transfer is a local beta feature, not a remote
+   * gate, so a beta user always has one. `getTargetedFeatures` reports only
+   * the remote gates.
+   */
+  const hasBetaFeatures = isBetaUser || betaFeatures.length > 0
 
   return (
     <Layout.Screen>
@@ -161,8 +167,9 @@ export function BetaFeaturesSettingsScreen({}: Props) {
                   })}
             </Admonition>
 
-            <Button
-              disabled={!canSubmitFeedback}
+            {/* northsky: the brand feedback form, not the in-app report dialog */}
+            <Link
+              to={FEEDBACK_FORM_URL({})}
               label={l`Share feedback`}
               size="small"
               color="primary_subtle"
@@ -172,9 +179,9 @@ export function BetaFeaturesSettingsScreen({}: Props) {
               <ButtonText>
                 <Trans>Share feedback</Trans>
               </ButtonText>
-            </Button>
+            </Link>
 
-            {betaFeatures.length < 1 ? (
+            {!hasBetaFeatures ? (
               <View style={[a.align_center, a.gap_xs, a.py_5xl]}>
                 <BeakerIcon
                   size="4xl"
@@ -191,11 +198,33 @@ export function BetaFeaturesSettingsScreen({}: Props) {
                 </Text>
               </View>
             ) : (
-              <>
-                <Text style={[a.text_md, a.font_semi_bold]}>
-                  <Trans>Current beta features</Trans>
-                </Text>
-                <View style={[a.gap_sm]}>
+              <Text style={[a.text_md, a.font_semi_bold]}>
+                <Trans>Current beta features</Trans>
+              </Text>
+            )}
+          </View>
+
+          {hasBetaFeatures && (
+            /*
+             * northsky: the beaker is a watermark over the list, so the list
+             * needs a positioning parent. The minimum height gives the 64px
+             * beaker room, because Android clips a child that overflows.
+             */
+            <View style={[a.relative, {minHeight: 96}]}>
+              {/* northsky: appview data transfer, listed for beta users */}
+              {isBetaUser && (
+                <SettingsList.LinkItem
+                  to="/settings/transfer-app-data"
+                  label={l`Transfer app data`}>
+                  <SettingsList.ItemIcon icon={TransferIcon} />
+                  <SettingsList.ItemText>
+                    <Trans>Transfer app data</Trans>
+                  </SettingsList.ItemText>
+                </SettingsList.LinkItem>
+              )}
+
+              {betaFeatures.length > 0 && (
+                <View style={[a.px_xl, a.pt_md, a.gap_sm]}>
                   {betaFeatures.map(feature => (
                     <View
                       key={feature.key}
@@ -225,16 +254,29 @@ export function BetaFeaturesSettingsScreen({}: Props) {
                     </View>
                   ))}
                 </View>
-              </>
-            )}
-          </View>
+              )}
+
+              {/*
+               * northsky: the beaker draws last, because a row hover fill is
+               * opaque and would hide it. The beaker takes no presses, so the
+               * rows below stay tappable.
+               */}
+              <View
+                style={[
+                  a.absolute,
+                  a.inset_0,
+                  a.align_center,
+                  a.justify_center,
+                ]}
+                pointerEvents="none"
+                accessibilityElementsHidden
+                importantForAccessibility="no-hide-descendants">
+                <BeakerIcon size="4xl" fill={t.palette.contrast_100} />
+              </View>
+            </View>
+          )}
         </SettingsList.Container>
       </Layout.Content>
-
-      <BetaFeaturesFeedbackDialog
-        control={feedbackControl}
-        betaFeatureKeys={betaFeatures.map(feature => feature.key)}
-      />
     </Layout.Screen>
   )
 }
