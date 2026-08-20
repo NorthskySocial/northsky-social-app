@@ -380,6 +380,75 @@ describe('runAppViewTransfer', () => {
     ])
   })
 
+  /*
+   * Both appviews list the newest bookmark first and stamp their own sort key
+   * when they accept a write, so the destination lists the reverse of the
+   * order the writes arrived in.
+   */
+  function makeBookmarkAgent(
+    sourceNewestFirst: string[],
+    destinationWriteOrder: string[],
+  ) {
+    return makeAgent((nsid, input, service) => {
+      if (nsid === 'app.bsky.bookmark.getBookmarks') {
+        const uris =
+          service === SOURCE_SERVICE
+            ? sourceNewestFirst
+            : [...destinationWriteOrder].reverse()
+        return {
+          bookmarks: uris.map(uri => ({subject: {uri, cid: `bafy${uri}`}})),
+        }
+      }
+      if (nsid === 'app.bsky.bookmark.createBookmark') {
+        destinationWriteOrder.push(input.uri as string)
+        return undefined
+      }
+      throw new Error(`Unexpected method: ${nsid}`)
+    })
+  }
+
+  const postUri = (id: string) => `at://did:plc:ryoko/app.bsky.feed.post/${id}`
+
+  it('writes bookmarks oldest first so the destination keeps the source order', async () => {
+    const sourceNewestFirst = ['four', 'three', 'two', 'one'].map(postUri)
+    const destinationWriteOrder: string[] = []
+    const {agent} = makeBookmarkAgent(sourceNewestFirst, destinationWriteOrder)
+
+    const result = await runAppViewTransfer({
+      agent,
+      initialCheckpoint: checkpointFor(['bookmarks']),
+      signal: new AbortController().signal,
+      onProgress: () => {},
+    })
+
+    expect(result.collections.bookmarks).toMatchObject({
+      status: 'complete',
+      transferredCount: 4,
+    })
+    // What the destination lists back must match what the source listed.
+    expect([...destinationWriteOrder].reverse()).toEqual(sourceNewestFirst)
+  })
+
+  it('resumes a bookmark import without disturbing the order', async () => {
+    const sourceNewestFirst = ['four', 'three', 'two', 'one'].map(postUri)
+    // An earlier pass already wrote the two oldest bookmarks.
+    const destinationWriteOrder = [postUri('one'), postUri('two')]
+    const {agent} = makeBookmarkAgent(sourceNewestFirst, destinationWriteOrder)
+
+    const result = await runAppViewTransfer({
+      agent,
+      initialCheckpoint: checkpointFor(['bookmarks']),
+      signal: new AbortController().signal,
+      onProgress: () => {},
+    })
+
+    expect(result.collections.bookmarks).toMatchObject({
+      status: 'complete',
+      transferredCount: 2,
+    })
+    expect([...destinationWriteOrder].reverse()).toEqual(sourceNewestFirst)
+  })
+
   it('marks an unsupported destination collection without failing the run', async () => {
     const {agent, calls} = makeAgent((nsid, _input, service) => {
       if (nsid !== 'app.bsky.bookmark.getBookmarks') {

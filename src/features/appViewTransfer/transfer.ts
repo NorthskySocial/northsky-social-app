@@ -54,7 +54,12 @@ type CollectionAdapter = {
   write: (target: RequestTarget, item: TransferItem) => Promise<void>
   valuesEqual?: (left: unknown, right: unknown) => boolean
   mergeValues?: (source: unknown, destination: unknown) => unknown
+  /**
+   * This and the worker pool for `writeMissingItems` is no longer used
+   * in favor of sortForWrite. Should be cleaned up.
+   */
   writeConcurrency?: number
+  sortForWrite?: (items: TransferItem[]) => TransferItem[]
   /**
    * Reports which of `keys` the destination already holds in a form that
    * `readPage` cannot list. The engine treats each returned key as present,
@@ -204,8 +209,14 @@ const collectionAdapters: Record<
     },
     // A bookmark is identified by its URI. An older CID is the same bookmark.
     valuesEqual: () => true,
-    // Bookmark writes are independent but numerous, so bound the pool.
-    writeConcurrency: 5,
+    /*
+     * `createBookmark` sends no timestamp. The destination stamps each
+     * bookmark as it accepts the write, and lists the newest first. The source
+     * also lists the newest first, so send the list in reverse to give the
+     * oldest bookmark the oldest stamp. A resume writes the items the earlier
+     * pass missed, which are the newer ones, so the order still holds.
+     */
+    sortForWrite: items => [...items].reverse(),
   },
   activitySubscriptions: {
     id: 'activitySubscriptions',
@@ -561,7 +572,7 @@ async function writeMissingItems({
   onWritten: () => void
 }): Promise<{failedCount: number; firstError?: unknown}> {
   const valuesEqual = adapter.valuesEqual ?? deepEqual
-  const pending = items.flatMap(item => {
+  const missing = items.flatMap(item => {
     if (hiddenKeys.has(item.key)) return []
     const destinationItem = destinationItems.get(item.key)
     const desiredItem =
@@ -576,6 +587,7 @@ async function writeMissingItems({
       ? [desiredItem]
       : []
   })
+  const pending = adapter.sortForWrite?.(missing) ?? missing
   onPrepared(pending.length)
   let nextIndex = 0
   let firstError: unknown

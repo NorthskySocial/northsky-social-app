@@ -353,6 +353,17 @@ export function AppViewTransferSettingsScreen({}: Props) {
                     quote posts are left where they are.
                   </Trans>
                 </Text>
+                <Text
+                  style={[
+                    a.text_xs,
+                    a.leading_snug,
+                    t.atoms.text_contrast_medium,
+                  ]}>
+                  <Trans>
+                    Imported bookmarks will appear above bookmarks you already
+                    have.
+                  </Trans>
+                </Text>
               </SettingsList.Group>
             </>
           )}
