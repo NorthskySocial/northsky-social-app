@@ -61,6 +61,12 @@ type CollectionAdapter = {
   writeConcurrency?: number
   sortForWrite?: (items: TransferItem[]) => TransferItem[]
   /**
+   * Stops the pass after a write fails with an error a later run can clear.
+   * Set this when the destination order follows the write order, so a
+   * recovered item cannot arrive after newer items.
+   */
+  stopOnRetryableFailure?: boolean
+  /**
    * Reports which of `keys` the destination already holds in a form that
    * `readPage` cannot list. The engine treats each returned key as present,
    * so the write pass leaves it alone.
@@ -217,6 +223,13 @@ const collectionAdapters: Record<
      * pass missed, which are the newer ones, so the order still holds.
      */
     sortForWrite: items => [...items].reverse(),
+    /*
+     * A bookmark that fails for a reason a later run can clear must not
+     * arrive after newer bookmarks, so stop and let a resume write the rest.
+     * A bookmark the destination refuses for good never arrives at all, so it
+     * cannot take the wrong place, and the pass writes past it.
+     */
+    stopOnRetryableFailure: true,
   },
   activitySubscriptions: {
     id: 'activitySubscriptions',
@@ -551,8 +564,10 @@ function makeTarget(
 /**
  * Writes the source items the destination lacks. A failed item does not halt
  * the pass, unlike the eurosky original: the pass attempts every item, counts
- * the failures, and keeps the first error. One deactivated account must not
- * block the rest of a mute import. An abort still stops the pass at once.
+ * the items that did not arrive, and keeps the first error. One deactivated
+ * account must not block the rest of a mute import, and no retry brings that
+ * account back. A collection that sets `stopOnRetryableFailure` stops early
+ * only for an error that a later run can clear. An abort stops the pass now.
  */
 async function writeMissingItems({
   adapter,
@@ -591,10 +606,11 @@ async function writeMissingItems({
   onPrepared(pending.length)
   let nextIndex = 0
   let firstError: unknown
-  let failedCount = 0
+  let writtenCount = 0
+  let stopped = false
 
   const worker = async () => {
-    while (true) {
+    while (!stopped) {
       const index = nextIndex++
       const item = pending[index]
       if (!item) return
@@ -602,11 +618,14 @@ async function writeMissingItems({
       try {
         await adapter.write(target, item)
         destinationItems.set(item.key, item)
+        writtenCount++
         onWritten()
       } catch (error) {
         if (target.opts.signal.aborted) throw error
         firstError ??= error
-        failedCount++
+        if (adapter.stopOnRetryableFailure && isRetryableError(error)) {
+          stopped = true
+        }
       }
     }
   }
@@ -616,7 +635,8 @@ async function writeMissingItems({
     Math.max(1, pending.length),
   )
   await Promise.all(Array.from({length: concurrency}, worker))
-  return {failedCount, firstError}
+  // An item the pass stopped before reaching did not arrive either.
+  return {failedCount: pending.length - writtenCount, firstError}
 }
 
 async function readAllItems({

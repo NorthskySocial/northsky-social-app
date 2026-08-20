@@ -449,6 +449,103 @@ describe('runAppViewTransfer', () => {
     expect([...destinationWriteOrder].reverse()).toEqual(sourceNewestFirst)
   })
 
+  it('stops a bookmark pass at a failure that can clear, so a resume keeps the order', async () => {
+    const sourceNewestFirst = ['four', 'three', 'two', 'one'].map(postUri)
+    const destinationWriteOrder: string[] = []
+    let rateLimited = true
+    const {agent} = makeAgent((nsid, input, service) => {
+      if (nsid === 'app.bsky.bookmark.getBookmarks') {
+        const uris =
+          service === SOURCE_SERVICE
+            ? sourceNewestFirst
+            : [...destinationWriteOrder].reverse()
+        return {
+          bookmarks: uris.map(uri => ({subject: {uri, cid: `bafy${uri}`}})),
+        }
+      }
+      if (nsid === 'app.bsky.bookmark.createBookmark') {
+        if (rateLimited && input.uri === postUri('two')) {
+          throw new XRPCError(429, 'RateLimitExceeded', 'Slow down', {
+            'retry-after': '0',
+          })
+        }
+        destinationWriteOrder.push(input.uri as string)
+        return undefined
+      }
+      throw new Error(`Unexpected method: ${nsid}`)
+    })
+
+    const first = await runAppViewTransfer({
+      agent,
+      initialCheckpoint: checkpointFor(['bookmarks']),
+      signal: new AbortController().signal,
+      onProgress: () => {},
+    })
+
+    /*
+     * The two newer bookmarks wait for the resume. Writing them now would put
+     * them before the bookmark that failed, which is older than both.
+     */
+    expect(destinationWriteOrder).toEqual([postUri('one')])
+    expect(first.collections.bookmarks).toMatchObject({
+      status: 'failed',
+      transferredCount: 1,
+      failedCount: 3,
+    })
+
+    rateLimited = false
+    const second = await runAppViewTransfer({
+      agent,
+      initialCheckpoint: first,
+      signal: new AbortController().signal,
+      onProgress: () => {},
+    })
+
+    expect(second.collections.bookmarks).toMatchObject({status: 'complete'})
+    expect([...destinationWriteOrder].reverse()).toEqual(sourceNewestFirst)
+  })
+
+  it('writes newer bookmarks past one the destination will never accept', async () => {
+    const sourceNewestFirst = ['four', 'three', 'two', 'one'].map(postUri)
+    const destinationWriteOrder: string[] = []
+    const {agent} = makeAgent((nsid, input, service) => {
+      if (nsid === 'app.bsky.bookmark.getBookmarks') {
+        const uris =
+          service === SOURCE_SERVICE
+            ? sourceNewestFirst
+            : [...destinationWriteOrder].reverse()
+        return {
+          bookmarks: uris.map(uri => ({subject: {uri, cid: `bafy${uri}`}})),
+        }
+      }
+      if (nsid === 'app.bsky.bookmark.createBookmark') {
+        // The post behind the oldest bookmark is gone, so it never arrives.
+        if (input.uri === postUri('one')) {
+          throw new XRPCError(400, 'InvalidRequest', 'Record not found')
+        }
+        destinationWriteOrder.push(input.uri as string)
+        return undefined
+      }
+      throw new Error(`Unexpected method: ${nsid}`)
+    })
+
+    const result = await runAppViewTransfer({
+      agent,
+      initialCheckpoint: checkpointFor(['bookmarks']),
+      signal: new AbortController().signal,
+      onProgress: () => {},
+    })
+
+    expect(result.collections.bookmarks).toMatchObject({
+      status: 'failed',
+      transferredCount: 3,
+      failedCount: 1,
+    })
+    expect([...destinationWriteOrder].reverse()).toEqual(
+      ['four', 'three', 'two'].map(postUri),
+    )
+  })
+
   it('marks an unsupported destination collection without failing the run', async () => {
     const {agent, calls} = makeAgent((nsid, _input, service) => {
       if (nsid !== 'app.bsky.bookmark.getBookmarks') {
