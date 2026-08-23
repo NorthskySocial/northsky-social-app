@@ -1,13 +1,11 @@
-import {useCallback, useEffect, useMemo, useRef} from 'react'
+import {useCallback} from 'react'
 import {
   type AppBskyActorDefs,
   moderateProfile,
   type ModerationOpts,
 } from '@atproto/api'
 import {keepPreviousData, useQuery, useQueryClient} from '@tanstack/react-query'
-import debounce from 'lodash.debounce'
 
-import {useDebouncedValue} from '#/lib/hooks/useDebouncedValue'
 import {isJustAMute, moduiContainsHideableOffense} from '#/lib/moderation'
 // northsky: typeahead routing
 import {searchActorsTypeaheadVia} from '#/lib/typeahead/client'
@@ -21,8 +19,6 @@ const DEFAULT_MOD_OPTS = {
   userDid: undefined,
   prefs: DEFAULT_LOGGED_OUT_PREFERENCES.moderationPrefs,
 }
-// northsky: wait for typing to settle before requesting profile typeahead
-const PROFILE_DEBOUNCE_MS = 300
 
 const RQKEY_ROOT = 'actor-autocomplete'
 export const RQKEY = (prefix: string) => [RQKEY_ROOT, prefix]
@@ -41,9 +37,6 @@ export function useActorAutocompleteQuery(
     // Going from "foo" to "foo." should not clear matches.
     prefix = prefix.slice(0, -1)
   }
-  // northsky: debounce profile requests so fast typing sends one lookup
-  const debouncedPrefix = useDebouncedValue(prefix, PROFILE_DEBOUNCE_MS)
-
   return useQuery<AppBskyActorDefs.ProfileViewBasic[]>({
     staleTime: STALE.MINUTES.ONE,
     // northsky: appended appview so switching accounts does not reuse results
@@ -52,11 +45,10 @@ export function useActorAutocompleteQuery(
       if (!prefix) return []
       // northsky: appviews without typeahead use the brand service
       return searchActorsTypeaheadVia(appview, agent, {
-        q: debouncedPrefix,
+        q: prefix,
         limit: limit || 8,
       })
     },
-    enabled: prefix === debouncedPrefix,
     select: useCallback(
       (data: AppBskyActorDefs.ProfileViewBasic[]) => {
         return computeSuggestions({
@@ -108,41 +100,7 @@ export function useActorAutocompleteFn() {
     [queryClient, moderationOpts, agent, appview],
   )
 
-  const pendingResolve = useRef<
-    ((value: AppBskyActorDefs.ProfileViewBasic[]) => void) | null
-  >(null)
-  // northsky: debounce the promise-based web composer autocomplete callback
-  const debouncedAutocomplete = useMemo(
-    () =>
-      debounce(
-        (
-          args: {query: string; limit?: number},
-          resolve: (value: AppBskyActorDefs.ProfileViewBasic[]) => void,
-        ) => {
-          pendingResolve.current = null
-          void autocomplete(args).then(resolve)
-        },
-        PROFILE_DEBOUNCE_MS,
-      ),
-    [autocomplete],
-  )
-
-  useEffect(() => {
-    return () => {
-      debouncedAutocomplete.cancel()
-      pendingResolve.current?.([])
-    }
-  }, [debouncedAutocomplete])
-
-  return useCallback(
-    (args: {query: string; limit?: number}) =>
-      new Promise<AppBskyActorDefs.ProfileViewBasic[]>(resolve => {
-        pendingResolve.current?.([])
-        pendingResolve.current = resolve
-        debouncedAutocomplete(args, resolve)
-      }),
-    [debouncedAutocomplete],
-  )
+  return autocomplete
 }
 
 function computeSuggestions({

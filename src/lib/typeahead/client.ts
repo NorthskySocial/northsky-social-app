@@ -5,7 +5,7 @@ import {BRAND} from '#/brand/config'
 
 const TIMEOUT_MS = 5_000
 // northsky: inspect more fallback candidates before applying relationship ranking
-const CANDIDATE_LIMIT = 50
+const CANDIDATE_LIMIT = 35
 
 /** Attribution value the typeahead service asks callers to send. */
 const X_CLIENT = 'northsky.app'
@@ -109,9 +109,8 @@ async function hydrateViewerState(
   const dids = [...new Set(actors.map(a => a.did))]
   const byDid = new Map<string, AppBskyActorDefs.ProfileViewDetailed>()
   for (let index = 0; index < dids.length; index += HYDRATION_LIMIT) {
-    const res = await agent.getProfiles({
-      actors: dids.slice(index, index + HYDRATION_LIMIT),
-    })
+    const batch = dids.slice(index, index + HYDRATION_LIMIT)
+    const res = await agent.getProfiles({actors: batch})
     for (const profile of res.data.profiles) {
       byDid.set(profile.did, profile)
     }
@@ -148,11 +147,6 @@ function rankTypeaheadResults(
         b.relationshipScore - a.relationshipScore || a.index - b.index,
     )
     .map(({actor}) => actor)
-
-  console.log(
-    'typeahead ranking',
-    ranked.map((actor, index) => `${actor.handle} => ${index}`),
-  )
 
   return ranked
 }

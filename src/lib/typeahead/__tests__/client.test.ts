@@ -103,7 +103,7 @@ describe('searchActorsTypeaheadVia', () => {
 
     const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit]
     expect(url).toBe(
-      'https://typeahead.waow.tech/xrpc/app.bsky.actor.searchActorsTypeahead?q=faye&limit=50',
+      'https://typeahead.waow.tech/xrpc/app.bsky.actor.searchActorsTypeahead?q=faye&limit=35',
     )
     expect(init.headers).toEqual({'X-Client': 'northsky.app'})
   })

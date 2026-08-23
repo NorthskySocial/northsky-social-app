@@ -2,7 +2,6 @@ import {useCallback, useMemo} from 'react'
 import {moderateProfile, type ModerationOpts} from '@atproto/api'
 import {keepPreviousData, useQuery} from '@tanstack/react-query'
 
-import {useDebouncedValue} from '#/lib/hooks/useDebouncedValue'
 import {isJustAMute, moduiContainsHideableOffense} from '#/lib/moderation'
 // northsky: typeahead routing
 import {searchActorsTypeaheadVia} from '#/lib/typeahead/client'
@@ -22,8 +21,6 @@ const DEFAULT_MOD_OPTS = {
   userDid: undefined,
   prefs: DEFAULT_LOGGED_OUT_PREFERENCES.moderationPrefs,
 }
-// northsky: wait for typing to settle before requesting profile typeahead
-const PROFILE_DEBOUNCE_MS = 300
 
 export function useAutocomplete({
   type,
@@ -40,9 +37,6 @@ export function useAutocomplete({
   const appview = useAppview() // northsky: typeahead may come from another service
   const moderationOpts = useModerationOpts()
   const emojiSearch = useEmojiSearch()
-  // northsky: debounce profile requests; local emoji search stays immediate
-  const debouncedQuery = useDebouncedValue(q, PROFILE_DEBOUNCE_MS)
-  const queryValue = type === 'profile' ? debouncedQuery : q
 
   const query = useQuery({
     staleTime: STALE.MINUTES.ONE,
@@ -50,7 +44,7 @@ export function useAutocomplete({
       'autocomplete',
       {
         type,
-        query: queryValue,
+        query: q,
         // northsky: results differ per appview, so switching accounts must not reuse them
         appview: appview.did,
       },
@@ -58,13 +52,10 @@ export function useAutocomplete({
     async queryFn() {
       if (type === 'profile') {
         // TODO return recents
-        if (!queryValue) return []
+        if (!q) return []
 
         // Going from "foo" to "foo." should not clear matches.
-        const normalizedQuery = queryValue
-          .toLowerCase()
-          .trim()
-          .replace(/\.$/, '')
+        const normalizedQuery = q.toLowerCase().trim().replace(/\.$/, '')
 
         // northsky: appviews without typeahead use the brand service
         const actors = await searchActorsTypeaheadVia(appview, agent, {
@@ -84,7 +75,6 @@ export function useAutocomplete({
 
       return []
     },
-    enabled: type !== 'profile' || q === debouncedQuery,
     select: useCallback(
       (items: AutocompleteItem[]) => {
         const seen = new Set<string>()
