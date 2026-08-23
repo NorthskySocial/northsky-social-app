@@ -55,11 +55,11 @@ export function useAutocomplete({
         if (!q) return []
 
         // Going from "foo" to "foo." should not clear matches.
-        const normalizedQuery = q.toLowerCase().trim().replace(/\.$/, '')
+        q = q.toLowerCase().trim().replace(/\.$/, '')
 
         // northsky: appviews without typeahead use the brand service
         const actors = await searchActorsTypeaheadVia(appview, agent, {
-          q: normalizedQuery,
+          q,
           limit: limit || 8,
         })
 

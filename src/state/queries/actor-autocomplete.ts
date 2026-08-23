@@ -37,6 +37,7 @@ export function useActorAutocompleteQuery(
     // Going from "foo" to "foo." should not clear matches.
     prefix = prefix.slice(0, -1)
   }
+
   return useQuery<AppBskyActorDefs.ProfileViewBasic[]>({
     staleTime: STALE.MINUTES.ONE,
     // northsky: appended appview so switching accounts does not reuse results
@@ -70,7 +71,7 @@ export function useActorAutocompleteFn() {
   const agent = useAgent()
   const appview = useAppview() // northsky: typeahead may come from another service
 
-  const autocomplete = useCallback(
+  return useCallback(
     async ({query, limit = 8}: {query: string; limit?: number}) => {
       query = query.toLowerCase()
       let res
@@ -99,8 +100,6 @@ export function useActorAutocompleteFn() {
     },
     [queryClient, moderationOpts, agent, appview],
   )
-
-  return autocomplete
 }
 
 function computeSuggestions({
