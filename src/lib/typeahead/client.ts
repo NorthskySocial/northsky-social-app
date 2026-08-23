@@ -4,6 +4,7 @@ import {type AppView} from '#/brand/appview'
 import {BRAND} from '#/brand/config'
 
 const TIMEOUT_MS = 5_000
+// northsky: inspect more fallback candidates before applying relationship ranking
 const CANDIDATE_LIMIT = 50
 
 /** Attribution value the typeahead service asks callers to send. */
