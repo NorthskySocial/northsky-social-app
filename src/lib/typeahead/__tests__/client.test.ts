@@ -103,7 +103,7 @@ describe('searchActorsTypeaheadVia', () => {
 
     const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit]
     expect(url).toBe(
-      'https://typeahead.waow.tech/xrpc/app.bsky.actor.searchActorsTypeahead?q=faye&limit=8',
+      'https://typeahead.waow.tech/xrpc/app.bsky.actor.searchActorsTypeahead?q=faye&limit=35',
     )
     expect(init.headers).toEqual({'X-Client': 'northsky.app'})
   })
@@ -176,6 +176,37 @@ describe('searchActorsTypeaheadVia', () => {
     ])
   })
 
+  it('ranks followed and following accounts before unrelated accounts', async () => {
+    const unrelated = {did: 'did:plc:unrelated', handle: 'walter-one.test'}
+    const following = {did: 'did:plc:following', handle: 'walter-two.test'}
+    const followedBy = {did: 'did:plc:followed-by', handle: 'walter-three.test'}
+    const mutual = {did: 'did:plc:mutual', handle: 'walter-four.test'}
+    const actors = [unrelated, following, followedBy, mutual]
+    serviceReturns(actors)
+    const agent = makeAgent({
+      profiles: [
+        {...unrelated, viewer: {}},
+        {...following, viewer: {following: 'at://following'}},
+        {...followedBy, viewer: {followedBy: 'at://followed-by'}},
+        {
+          ...mutual,
+          viewer: {following: 'at://mutual', followedBy: 'at://mutual'},
+        },
+      ],
+    })
+
+    const result = await searchActorsTypeaheadVia(FALLBACK_APPVIEW, agent, {
+      q: 'walter',
+      limit: 3,
+    })
+
+    expect(result.map(actor => actor.did)).toEqual([
+      'did:plc:mutual',
+      'did:plc:following',
+      'did:plc:followed-by',
+    ])
+  })
+
   /*
    * The appview omits deactivated, suspended, and takendown accounts. Such an
    * entry carries neither viewer nor labels, so moderateProfile would pass it
@@ -196,8 +227,7 @@ describe('searchActorsTypeaheadVia', () => {
   })
 
   /*
-   * The service decides how many accounts it returns, and getProfiles rejects
-   * more than 25 actors in one call.
+   * The service can return more accounts than getProfiles accepts in one call.
    */
   it('caps hydration at the getProfiles limit', async () => {
     const many = Array.from({length: 30}, (_, i) => ({
@@ -215,6 +245,10 @@ describe('searchActorsTypeaheadVia', () => {
     expect(agent.getProfiles).toHaveBeenCalledWith({
       actors: many.slice(0, 25).map(a => a.did),
     })
+    expect(agent.getProfiles).toHaveBeenCalledWith({
+      actors: many.slice(25).map(a => a.did),
+    })
+    expect(agent.getProfiles).toHaveBeenCalledTimes(2)
     expect(result).toHaveLength(25)
   })
 
