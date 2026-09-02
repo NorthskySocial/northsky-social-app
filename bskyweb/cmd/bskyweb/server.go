@@ -92,7 +92,7 @@ func serve(cctx *cli.Context) error {
 	donations := &donationsConfig{
 		secretKey:      cctx.String("stripe-secret-key"),
 		publishableKey: cctx.String("stripe-publishable-key"),
-		currency:       cctx.String("donation-currency"),
+		currency:       sanitizeDonationCurrency(cctx.String("donation-currency")),
 		presetsCents:   parsePresetsCents(cctx.String("donation-presets-cents")),
 		minCents:       cctx.Int64("donation-min-cents"),
 		maxCents:       cctx.Int64("donation-max-cents"),
@@ -101,6 +101,11 @@ func serve(cctx *cli.Context) error {
 
 		paymentMethodConfiguration: cctx.String("donation-payment-method-configuration"),
 		apiBase:                    stripeAPIBase,
+	}
+	if donations.enabled() {
+		if err := validateDonationsConfig(donations); err != nil {
+			return fmt.Errorf("invalid donation configuration: %w", err)
+		}
 	}
 
 	// Echo

@@ -146,9 +146,9 @@ func run(args []string) {
 				},
 				&cli.StringFlag{
 					Name:     "donation-currency",
-					Usage:    "three letter currency code for donations",
+					Usage:    "default donation currency: cad, usd, or eur",
 					Required: false,
-					Value:    "usd",
+					Value:    "cad",
 					EnvVars:  []string{"DONATION_CURRENCY"},
 				},
 				&cli.StringFlag{
