@@ -72,7 +72,7 @@ export function usePostThread({anchor}: {anchor?: string}) {
     enabled: isThreadPreferencesLoaded && !!anchor && !!moderationOpts,
     queryKey: postThreadQueryKey,
     async queryFn(ctx) {
-      // northsky: recover only an unavailable anchor from Slingshot.
+      // northsky: recover unavailable anchors and retryable request failures, preserving blocked, unauthenticated, and authorization states.
       const data = await getPostThreadWithSlingshotFallback({
         agent,
         anchor: anchor!,
