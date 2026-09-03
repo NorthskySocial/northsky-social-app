@@ -3,6 +3,7 @@ import {useQuery, useQueryClient} from '@tanstack/react-query'
 
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {useThreadPreferences} from '#/state/queries/preferences/useThreadPreferences'
+import {getPostThreadWithSlingshotFallback} from '#/state/queries/slingshot'
 import {
   LINEAR_VIEW_BELOW,
   LINEAR_VIEW_BF,
@@ -71,11 +72,20 @@ export function usePostThread({anchor}: {anchor?: string}) {
     enabled: isThreadPreferencesLoaded && !!anchor && !!moderationOpts,
     queryKey: postThreadQueryKey,
     async queryFn(ctx) {
-      const {data} = await agent.app.bsky.unspecced.getPostThreadV2({
+      // northsky: recover unavailable anchors and retryable request failures, preserving blocked, unauthenticated, and authorization states.
+      const data = await getPostThreadWithSlingshotFallback({
+        agent,
         anchor: anchor!,
-        branchingFactor: view === 'linear' ? LINEAR_VIEW_BF : TREE_VIEW_BF,
-        below,
-        sort: sort,
+        getThread: async () => {
+          const {data} = await agent.app.bsky.unspecced.getPostThreadV2({
+            anchor: anchor!,
+            branchingFactor: view === 'linear' ? LINEAR_VIEW_BF : TREE_VIEW_BF,
+            below,
+            sort: sort,
+          })
+          return data
+        },
+        toThreadItem: views.postViewToThreadPlaceholder,
       })
 
       /*

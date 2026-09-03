@@ -7,6 +7,7 @@ import {
   type AppBskyEmbedRecordWithMedia,
   type AppBskyFeedDefs,
   AppBskyFeedPost,
+  type ComAtprotoLabelDefs,
 } from '@atproto/api'
 
 import {buildPdsBlobUrl} from './blobs'
@@ -161,6 +162,7 @@ export function hydratePostView(
   cid: string,
   miniDoc: SlingshotMiniDoc,
   counts?: PostInteractionCounts,
+  labels?: ComAtprotoLabelDefs.Label[],
 ): AppBskyFeedDefs.PostView {
   const author: AppBskyActorDefs.ProfileViewBasic = {
     $type: 'app.bsky.actor.defs#profileViewBasic',
@@ -184,6 +186,7 @@ export function hydratePostView(
     repostCount: counts?.repostCount ?? 0,
     likeCount: counts?.likeCount ?? 0,
     quoteCount: counts?.quoteCount ?? 0,
+    labels,
     indexedAt:
       typeof record.createdAt === 'string'
         ? record.createdAt
@@ -197,6 +200,7 @@ export function hydratePostViewRecord(
   cid: string,
   miniDoc: SlingshotMiniDoc,
   counts?: PostInteractionCounts,
+  labels?: ComAtprotoLabelDefs.Label[],
 ): $Typed<AppBskyEmbedRecord.ViewRecord> {
   const author: AppBskyActorDefs.ProfileViewBasic = {
     $type: 'app.bsky.actor.defs#profileViewBasic',
@@ -220,6 +224,7 @@ export function hydratePostViewRecord(
     repostCount: counts?.repostCount ?? 0,
     likeCount: counts?.likeCount ?? 0,
     quoteCount: counts?.quoteCount ?? 0,
+    labels,
     indexedAt:
       typeof record.createdAt === 'string'
         ? record.createdAt
