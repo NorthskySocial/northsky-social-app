@@ -1,6 +1,7 @@
 import {
   DEFAULT_INTERVAL,
   defaultLinkInterval,
+  type DonationsConfig,
   encodeDid,
   getDonationUrl,
   getPresetAmounts,
@@ -11,7 +12,7 @@ jest.mock('#/logger', () => ({
   logger: {warn: jest.fn()},
 }))
 
-const CONFIG = {
+const CONFIG: DonationsConfig = {
   currency: 'usd',
   oneTime: {
     custom: 'https://donate.stripe.com/custom',
@@ -141,7 +142,7 @@ describe('getDonationUrl', () => {
   })
 
   it('preserves an existing query string', () => {
-    const config = {
+    const config: DonationsConfig = {
       currency: 'usd',
       oneTime: {'500': 'https://donate.stripe.com/five?locale=en'},
     }

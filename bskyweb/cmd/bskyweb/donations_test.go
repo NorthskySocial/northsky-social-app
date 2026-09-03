@@ -14,7 +14,7 @@ import (
 func testDonationsConfig(apiBase string) *donationsConfig {
 	return &donationsConfig{
 		secretKey:     "sk_test_kusanagi",
-		currency:      "usd",
+		currency:      "cad",
 		presetsCents:  []int64{500, 1000},
 		minCents:      100,
 		maxCents:      100000,
@@ -29,6 +29,23 @@ func TestDonationsEnabled(t *testing.T) {
 	}
 	if !testDonationsConfig("").enabled() {
 		t.Fatal("expected donations to be enabled with a secret key")
+	}
+}
+
+func TestValidateDonationsConfig(t *testing.T) {
+	valid := testDonationsConfig("")
+	if err := validateDonationsConfig(valid); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	for _, cfg := range []*donationsConfig{
+		{minCents: 0, maxCents: 100},
+		{minCents: 100, maxCents: 0},
+		{minCents: 200, maxCents: 100},
+	} {
+		if err := validateDonationsConfig(cfg); err == nil {
+			t.Errorf("expected invalid bounds to be rejected: %+v", cfg)
+		}
 	}
 }
 
@@ -56,7 +73,7 @@ func TestClientConfigLiteral(t *testing.T) {
 		if !config.Checkout {
 			t.Error("expected checkout to be available with a secret key")
 		}
-		if config.Currency != "usd" || config.MinCents != 100 {
+		if config.Currency != "cad" || config.MinCents != 100 {
 			t.Errorf("unexpected config: %+v", config)
 		}
 		if len(config.PresetsCents) != 2 {
@@ -172,12 +189,27 @@ func TestParsePresetsCents(t *testing.T) {
 	}
 }
 
+func TestSanitizeDonationCurrency(t *testing.T) {
+	for _, currency := range []string{"cad", "usd", "eur"} {
+		if got := sanitizeDonationCurrency(currency); got != currency {
+			t.Errorf("expected %q, got %q", currency, got)
+		}
+	}
+	if got := sanitizeDonationCurrency(" EUR "); got != "eur" {
+		t.Errorf("expected an uppercase value to be normalized, got %q", got)
+	}
+	if got := sanitizeDonationCurrency("gbp"); got != "cad" {
+		t.Errorf("expected an unsupported value to fall back to cad, got %q", got)
+	}
+}
+
 func TestDonationSessionForm(t *testing.T) {
 	cfg := testDonationsConfig("")
 
 	t.Run("one time payment", func(t *testing.T) {
 		form, err := donationSessionForm(cfg, donationSessionRequest{
 			AmountCents: 700,
+			Currency:    currencyCAD,
 			Interval:    intervalOneTime,
 		})
 		if err != nil {
@@ -189,7 +221,7 @@ func TestDonationSessionForm(t *testing.T) {
 			"mode":                                   "payment",
 			"return_url":                             "https://northsky.app/support?session_id={CHECKOUT_SESSION_ID}",
 			"line_items[0][price_data][unit_amount]": "700",
-			"line_items[0][price_data][currency]":    "usd",
+			"line_items[0][price_data][currency]":    "cad",
 			"line_items[0][quantity]":                "1",
 		}
 		for key, want := range expect {
@@ -205,6 +237,7 @@ func TestDonationSessionForm(t *testing.T) {
 	t.Run("monthly subscription at any amount", func(t *testing.T) {
 		form, err := donationSessionForm(cfg, donationSessionRequest{
 			AmountCents: 1337,
+			Currency:    currencyEUR,
 			Interval:    intervalMonthly,
 		})
 		if err != nil {
@@ -218,6 +251,9 @@ func TestDonationSessionForm(t *testing.T) {
 		}
 		if got := form.Get("line_items[0][price_data][unit_amount]"); got != "1337" {
 			t.Errorf("expected the requested amount, got %q", got)
+		}
+		if got := form.Get("line_items[0][price_data][currency]"); got != "eur" {
+			t.Errorf("expected eur, got %q", got)
 		}
 	})
 
@@ -236,6 +272,12 @@ func TestDonationSessionForm(t *testing.T) {
 	t.Run("rejects an unknown interval", func(t *testing.T) {
 		if _, err := donationSessionForm(cfg, donationSessionRequest{AmountCents: 500, Interval: "weekly"}); err != errUnknownInterval {
 			t.Fatalf("expected errUnknownInterval, got %v", err)
+		}
+	})
+
+	t.Run("rejects an unknown currency", func(t *testing.T) {
+		if _, err := donationSessionForm(cfg, donationSessionRequest{AmountCents: 500, Currency: "gbp", Interval: intervalOneTime}); err != errUnknownCurrency {
+			t.Fatalf("expected errUnknownCurrency, got %v", err)
 		}
 	})
 
@@ -318,6 +360,20 @@ func TestDonationSessionForm(t *testing.T) {
 		}
 		if form.Has("metadata[did]") {
 			t.Error("expected a malformed did to be dropped")
+		}
+	})
+
+	t.Run("drops an invalid did with a did prefix", func(t *testing.T) {
+		form, err := donationSessionForm(cfg, donationSessionRequest{
+			AmountCents: 500,
+			Interval:    intervalOneTime,
+			Did:         "did:not-a-valid-method:motoko",
+		})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if form.Has("metadata[did]") {
+			t.Error("expected an invalid DID to be dropped")
 		}
 	})
 }
