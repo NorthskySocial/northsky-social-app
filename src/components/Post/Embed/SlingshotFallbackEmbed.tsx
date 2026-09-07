@@ -15,11 +15,14 @@ export function SlingshotFallbackEmbed({
   embed: EmbedType<'post_not_found'>
 }) {
   const uri = embed.view.uri
+  const hideNestedQuote = Boolean(rest.isWithinQuote && !rest.allowNestedQuotes)
 
   const {data: viewRecord, isLoading} = useSlingshotRecordQuery({
     atUri: uri,
-    enabled: true,
+    enabled: !hideNestedQuote,
   })
+
+  if (hideNestedQuote) return null
 
   // Still loading from Slingshot
   if (isLoading) {
