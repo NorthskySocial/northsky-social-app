@@ -1,0 +1,20 @@
+# zizmor audit config.
+#
+# Northsky tracks upstream `social-app` closely, so `.github/dependabot.yml`
+# is left exactly as upstream writes it and the one finding it raises is
+# suppressed here instead. Keeping the suppression in this file means the
+# next upstream sync does not conflict on `dependabot.yml`.
+
+rules:
+  dependabot-cooldown:
+    # Upstream gives the Docker ecosystem a 3-day cooldown, below zizmor's
+    # 7-day floor. Docker base images carry no Dependabot security updates,
+    # so upstream treats the window as operational freshness rather than a
+    # supply-chain control.
+    #
+    # Pinned to the line on purpose: npm and GitHub Actions do sit at 7 days,
+    # and a whole-file ignore would also hide either of those dropping below
+    # it. An upstream edit that moves this line fails the audit again, which
+    # is the intended signal to re-pin it.
+    ignore:
+      - dependabot.yml:56
