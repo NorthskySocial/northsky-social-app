@@ -114,8 +114,12 @@ module.exports = async function (env, argv) {
   if (process.env.SENTRY_AUTH_TOKEN) {
     config.plugins.push(
       sentryWebpackPlugin({
-        org: 'blueskyweb',
-        project: 'app',
+        // northsky: source maps upload to Northsky's Sentry org, not Bluesky's.
+        // The env vars let a deployment override without touching this file.
+        org: process.env.SENTRY_ORG || 'northsky-social-cooperative',
+        project: process.env.SENTRY_PROJECT || 'social-app',
+        // northsky: only set for a self-hosted Sentry; undefined means SaaS.
+        sentryUrl: process.env.SENTRY_URL || undefined,
         authToken: process.env.SENTRY_AUTH_TOKEN,
         release: {
           // fallback needed for Render.com deployments

@@ -252,9 +252,13 @@ module.exports = function (_config) {
               /** @type {[string, any]} */ ([
                 '@sentry/react-native/expo',
                 {
-                  organization: 'blueskyweb',
-                  project: 'app',
-                  url: 'https://sentry.io',
+                  // northsky: native source maps upload to Northsky's Sentry,
+                  // matching webpack.config.js for the web build. The env vars
+                  // let a build override without touching this file.
+                  organization:
+                    process.env.SENTRY_ORG || 'northsky-social-cooperative',
+                  project: process.env.SENTRY_PROJECT || 'social-app',
+                  url: process.env.SENTRY_URL || 'https://sentry.io',
                 },
               ]),
             ]
