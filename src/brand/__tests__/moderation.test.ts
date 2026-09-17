@@ -1,11 +1,13 @@
-import {BSKY_LABELER_DID} from '@atproto/api'
+import {api} from '@bsky/sdk'
 
 import {BRAND} from '../config'
 import {
   APP_LABELER_DIDS,
   getHostModerationInfo,
-  getHostModServiceHeaders,
+  getHostModServiceProxy,
 } from '../moderation'
+
+const BSKY_LABELER_DID = api.moderation.did
 
 const NORTHSKY_MOD_DID = 'did:plc:p2cxrw3ank4dzs55mpm6ohq4'
 const BLACKSKY_MOD_DID = 'did:plc:d2mkddsbmnrgr3domzg5qexf'
@@ -108,30 +110,30 @@ describe('APP_LABELER_DIDS', () => {
   })
 })
 
-describe('getHostModServiceHeaders', () => {
+describe('getHostModServiceProxy', () => {
   it('routes northsky.social appeals to the Northsky mod service', () => {
-    expect(getHostModServiceHeaders('https://northsky.social')).toEqual({
-      'atproto-proxy': `${NORTHSKY_MOD_DID}#atproto_labeler`,
-    })
+    expect(getHostModServiceProxy('https://northsky.social')).toBe(
+      `${NORTHSKY_MOD_DID}#atproto_labeler`,
+    )
   })
 
   it('routes blacksky.app appeals to the Blacksky mod service', () => {
-    expect(getHostModServiceHeaders('https://blacksky.app')).toEqual({
-      'atproto-proxy': `${BLACKSKY_MOD_DID}#atproto_labeler`,
-    })
+    expect(getHostModServiceProxy('https://blacksky.app')).toBe(
+      `${BLACKSKY_MOD_DID}#atproto_labeler`,
+    )
   })
 
   /*
    * Regression proof for the fallback path: a host the map cannot resolve must
-   * keep producing the exact header the screen sent before appeals became
-   * host-aware.
+   * keep producing the exact proxy target the screen sent before appeals
+   * became host-aware.
    */
   it.each([
     ['an unknown host', 'https://pds.example.com'],
     ['a missing service URL', undefined],
   ])('falls back to the Bluesky mod service for %s', (_name, serviceUrl) => {
-    expect(getHostModServiceHeaders(serviceUrl)).toEqual({
-      'atproto-proxy': `${BSKY_LABELER_DID}#atproto_labeler`,
-    })
+    expect(getHostModServiceProxy(serviceUrl)).toBe(
+      `${BSKY_LABELER_DID}#atproto_labeler`,
+    )
   })
 })

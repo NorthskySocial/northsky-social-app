@@ -1,58 +1,53 @@
-import {AtpAgent, BSKY_LABELER_DID} from '@atproto/api'
+import {Client} from '@atproto/lex'
+import {api} from '@bsky/sdk'
 import {beforeEach, describe, expect, it, jest} from '@jest/globals'
 
-import {readLabelers} from '../agent-config'
 import {
   configureModerationForAccount,
   configureModerationForGuest,
 } from '../moderation'
-import {type SessionAccount} from '../types'
-
-jest.mock('../agent-config', () => ({
-  readLabelers: jest.fn(),
-}))
-
-const mockReadLabelers = readLabelers as jest.MockedFunction<
-  typeof readLabelers
->
+import {makeAccount} from './mock-fetch'
 
 const NORTHSKY_MOD_DID = 'did:plc:p2cxrw3ank4dzs55mpm6ohq4'
 
-function makeAccount(): SessionAccount {
-  return {
-    did: 'did:plc:testaccount',
+/*
+ * The handle must not match IS_TEST_USER, so the test-labeler resolution
+ * path stays dormant and no network call is attempted.
+ */
+function makeNorthskyAccount() {
+  return makeAccount({
     handle: 'nadia.northsky.social',
     service: 'https://northsky.social',
-    refreshJwt: undefined,
-    accessJwt: undefined,
-  }
+  })
 }
 
-function makeAgent() {
+function makeBundle() {
   return {
-    configureLabelersHeader: jest.fn(),
-  } as unknown as AtpAgent
+    appviewClient: {
+      setLabelers: jest.fn(),
+      call: jest.fn(),
+    } as unknown as Client,
+  }
 }
 
 beforeEach(() => {
   jest.clearAllMocks()
-  mockReadLabelers.mockResolvedValue(undefined)
   /*
-   * `AtpAgent.appLabelers` is static global state that these tests mutate.
+   * `Client.appLabelers` is static global state that these tests mutate.
    * Clear it so each test must configure it, and cannot pass on the value the
    * test before it set.
    */
-  AtpAgent.configure({appLabelers: []})
+  Client.configure({appLabelers: []})
 })
 
 describe('app labelers', () => {
   it('applies Northsky moderation ahead of Bluesky for guests', () => {
     configureModerationForGuest()
-    expect(AtpAgent.appLabelers).toEqual([NORTHSKY_MOD_DID, BSKY_LABELER_DID])
+    expect(Client.appLabelers).toEqual([NORTHSKY_MOD_DID, api.moderation.did])
   })
 
-  it('applies Northsky moderation for logged-in accounts', async () => {
-    await configureModerationForAccount(makeAgent(), makeAccount())
-    expect(AtpAgent.appLabelers).toEqual([NORTHSKY_MOD_DID, BSKY_LABELER_DID])
+  it('applies Northsky moderation for logged-in accounts', () => {
+    configureModerationForAccount(makeBundle(), makeNorthskyAccount())
+    expect(Client.appLabelers).toEqual([NORTHSKY_MOD_DID, api.moderation.did])
   })
 })

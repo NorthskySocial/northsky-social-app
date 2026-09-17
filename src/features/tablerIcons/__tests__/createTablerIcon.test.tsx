@@ -11,7 +11,7 @@ import {
 } from '#/components/icons/Globe'
 import {
   Image_Stroke1_Corner0_Rounded,
-  Image_Stroke2_Corner0_Rounded,
+  Image_Stroke2_Corner2_Rounded,
 } from '#/components/icons/Image'
 import {
   CloseQuote_Stroke2_Corner0_Rounded,
@@ -298,7 +298,7 @@ describe('generated icon modules', () => {
 
   it('keeps the Stroke1 variant lighter than the Stroke2 variant', () => {
     expect(Image_Stroke1_Corner0_Rounded.svgStrokeWidth).toBeLessThan(
-      Image_Stroke2_Corner0_Rounded.svgStrokeWidth,
+      Image_Stroke2_Corner2_Rounded.svgStrokeWidth,
     )
   })
 

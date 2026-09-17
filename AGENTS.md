@@ -213,9 +213,10 @@ pnpm prettier           # prettier --check .
 # DO NOT run intl:extract / intl:compile — handled by a nightly CI job
 ```
 
-Note: this repo pins pnpm 11.9.0 and node >=24.15.0 via `packageManager` /
-`engines`. Use `corepack pnpm@11.9.0 ...` if the system pnpm is older, and
-install with `--frozen-lockfile`.
+Note: this repo pins pnpm 11.21.0 and node >=24.19.0 via `devEngines` /
+`engines`. Use `corepack pnpm@11.21.0 ...` if the system pnpm is older, and
+install with `--frozen-lockfile`. On an older node, `npx` refuses to run at
+all; call the binary in `node_modules/.bin/` instead.
 
 ### Project structure
 

@@ -1,4 +1,4 @@
-import {RichText} from '@atproto/api'
+import {RichText} from '@bsky/sdk/richtext'
 import {Extension} from '@tiptap/core'
 import {type Node as ProseMirrorNode} from '@tiptap/pm/model'
 import {Plugin, PluginKey, type Selection} from '@tiptap/pm/state'

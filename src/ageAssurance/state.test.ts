@@ -1,6 +1,5 @@
-import {ageAssuranceRuleIDs as ids} from '@atproto/api'
-
 import {AgeAssuranceAccess, AgeAssuranceStatus} from '#/ageAssurance/types'
+import {app} from '#/lexicons'
 
 /*
  * `computeAgeAssuranceState` is pure, but its module pulls in the session,
@@ -37,7 +36,11 @@ const DENY_ALL_CONFIG = {
     {
       countryCode: 'GB',
       minAccessAge: 18,
-      rules: [{$type: ids.Default, access: AgeAssuranceAccess.None}],
+      rules: [
+        app.bsky.ageassurance.defs.configRegionRuleDefault.build({
+          access: AgeAssuranceAccess.None,
+        }),
+      ],
     },
   ],
 }

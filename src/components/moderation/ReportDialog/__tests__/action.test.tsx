@@ -1,6 +1,7 @@
 import {beforeEach, describe, expect, it, jest} from '@jest/globals'
 import {act, renderHook} from '@testing-library/react-native'
 
+import {com} from '#/lexicons'
 import {useSubmitReportMutation} from '../action'
 import {
   makeAccountSubject,
@@ -11,7 +12,7 @@ import {
   queryWrapper,
 } from './reportTestHarness'
 
-const mockCreateModerationReport = jest.fn()
+const mockCall = jest.fn()
 
 /*
  * The submit path logs instead of sending while `IS_DEV` is true, which it is
@@ -24,7 +25,7 @@ jest.mock('#/env', () => ({
 }))
 
 jest.mock('#/state/session', () => ({
-  useAgent: () => ({createModerationReport: mockCreateModerationReport}),
+  useAppviewClient: () => ({call: mockCall}),
 }))
 
 async function submit(
@@ -56,18 +57,20 @@ describe('useSubmitReportMutation', () => {
       modCustomLabel: 'ableism',
     })
 
-    expect(mockCreateModerationReport).toHaveBeenCalledTimes(1)
-    const [report, options] = mockCreateModerationReport.mock.calls[0] as [
+    expect(mockCall).toHaveBeenCalledTimes(1)
+    const [method, report, options] = mockCall.mock.calls[0] as [
+      unknown,
       Record<string, unknown>,
-      {headers: Record<string, string>},
+      {service: string},
     ]
+    expect(method).toBe(com.atproto.moderation.createReport)
     expect(report.reason).toBe('<ableism>\nsee the third reply')
     expect(report.modTool).toEqual({
       name: expect.any(String),
       meta: {label: 'ableism'},
     })
-    expect(options.headers).toEqual({
-      'atproto-proxy': `${NORTHSKY_MOD_DID}#atproto_labeler`,
+    expect(options).toEqual({
+      service: `${NORTHSKY_MOD_DID}#atproto_labeler`,
     })
   })
 
@@ -78,7 +81,8 @@ describe('useSubmitReportMutation', () => {
       modCustomLabel: 'transphobia',
     })
 
-    const [report] = mockCreateModerationReport.mock.calls[0] as [
+    const [, report] = mockCall.mock.calls[0] as [
+      unknown,
       Record<string, unknown>,
     ]
     expect(report.reason).toBe('<transphobia>')
@@ -98,14 +102,15 @@ describe('useSubmitReportMutation', () => {
       modCustomLabel: 'ableism',
     })
 
-    const [report, options] = mockCreateModerationReport.mock.calls[0] as [
+    const [, report, options] = mockCall.mock.calls[0] as [
+      unknown,
       Record<string, unknown>,
-      {headers: Record<string, string>},
+      {service: string},
     ]
     expect(report.reason).toBe('see the third reply')
     expect(report.modTool).toBeUndefined()
-    expect(options.headers).toEqual({
-      'atproto-proxy': `${OTHER_LABELER_DID}#atproto_labeler`,
+    expect(options).toEqual({
+      service: `${OTHER_LABELER_DID}#atproto_labeler`,
     })
   })
 
@@ -118,7 +123,8 @@ describe('useSubmitReportMutation', () => {
       }),
     })
 
-    const [report] = mockCreateModerationReport.mock.calls[0] as [
+    const [, report] = mockCall.mock.calls[0] as [
+      unknown,
       Record<string, unknown>,
     ]
     expect(report.reason).toBe('see the third reply')

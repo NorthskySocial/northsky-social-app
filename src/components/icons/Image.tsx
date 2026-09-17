@@ -18,7 +18,7 @@ export const Image_Stroke1_Corner0_Rounded = createTablerIcon({
 })
 
 /** Tabler: photo (outline) */
-export const Image_Stroke2_Corner0_Rounded = createTablerIcon({
+export const Image_Stroke2_Corner2_Rounded = createTablerIcon({
   paths: [
     'M15 8h.01',
     'M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12',

@@ -8,7 +8,7 @@ import {
 } from 'react'
 import {StyleSheet, View} from 'react-native'
 import Animated, {FadeIn, FadeOut} from 'react-native-reanimated'
-import {AppBskyRichtextFacet, RichText} from '@atproto/api'
+import {RichText} from '@bsky/sdk/richtext'
 import {Trans} from '@lingui/react/macro'
 import {getSchema} from '@tiptap/core'
 import {Document} from '@tiptap/extension-document'
@@ -43,6 +43,8 @@ import {type Emoji} from '#/components/EmojiPicker'
 import {Portal} from '#/components/Portal'
 import {Text} from '#/components/Typography'
 import {MarkdownDecorator} from '#/features/markdownComposer/MarkdownDecorator'
+import {app} from '#/lexicons'
+import * as bsky from '#/types/bsky'
 import {type TextInputProps} from './TextInput.types'
 import {type AutocompleteRef, createSuggestion} from './web/Autocomplete'
 import {LinkDecorator} from './web/LinkDecorator'
@@ -280,7 +282,7 @@ export function TextInput({
         if (newRt.facets) {
           for (const facet of newRt.facets) {
             for (const feature of facet.features) {
-              if (AppBskyRichtextFacet.isLink(feature)) {
+              if (bsky.isType(app.bsky.richtext.facet.link, feature)) {
                 nextDetectedUris.set(feature.uri, {facet, rt: newRt})
               }
             }

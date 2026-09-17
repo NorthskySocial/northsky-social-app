@@ -2,7 +2,6 @@ import {useState} from 'react'
 import {View} from 'react-native'
 import {KeyboardAwareScrollView} from 'react-native-keyboard-controller'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
-import {type ComAtprotoAdminDefs, ToolsOzoneReportDefs} from '@atproto/api'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {Trans} from '@lingui/react/macro'
@@ -11,7 +10,7 @@ import {countGraphemes} from 'unicode-segmenter/grapheme'
 
 import {MAX_REPORT_REASON_GRAPHEME_LENGTH} from '#/lib/constants'
 import {cleanError} from '#/lib/strings/errors'
-import {useAgent, useSession, useSessionApi} from '#/state/session'
+import {useAppviewClient, useSession, useSessionApi} from '#/state/session'
 import {CharProgress} from '#/view/com/composer/char-progress/CharProgress'
 import {Logo} from '#/view/icons/Logo'
 import {atoms as a, useBreakpoints, useTheme} from '#/alf'
@@ -21,11 +20,9 @@ import {SimpleInlineLinkText} from '#/components/Link'
 import {Loader} from '#/components/Loader'
 import {P, Text} from '#/components/Typography'
 // northsky: takedowns come from the account's PDS, which may not be Northsky
-import {
-  getHostModerationInfo,
-  getHostModServiceHeaders,
-} from '#/brand/moderation'
+import {getHostModerationInfo, getHostModServiceProxy} from '#/brand/moderation'
 import {IS_WEB} from '#/env'
+import {com, tools} from '#/lexicons'
 
 const COL_WIDTH = 400
 
@@ -36,7 +33,7 @@ export function Takendown() {
   const {gtMobile} = useBreakpoints()
   const {currentAccount} = useSession()
   const {logoutCurrentAccount} = useSessionApi()
-  const agent = useAgent()
+  const client = useAppviewClient()
   const [isAppealling, setIsAppealling] = useState(false)
   const [reason, setReason] = useState('')
   // northsky: attribute the takedown to the operator of the user's PDS
@@ -54,20 +51,18 @@ export function Takendown() {
   } = useMutation({
     mutationFn: async (appealText: string) => {
       if (!currentAccount) throw new Error('No session')
-      await agent.com.atproto.moderation.createReport(
+      await client.call(
+        com.atproto.moderation.createReport,
         {
-          reasonType: ToolsOzoneReportDefs.REASONAPPEAL,
+          reasonType: tools.ozone.report.defs.reasonAppeal.value,
           subject: {
             $type: 'com.atproto.admin.defs#repoRef',
             did: currentAccount.did,
-          } satisfies ComAtprotoAdminDefs.RepoRef,
+          },
           reason: appealText,
         },
-        {
-          encoding: 'application/json',
-          // northsky: appeal to the mod service of the account's own PDS
-          headers: getHostModServiceHeaders(currentAccount.service),
-        },
+        // northsky: appeal to the mod service of the account's own PDS
+        {service: getHostModServiceProxy(currentAccount.service)},
       )
     },
     onSuccess: () => setReason(''),

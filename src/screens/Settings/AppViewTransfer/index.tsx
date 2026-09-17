@@ -1,14 +1,14 @@
 import {useEffect, useRef, useState} from 'react'
 import {View} from 'react-native'
-import {XRPCError} from '@atproto/api'
 import {plural} from '@lingui/core/macro'
 import {Trans, useLingui} from '@lingui/react/macro'
 import {type NativeStackScreenProps} from '@react-navigation/native-stack'
 import {useQueryClient} from '@tanstack/react-query'
 
 import {type CommonNavigatorParams} from '#/lib/routes/types'
+import {getErrorName, getErrorStatus} from '#/lib/xrpc-error'
 import {logger} from '#/logger'
-import {useAgent, useSession} from '#/state/session'
+import {useAppviewClient, useSession} from '#/state/session'
 import * as SettingsList from '#/screens/Settings/components/SettingsList'
 import {atoms as a, useTheme} from '#/alf'
 import {Admonition} from '#/components/Admonition'
@@ -48,7 +48,7 @@ type Props = NativeStackScreenProps<
 export function AppViewTransferSettingsScreen({}: Props) {
   const {t: l} = useLingui()
   const t = useTheme()
-  const agent = useAgent()
+  const client = useAppviewClient()
   const queryClient = useQueryClient()
   const {currentAccount} = useSession()
   const accountDid = currentAccount!.did
@@ -159,13 +159,13 @@ export function AppViewTransferSettingsScreen({}: Props) {
     abortRef.current = controller
     try {
       await runAppViewTransfer({
-        agent,
+        client,
         initialCheckpoint: initial,
         signal: controller.signal,
         onProgress: saveCheckpoint,
         onCollectionError(id, cause) {
-          const status = cause instanceof XRPCError ? cause.status : 'unknown'
-          const name = cause instanceof XRPCError ? cause.error : 'unknown'
+          const status = getErrorStatus(cause) ?? 'unknown'
+          const name = getErrorName(cause) ?? 'unknown'
           logger.error('AppView transfer collection failed', {
             collection: id,
             safeMessage: `${status}:${name}`,

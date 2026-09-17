@@ -1,6 +1,6 @@
-import {ToolsOzoneReportDefs as OzoneReportDefs} from '@atproto/api'
 import {describe, expect, it} from '@jest/globals'
 
+import {tools} from '#/lexicons'
 import {
   EXCLUDED_NORTHSKY_LABELS,
   getNorthskyLabelsForReason,
@@ -47,21 +47,21 @@ const PUBLISHED_LABELS = [
 ]
 
 const DECLARED_REASON_TYPES = [
-  OzoneReportDefs.REASONAPPEAL,
-  OzoneReportDefs.REASONVIOLENCEGRAPHICCONTENT,
-  OzoneReportDefs.REASONSEXUALANIMAL,
-  OzoneReportDefs.REASONSEXUALUNLABELED,
-  OzoneReportDefs.REASONCHILDSAFETYCSAM,
-  OzoneReportDefs.REASONCHILDSAFETYGROOM,
-  OzoneReportDefs.REASONCHILDSAFETYPRIVACY,
-  OzoneReportDefs.REASONCHILDSAFETYHARASSMENT,
-  OzoneReportDefs.REASONCHILDSAFETYOTHER,
-  OzoneReportDefs.REASONHARASSMENTTROLL,
-  OzoneReportDefs.REASONHARASSMENTTARGETED,
-  OzoneReportDefs.REASONHARASSMENTHATESPEECH,
-  OzoneReportDefs.REASONHARASSMENTDOXXING,
-  OzoneReportDefs.REASONHARASSMENTOTHER,
-  OzoneReportDefs.REASONMISLEADINGIMPERSONATION,
+  tools.ozone.report.defs.reasonAppeal.value,
+  tools.ozone.report.defs.reasonViolenceGraphicContent.value,
+  tools.ozone.report.defs.reasonSexualAnimal.value,
+  tools.ozone.report.defs.reasonSexualUnlabeled.value,
+  tools.ozone.report.defs.reasonChildSafetyCSAM.value,
+  tools.ozone.report.defs.reasonChildSafetyGroom.value,
+  tools.ozone.report.defs.reasonChildSafetyPrivacy.value,
+  tools.ozone.report.defs.reasonChildSafetyHarassment.value,
+  tools.ozone.report.defs.reasonChildSafetyOther.value,
+  tools.ozone.report.defs.reasonHarassmentTroll.value,
+  tools.ozone.report.defs.reasonHarassmentTargeted.value,
+  tools.ozone.report.defs.reasonHarassmentHateSpeech.value,
+  tools.ozone.report.defs.reasonHarassmentDoxxing.value,
+  tools.ozone.report.defs.reasonHarassmentOther.value,
+  tools.ozone.report.defs.reasonMisleadingImpersonation.value,
 ]
 
 const mapped = Object.values(REASON_TO_NORTHSKY_LABELS).flatMap(
@@ -105,13 +105,17 @@ describe('REASON_TO_NORTHSKY_LABELS', () => {
 describe('getNorthskyLabelsForReason', () => {
   it('returns the labels that refine a mapped reason', () => {
     expect(
-      getNorthskyLabelsForReason(OzoneReportDefs.REASONSEXUALANIMAL),
+      getNorthskyLabelsForReason(
+        tools.ozone.report.defs.reasonSexualAnimal.value,
+      ),
     ).toEqual(['bestiality', 'apologia-zoophilia'])
   })
 
   it('returns nothing for an unmapped reason', () => {
     expect(
-      getNorthskyLabelsForReason(OzoneReportDefs.REASONMISLEADINGSPAM),
+      getNorthskyLabelsForReason(
+        tools.ozone.report.defs.reasonMisleadingSpam.value,
+      ),
     ).toEqual([])
   })
 })
