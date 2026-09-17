@@ -81,6 +81,26 @@ a[role='link'][data-no-underline='1']:hover {
 .ProseMirror .autolink {
   color: var(--link, #9a45ec); /* northsky: brand link color */
 }
+/* northsky: cursor-aware Markdown preview in the web composer */
+.ProseMirror .ns-markdown-hidden,
+.ProseMirror .ns-markdown-hidden-block {
+  display: none;
+}
+.ProseMirror .ns-markdown-inline-code {
+  border-radius: 3px;
+  padding: 0 3px;
+}
+.ProseMirror .ns-markdown-inline-code.autolink,
+.ProseMirror .ns-markdown-inline-code .autolink,
+.ProseMirror .autolink .ns-markdown-inline-code,
+.ProseMirror .ns-markdown-code-block .autolink {
+  color: inherit;
+}
+.ProseMirror .ns-markdown-code-block {
+  border-radius: 4px;
+  padding: 0 12px;
+  white-space: pre-wrap;
+}
 /* OLLIE: TODO -- this is not accessible */
 /* Remove focus state on inputs */
 .ProseMirror-focused {

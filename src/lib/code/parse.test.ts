@@ -90,6 +90,9 @@ describe('findCodeSpans', () => {
     const spans = findCodeSpans(text)
     expect(spans).toHaveLength(1)
     expect(text.slice(spans[0].start, spans[0].end)).toBe('`npm test`')
+    expect(text.slice(spans[0].contentStart, spans[0].contentEnd)).toBe(
+      'npm test',
+    )
     expect(spans[0].token).toEqual({type: 'inline', value: 'npm test'})
   })
 

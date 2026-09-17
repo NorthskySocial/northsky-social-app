@@ -6,7 +6,7 @@ import {
   type UriString,
 } from '@atproto/syntax'
 
-import {app} from '#/lexicons'
+import {app, com} from '#/lexicons'
 import * as bsky from '#/types/bsky'
 import {buildPdsBlobUrl} from './blobs'
 import {type PostInteractionCounts, type SlingshotMiniDoc} from './types'
@@ -181,6 +181,7 @@ export function hydratePostView(
   cid: string,
   miniDoc: SlingshotMiniDoc,
   counts?: PostInteractionCounts,
+  labels?: com.atproto.label.defs.Label[],
 ): app.bsky.feed.defs.PostView {
   const rawEmbed = record.embed as Record<string, unknown> | undefined
   const embed = rawEmbed
@@ -198,6 +199,7 @@ export function hydratePostView(
     repostCount: counts?.repostCount ?? 0,
     likeCount: counts?.likeCount ?? 0,
     quoteCount: counts?.quoteCount ?? 0,
+    labels,
     indexedAt: hydrateIndexedAt(record),
   }
 }
@@ -208,6 +210,7 @@ export function hydratePostViewRecord(
   cid: string,
   miniDoc: SlingshotMiniDoc,
   counts?: PostInteractionCounts,
+  labels?: com.atproto.label.defs.Label[],
 ): $Typed<app.bsky.embed.record.ViewRecord> {
   const rawEmbed = record.embed as Record<string, unknown> | undefined
   const embed = rawEmbed
@@ -225,6 +228,7 @@ export function hydratePostViewRecord(
     repostCount: counts?.repostCount ?? 0,
     likeCount: counts?.likeCount ?? 0,
     quoteCount: counts?.quoteCount ?? 0,
+    labels,
     indexedAt: hydrateIndexedAt(record),
   }
 }

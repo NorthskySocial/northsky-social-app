@@ -28,13 +28,6 @@ export interface AppView {
    * them - see `src/lib/typeahead/client.ts`.
    */
   useFallbackTypeahead?: boolean
-  /**
-   * Replay mute writes to the fallback appview and import its mute state at
-   * session start. Set only on production appviews whose users also read
-   * from the fallback; the dev appview must not write to production.
-   * See `src/features/muteSync/`.
-   */
-  syncMutesWithFallback?: boolean
 }
 
 /** Appview for accounts whose PDS host matches no route. */
@@ -57,13 +50,15 @@ const DEV_APPVIEW: AppView | undefined =
  * Blacksky serves feeds and profiles, but every search method fails there:
  * searchPostsV2 answers 400, searchActors and searchActorsTypeahead answer
  * 502. Both search capabilities are routed away from it.
+ *
+ * Exported for the fixed endpoint pair in
+ * `src/features/appViewTransfer/endpoints.ts`.
  */
-const BLACKSKY_APPVIEW: AppView = {
+export const BLACKSKY_APPVIEW: AppView = {
   url: 'https://api.blacksky.community',
   did: 'did:web:api.blacksky.community',
   searchProxyDid: FALLBACK_APPVIEW.did,
   useFallbackTypeahead: true,
-  syncMutesWithFallback: true,
 }
 
 /**

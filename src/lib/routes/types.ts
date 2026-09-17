@@ -64,6 +64,8 @@ export type CommonNavigatorParams = {
   AccessibilitySettings: undefined
   AppearanceSettings: undefined
   BetaFeaturesSettings: undefined
+  // northsky: user-initiated data transfer between the two fixed appviews
+  AppViewTransferSettings: undefined
   AccountSettings: undefined
   AutomationLabelSettings: undefined
   PrivacyAndSecuritySettings: undefined

@@ -108,6 +108,8 @@ import {AiSettingsScreen} from '#/screens/Settings/AiSettings'
 import {AppearanceSettingsScreen} from '#/screens/Settings/AppearanceSettings'
 import {AppIconSettingsScreen} from '#/screens/Settings/AppIconSettings'
 import {AppPasswordsScreen} from '#/screens/Settings/AppPasswords'
+// northsky: appview data transfer screen
+import {AppViewTransferSettingsScreen} from '#/screens/Settings/AppViewTransfer'
 import {AutomationLabelSettingsScreen} from '#/screens/Settings/AutomationLabelSettings'
 import {BetaFeaturesSettingsScreen} from '#/screens/Settings/BetaFeaturesSettings'
 import {ContentAndMediaSettingsScreen} from '#/screens/Settings/ContentAndMediaSettings'
@@ -424,6 +426,15 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         getComponent={() => BetaFeaturesSettingsScreen}
         options={{
           title: title(msg`Beta features`),
+          requireAuth: true,
+        }}
+      />
+      {/* northsky: appview data transfer, linked from Beta Features */}
+      <Stack.Screen
+        name="AppViewTransferSettings"
+        getComponent={() => AppViewTransferSettingsScreen}
+        options={{
+          title: title(msg`Transfer app data`),
           requireAuth: true,
         }}
       />

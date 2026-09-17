@@ -12,17 +12,10 @@ import {
 import {useToggleMutationQueue} from '#/lib/hooks/useToggleMutationQueue'
 import {updatePostShadow} from '#/state/cache/post-shadow'
 import {type Shadow} from '#/state/cache/types'
-import {
-  useAppview,
-  useAppviewClient,
-  usePdsClient,
-  useSession,
-} from '#/state/session'
+import {useAppviewClient, usePdsClient, useSession} from '#/state/session'
 import * as userActionHistory from '#/state/userActionHistory'
 import {useAnalytics} from '#/analytics'
 import {type Metrics, toClout} from '#/analytics/metrics'
-// northsky: mute writes are replayed to the fallback appview
-import {replayMuteWriteToFallback} from '#/features/muteSync'
 import {app, com} from '#/lexicons'
 import {useIsThreadMuted, useSetThreadMute} from '../cache/thread-mutes'
 import {findProfileQueryData} from './profile'
@@ -424,9 +417,7 @@ export function useThreadMuteMutationQueue(
 }
 
 function useThreadMuteMutation() {
-  const {currentAccount} = useSession()
   const appviewClient = useAppviewClient()
-  const appview = useAppview() // northsky: mutes are private per-appview state
   return useMutation<
     {},
     Error,
@@ -436,36 +427,18 @@ function useThreadMuteMutation() {
       await appviewClient.call(app.bsky.graph.muteThread, {
         root: uri as AtUriString,
       })
-      // northsky: keep the fallback appview's mute state in step
-      void replayMuteWriteToFallback(appview, currentAccount?.did, opts =>
-        appviewClient.call(
-          app.bsky.graph.muteThread,
-          {root: uri as AtUriString},
-          opts,
-        ),
-      )
       return {}
     },
   })
 }
 
 function useThreadUnmuteMutation() {
-  const {currentAccount} = useSession()
   const appviewClient = useAppviewClient()
-  const appview = useAppview() // northsky: mutes are private per-appview state
   return useMutation<{}, Error, {uri: string}>({
     mutationFn: async ({uri}) => {
       await appviewClient.call(app.bsky.graph.unmuteThread, {
         root: uri as AtUriString,
       })
-      // northsky: keep the fallback appview's mute state in step
-      void replayMuteWriteToFallback(appview, currentAccount?.did, opts =>
-        appviewClient.call(
-          app.bsky.graph.unmuteThread,
-          {root: uri as AtUriString},
-          opts,
-        ),
-      )
       return {}
     },
   })

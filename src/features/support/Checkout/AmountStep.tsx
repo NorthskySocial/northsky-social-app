@@ -16,8 +16,10 @@ import {
 } from '../amount'
 import {
   DEFAULT_INTERVAL,
+  type DonationCurrency,
   type DonationInterval,
   type DonationsConfig,
+  SUPPORTED_DONATION_CURRENCIES,
 } from '../links'
 
 const FALLBACK_PRESETS = [500, 1000, 2500, 5000]
@@ -29,7 +31,11 @@ export function AmountStep({
 }: {
   config: DonationsConfig
   error?: string
-  onSubmit: (amountCents: number, interval: DonationInterval) => void
+  onSubmit: (
+    amountCents: number,
+    currency: DonationCurrency,
+    interval: DonationInterval,
+  ) => void
 }) {
   const t = useTheme()
   const {t: l, i18n} = useLingui()
@@ -40,6 +46,7 @@ export function AmountStep({
   const maxCents = config.maxCents ?? DEFAULT_MAX_CENTS
 
   const [interval, setInterval] = useState<DonationInterval>(DEFAULT_INTERVAL)
+  const [currency, setCurrency] = useState<DonationCurrency>(config.currency)
   const [amountCents, setAmountCents] = useState(defaultPresetCents(presets))
   const [customInput, setCustomInput] = useState('')
 
@@ -51,7 +58,7 @@ export function AmountStep({
   const formatAmount = (cents: number) =>
     i18n.number(cents / 100, {
       style: 'currency',
-      currency: config.currency.toUpperCase(),
+      currency: currency.toUpperCase(),
     })
 
   return (
@@ -71,6 +78,21 @@ export function AmountStep({
             <Trans>Monthly</Trans>
           </SegmentedControl.ItemText>
         </SegmentedControl.Item>
+      </SegmentedControl.Root>
+
+      <SegmentedControl.Root
+        type="radio"
+        label={l`Donation currency`}
+        value={currency}
+        onChange={setCurrency}>
+        {SUPPORTED_DONATION_CURRENCIES.map(value => {
+          const label = value.toUpperCase()
+          return (
+            <SegmentedControl.Item key={value} label={label} value={value}>
+              <SegmentedControl.ItemText>{label}</SegmentedControl.ItemText>
+            </SegmentedControl.Item>
+          )
+        })}
       </SegmentedControl.Root>
 
       <View style={[a.flex_row, a.flex_wrap, a.gap_sm]}>
@@ -131,7 +153,7 @@ export function AmountStep({
         disabled={!isValid}
         style={[a.rounded_full]}
         onPress={() => {
-          if (isValid) onSubmit(selectedCents, interval)
+          if (isValid) onSubmit(selectedCents, currency, interval)
         }}>
         <ButtonText>
           {isValid ? (

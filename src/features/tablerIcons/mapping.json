@@ -1102,6 +1102,11 @@
       "tabler": "letter-case"
     }
   },
+  "Transfer.tsx": {
+    "Transfer_Stroke2_Corner0_Rounded": {
+      "tabler": "transfer"
+    }
+  },
   "Trash.tsx": {
     "Trash_Stroke2_Corner0_Rounded": {
       "tabler": "trash"

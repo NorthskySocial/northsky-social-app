@@ -1,4 +1,4 @@
-import {type DonationInterval} from './links'
+import {type DonationCurrency, type DonationInterval} from './links'
 
 /**
  * bskyweb serves the app, so the donation routes are same-origin in production.
@@ -8,6 +8,7 @@ const API_BASE = process.env.EXPO_PUBLIC_DONATIONS_API_URL ?? ''
 
 export type DonationSessionInput = {
   amountCents: number
+  currency: DonationCurrency
   interval: DonationInterval
   did?: string
 }
@@ -29,6 +30,7 @@ async function readError(response: Response): Promise<never> {
  */
 export async function createDonationSession({
   amountCents,
+  currency,
   interval,
   did,
 }: DonationSessionInput): Promise<string> {
@@ -37,6 +39,7 @@ export async function createDonationSession({
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({
       amountCents,
+      currency,
       interval: interval === 'monthly' ? 'month' : 'one_time',
       did,
     }),
@@ -53,6 +56,13 @@ export async function createDonationSession({
 
 export type DonationStatus = 'complete' | 'open' | 'expired'
 
+function parseDonationStatus(status: unknown): DonationStatus {
+  if (status === 'complete' || status === 'open' || status === 'expired') {
+    return status
+  }
+  throw new DonationError('the server returned an invalid donation status')
+}
+
 export async function getDonationStatus(
   sessionId: string,
 ): Promise<DonationStatus> {
@@ -63,5 +73,5 @@ export async function getDonationStatus(
   if (!response.ok) await readError(response)
 
   const body = (await response.json()) as {status?: string}
-  return (body.status ?? 'open') as DonationStatus
+  return parseDonationStatus(body.status ?? 'open')
 }

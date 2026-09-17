@@ -18,7 +18,11 @@ import {
   getDonationStatus,
 } from '../api'
 import {DonationOptions} from '../DonationOptions'
-import {type DonationInterval, type DonationsConfig} from '../links'
+import {
+  type DonationCurrency,
+  type DonationInterval,
+  type DonationsConfig,
+} from '../links'
 import {AmountStep} from './AmountStep'
 
 type Step =
@@ -90,10 +94,14 @@ export function Checkout({config}: {config: DonationsConfig}) {
       })
   }, [canCheckout, l])
 
-  const onSubmit = (amountCents: number, interval: DonationInterval) => {
+  const onSubmit = (
+    amountCents: number,
+    currency: DonationCurrency,
+    interval: DonationInterval,
+  ) => {
     setStep({
       name: 'pay',
-      input: {amountCents, interval, did: currentAccount?.did},
+      input: {amountCents, currency, interval, did: currentAccount?.did},
     })
   }
 

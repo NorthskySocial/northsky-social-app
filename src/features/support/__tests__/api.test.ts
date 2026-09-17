@@ -23,12 +23,17 @@ describe('createDonationSession', () => {
       json: () => Promise.resolve({clientSecret: 'cs_test'}),
     })
 
-    await createDonationSession({amountCents: 500, interval: 'oneTime'})
+    await createDonationSession({
+      amountCents: 500,
+      currency: 'cad',
+      interval: 'oneTime',
+    })
 
     const [url, init] = fetch.mock.calls[0]
     expect(url).toBe('/api/donations/session')
     expect(JSON.parse(init!.body as string)).toEqual({
       amountCents: 500,
+      currency: 'cad',
       interval: 'one_time',
       did: undefined,
     })
@@ -41,6 +46,7 @@ describe('createDonationSession', () => {
 
     await createDonationSession({
       amountCents: 1000,
+      currency: 'eur',
       interval: 'monthly',
       did: 'did:plc:motoko',
     })
@@ -48,6 +54,7 @@ describe('createDonationSession', () => {
     const [, init] = fetch.mock.calls[0]
     expect(JSON.parse(init!.body as string)).toEqual({
       amountCents: 1000,
+      currency: 'eur',
       interval: 'month',
       did: 'did:plc:motoko',
     })
@@ -57,7 +64,11 @@ describe('createDonationSession', () => {
     mockFetch({json: () => Promise.resolve({clientSecret: 'cs_test'})})
 
     await expect(
-      createDonationSession({amountCents: 500, interval: 'oneTime'}),
+      createDonationSession({
+        amountCents: 500,
+        currency: 'usd',
+        interval: 'oneTime',
+      }),
     ).resolves.toBe('cs_test')
   })
 
@@ -69,7 +80,11 @@ describe('createDonationSession', () => {
     })
 
     await expect(
-      createDonationSession({amountCents: 1, interval: 'oneTime'}),
+      createDonationSession({
+        amountCents: 1,
+        currency: 'cad',
+        interval: 'oneTime',
+      }),
     ).rejects.toThrow(new DonationError('amount too small'))
   })
 
@@ -81,7 +96,11 @@ describe('createDonationSession', () => {
     })
 
     await expect(
-      createDonationSession({amountCents: 500, interval: 'oneTime'}),
+      createDonationSession({
+        amountCents: 500,
+        currency: 'cad',
+        interval: 'oneTime',
+      }),
     ).rejects.toThrow('donation request failed with status 500')
   })
 
@@ -89,7 +108,11 @@ describe('createDonationSession', () => {
     mockFetch({json: () => Promise.resolve({})})
 
     await expect(
-      createDonationSession({amountCents: 500, interval: 'oneTime'}),
+      createDonationSession({
+        amountCents: 500,
+        currency: 'cad',
+        interval: 'oneTime',
+      }),
     ).rejects.toThrow('the server did not return a client secret')
   })
 })
@@ -117,6 +140,14 @@ describe('getDonationStatus', () => {
     mockFetch({json: () => Promise.resolve({})})
 
     await expect(getDonationStatus('cs_test')).resolves.toBe('open')
+  })
+
+  it('rejects an unknown status', async () => {
+    mockFetch({json: () => Promise.resolve({status: 'processing'})})
+
+    await expect(getDonationStatus('cs_test')).rejects.toThrow(
+      'the server returned an invalid donation status',
+    )
   })
 
   it('throws the server error message on a failed request', async () => {
