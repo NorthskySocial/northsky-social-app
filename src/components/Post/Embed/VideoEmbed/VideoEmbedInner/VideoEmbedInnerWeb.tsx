@@ -158,6 +158,15 @@ void promiseForHls.then(Hls => {
   promiseForHls.value = Hls
 })
 
+// northsky: the UMD build's inline-blob worker throws ReferenceError on init
+// due to a `module` var not present in the minified CommonJS wrapper,
+// so hls.js silently falls back to demuxing on the main thread.
+// We point at hls.js's own prebuilt worker script instead.
+const hlsWorkerUrl = new URL(
+  'hls.js/dist/hls.worker.js',
+  import.meta.url,
+).toString()
+
 function useHLS({
   playlist,
   setHasSubtitleTrack,
@@ -281,6 +290,7 @@ function useHLS({
         latestEstimate === undefined ? -1 : Hls.DefaultConfig.startLevel,
       // the '-1' value makes a test request to estimate bandwidth and quality level
       // before showing the first fragment
+      workerPath: hlsWorkerUrl, // northsky: see hlsWorkerUrl above
     })
     hlsRef.current = hls
 
