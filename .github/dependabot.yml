@@ -1,15 +1,19 @@
 version: 2
 # Dependabot auto-update config.
 #
-# npm and GitHub Actions use a 7-day cooldown so newly published versions age
-# before a PR opens. Supply-chain attacks like
+# Cooldown (7 days) is the point of this config: it delays version-update
+# PRs until a newly-published version has aged. Supply-chain attacks like
 # the tanstack Shai-Hulud compromise (2026-05-11) live minutes-to-hours
 # before the registry yanks them; a 7-day cooldown keeps poisoned
 # versions out of our lockfiles.
 #
-# Security updates bypass cooldown and continue to flow immediately. Docker
-# uses a shorter 3-day operational-freshness policy and does not support
-# Dependabot security updates. See:
+# Every ecosystem uses the same 7 days. Upstream gives Docker a shorter
+# 3-day window, but zizmor gates CI on a cooldown of at least 7 days, and
+# Docker base images are a supply-chain surface like any other. Docker also
+# does not support Dependabot security updates, so a short window buys no
+# security response it could not otherwise get.
+#
+# Security updates bypass cooldown and continue to flow immediately. See:
 # https://docs.github.com/en/code-security/dependabot/working-with-dependabot/dependabot-options-reference#cooldown
 #
 # Auto-merge is deliberately NOT enabled. Every dependabot PR gets human
@@ -53,7 +57,7 @@ updates:
       time: "09:00"
       timezone: America/Los_Angeles
     cooldown:
-      default-days: 3
+      default-days: 7
     open-pull-requests-limit: 5
     groups:
       docker-base-images:

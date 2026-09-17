@@ -20,6 +20,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/bluesky-social/indigo/atproto/syntax"
 	"github.com/bluesky-social/social-app/bskyweb/brand"
 	"github.com/labstack/echo/v4"
 )
@@ -29,12 +30,16 @@ const (
 	stripeAPIVersion  = "2026-03-25.dahlia"
 	intervalOneTime   = "one_time"
 	intervalMonthly   = "month"
+	currencyCAD       = "cad"
+	currencyUSD       = "usd"
+	currencyEUR       = "eur"
 	maxDidLength      = 512
 	maxSessionIDChars = 255
 )
 
 var (
 	errUnknownInterval = errors.New("unknown donation interval")
+	errUnknownCurrency = errors.New("unknown donation currency")
 	errAmountRange     = errors.New("donation amount is out of range")
 	sessionIDPattern   = regexp.MustCompile(`^cs_[A-Za-z0-9_]+$`)
 )
@@ -59,6 +64,13 @@ type donationsConfig struct {
 	paymentMethodConfiguration string
 	// apiBase points at Stripe. Tests point it at a local server.
 	apiBase string
+}
+
+func validateDonationsConfig(cfg *donationsConfig) error {
+	if cfg.minCents <= 0 || cfg.maxCents <= 0 || cfg.minCents > cfg.maxCents {
+		return fmt.Errorf("donation amount bounds must be positive and minCents <= maxCents")
+	}
+	return nil
 }
 
 // enabled reports whether the deployment configured a Stripe secret key. When it
@@ -149,6 +161,7 @@ func jsStringLiteral(value string) string {
 
 type donationSessionRequest struct {
 	AmountCents int64  `json:"amountCents"`
+	Currency    string `json:"currency"`
 	Interval    string `json:"interval"`
 	Did         string `json:"did,omitempty"`
 }
@@ -184,11 +197,38 @@ func parsePresetsCents(raw string) []int64 {
 	return presets
 }
 
+func isSupportedDonationCurrency(currency string) bool {
+	switch currency {
+	case currencyCAD, currencyUSD, currencyEUR:
+		return true
+	default:
+		return false
+	}
+}
+
+// sanitizeDonationCurrency selects the first currency shown in the app. The
+// server still validates every session request separately.
+func sanitizeDonationCurrency(raw string) string {
+	currency := strings.ToLower(strings.TrimSpace(raw))
+	if isSupportedDonationCurrency(currency) {
+		return currency
+	}
+	slog.Warn("ignoring unsupported DONATION_CURRENCY; using cad", "value", raw)
+	return currencyCAD
+}
+
 // donationSessionForm builds the Stripe request body. It is pure, so the shape
 // of the request can be tested without a network call.
 func donationSessionForm(cfg *donationsConfig, req donationSessionRequest) (url.Values, error) {
 	if req.AmountCents < cfg.minCents || req.AmountCents > cfg.maxCents {
 		return nil, errAmountRange
+	}
+	currency := req.Currency
+	if currency == "" {
+		currency = cfg.currency
+	}
+	if !isSupportedDonationCurrency(currency) {
+		return nil, errUnknownCurrency
 	}
 
 	form := url.Values{}
@@ -196,7 +236,7 @@ func donationSessionForm(cfg *donationsConfig, req donationSessionRequest) (url.
 	form.Set("submit_type", "donate")
 	form.Set("return_url", cfg.returnBaseURL+"/support?session_id={CHECKOUT_SESSION_ID}")
 	form.Set("line_items[0][quantity]", "1")
-	form.Set("line_items[0][price_data][currency]", cfg.currency)
+	form.Set("line_items[0][price_data][currency]", currency)
 	form.Set("line_items[0][price_data][product_data][name]", fmt.Sprintf("Donation to %s", brand.AppName))
 	form.Set("line_items[0][price_data][unit_amount]", strconv.FormatInt(req.AmountCents, 10))
 
@@ -216,15 +256,17 @@ func donationSessionForm(cfg *donationsConfig, req donationSessionRequest) (url.
 
 	// The DID is a hint for reporting only. A caller can send any value, so a
 	// malformed one is dropped rather than treated as an error.
-	if did := req.Did; strings.HasPrefix(did, "did:") && len(did) <= maxDidLength {
-		form.Set("metadata[did]", did)
-		// Session metadata stays on the session. Copy it to the payment or the
-		// subscription as well, because those are the objects the dashboard and
-		// the reports show.
-		if req.Interval == intervalMonthly {
-			form.Set("subscription_data[metadata][did]", did)
-		} else {
-			form.Set("payment_intent_data[metadata][did]", did)
+	if did := req.Did; len(did) <= maxDidLength {
+		if _, err := syntax.ParseDID(did); err == nil {
+			form.Set("metadata[did]", did)
+			// Session metadata stays on the session. Copy it to the payment or the
+			// subscription as well, because those are the objects the dashboard and
+			// the reports show.
+			if req.Interval == intervalMonthly {
+				form.Set("subscription_data[metadata][did]", did)
+			} else {
+				form.Set("payment_intent_data[metadata][did]", did)
+			}
 		}
 	}
 

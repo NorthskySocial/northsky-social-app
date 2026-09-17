@@ -17,6 +17,8 @@ export type CodeToken =
 export type CodeSpan = {
   start: number
   end: number
+  contentStart: number
+  contentEnd: number
   token: Exclude<CodeToken, {type: 'text'}>
 }
 
@@ -41,12 +43,34 @@ export function findCodeSpans(text: string): CodeSpan[] {
   let m: RegExpExecArray | null
   CODE_RE.lastIndex = 0
   while ((m = CODE_RE.exec(text))) {
-    const token: CodeSpan['token'] =
-      m[2] !== undefined
-        ? {type: 'fence', value: m[2], lang: m[1]?.trim() || undefined}
-        : // Single-line triple (m[3]) and inline (m[4]) both render as inline.
-          {type: 'inline', value: m[3] ?? m[4]}
-    spans.push({start: m.index, end: CODE_RE.lastIndex, token})
+    const start = m.index
+    const end = CODE_RE.lastIndex
+    if (m[2] !== undefined) {
+      const contentStart = start + 3 + (m[1]?.length ?? 0) + 1
+      spans.push({
+        start,
+        end,
+        contentStart,
+        contentEnd: contentStart + m[2].length,
+        token: {
+          type: 'fence',
+          value: m[2],
+          lang: m[1]?.trim() || undefined,
+        },
+      })
+    } else {
+      const triple = m[3] !== undefined
+      const delimiterLength = triple ? 3 : 1
+      const value = m[3] ?? m[4]
+      spans.push({
+        start,
+        end,
+        contentStart: start + delimiterLength,
+        contentEnd: end - delimiterLength,
+        // Single-line triple (m[3]) and inline (m[4]) both render as inline.
+        token: {type: 'inline', value},
+      })
+    }
   }
   return spans
 }

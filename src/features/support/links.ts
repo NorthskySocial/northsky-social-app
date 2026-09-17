@@ -5,6 +5,13 @@ import {DONATIONS_CONFIG} from '#/env'
 import {getRuntimeDonationsConfig} from './runtimeConfig'
 
 export type DonationInterval = 'oneTime' | 'monthly'
+export type DonationCurrency = 'cad' | 'usd' | 'eur'
+
+export const SUPPORTED_DONATION_CURRENCIES: DonationCurrency[] = [
+  'cad',
+  'usd',
+  'eur',
+]
 
 /**
  * A donation amount in the smallest currency unit, or the pay-what-you-want
@@ -13,7 +20,7 @@ export type DonationInterval = 'oneTime' | 'monthly'
 export type DonationAmount = number | 'custom'
 
 const donationsConfigSchema = z.object({
-  currency: z.string().length(3),
+  currency: z.enum(['cad', 'usd', 'eur']),
   /**
    * Whether the server can create a Checkout Session. Only bskyweb knows this,
    * so it is absent from a build-time config.

@@ -348,6 +348,8 @@ export function QuoteEmbed({
       ) : null}
       {richText ? (
         <RichText
+          // northsky: Markdown-style code and emphasis in quoted post bodies
+          enableCode
           value={richText}
           style={a.text_md}
           numberOfLines={20}

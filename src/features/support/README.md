@@ -24,7 +24,7 @@ when `STRIPE_SECRET_KEY` is set.
 
 ```http
 POST /api/donations/session
-body: {amountCents, interval: "one_time" | "month", did?}
+body: {amountCents, currency: "cad" | "usd" | "eur", interval: "one_time" | "month", did?}
 200:  {clientSecret}
 
 GET /api/donations/status?session_id=cs_...
@@ -47,7 +47,7 @@ and they need HTTPS and a registered domain, so they never appear on
 | `STRIPE_SECRET_KEY` | Enables checkout. **A real secret: k8s Secret only.** | empty |
 | `STRIPE_PUBLISHABLE_KEY` | Sent to the app | empty |
 | `STRIPE_PORTAL_URL` | Customer portal login page. Must be an https URL. Empty, or not https, hides the Manage Subscription button. | empty |
-| `DONATION_CURRENCY` | Three letter code | `usd` |
+| `DONATION_CURRENCY` | Currency selected first: `cad`, `usd`, or `eur` | `cad` |
 | `DONATION_PRESETS_CENTS` | Comma separated amounts | `500,1000,2500,5000` |
 | `DONATION_MIN_CENTS` | Smallest accepted donation | `100` |
 | `DONATION_MAX_CENTS` | Largest accepted donation | `100000` |
@@ -76,7 +76,7 @@ stringData:
 - STRIPE_PORTAL_URL: https://billing.stripe.com/p/login/...
 - DONATION_PAYMENT_METHOD_CONFIGURATION: pmc_...
 - DONATION_RETURN_BASE_URL: https://northsky.app
-- DONATION_CURRENCY: usd
+- DONATION_CURRENCY: cad
 - DONATION_PRESETS_CENTS: "500,1000,2500,5000"
 - DONATION_MIN_CENTS: "100"
 - DONATION_MAX_CENTS: "100000"
@@ -112,7 +112,7 @@ only it knows, then writes the result into the page as
 
 ```json
 {
-  "currency": "usd",
+  "currency": "cad",
   "checkout": true,
   "publishableKey": "pk_live_...",
   "portalUrl": "https://billing.stripe.com/p/login/...",
@@ -142,7 +142,8 @@ public by design. The secret key never leaves bskyweb.
 ## Screen behaviour
 
 1. `checkout` true and a publishable key present: the amount form, then the
-   embedded Stripe form, then a thank-you panel.
+   embedded Stripe form, then a thank-you panel. The amount form lets donors
+   select CAD, USD, or EUR, with `currency` selected first.
 2. Otherwise: payment link buttons, one per configured tier, plus "Other amount"
    for the pay-what-you-want link.
 3. No config at all: a link to the website.
@@ -172,6 +173,10 @@ is a "customers choose what to pay" link, which Stripe supports for one-time
 payments only, so it has no monthly equivalent. Adding a tier means creating the
 link in the dashboard and adding one entry to `DONATION_LINKS`. Never put a
 test-mode link into a production deployment.
+
+Each Stripe Payment Link has one fixed currency. The CAD, USD, and EUR selector
+therefore applies to embedded web checkout only. Native and web fallback links
+use the currency configured on each link.
 
 ## Attribution
 

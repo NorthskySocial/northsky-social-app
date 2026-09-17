@@ -8,10 +8,8 @@ import {
 import {type AtUriString} from '@atproto/syntax'
 
 import * as persisted from '#/state/persisted'
-// northsky: thread mutes are private per-appview state
-import {replayMuteWriteToFallback} from '#/features/muteSync'
 import {app} from '#/lexicons'
-import {useAppview, useAppviewClient, useSession} from '../session'
+import {useAppviewClient, useSession} from '../session'
 
 type StateContext = Map<string, boolean>
 type SetStateContext = (uri: string, value: boolean) => void
@@ -61,7 +59,6 @@ export function useSetThreadMute() {
 
 function useMigrateMutes(setThreadMute: SetStateContext) {
   const client = useAppviewClient()
-  const appview = useAppview() // northsky: mutes are private per-appview state
   const {currentAccount} = useSession()
 
   useEffect(() => {
@@ -97,16 +94,6 @@ function useMigrateMutes(setThreadMute: SetStateContext) {
               // the persisted list only ever holds post at-uris
               root: root as AtUriString,
             })
-            // northsky: replay to the fallback only after the primary write succeeds
-            .then(() =>
-              replayMuteWriteToFallback(appview, currentAccount.did, opts =>
-                client.call(
-                  app.bsky.graph.muteThread,
-                  {root: root as AtUriString},
-                  opts,
-                ),
-              ),
-            )
             // not a big deal if this fails, since the post might have been deleted
             .catch(console.error)
         }
@@ -118,5 +105,5 @@ function useMigrateMutes(setThreadMute: SetStateContext) {
         cancelled = true
       }
     }
-  }, [client, appview, currentAccount, setThreadMute])
+  }, [client, currentAccount, setThreadMute])
 }

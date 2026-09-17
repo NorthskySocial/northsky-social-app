@@ -5,6 +5,8 @@ import {BRAND} from '#/brand/config'
 import {app} from '#/lexicons'
 
 const TIMEOUT_MS = 5_000
+// northsky: inspect more fallback candidates before applying relationship ranking
+const CANDIDATE_LIMIT = 35
 
 /** Attribution value the typeahead service asks callers to send. */
 const X_CLIENT = 'northsky.app'
@@ -58,8 +60,8 @@ async function fetchFallbackTypeahead(params: {
 /**
  * Actor typeahead for the given appview. Appviews that serve the method are
  * called directly. Appviews that set `useFallbackTypeahead` are served by
- * `BRAND.typeaheadServiceUrl` instead, and those results are hydrated before
- * they are returned.
+ * `BRAND.typeaheadServiceUrl` instead, and those results are hydrated and
+ * ranked before they are returned.
  */
 export async function searchActorsTypeaheadVia(
   appview: AppView,
@@ -71,7 +73,12 @@ export async function searchActorsTypeaheadVia(
     return res.actors
   }
 
-  return hydrateViewerState(client, await fetchFallbackTypeahead(params))
+  const actors = await fetchFallbackTypeahead({
+    ...params,
+    limit: CANDIDATE_LIMIT,
+  })
+  const hydrated = await hydrateViewerState(client, actors)
+  return rankTypeaheadResults(hydrated).slice(0, params.limit)
 }
 
 /** `app.bsky.actor.getProfiles` accepts at most 25 actors per call. */
@@ -89,8 +96,8 @@ const HYDRATION_LIMIT = 25
  * neither `viewer` nor `labels` passes moderation unconditionally. Dropping it
  * fails closed. The service's ranking is preserved for the rest.
  *
- * The service controls how many accounts it returns, so the list is capped at
- * what `getProfiles` accepts.
+ * The service controls how many accounts it returns. Hydration is batched to
+ * keep each `getProfiles` request within its 25-account limit.
  */
 async function hydrateViewerState(
   client: Client,
@@ -100,9 +107,15 @@ async function hydrateViewerState(
     return actors
   }
 
-  const dids = [...new Set(actors.map(a => a.did))].slice(0, HYDRATION_LIMIT)
-  const res = await client.call(app.bsky.actor.getProfiles, {actors: dids})
-  const byDid = new Map(res.profiles.map(p => [p.did, p]))
+  const dids = [...new Set(actors.map(a => a.did))]
+  const byDid = new Map<string, app.bsky.actor.defs.ProfileViewDetailed>()
+  for (let index = 0; index < dids.length; index += HYDRATION_LIMIT) {
+    const batch = dids.slice(index, index + HYDRATION_LIMIT)
+    const res = await client.call(app.bsky.actor.getProfiles, {actors: batch})
+    for (const profile of res.profiles) {
+      byDid.set(profile.did, profile)
+    }
+  }
 
   const hydrated: app.bsky.actor.defs.ProfileViewBasic[] = []
   const emitted = new Set<string>()
@@ -115,4 +128,26 @@ async function hydrateViewerState(
     hydrated.push({...actor, viewer: profile.viewer, labels: profile.labels})
   }
   return hydrated
+}
+
+function rankTypeaheadResults(
+  actors: app.bsky.actor.defs.ProfileViewBasic[],
+): app.bsky.actor.defs.ProfileViewBasic[] {
+  const ranked = actors
+    .map((actor, index) => ({
+      actor,
+      index,
+      // mutuals first, then one-way follows, then unrelated
+      relationshipScore:
+        Number(Boolean(actor.viewer?.following)) +
+        Number(Boolean(actor.viewer?.followedBy)),
+    }))
+    .sort(
+      (a, b) =>
+        // relationship matches first, then service order for ties
+        b.relationshipScore - a.relationshipScore || a.index - b.index,
+    )
+    .map(({actor}) => actor)
+
+  return ranked
 }

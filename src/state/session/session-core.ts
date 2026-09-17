@@ -10,9 +10,8 @@ import {canParseUrl} from '#/lib/strings/url-helpers'
 import {logger} from '#/logger'
 import {prefetchAgeAssuranceServerData} from '#/ageAssurance/data'
 import {features} from '#/analytics'
-// northsky: appview routing per account service + mute reconciliation
+// northsky: appview routing per account service
 import {type AppView, resolveAppViewForService} from '#/brand/appview'
-import {reconcileMutes} from '#/features/muteSync'
 import {
   buildAppviewClient,
   buildChatClient,
@@ -334,8 +333,6 @@ export async function createSessionBundleAndResume(
     ) ?? storedAccount
 
   configureModerationForAccount(bundle, earlyAccount)
-  // northsky: import mute state from the fallback appview, best-effort
-  void reconcileMutes(bundle.appviewClient, bundle.appview, earlyAccount.did)
   const aa = prefetchAgeAssuranceServerData({
     appviewClient: bundle.appviewClient,
     accountClient: bundle.pdsClient,
@@ -398,8 +395,6 @@ export async function createSessionBundleAndLogin(
 
   const gates = features.refresh({strategy: 'prefer-fresh-gates'})
   configureModerationForAccount(bundle, earlyAccount)
-  // northsky: import mute state from the fallback appview, best-effort
-  void reconcileMutes(bundle.appviewClient, bundle.appview, earlyAccount.did)
   const aa = prefetchAgeAssuranceServerData({
     appviewClient: bundle.appviewClient,
     accountClient: bundle.pdsClient,

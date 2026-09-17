@@ -13,14 +13,7 @@ import {uploadBlob} from '#/lib/api'
 import {until} from '#/lib/async/until'
 import {type ImageMeta} from '#/state/gallery'
 import {STALE} from '#/state/queries'
-import {
-  useAppview,
-  useAppviewClient,
-  usePdsClient,
-  useSession,
-} from '#/state/session'
-// northsky: mute writes are replayed to the fallback appview
-import {replayMuteWriteToFallback, runUserMuteWrite} from '#/features/muteSync'
+import {useAppviewClient, usePdsClient, useSession} from '#/state/session'
 import {app, com} from '#/lexicons'
 import {FEED_INFO_RQKEY_ROOT} from './feed'
 import {invalidate as invalidateMyLists} from './my-lists'
@@ -256,37 +249,13 @@ export function useListDeleteMutation() {
 
 export function useListMuteMutation() {
   const queryClient = useQueryClient()
-  const {currentAccount} = useSession()
   const appviewClient = useAppviewClient()
-  const appview = useAppview() // northsky: mutes are private per-appview state
   return useMutation<void, Error, {uri: string; mute: boolean}>({
     mutationFn: async ({uri, mute}) => {
       if (mute) {
-        // northsky: this user action outranks an older reconciliation snapshot
-        await runUserMuteWrite(uri, () =>
-          appviewClient.call(muteActorList, {list: uri as AtUriString}),
-        )
-        // northsky: keep the fallback appview's mute state in step
-        void replayMuteWriteToFallback(appview, currentAccount?.did, opts =>
-          appviewClient.call(
-            app.bsky.graph.muteActorList,
-            {list: uri as AtUriString},
-            opts,
-          ),
-        )
+        await appviewClient.call(muteActorList, {list: uri as AtUriString})
       } else {
-        // northsky: this user action outranks an older reconciliation snapshot
-        await runUserMuteWrite(uri, () =>
-          appviewClient.call(unmuteActorList, {list: uri as AtUriString}),
-        )
-        // northsky: keep the fallback appview's mute state in step
-        void replayMuteWriteToFallback(appview, currentAccount?.did, opts =>
-          appviewClient.call(
-            app.bsky.graph.unmuteActorList,
-            {list: uri as AtUriString},
-            opts,
-          ),
-        )
+        await appviewClient.call(unmuteActorList, {list: uri as AtUriString})
       }
 
       await whenAppViewReady(appviewClient, uri, v => {

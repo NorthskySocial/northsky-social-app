@@ -1,19 +1,14 @@
-import {useMemo} from 'react'
 import {type $Typed} from '@atproto/lex'
 import {Trans} from '@lingui/react/macro'
 
-import {isRecentTid, useSlingshotRecordQuery} from '#/state/queries/slingshot'
+import {useSlingshotRecordQuery} from '#/state/queries/slingshot'
 import {type app} from '#/lexicons'
 import {type EmbedType} from '#/types/bsky/post'
 import {QuoteEmbed} from './index'
 import {PostPlaceholder as PostPlaceholderText} from './PostPlaceholder'
 import {type CommonProps} from './types'
 
-/**
- * Renders a quoted post that the appview returned as "not found".
- * If the post's TID is recent (< 7 days), attempts to fetch it
- * from Slingshot. Otherwise falls back to the "Deleted" placeholder.
- */
+/** Renders a quoted post that the appview returned as "not found". */
 export function SlingshotFallbackEmbed({
   embed,
   ...rest
@@ -21,28 +16,14 @@ export function SlingshotFallbackEmbed({
   embed: EmbedType<'post_not_found'>
 }) {
   const uri = embed.view.uri
-
-  // Extract rkey from at-uri to check recency
-  const rkey = useMemo(() => {
-    const parts = uri.split('/')
-    return parts.length >= 5 ? parts[4] : undefined
-  }, [uri])
-
-  const isRecent = rkey ? isRecentTid(rkey) : false
+  const hideNestedQuote = Boolean(rest.isWithinQuote && !rest.allowNestedQuotes)
 
   const {data: viewRecord, isLoading} = useSlingshotRecordQuery({
     atUri: uri,
-    enabled: isRecent,
+    enabled: !hideNestedQuote,
   })
 
-  // Not recent enough - show "Deleted" immediately
-  if (!isRecent) {
-    return (
-      <PostPlaceholderText>
-        <Trans>Deleted</Trans>
-      </PostPlaceholderText>
-    )
-  }
+  if (hideNestedQuote) return null
 
   // Still loading from Slingshot
   if (isLoading) {

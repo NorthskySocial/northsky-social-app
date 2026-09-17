@@ -29,9 +29,18 @@ export type HiddenSpan = {start: number; end: number}
 export type EmphasisResult = {
   spans: EmphasisSpan[]
   hidden: HiddenSpan[]
+  matches: EmphasisMatch[]
 }
 
-const EMPTY: EmphasisResult = {spans: [], hidden: []}
+export type EmphasisMatch = {
+  start: number
+  end: number
+  contentStart: number
+  contentEnd: number
+  style: EmphasisStyle
+}
+
+const EMPTY: EmphasisResult = {spans: [], hidden: [], matches: []}
 
 /** Fast guard: no delimiter char means no work to do. */
 export function hasEmphasis(text: string): boolean {
@@ -136,6 +145,7 @@ export function findEmphasis(
 
   const spans: EmphasisSpan[] = []
   const hidden: HiddenSpan[] = []
+  const matches: EmphasisMatch[] = []
   const open: Run[] = []
 
   for (const run of runs) {
@@ -170,6 +180,13 @@ export function findEmphasis(
                 ? {bold: true}
                 : {italic: true}
           spans.push({start: contentStart, end: contentEnd, style})
+          matches.push({
+            start: contentStart - n,
+            end: contentEnd + n,
+            contentStart,
+            contentEnd,
+            style,
+          })
         }
 
         hidden.push({start: contentStart - n, end: contentStart})
@@ -189,7 +206,7 @@ export function findEmphasis(
 
   if (spans.length === 0) return EMPTY
   hidden.sort((a, b) => a.start - b.start)
-  return {spans, hidden}
+  return {spans, hidden, matches}
 }
 
 /** Unions the styles of every span covering `index`. */
