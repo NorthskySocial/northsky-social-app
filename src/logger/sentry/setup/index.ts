@@ -1,11 +1,27 @@
-import {getGlobalScope, init} from '@sentry/react-native'
+import {
+  getGlobalScope,
+  init,
+  reactNavigationIntegration,
+} from '@sentry/react-native'
 
 import * as env from '#/env'
+
+/**
+ * northsky: tracks route changes as spans. React Navigation runs the same on
+ * web and native here, so this covers both screen transitions and the first
+ * route render (the closest equivalent to page-load timing this app has).
+ * `registerNavigationContainer` is called from `src/Navigation.tsx` once the
+ * navigation container has mounted.
+ *
+ * @see https://docs.sentry.io/platforms/react-native/tracing/instrumentation/react-navigation/
+ */
+export const navigationIntegration = reactNavigationIntegration()
 
 init({
   enabled: !env.IS_DEV && !!env.SENTRY_DSN,
   enableAutoSessionTracking: false,
   dsn: env.SENTRY_DSN,
+  integrations: [navigationIntegration],
   debug: false, // If `true`, Sentry will try to print out useful debugging information if something goes wrong with sending the event. Set it to `false` in production
   environment: env.ENV,
   dist: env.BUNDLE_IDENTIFIER,
@@ -31,11 +47,14 @@ init({
   attachStacktrace: false,
   sampleRate: env.IS_INTERNAL ? 1.0 : 0.1,
   /**
-   * Sample rate for performance spans (video playback, video upload). Setting
-   * this also enables the SDK's default stall and slow/frozen frame tracking,
-   * whose measurements attach to every root span.
+   * Sample rate for performance spans (video playback, video upload,
+   * navigation). Setting this also enables the SDK's default stall and
+   * slow/frozen frame tracking, whose measurements attach to every root span.
+   *
+   * northsky: raised from Bluesky's 0.01 — at Northsky's traffic that sampled
+   * too few traces to be useful.
    */
-  tracesSampleRate: env.IS_INTERNAL ? 1.0 : 0.01,
+  tracesSampleRate: env.IS_INTERNAL ? 1.0 : 0.2,
 })
 
 /*
