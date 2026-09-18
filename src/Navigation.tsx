@@ -45,6 +45,7 @@ import {
 } from '#/lib/routes/types'
 import {bskyTitle} from '#/lib/strings/headings'
 import {CHAT_INVITE_CODE_REGEX} from '#/lib/strings/url-helpers'
+import {navigationIntegration} from '#/logger/sentry/setup'
 import {useUnreadNotifications} from '#/state/queries/notifications/unread'
 import {useSession} from '#/state/session'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
@@ -1009,6 +1010,10 @@ function RoutesContainer({children}: React.PropsWithChildren<{}>) {
   }
 
   const onNavigationReady = useCallOnce(() => {
+    // northsky: registers the container once it has mounted and
+    // navigationRef.current is populated, so Sentry can trace route changes.
+    navigationIntegration.registerNavigationContainer(navigationRef)
+
     const currentScreen = getCurrentRouteName()
     setNavigationMetadata({
       previousScreen: currentScreen,
