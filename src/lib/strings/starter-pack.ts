@@ -1,4 +1,4 @@
-import {AtUri} from '@atproto/api'
+import {AtUri} from '@atproto/syntax'
 
 import {BRAND} from '#/brand/config'
 import type * as bsky from '#/types/bsky'

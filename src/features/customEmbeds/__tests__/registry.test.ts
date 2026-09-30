@@ -1,4 +1,6 @@
-import {type AppBskyEmbedExternal} from '@atproto/api'
+import {type UriString} from '@atproto/syntax'
+
+import {type app} from '#/lexicons'
 
 /*
  * The cards pull in ALF and native modules that a unit test cannot boot. Only
@@ -14,8 +16,8 @@ jest.mock('../tangledString/TangledStringPreview', () => ({
 import {matchCustomEmbed, matchCustomEmbedPreview} from '../registry'
 import {tangledStringHandler} from '../tangledString'
 
-function external(uri: string): AppBskyEmbedExternal.ViewExternal {
-  return {uri, title: 'title', description: 'description'}
+function external(uri: string): app.bsky.embed.external.ViewExternal {
+  return {uri: uri as UriString, title: 'title', description: 'description'}
 }
 
 describe('matchCustomEmbed', () => {

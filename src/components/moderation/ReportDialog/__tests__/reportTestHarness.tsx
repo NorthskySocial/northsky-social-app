@@ -1,11 +1,9 @@
-import {
-  type AppBskyLabelerDefs,
-  ToolsOzoneReportDefs as OzoneReportDefs,
-} from '@atproto/api'
+import {type DidString} from '@atproto/syntax'
 import {i18n} from '@lingui/core'
 import {I18nProvider} from '@lingui/react'
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 
+import {type app, tools} from '#/lexicons'
 import {type ReportState} from '../state'
 import {type ParsedReportSubject} from '../types'
 
@@ -58,14 +56,16 @@ export function makeAccountSubject(): ParsedReportSubject {
   }
 }
 
-function makeLabeler(did: string): AppBskyLabelerDefs.LabelerViewDetailed {
+function makeLabeler(
+  did: DidString,
+): app.bsky.labeler.defs.LabelerViewDetailed {
   return {
     uri: `at://${did}/app.bsky.labeler.service/self`,
     cid: 'bafyreitestlabelercid',
     creator: {did, handle: 'moderation.test'},
     indexedAt: '2026-08-17T00:00:00.000Z',
     policies: {labelValues: []},
-    reasonTypes: [OzoneReportDefs.REASONHARASSMENTHATESPEECH],
+    reasonTypes: [tools.ozone.report.defs.reasonHarassmentHateSpeech.value],
   }
 }
 
@@ -77,13 +77,13 @@ export function makeReportState({
   labelerDid,
   details,
 }: {
-  labelerDid: string
+  labelerDid: DidString
   details?: string
 }): ReportState {
   return {
     selectedOption: {
       title: 'Hate speech',
-      reason: OzoneReportDefs.REASONHARASSMENTHATESPEECH,
+      reason: tools.ozone.report.defs.reasonHarassmentHateSpeech.value,
     },
     selectedLabeler: makeLabeler(labelerDid),
     details,

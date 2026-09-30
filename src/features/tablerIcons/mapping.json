@@ -537,7 +537,7 @@
     "Gif_Stroke2_Corner0_Rounded": {
       "tabler": "gif"
     },
-    "GifSquare_Stroke2_Corner0_Rounded": {
+    "GifSquare_Stroke2_Corner2_Rounded": {
       "tabler": "gif"
     }
   },
@@ -630,7 +630,7 @@
       "tabler": "photo",
       "strokeWidth": 1.25
     },
-    "Image_Stroke2_Corner0_Rounded": {
+    "Image_Stroke2_Corner2_Rounded": {
       "tabler": "photo"
     }
   },

@@ -1,9 +1,10 @@
 import {type ComponentType} from 'react'
 import {type StyleProp, type ViewStyle} from 'react-native'
-import {type AppBskyEmbedExternal} from '@atproto/api'
+
+import {type app} from '#/lexicons'
 
 export type CustomEmbedComponentProps = {
-  view: AppBskyEmbedExternal.ViewExternal
+  view: app.bsky.embed.external.ViewExternal
   onOpen?: () => void
   style?: StyleProp<ViewStyle>
 }
@@ -22,7 +23,7 @@ export type CustomEmbedComponentProps = {
  * upstream classifies as unknown.
  */
 export type CustomEmbedHandler = {
-  match: (view: AppBskyEmbedExternal.ViewExternal) => boolean
+  match: (view: app.bsky.embed.external.ViewExternal) => boolean
   Component: ComponentType<CustomEmbedComponentProps>
   Preview?: ComponentType<CustomEmbedComponentProps>
 }

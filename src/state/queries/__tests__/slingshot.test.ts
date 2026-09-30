@@ -1,11 +1,7 @@
-import {
-  type AppBskyFeedDefs,
-  type AppBskyUnspeccedGetPostThreadV2,
-  type AtpAgent,
-  type ComAtprotoLabelDefs,
-  XRPCError,
-} from '@atproto/api'
+import {type CidString, type Client, XrpcResponseError} from '@atproto/lex'
+import {type AtUriString} from '@atproto/syntax'
 
+import {app, com} from '#/lexicons'
 import {
   getPostThreadWithSlingshotFallback,
   getSlingshotPost,
@@ -18,7 +14,7 @@ jest.mock('#/lib/slingshot/client', () => ({
 jest.mock('#/lib/slingshot/constellation', () => ({
   getPostInteractionCounts: jest.fn(),
 }))
-jest.mock('#/state/session', () => ({useAgent: jest.fn()}))
+jest.mock('#/state/session', () => ({useAppviewClient: jest.fn()}))
 
 const {getRecordByUri, resolveMiniDoc} = jest.requireMock(
   '#/lib/slingshot/client',
@@ -30,22 +26,30 @@ const {getPostInteractionCounts} = jest.requireMock(
   '#/lib/slingshot/constellation',
 ) as {getPostInteractionCounts: jest.Mock}
 
-const URI = 'at://did:plc:author/app.bsky.feed.post/3abc'
-const LABEL: ComAtprotoLabelDefs.Label = {
+const URI = 'at://did:plc:author/app.bsky.feed.post/3abc' as AtUriString
+const LABEL: com.atproto.label.defs.Label = {
   src: 'did:plc:labeler',
   uri: URI,
   val: 'warn',
   cts: '2026-09-01T00:00:00.000Z',
 }
 
-function createAgent() {
+/**
+ * A lex client stub that dispatches `call` to one jest mock per lexicon
+ * method. A lex client returns the response body directly and throws on
+ * failure, so each mock resolves the body alone.
+ */
+function createClient() {
   const queryLabels = jest.fn()
   const getProfile = jest.fn()
   return {
-    agent: {
-      api: {com: {atproto: {label: {queryLabels}}}},
-      getProfile,
-    } as unknown as AtpAgent,
+    client: {
+      call: (method: unknown, params: unknown) => {
+        if (method === com.atproto.label.queryLabels) return queryLabels(params)
+        if (method === app.bsky.actor.getProfile) return getProfile(params)
+        throw new Error('unexpected lexicon method')
+      },
+    } as unknown as Client,
     queryLabels,
     getProfile,
   }
@@ -78,15 +82,12 @@ beforeEach(() => {
 
 describe('getSlingshotPost', () => {
   it('uses every page of exact post labels', async () => {
-    const {agent, queryLabels, getProfile} = createAgent()
+    const {client, queryLabels, getProfile} = createClient()
     queryLabels
-      .mockResolvedValueOnce({
-        success: true,
-        data: {labels: [LABEL], cursor: 'next'},
-      })
-      .mockResolvedValueOnce({success: true, data: {labels: [LABEL]}})
+      .mockResolvedValueOnce({labels: [LABEL], cursor: 'next'})
+      .mockResolvedValueOnce({labels: [LABEL]})
 
-    const post = await getSlingshotPost({agent, atUri: URI})
+    const post = await getSlingshotPost({client, atUri: URI})
 
     expect(post?.labels).toEqual([LABEL, LABEL])
     expect(queryLabels).toHaveBeenNthCalledWith(1, {
@@ -105,65 +106,64 @@ describe('getSlingshotPost', () => {
   })
 
   it('keeps a successful empty post-label response empty', async () => {
-    const {agent, queryLabels, getProfile} = createAgent()
-    queryLabels.mockResolvedValue({success: true, data: {labels: []}})
+    const {client, queryLabels, getProfile} = createClient()
+    queryLabels.mockResolvedValue({labels: []})
 
-    const post = await getSlingshotPost({agent, atUri: URI})
+    const post = await getSlingshotPost({client, atUri: URI})
 
     expect(post?.labels).toEqual([])
     expect(getProfile).not.toHaveBeenCalled()
   })
 
   it('uses profile labels when exact post-label lookup fails', async () => {
-    const {agent, queryLabels, getProfile} = createAgent()
+    const {client, queryLabels, getProfile} = createClient()
     queryLabels.mockRejectedValue(new Error('label service unavailable'))
-    getProfile.mockResolvedValue({success: true, data: {labels: [LABEL]}})
+    getProfile.mockResolvedValue({labels: [LABEL]})
 
-    const post = await getSlingshotPost({agent, atUri: URI})
-
-    expect(post?.labels).toEqual([LABEL])
-    expect(getProfile).toHaveBeenCalledWith({actor: 'did:plc:author'})
-  })
-
-  it('uses profile labels when exact post-label lookup is unsuccessful', async () => {
-    const {agent, queryLabels, getProfile} = createAgent()
-    queryLabels.mockResolvedValue({success: false, data: {labels: []}})
-    getProfile.mockResolvedValue({success: true, data: {labels: [LABEL]}})
-
-    const post = await getSlingshotPost({agent, atUri: URI})
+    const post = await getSlingshotPost({client, atUri: URI})
 
     expect(post?.labels).toEqual([LABEL])
     expect(getProfile).toHaveBeenCalledWith({actor: 'did:plc:author'})
   })
+
+  /*
+   * A lex client throws on an unsuccessful response instead of returning a
+   * `success: false` body, so the failed-lookup case above is the only shape
+   * this fallback has to handle.
+   */
 
   it('does not recover when neither label source answers', async () => {
-    const {agent, queryLabels, getProfile} = createAgent()
+    const {client, queryLabels, getProfile} = createClient()
     queryLabels.mockRejectedValue(new Error('label service unavailable'))
     getProfile.mockRejectedValue(new Error('profile unavailable'))
 
-    await expect(getSlingshotPost({agent, atUri: URI})).resolves.toBeUndefined()
+    await expect(
+      getSlingshotPost({client, atUri: URI}),
+    ).resolves.toBeUndefined()
   })
 
   it('does not recover a non-post record', async () => {
-    const {agent, queryLabels} = createAgent()
+    const {client, queryLabels} = createClient()
     getRecordByUri.mockResolvedValue({
       uri: URI,
       cid: 'bafyrecord',
       value: {$type: 'app.bsky.actor.profile'},
     })
 
-    await expect(getSlingshotPost({agent, atUri: URI})).resolves.toBeUndefined()
+    await expect(
+      getSlingshotPost({client, atUri: URI}),
+    ).resolves.toBeUndefined()
     expect(queryLabels).not.toHaveBeenCalled()
   })
 })
 
 function threadResponse(
-  thread: AppBskyUnspeccedGetPostThreadV2.ThreadItem[],
-): AppBskyUnspeccedGetPostThreadV2.OutputSchema {
+  thread: app.bsky.unspecced.getPostThreadV2.ThreadItem[],
+): app.bsky.unspecced.getPostThreadV2.$OutputBody {
   return {thread, hasOtherReplies: true}
 }
 
-function missingAnchor(): AppBskyUnspeccedGetPostThreadV2.ThreadItem {
+function missingAnchor(): app.bsky.unspecced.getPostThreadV2.ThreadItem {
   return {
     uri: URI,
     depth: 0,
@@ -173,7 +173,7 @@ function missingAnchor(): AppBskyUnspeccedGetPostThreadV2.ThreadItem {
   }
 }
 
-function blockedAnchor(): AppBskyUnspeccedGetPostThreadV2.ThreadItem {
+function blockedAnchor(): app.bsky.unspecced.getPostThreadV2.ThreadItem {
   return {
     uri: URI,
     depth: 0,
@@ -185,8 +185,8 @@ function blockedAnchor(): AppBskyUnspeccedGetPostThreadV2.ThreadItem {
 }
 
 function postThreadItem(
-  post: AppBskyFeedDefs.PostView,
-): AppBskyUnspeccedGetPostThreadV2.ThreadItem {
+  post: app.bsky.feed.defs.PostView,
+): app.bsky.unspecced.getPostThreadV2.ThreadItem {
   return {
     uri: post.uri,
     depth: 0,
@@ -202,7 +202,7 @@ function postThreadItem(
   }
 }
 
-const NORMAL_POST: AppBskyFeedDefs.PostView = {
+const NORMAL_POST: app.bsky.feed.defs.PostView = {
   uri: 'at://did:plc:parent/app.bsky.feed.post/3parent',
   cid: 'bafyparent',
   author: {did: 'did:plc:parent', handle: 'parent.test'},
@@ -224,15 +224,19 @@ const NORMAL_POST: AppBskyFeedDefs.PostView = {
 
 describe('getPostThreadWithSlingshotFallback', () => {
   it('preserves a normal thread response without loading Slingshot', async () => {
-    const {agent, queryLabels} = createAgent()
-    const reply = {...NORMAL_POST, uri: `${URI}reply`, cid: 'bafyreply'}
+    const {client, queryLabels} = createClient()
+    const reply = {
+      ...NORMAL_POST,
+      uri: `${URI}reply` as AtUriString,
+      cid: 'bafyreply' as CidString,
+    }
     const response = threadResponse([
       postThreadItem(NORMAL_POST),
       {...postThreadItem(reply), depth: 1},
     ])
 
     const result = await getPostThreadWithSlingshotFallback({
-      agent,
+      client,
       anchor: URI,
       getThread: () => Promise.resolve(response),
       toThreadItem: postThreadItem,
@@ -244,11 +248,11 @@ describe('getPostThreadWithSlingshotFallback', () => {
   })
 
   it('does not recover a blocked anchor', async () => {
-    const {agent} = createAgent()
+    const {client} = createClient()
     const response = threadResponse([blockedAnchor()])
 
     const result = await getPostThreadWithSlingshotFallback({
-      agent,
+      client,
       anchor: URI,
       getThread: () => Promise.resolve(response),
       toThreadItem: postThreadItem,
@@ -259,11 +263,11 @@ describe('getPostThreadWithSlingshotFallback', () => {
   })
 
   it('recovers only a missing depth-zero anchor', async () => {
-    const {agent, queryLabels} = createAgent()
-    queryLabels.mockResolvedValue({success: true, data: {labels: []}})
+    const {client, queryLabels} = createClient()
+    queryLabels.mockResolvedValue({labels: []})
 
     const result = await getPostThreadWithSlingshotFallback({
-      agent,
+      client,
       anchor: URI,
       getThread: () => Promise.resolve(threadResponse([missingAnchor()])),
       toThreadItem: postThreadItem,
@@ -275,12 +279,12 @@ describe('getPostThreadWithSlingshotFallback', () => {
   })
 
   it('preserves a missing anchor when Slingshot cannot recover it', async () => {
-    const {agent} = createAgent()
+    const {client} = createClient()
     const response = threadResponse([missingAnchor()])
     getRecordByUri.mockResolvedValue(undefined)
 
     const result = await getPostThreadWithSlingshotFallback({
-      agent,
+      client,
       anchor: URI,
       getThread: () => Promise.resolve(response),
       toThreadItem: postThreadItem,
@@ -290,11 +294,11 @@ describe('getPostThreadWithSlingshotFallback', () => {
   })
 
   it('recovers a retryable request failure', async () => {
-    const {agent, queryLabels} = createAgent()
-    queryLabels.mockResolvedValue({success: true, data: {labels: []}})
+    const {client, queryLabels} = createClient()
+    queryLabels.mockResolvedValue({labels: []})
 
     const result = await getPostThreadWithSlingshotFallback({
-      agent,
+      client,
       anchor: URI,
       getThread: () => Promise.reject(new Error('Network request failed')),
       toThreadItem: postThreadItem,
@@ -305,12 +309,12 @@ describe('getPostThreadWithSlingshotFallback', () => {
   })
 
   it('rethrows a non-retryable request failure', async () => {
-    const {agent} = createAgent()
+    const {client} = createClient()
     const error = new Error('Forbidden')
 
     await expect(
       getPostThreadWithSlingshotFallback({
-        agent,
+        client,
         anchor: URI,
         getThread: () => Promise.reject(error),
         toThreadItem: postThreadItem,
@@ -320,7 +324,7 @@ describe('getPostThreadWithSlingshotFallback', () => {
   })
 
   it('does not recover an unauthenticated anchor', async () => {
-    const {agent} = createAgent()
+    const {client} = createClient()
     const response = threadResponse([
       {
         uri: URI,
@@ -332,7 +336,7 @@ describe('getPostThreadWithSlingshotFallback', () => {
     ])
 
     const result = await getPostThreadWithSlingshotFallback({
-      agent,
+      client,
       anchor: URI,
       getThread: () => Promise.resolve(response),
       toThreadItem: postThreadItem,
@@ -343,12 +347,18 @@ describe('getPostThreadWithSlingshotFallback', () => {
   })
 
   it('does not recover an authorization failure', async () => {
-    const {agent} = createAgent()
-    const error = new XRPCError(403, 'Forbidden', 'Forbidden')
+    const {client} = createClient()
+    const error = new XrpcResponseError(
+      app.bsky.unspecced.getPostThreadV2.main,
+      new Response(JSON.stringify({error: 'Forbidden'}), {
+        status: 403,
+        headers: {'content-type': 'application/json'},
+      }),
+    )
 
     await expect(
       getPostThreadWithSlingshotFallback({
-        agent,
+        client,
         anchor: URI,
         getThread: () => Promise.reject(error),
         toThreadItem: postThreadItem,

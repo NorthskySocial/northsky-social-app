@@ -1,5 +1,10 @@
 import {forwardRef, useRef} from 'react'
-import {Pressable, type PressableProps, type View} from 'react-native'
+import {
+  Pressable,
+  type PressableProps,
+  type PressableStateCallbackType,
+  type View,
+} from 'react-native'
 import Animated, {
   cancelAnimation,
   useAnimatedStyle,
@@ -132,7 +137,10 @@ export const SquishyPressable = forwardRef<View, SquishyPressableProps>(
         }}
         style={
           typeof style === 'function'
-            ? state => [enabled && animatedStyle, style(state)]
+            ? (state: PressableStateCallbackType) => [
+                enabled && animatedStyle,
+                style(state),
+              ]
             : [enabled && animatedStyle, style]
         }
         {...rest}>

@@ -7,6 +7,7 @@ import {type NativeStackScreenProps} from '@react-navigation/native-stack'
 import {FEEDBACK_FORM_URL} from '#/lib/constants'
 import {type CommonNavigatorParams} from '#/lib/routes/types'
 import {logger} from '#/logger'
+import {setCachedIsBetaUser} from '#/state/preferences/beta-user-cache'
 import {
   usePreferencesQuery,
   useSetIsBetaUserMutation,
@@ -28,7 +29,6 @@ import {Text} from '#/components/Typography'
 import {features, useAnalytics} from '#/analytics'
 import {getTargetedFeatures} from '#/analytics/features'
 import {IS_WEB} from '#/env'
-import {account} from '#/storage'
 
 type Props = NativeStackScreenProps<
   CommonNavigatorParams,
@@ -76,7 +76,7 @@ export function BetaFeaturesSettingsScreen({}: Props) {
        * account-specific.
        */
       if (currentAccount) {
-        account.set([currentAccount.did, 'isBetaUser'], next)
+        setCachedIsBetaUser(currentAccount.did, next)
       }
       ax.metric('betaFeatures:toggle', {
         enabled: next,

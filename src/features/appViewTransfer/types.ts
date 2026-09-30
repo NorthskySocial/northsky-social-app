@@ -1,4 +1,4 @@
-import {type Did} from '@atproto/api'
+import {type DidString} from '@atproto/syntax'
 
 /**
  * The transfer order is fixed, so progress renders in a stable sequence.
@@ -32,7 +32,7 @@ export type TransferEndpointId = 'bluesky' | 'blacksky'
  */
 export interface TransferEndpoint {
   id: TransferEndpointId
-  did: Did
+  did: DidString
   url: string
 }
 

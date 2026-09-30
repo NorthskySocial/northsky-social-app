@@ -1,13 +1,5 @@
-import {
-  type AppBskyEmbedRecord,
-  type AppBskyFeedDefs,
-  AppBskyFeedPost,
-  AppBskyUnspeccedDefs,
-  type AppBskyUnspeccedGetPostThreadV2,
-  type AtpAgent,
-  AtUri,
-  type ComAtprotoLabelDefs,
-} from '@atproto/api'
+import {type Client} from '@atproto/lex'
+import {type AtIdentifierString, AtUri} from '@atproto/syntax'
 import {useQuery} from '@tanstack/react-query'
 
 import {getRecordByUri, resolveMiniDoc} from '#/lib/slingshot/client'
@@ -20,44 +12,54 @@ import {
 import {isNetworkError, shouldRetryError} from '#/lib/strings/errors'
 import {STALE} from '#/state/queries'
 import {createQueryKey} from '#/state/queries/util'
-import {useAgent} from '#/state/session'
+import {useAppviewClient} from '#/state/session'
 import {APP_LABELER_DIDS} from '#/brand/moderation'
+import {app, com} from '#/lexicons'
+import * as bsky from '#/types/bsky'
 
 const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000
 const LABELS_PAGE_SIZE = 100
 const slingshotRecordQueryKey = (atUri: string) =>
   createQueryKey('slingshot-record', {atUri, labelerDids: APP_LABELER_DIDS})
 
+/*
+ * Slingshot serves the raw record, which carries no labels. The app labelers
+ * are asked for them separately, so a labelled post recovered this way is
+ * still moderated. When neither the label query nor the author fallback
+ * answers, the caller drops the recovery rather than render unlabelled
+ * content.
+ */
 async function getPostLabels({
-  agent,
+  client,
   uri,
   authorDid,
 }: {
-  agent: AtpAgent
+  client: Client
   uri: string
   authorDid: string
-}): Promise<ComAtprotoLabelDefs.Label[] | undefined> {
+}): Promise<com.atproto.label.defs.Label[] | undefined> {
   try {
     let cursor: string | undefined
-    const labels: ComAtprotoLabelDefs.Label[] = []
+    const labels: com.atproto.label.defs.Label[] = []
 
     do {
-      const response = await agent.api.com.atproto.label.queryLabels({
+      const response = await client.call(com.atproto.label.queryLabels, {
         uriPatterns: [uri],
         sources: APP_LABELER_DIDS,
         limit: LABELS_PAGE_SIZE,
         cursor,
       })
-      if (!response.success) throw new Error('Label query failed')
-      labels.push(...response.data.labels)
-      cursor = response.data.cursor
+      labels.push(...response.labels)
+      cursor = response.cursor
     } while (cursor)
 
     return labels
   } catch {
     try {
-      const response = await agent.getProfile({actor: authorDid})
-      return response.success ? (response.data.labels ?? []) : undefined
+      const profile = await client.call(app.bsky.actor.getProfile, {
+        actor: authorDid as AtIdentifierString,
+      })
+      return profile.labels ?? []
     } catch {
       return undefined
     }
@@ -65,13 +67,13 @@ async function getPostLabels({
 }
 
 export async function getSlingshotPost({
-  agent,
+  client,
   atUri,
 }: {
-  agent: AtpAgent
+  client: Client
   atUri: string
-}): Promise<AppBskyFeedDefs.PostView | undefined> {
-  const recovered = await getSlingshotPostData({agent, atUri})
+}): Promise<app.bsky.feed.defs.PostView | undefined> {
+  const recovered = await getSlingshotPostData({client, atUri})
   if (!recovered) return undefined
 
   return hydratePostView(
@@ -85,21 +87,21 @@ export async function getSlingshotPost({
 }
 
 export async function getPostThreadWithSlingshotFallback({
-  agent,
+  client,
   anchor,
   getThread,
   toThreadItem,
 }: {
-  agent: AtpAgent
+  client: Client
   anchor: string
-  getThread: () => Promise<AppBskyUnspeccedGetPostThreadV2.OutputSchema>
+  getThread: () => Promise<app.bsky.unspecced.getPostThreadV2.$OutputBody>
   toThreadItem: (
-    post: AppBskyFeedDefs.PostView,
-  ) => AppBskyUnspeccedGetPostThreadV2.ThreadItem
-}): Promise<AppBskyUnspeccedGetPostThreadV2.OutputSchema> {
+    post: app.bsky.feed.defs.PostView,
+  ) => app.bsky.unspecced.getPostThreadV2.ThreadItem
+}): Promise<app.bsky.unspecced.getPostThreadV2.$OutputBody> {
   const getFallbackThread = async () => {
     try {
-      const post = await getSlingshotPost({agent, atUri: anchor})
+      const post = await getSlingshotPost({client, atUri: anchor})
       return post
         ? {thread: [toThreadItem(post)], hasOtherReplies: false}
         : undefined
@@ -108,7 +110,7 @@ export async function getPostThreadWithSlingshotFallback({
     }
   }
 
-  let data: AppBskyUnspeccedGetPostThreadV2.OutputSchema
+  let data: app.bsky.unspecced.getPostThreadV2.$OutputBody
   try {
     data = await getThread()
   } catch (error) {
@@ -124,7 +126,7 @@ export async function getPostThreadWithSlingshotFallback({
   const anchorItem = data.thread.find(item => item.depth === 0)
   if (
     !anchorItem ||
-    !AppBskyUnspeccedDefs.isThreadItemNotFound(anchorItem.value)
+    !bsky.isType(app.bsky.unspecced.defs.threadItemNotFound, anchorItem.value)
   ) {
     return data
   }
@@ -133,10 +135,10 @@ export async function getPostThreadWithSlingshotFallback({
 }
 
 async function getSlingshotPostData({
-  agent,
+  client,
   atUri,
 }: {
-  agent: AtpAgent
+  client: Client
   atUri: string
 }) {
   let uri: AtUri
@@ -154,12 +156,12 @@ async function getSlingshotPostData({
     resolveMiniDoc(uri.host),
     getPostInteractionCounts(atUri),
   ])
-  if (!record || !miniDoc || !AppBskyFeedPost.isRecord(record.value)) {
+  if (!record || !miniDoc || !bsky.isType(app.bsky.feed.post, record.value)) {
     return undefined
   }
 
   const labels = await getPostLabels({
-    agent,
+    client,
     uri: record.uri,
     authorDid: miniDoc.did,
   })
@@ -179,11 +181,11 @@ export function useSlingshotRecordQuery({
   atUri: string
   enabled?: boolean
 }) {
-  const agent = useAgent()
-  return useQuery<AppBskyEmbedRecord.ViewRecord | undefined>({
+  const client = useAppviewClient()
+  return useQuery<app.bsky.embed.record.ViewRecord | undefined>({
     queryKey: slingshotRecordQueryKey(atUri),
     queryFn: async () => {
-      const recovered = await getSlingshotPostData({agent, atUri})
+      const recovered = await getSlingshotPostData({client, atUri})
       if (!recovered) return undefined
       return hydratePostViewRecord(
         recovered.record.value,

@@ -1,23 +1,23 @@
-import {
-  type AppBskyLabelerDefs,
-  BSKY_LABELER_DID,
-  ToolsOzoneReportDefs as OzoneReportDefs,
-} from '@atproto/api'
+import {type DidString} from '@atproto/syntax'
+import {api} from '@bsky/sdk'
 import {describe, expect, it} from '@jest/globals'
 
+import {type app, tools} from '#/lexicons'
 import {
   isNorthskyModerationDid,
   resolveLabelForRecipient,
   resolveNorthskyReportLabels,
 } from '../labels'
 
+const BSKY_LABELER_DID = api.moderation.did
+
 const NORTHSKY_MOD_DID = 'did:plc:p2cxrw3ank4dzs55mpm6ohq4'
 const OTHER_LABELER_DID = 'did:plc:zg5qexfd2mkddsbmnrgr3dom'
 
 function makeLabeler(
-  did: string,
+  did: DidString,
   identifiers: string[],
-): AppBskyLabelerDefs.LabelerViewDetailed {
+): app.bsky.labeler.defs.LabelerViewDetailed {
   return {
     uri: `at://${did}/app.bsky.labeler.service/self`,
     cid: 'bafyreiciddoesnotmatter',
@@ -43,7 +43,7 @@ function makeLabeler(
 describe('resolveNorthskyReportLabels', () => {
   it('returns the labels that refine the reason, in taxonomy order', () => {
     const labels = resolveNorthskyReportLabels({
-      reason: OzoneReportDefs.REASONSEXUALANIMAL,
+      reason: tools.ozone.report.defs.reasonSexualAnimal.value,
       labelers: [
         makeLabeler(NORTHSKY_MOD_DID, ['bestiality', 'apologia-zoophilia']),
       ],
@@ -57,7 +57,7 @@ describe('resolveNorthskyReportLabels', () => {
   it('returns nothing when the Northsky labeler is absent', () => {
     expect(
       resolveNorthskyReportLabels({
-        reason: OzoneReportDefs.REASONSEXUALANIMAL,
+        reason: tools.ozone.report.defs.reasonSexualAnimal.value,
         labelers: [makeLabeler(OTHER_LABELER_DID, ['bestiality'])],
       }),
     ).toEqual([])
@@ -66,7 +66,7 @@ describe('resolveNorthskyReportLabels', () => {
   it('returns nothing for a reason the taxonomy does not map', () => {
     expect(
       resolveNorthskyReportLabels({
-        reason: OzoneReportDefs.REASONMISLEADINGSPAM,
+        reason: tools.ozone.report.defs.reasonMisleadingSpam.value,
         labelers: [makeLabeler(NORTHSKY_MOD_DID, ['bestiality'])],
       }),
     ).toEqual([])
@@ -79,7 +79,7 @@ describe('resolveNorthskyReportLabels', () => {
    */
   it('drops labels the live record no longer publishes', () => {
     const labels = resolveNorthskyReportLabels({
-      reason: OzoneReportDefs.REASONSEXUALANIMAL,
+      reason: tools.ozone.report.defs.reasonSexualAnimal.value,
       labelers: [makeLabeler(NORTHSKY_MOD_DID, ['bestiality'])],
     })
     expect(labels.map(l => l.identifier)).toEqual(['bestiality'])
@@ -94,7 +94,7 @@ describe('resolveNorthskyReportLabels', () => {
   it('returns nothing once another service is chosen', () => {
     expect(
       resolveNorthskyReportLabels({
-        reason: OzoneReportDefs.REASONSEXUALANIMAL,
+        reason: tools.ozone.report.defs.reasonSexualAnimal.value,
         labelers: [makeLabeler(NORTHSKY_MOD_DID, ['bestiality'])],
         recipientDid: OTHER_LABELER_DID,
       }).map(l => l.identifier),
@@ -104,7 +104,7 @@ describe('resolveNorthskyReportLabels', () => {
   it('still returns labels once Northsky is chosen', () => {
     expect(
       resolveNorthskyReportLabels({
-        reason: OzoneReportDefs.REASONSEXUALANIMAL,
+        reason: tools.ozone.report.defs.reasonSexualAnimal.value,
         labelers: [makeLabeler(NORTHSKY_MOD_DID, ['bestiality'])],
         recipientDid: NORTHSKY_MOD_DID,
       }).map(l => l.identifier),
@@ -115,7 +115,7 @@ describe('resolveNorthskyReportLabels', () => {
     expect(resolveNorthskyReportLabels({labelers: []})).toEqual([])
     expect(
       resolveNorthskyReportLabels({
-        reason: OzoneReportDefs.REASONSEXUALANIMAL,
+        reason: tools.ozone.report.defs.reasonSexualAnimal.value,
       }),
     ).toEqual([])
   })

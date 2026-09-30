@@ -1,6 +1,7 @@
-import {type AtpAgent, XRPCError} from '@atproto/api'
+import {type Client, XrpcResponseError} from '@atproto/lex'
 import {describe, expect, it} from '@jest/globals'
 
+import {app} from '#/lexicons'
 import {createTransferCheckpoint, runAppViewTransfer} from '../transfer'
 import {type TransferEndpoint} from '../types'
 
@@ -20,11 +21,12 @@ const DESTINATION_SERVICE = `${DESTINATION.did}#bsky_appview`
 type Recorded = {nsid: string; input: unknown; service: string | undefined}
 
 /**
- * Builds a minimal AtpAgent double. Every method routes through `handler` with
- * its nsid and the per-call `atproto-proxy` header, so a test can assert both
- * the behavior and the appview each request goes to.
+ * Builds a minimal lex `Client` double. Every call routes through `handler`
+ * with the method's nsid and the per-call `atproto-proxy` header, so a test
+ * can assert both the behavior and the appview each request goes to. A lex
+ * client resolves the response body itself, so `handler` returns it directly.
  */
-function makeAgent(
+function makeClient(
   handler: (
     nsid: string,
     input: Record<string, unknown>,
@@ -32,48 +34,40 @@ function makeAgent(
   ) => unknown,
 ) {
   const calls: Recorded[] = []
-  const method =
-    (nsid: string) =>
-    async (
+  const client = {
+    async call(
+      method: {$nsid: string},
       input: Record<string, unknown>,
       opts?: {headers?: Record<string, string>},
-    ) => {
+    ) {
+      const nsid = method.$nsid
       const service = opts?.headers?.['atproto-proxy']
       calls.push({nsid, input, service})
       // Yield once, so concurrent workers interleave like real requests.
       await Promise.resolve()
-      return {data: await handler(nsid, input, service)}
-    }
-  const agent = {
-    app: {
-      bsky: {
-        actor: {
-          getProfiles: method('app.bsky.actor.getProfiles'),
-        },
-        graph: {
-          getMutes: method('app.bsky.graph.getMutes'),
-          muteActor: method('app.bsky.graph.muteActor'),
-          getListMutes: method('app.bsky.graph.getListMutes'),
-          muteActorList: method('app.bsky.graph.muteActorList'),
-        },
-        bookmark: {
-          getBookmarks: method('app.bsky.bookmark.getBookmarks'),
-          createBookmark: method('app.bsky.bookmark.createBookmark'),
-        },
-        notification: {
-          listActivitySubscriptions: method(
-            'app.bsky.notification.listActivitySubscriptions',
-          ),
-          putActivitySubscription: method(
-            'app.bsky.notification.putActivitySubscription',
-          ),
-          getPreferences: method('app.bsky.notification.getPreferences'),
-          putPreferencesV2: method('app.bsky.notification.putPreferencesV2'),
-        },
-      },
+      return handler(nsid, input, service)
     },
-  } as unknown as AtpAgent
-  return {agent, calls}
+  } as unknown as Client
+  return {client, calls}
+}
+
+/**
+ * A lex `XrpcResponseError` carrying `status`, the lexicon error code, and
+ * response headers - the three things the transfer's retry and failure
+ * classification read. The method schema is immaterial to those reads, so one
+ * stands in for every call site.
+ */
+function xrpcError(
+  status: number,
+  error: string,
+  message: string,
+  headers?: Record<string, string>,
+) {
+  return new XrpcResponseError(
+    app.bsky.bookmark.createBookmark.main,
+    new Response(null, {status, headers}),
+    {encoding: 'application/json', body: {error, message}},
+  )
 }
 
 function checkpointFor(
@@ -117,7 +111,7 @@ describe('runAppViewTransfer', () => {
       preferences: {like: {include: 'follows', list: false, push: false}},
     }
 
-    const {agent, calls} = makeAgent((nsid, input, service) => {
+    const {client, calls} = makeClient((nsid, input, service) => {
       const state = service === SOURCE_SERVICE ? source : destination
       switch (nsid) {
         case 'app.bsky.actor.getProfiles':
@@ -170,7 +164,7 @@ describe('runAppViewTransfer', () => {
     })
 
     const result = await runAppViewTransfer({
-      agent,
+      client,
       initialCheckpoint: checkpointFor([
         'mutedAccounts',
         'mutedLists',
@@ -229,7 +223,7 @@ describe('runAppViewTransfer', () => {
 
   it('imports missing mutes with their flavor and never rewrites existing ones', async () => {
     const writes: Record<string, unknown>[] = []
-    const {agent} = makeAgent((nsid, input, service) => {
+    const {client} = makeClient((nsid, input, service) => {
       switch (nsid) {
         case 'app.bsky.actor.getProfiles':
           return {profiles: []}
@@ -263,7 +257,7 @@ describe('runAppViewTransfer', () => {
     })
 
     const result = await runAppViewTransfer({
-      agent,
+      client,
       initialCheckpoint: checkpointFor(['mutedAccounts']),
       signal: new AbortController().signal,
       onProgress: () => {},
@@ -279,7 +273,7 @@ describe('runAppViewTransfer', () => {
   it('resumes without duplicating writes and skips finished collections', async () => {
     const sourceMutes = ['did:plc:ryoko', 'did:plc:sasami']
     const destinationMutes = new Set(['did:plc:ryoko'])
-    const {agent, calls} = makeAgent((nsid, input, service) => {
+    const {client, calls} = makeClient((nsid, input, service) => {
       if (nsid === 'app.bsky.actor.getProfiles') return {profiles: []}
       if (nsid === 'app.bsky.graph.getMutes') {
         const mutes =
@@ -306,7 +300,7 @@ describe('runAppViewTransfer', () => {
     }
 
     const result = await runAppViewTransfer({
-      agent,
+      client,
       initialCheckpoint: initial,
       signal: new AbortController().signal,
       onProgress: () => {},
@@ -334,7 +328,7 @@ describe('runAppViewTransfer', () => {
 
   it('attempts every item when single writes fail', async () => {
     const written: string[] = []
-    const {agent} = makeAgent((nsid, input, service) => {
+    const {client} = makeClient((nsid, input, service) => {
       if (nsid === 'app.bsky.bookmark.getBookmarks') {
         return service === SOURCE_SERVICE
           ? {
@@ -349,7 +343,7 @@ describe('runAppViewTransfer', () => {
       }
       if (nsid === 'app.bsky.bookmark.createBookmark') {
         if ((input.uri as string).endsWith('/two')) {
-          throw new XRPCError(400, 'InvalidRequest', 'Record not found')
+          throw xrpcError(400, 'InvalidRequest', 'Record not found')
         }
         written.push(input.uri as string)
         return undefined
@@ -358,7 +352,7 @@ describe('runAppViewTransfer', () => {
     })
 
     const result = await runAppViewTransfer({
-      agent,
+      client,
       initialCheckpoint: checkpointFor(['bookmarks']),
       signal: new AbortController().signal,
       onProgress: () => {},
@@ -385,11 +379,11 @@ describe('runAppViewTransfer', () => {
    * when they accept a write, so the destination lists the reverse of the
    * order the writes arrived in.
    */
-  function makeBookmarkAgent(
+  function makeBookmarkClient(
     sourceNewestFirst: string[],
     destinationWriteOrder: string[],
   ) {
-    return makeAgent((nsid, input, service) => {
+    return makeClient((nsid, input, service) => {
       if (nsid === 'app.bsky.bookmark.getBookmarks') {
         const uris =
           service === SOURCE_SERVICE
@@ -412,10 +406,13 @@ describe('runAppViewTransfer', () => {
   it('writes bookmarks oldest first so the destination keeps the source order', async () => {
     const sourceNewestFirst = ['four', 'three', 'two', 'one'].map(postUri)
     const destinationWriteOrder: string[] = []
-    const {agent} = makeBookmarkAgent(sourceNewestFirst, destinationWriteOrder)
+    const {client} = makeBookmarkClient(
+      sourceNewestFirst,
+      destinationWriteOrder,
+    )
 
     const result = await runAppViewTransfer({
-      agent,
+      client,
       initialCheckpoint: checkpointFor(['bookmarks']),
       signal: new AbortController().signal,
       onProgress: () => {},
@@ -433,10 +430,13 @@ describe('runAppViewTransfer', () => {
     const sourceNewestFirst = ['four', 'three', 'two', 'one'].map(postUri)
     // An earlier pass already wrote the two oldest bookmarks.
     const destinationWriteOrder = [postUri('one'), postUri('two')]
-    const {agent} = makeBookmarkAgent(sourceNewestFirst, destinationWriteOrder)
+    const {client} = makeBookmarkClient(
+      sourceNewestFirst,
+      destinationWriteOrder,
+    )
 
     const result = await runAppViewTransfer({
-      agent,
+      client,
       initialCheckpoint: checkpointFor(['bookmarks']),
       signal: new AbortController().signal,
       onProgress: () => {},
@@ -453,7 +453,7 @@ describe('runAppViewTransfer', () => {
     const sourceNewestFirst = ['four', 'three', 'two', 'one'].map(postUri)
     const destinationWriteOrder: string[] = []
     let rateLimited = true
-    const {agent} = makeAgent((nsid, input, service) => {
+    const {client} = makeClient((nsid, input, service) => {
       if (nsid === 'app.bsky.bookmark.getBookmarks') {
         const uris =
           service === SOURCE_SERVICE
@@ -465,7 +465,7 @@ describe('runAppViewTransfer', () => {
       }
       if (nsid === 'app.bsky.bookmark.createBookmark') {
         if (rateLimited && input.uri === postUri('two')) {
-          throw new XRPCError(429, 'RateLimitExceeded', 'Slow down', {
+          throw xrpcError(429, 'RateLimitExceeded', 'Slow down', {
             'retry-after': '0',
           })
         }
@@ -476,7 +476,7 @@ describe('runAppViewTransfer', () => {
     })
 
     const first = await runAppViewTransfer({
-      agent,
+      client,
       initialCheckpoint: checkpointFor(['bookmarks']),
       signal: new AbortController().signal,
       onProgress: () => {},
@@ -495,7 +495,7 @@ describe('runAppViewTransfer', () => {
 
     rateLimited = false
     const second = await runAppViewTransfer({
-      agent,
+      client,
       initialCheckpoint: first,
       signal: new AbortController().signal,
       onProgress: () => {},
@@ -508,7 +508,7 @@ describe('runAppViewTransfer', () => {
   it('writes newer bookmarks past one the destination will never accept', async () => {
     const sourceNewestFirst = ['four', 'three', 'two', 'one'].map(postUri)
     const destinationWriteOrder: string[] = []
-    const {agent} = makeAgent((nsid, input, service) => {
+    const {client} = makeClient((nsid, input, service) => {
       if (nsid === 'app.bsky.bookmark.getBookmarks') {
         const uris =
           service === SOURCE_SERVICE
@@ -521,7 +521,7 @@ describe('runAppViewTransfer', () => {
       if (nsid === 'app.bsky.bookmark.createBookmark') {
         // The post behind the oldest bookmark is gone, so it never arrives.
         if (input.uri === postUri('one')) {
-          throw new XRPCError(400, 'InvalidRequest', 'Record not found')
+          throw xrpcError(400, 'InvalidRequest', 'Record not found')
         }
         destinationWriteOrder.push(input.uri as string)
         return undefined
@@ -530,7 +530,7 @@ describe('runAppViewTransfer', () => {
     })
 
     const result = await runAppViewTransfer({
-      agent,
+      client,
       initialCheckpoint: checkpointFor(['bookmarks']),
       signal: new AbortController().signal,
       onProgress: () => {},
@@ -547,16 +547,16 @@ describe('runAppViewTransfer', () => {
   })
 
   it('marks an unsupported destination collection without failing the run', async () => {
-    const {agent, calls} = makeAgent((nsid, _input, service) => {
+    const {client, calls} = makeClient((nsid, _input, service) => {
       if (nsid !== 'app.bsky.bookmark.getBookmarks') {
         throw new Error(`Unexpected method: ${nsid}`)
       }
       if (service === SOURCE_SERVICE) return {bookmarks: []}
-      throw new XRPCError(404, 'XRPCNotSupported', 'Method not supported')
+      throw xrpcError(404, 'XRPCNotSupported', 'Method not supported')
     })
 
     const result = await runAppViewTransfer({
-      agent,
+      client,
       initialCheckpoint: checkpointFor(['bookmarks']),
       signal: new AbortController().signal,
       onProgress: () => {},
@@ -572,12 +572,12 @@ describe('runAppViewTransfer', () => {
 
   it('retries rate-limited reads and honors retry-after', async () => {
     let attempts = 0
-    const {agent} = makeAgent((nsid, _input, service) => {
+    const {client} = makeClient((nsid, _input, service) => {
       if (nsid !== 'app.bsky.graph.getListMutes') {
         throw new Error(`Unexpected method: ${nsid}`)
       }
       if (service === SOURCE_SERVICE && attempts++ === 0) {
-        throw new XRPCError(429, 'RateLimitExceeded', 'Slow down', {
+        throw xrpcError(429, 'RateLimitExceeded', 'Slow down', {
           'retry-after': '0',
         })
       }
@@ -585,7 +585,7 @@ describe('runAppViewTransfer', () => {
     })
 
     const result = await runAppViewTransfer({
-      agent,
+      client,
       initialCheckpoint: checkpointFor(['mutedLists']),
       signal: new AbortController().signal,
       onProgress: () => {},
@@ -596,7 +596,7 @@ describe('runAppViewTransfer', () => {
   })
 
   it('fails a collection when the appview repeats a pagination cursor', async () => {
-    const {agent} = makeAgent(nsid => {
+    const {client} = makeClient(nsid => {
       if (nsid !== 'app.bsky.graph.getListMutes') {
         throw new Error(`Unexpected method: ${nsid}`)
       }
@@ -607,7 +607,7 @@ describe('runAppViewTransfer', () => {
     })
 
     const result = await runAppViewTransfer({
-      agent,
+      client,
       initialCheckpoint: checkpointFor(['mutedLists']),
       signal: new AbortController().signal,
       onProgress: () => {},
@@ -626,7 +626,7 @@ describe('runAppViewTransfer', () => {
      * the reposts looks absent. A write over it would widen the scope.
      */
     const writes: string[] = []
-    const {agent} = makeAgent((nsid, input, service) => {
+    const {client} = makeClient((nsid, input, service) => {
       if (nsid === 'app.bsky.graph.getMutes') {
         return service === SOURCE_SERVICE
           ? {mutes: [{did: 'did:plc:ryoko'}, {did: 'did:plc:sasami'}]}
@@ -649,7 +649,7 @@ describe('runAppViewTransfer', () => {
     })
 
     const result = await runAppViewTransfer({
-      agent,
+      client,
       initialCheckpoint: checkpointFor(['mutedAccounts']),
       signal: new AbortController().signal,
       onProgress: () => {},
@@ -663,7 +663,7 @@ describe('runAppViewTransfer', () => {
   })
 
   it('counts an activity subscription the source will not describe', async () => {
-    const {agent} = makeAgent((nsid, _input, service) => {
+    const {client} = makeClient((nsid, _input, service) => {
       if (nsid === 'app.bsky.notification.putActivitySubscription') {
         return {}
       }
@@ -684,7 +684,7 @@ describe('runAppViewTransfer', () => {
     })
 
     const result = await runAppViewTransfer({
-      agent,
+      client,
       initialCheckpoint: checkpointFor(['activitySubscriptions']),
       signal: new AbortController().signal,
       onProgress: () => {},
@@ -706,7 +706,7 @@ describe('runAppViewTransfer', () => {
       second: {lists: [], cursor: 'third'},
       third: {lists: [{uri: 'at://did:plc:ryoko/two'}]},
     }
-    const {agent} = makeAgent((nsid, input, service) => {
+    const {client} = makeClient((nsid, input, service) => {
       if (nsid === 'app.bsky.graph.muteActorList') return undefined
       if (nsid !== 'app.bsky.graph.getListMutes') {
         throw new Error(`Unexpected method: ${nsid}`)
@@ -716,7 +716,7 @@ describe('runAppViewTransfer', () => {
     })
 
     const result = await runAppViewTransfer({
-      agent,
+      client,
       initialCheckpoint: checkpointFor(['mutedLists']),
       signal: new AbortController().signal,
       onProgress: () => {},
@@ -744,7 +744,7 @@ describe('runAppViewTransfer', () => {
 
   it('rejects when aborted so the caller can persist a paused checkpoint', async () => {
     const controller = new AbortController()
-    const {agent} = makeAgent(nsid => {
+    const {client} = makeClient(nsid => {
       if (nsid === 'app.bsky.graph.getMutes') {
         controller.abort()
         return {mutes: [{did: 'did:plc:ryoko'}]}
@@ -754,7 +754,7 @@ describe('runAppViewTransfer', () => {
 
     await expect(
       runAppViewTransfer({
-        agent,
+        client,
         initialCheckpoint: checkpointFor(['mutedAccounts']),
         signal: controller.signal,
         onProgress: () => {},

@@ -110,7 +110,7 @@ describe('ChatServiceWarning', () => {
     const links = screen.getAllByTestId('inline-link')
     const targets = links.map(
       link =>
-        (link as {props: {accessibilityValue: {text: string}}}).props
+        (link as unknown as {props: {accessibilityValue: {text: string}}}).props
           .accessibilityValue.text,
     )
     expect(targets).toEqual(['/profile/germnetwork.com', '/profile/signal.org'])

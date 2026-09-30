@@ -1,14 +1,12 @@
-import {
-  type ComAtprotoLabelDefs,
-  moderatePost,
-  type ModerationOpts,
-} from '@atproto/api'
+import {type DidString} from '@atproto/syntax'
+import {moderatePost, type ModerationOpts} from '@bsky/sdk/moderation'
 
+import {com} from '#/lexicons'
 import {hydratePostView, hydratePostViewRecord} from '../hydrate'
 
 const URI = 'at://did:plc:author/app.bsky.feed.post/3abc'
-const LABELER_DID = 'did:plc:labeler'
-const LABEL: ComAtprotoLabelDefs.Label = {
+const LABELER_DID = 'did:plc:labeler' as DidString
+const LABEL: com.atproto.label.defs.Label = {
   src: LABELER_DID,
   uri: URI,
   val: 'warn',

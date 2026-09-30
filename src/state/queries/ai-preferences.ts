@@ -9,33 +9,32 @@ import {
   buildUpdatedRecord,
   createDefaultRecord,
 } from '#/lib/ai-preferences'
-import {useAgent, useSession} from '#/state/session'
+import {isRecordNotFoundError} from '#/lib/xrpc-error'
+import {usePdsClient, useSession} from '#/state/session'
 import * as Toast from '#/components/Toast'
+import {com} from '#/lexicons'
 
 export const RQKEY_getAiPreferences = ['ai-preferences']
 
 export function useAiPreferencesQuery() {
-  const agent = useAgent()
+  const pdsClient = usePdsClient()
   const {currentAccount} = useSession()
   return useQuery({
     queryKey: RQKEY_getAiPreferences,
     queryFn: async () => {
       try {
-        const response = await agent.com.atproto.repo.getRecord({
+        const res = await pdsClient.call(com.atproto.repo.getRecord, {
           repo: currentAccount!.did,
           collection: AI_PREFERENCES_COLLECTION,
           rkey: 'self',
         })
         return {
-          uri: response.data.uri,
-          cid: response.data.cid,
-          value: response.data.value as unknown as AiPreferencesRecord,
+          uri: res.uri,
+          cid: res.cid,
+          value: res.value as unknown as AiPreferencesRecord,
         }
       } catch (err) {
-        if (
-          err instanceof Error &&
-          err.message.startsWith('Could not locate record')
-        ) {
+        if (isRecordNotFoundError(err)) {
           return {
             uri: undefined as string | undefined,
             cid: undefined as string | undefined,
@@ -50,7 +49,7 @@ export function useAiPreferencesQuery() {
 }
 
 export function useAiPreferencesMutation() {
-  const agent = useAgent()
+  const pdsClient = usePdsClient()
   const {currentAccount} = useSession()
   const queryClient = useQueryClient()
   return useMutation({
@@ -66,13 +65,12 @@ export function useAiPreferencesMutation() {
         value: AiPreferencesRecord
       }>(RQKEY_getAiPreferences)
       const record = buildUpdatedRecord(current?.value, key, value)
-      const response = await agent.com.atproto.repo.putRecord({
+      return await pdsClient.call(com.atproto.repo.putRecord, {
         repo: currentAccount.did,
         collection: AI_PREFERENCES_COLLECTION,
         rkey: 'self',
         record,
       })
-      return response
     },
     onMutate: ({key, value}) => {
       queryClient.setQueryData(

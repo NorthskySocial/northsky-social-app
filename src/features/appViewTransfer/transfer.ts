@@ -1,7 +1,6 @@
 /**
  * One-directional import of private appview state between the two fixed
- * endpoints. Ported from eurosky-social-app (MIT) commit 3407eb8, rewritten
- * from `@atproto/lex` onto `AtpAgent`.
+ * endpoints. Ported from eurosky-social-app (MIT) commit 3407eb8.
  *
  * This is an import, not a sync. No collection deletes an item at the
  * destination. Most collections leave an item that exists on both sides
@@ -9,13 +8,15 @@
  * keeps every notification type that either side subscribes to.
  * `notificationPreferences` replaces the destination preference set.
  */
+import {type Client} from '@atproto/lex'
 import {
-  type AppBskyNotificationDefs,
-  type AppBskyNotificationPutPreferencesV2,
-  type AtpAgent,
-  XRPCError,
-} from '@atproto/api'
+  type AtIdentifierString,
+  type AtUriString,
+  type DidString,
+} from '@atproto/syntax'
 
+import {getErrorName, getErrorStatus, isXrpcError} from '#/lib/xrpc-error'
+import {app} from '#/lexicons'
 import {
   APP_VIEW_TRANSFER_COLLECTIONS,
   type AppViewTransferCheckpoint,
@@ -43,7 +44,7 @@ type TransferPage = {
 }
 
 type RequestTarget = {
-  agent: AtpAgent
+  client: Client
   // The proxy header pins the appview. Each call also takes the abort signal.
   opts: {headers: {'atproto-proxy': string}; signal: AbortSignal}
 }
@@ -82,7 +83,7 @@ type MuteFlavor = {
   onlyQuoteposts: boolean
 }
 
-type ActivitySubscription = AppBskyNotificationDefs.ActivitySubscription
+type ActivitySubscription = app.bsky.notification.defs.ActivitySubscription
 
 const collectionAdapters: Record<
   AppViewTransferCollectionId,
@@ -93,7 +94,8 @@ const collectionAdapters: Record<
     async readPage(target, cursor) {
       const res = await callWithRetry(
         () =>
-          target.agent.app.bsky.graph.getMutes(
+          target.client.call(
+            app.bsky.graph.getMutes,
             {cursor, limit: PAGE_SIZE},
             target.opts,
           ),
@@ -105,8 +107,8 @@ const collectionAdapters: Record<
        * list a scoped mute keeps that scope at the destination.
        */
       return {
-        cursor: res.data.cursor,
-        items: res.data.mutes.map(profile => ({
+        cursor: res.cursor,
+        items: res.mutes.map(profile => ({
           key: profile.did,
           value: {
             onlyReposts: Boolean(profile.viewer?.mutedOnlyReposts),
@@ -119,9 +121,10 @@ const collectionAdapters: Record<
       const flavor = item.value as MuteFlavor
       await callWithRetry(
         () =>
-          target.agent.app.bsky.graph.muteActor(
+          target.client.call(
+            app.bsky.graph.muteActor,
             {
-              actor: item.key,
+              actor: item.key as AtIdentifierString,
               ...(flavor.onlyReposts ? {onlyReposts: true} : {}),
               ...(flavor.onlyQuoteposts ? {onlyQuoteposts: true} : {}),
             },
@@ -143,10 +146,15 @@ const collectionAdapters: Record<
       for (let start = 0; start < keys.length; start += PROFILE_BATCH_SIZE) {
         const actors = keys.slice(start, start + PROFILE_BATCH_SIZE)
         const res = await callWithRetry(
-          () => target.agent.app.bsky.actor.getProfiles({actors}, target.opts),
+          () =>
+            target.client.call(
+              app.bsky.actor.getProfiles,
+              {actors: actors as AtIdentifierString[]},
+              target.opts,
+            ),
           target.opts.signal,
         )
-        for (const profile of res.data.profiles) {
+        for (const profile of res.profiles) {
           const viewer = profile.viewer
           if (viewer?.mutedOnlyReposts || viewer?.mutedOnlyQuoteposts) {
             hidden.push(profile.did)
@@ -161,22 +169,24 @@ const collectionAdapters: Record<
     async readPage(target, cursor) {
       const res = await callWithRetry(
         () =>
-          target.agent.app.bsky.graph.getListMutes(
+          target.client.call(
+            app.bsky.graph.getListMutes,
             {cursor, limit: PAGE_SIZE},
             target.opts,
           ),
         target.opts.signal,
       )
       return {
-        cursor: res.data.cursor,
-        items: res.data.lists.map(list => ({key: list.uri, value: list.uri})),
+        cursor: res.cursor,
+        items: res.lists.map(list => ({key: list.uri, value: list.uri})),
       }
     },
     async write(target, item) {
       await callWithRetry(
         () =>
-          target.agent.app.bsky.graph.muteActorList(
-            {list: item.value as string},
+          target.client.call(
+            app.bsky.graph.muteActorList,
+            {list: item.value as AtUriString},
             target.opts,
           ),
         target.opts.signal,
@@ -188,15 +198,16 @@ const collectionAdapters: Record<
     async readPage(target, cursor) {
       const res = await callWithRetry(
         () =>
-          target.agent.app.bsky.bookmark.getBookmarks(
+          target.client.call(
+            app.bsky.bookmark.getBookmarks,
             {cursor, limit: PAGE_SIZE},
             target.opts,
           ),
         target.opts.signal,
       )
       return {
-        cursor: res.data.cursor,
-        items: res.data.bookmarks.map(bookmark => ({
+        cursor: res.cursor,
+        items: res.bookmarks.map(bookmark => ({
           key: bookmark.subject.uri,
           value: bookmark.subject,
         })),
@@ -206,9 +217,13 @@ const collectionAdapters: Record<
       const subject = item.value as {uri: string; cid: string}
       await callWithRetry(
         () =>
-          target.agent.app.bsky.bookmark.createBookmark(
-            {uri: subject.uri, cid: subject.cid},
-            {...target.opts, encoding: 'application/json'},
+          target.client.call(
+            app.bsky.bookmark.createBookmark,
+            {
+              uri: subject.uri as AtUriString,
+              cid: subject.cid,
+            },
+            target.opts,
           ),
         target.opts.signal,
       )
@@ -236,7 +251,8 @@ const collectionAdapters: Record<
     async readPage(target, cursor) {
       const res = await callWithRetry(
         () =>
-          target.agent.app.bsky.notification.listActivitySubscriptions(
+          target.client.call(
+            app.bsky.notification.listActivitySubscriptions,
             {cursor, limit: PAGE_SIZE},
             target.opts,
           ),
@@ -244,7 +260,7 @@ const collectionAdapters: Record<
       )
       const items: TransferItem[] = []
       let skipped = 0
-      for (const profile of res.data.subscriptions) {
+      for (const profile of res.subscriptions) {
         const subscription = profile.viewer?.activitySubscription
         /*
          * The appview withholds the value when the subject no longer accepts
@@ -263,17 +279,18 @@ const collectionAdapters: Record<
           } satisfies ActivitySubscription,
         })
       }
-      return {cursor: res.data.cursor, items, skipped}
+      return {cursor: res.cursor, items, skipped}
     },
     async write(target, item) {
       await callWithRetry(
         () =>
-          target.agent.app.bsky.notification.putActivitySubscription(
+          target.client.call(
+            app.bsky.notification.putActivitySubscription,
             {
-              subject: item.key,
+              subject: item.key as DidString,
               activitySubscription: item.value as ActivitySubscription,
             },
-            {...target.opts, encoding: 'application/json'},
+            target.opts,
           ),
         target.opts.signal,
       )
@@ -293,11 +310,15 @@ const collectionAdapters: Record<
     async readPage(target) {
       const res = await callWithRetry(
         () =>
-          target.agent.app.bsky.notification.getPreferences({}, target.opts),
+          target.client.call(
+            app.bsky.notification.getPreferences,
+            {},
+            target.opts,
+          ),
         target.opts.signal,
       )
       // Chat preferences belong to the chat service, not the appview.
-      const {chat: _chat, $type: _type, ...preferences} = res.data.preferences
+      const {chat: _chat, $type: _type, ...preferences} = res.preferences
       return {
         items: [{key: 'preferences', value: preferences}],
       }
@@ -305,9 +326,10 @@ const collectionAdapters: Record<
     async write(target, item) {
       await callWithRetry(
         () =>
-          target.agent.app.bsky.notification.putPreferencesV2(
-            item.value as AppBskyNotificationPutPreferencesV2.InputSchema,
-            {...target.opts, encoding: 'application/json'},
+          target.client.call(
+            app.bsky.notification.putPreferencesV2,
+            item.value as app.bsky.notification.putPreferencesV2.$InputBody,
+            target.opts,
           ),
         target.opts.signal,
       )
@@ -352,13 +374,13 @@ export function createTransferCheckpoint({
 }
 
 export async function runAppViewTransfer({
-  agent,
+  client,
   initialCheckpoint,
   signal,
   onProgress,
   onCollectionError,
 }: {
-  agent: AtpAgent
+  client: Client
   initialCheckpoint: AppViewTransferCheckpoint
   signal: AbortSignal
   onProgress: (checkpoint: AppViewTransferCheckpoint) => void
@@ -420,7 +442,7 @@ export async function runAppViewTransfer({
       })
       const sourceRead = await readAllItems({
         adapter,
-        target: makeTarget(agent, checkpoint.source, signal),
+        target: makeTarget(client, checkpoint.source, signal),
       })
       const sourceItems = sourceRead.items
       updateCollection(id, {
@@ -433,7 +455,7 @@ export async function runAppViewTransfer({
       const destinationItems = (
         await readAllItems({
           adapter,
-          target: makeTarget(agent, checkpoint.destination, signal),
+          target: makeTarget(client, checkpoint.destination, signal),
         })
       ).items
       const progressAfterCount =
@@ -459,7 +481,7 @@ export async function runAppViewTransfer({
         )
         if (candidates.length > 0) {
           const hidden = await adapter.findHiddenDestinationKeys(
-            makeTarget(agent, checkpoint.destination, signal),
+            makeTarget(client, checkpoint.destination, signal),
             candidates,
           )
           for (const key of hidden) hiddenKeys.add(key)
@@ -469,7 +491,7 @@ export async function runAppViewTransfer({
       const {failedCount, firstError} = await writeMissingItems({
         adapter,
         items: [...sourceItems.values()],
-        target: makeTarget(agent, checkpoint.destination, signal),
+        target: makeTarget(client, checkpoint.destination, signal),
         destinationItems,
         hiddenKeys,
         onPrepared(pendingCount) {
@@ -548,12 +570,12 @@ function initialCollectionProgress(): AppViewTransferCollectionProgress {
 }
 
 function makeTarget(
-  agent: AtpAgent,
+  client: Client,
   endpoint: TransferEndpoint,
   signal: AbortSignal,
 ): RequestTarget {
   return {
-    agent,
+    client,
     opts: {
       headers: {'atproto-proxy': `${endpoint.did}#bsky_appview`},
       signal,
@@ -698,34 +720,45 @@ async function callWithRetry<T>(
 }
 
 /**
- * `XRPCError.status` is a ResponseType enum. Widen it to a number so status
- * comparisons do not depend on `@atproto/xrpc`, which is not a direct
- * dependency.
+ * A lex `XrpcResponseError` carries the server's HTTP status. The other lex
+ * XRPC errors (internal and fetch failures) carry none, which is how a
+ * network failure without a response reads here.
  */
-function statusOf(error: XRPCError): number {
-  return error.status
+function statusOf(error: unknown): number | undefined {
+  return getErrorStatus(error)
 }
 
-// `ResponseType.Unknown`, which a network failure without a response reports.
-const STATUS_NO_RESPONSE = 1
-
 function maxRetries(error: unknown): number {
-  return error instanceof XRPCError && statusOf(error) === 429 ? 4 : 2
+  return statusOf(error) === 429 ? 4 : 2
 }
 
 /**
- * `XRPCError` maps an HTTP status to the nearest `ResponseType`, so only the
- * statuses in that enum can appear here. A 408 or 425 arrives as 400 and is
- * not retried, because 400 also covers requests this client must not repeat.
+ * A lex client reports the real HTTP status, so 408 and 425 arrive as
+ * themselves and are retried. An XRPC error without a status is a network
+ * failure that never reached the server, which is also worth a retry.
  */
 function isRetryableError(error: unknown): boolean {
-  if (!(error instanceof XRPCError)) return false
-  return [STATUS_NO_RESPONSE, 429, 500, 502, 503, 504].includes(statusOf(error))
+  if (!isXrpcError(error)) return false
+  const status = statusOf(error)
+  if (status === undefined) return true
+  return [408, 425, 429, 500, 502, 503, 504].includes(status)
+}
+
+/**
+ * The `retry-after` header of a lex `XrpcResponseError`, read structurally:
+ * only that subclass carries a response, and `XrpcError` itself declares no
+ * headers. The other XRPC errors never reached a server, so they have none.
+ */
+function getRetryAfter(error: unknown): string | undefined {
+  const headers = (error as {headers?: unknown}).headers
+  return headers instanceof Headers
+    ? (headers.get('retry-after') ?? undefined)
+    : undefined
 }
 
 function retryDelay(error: unknown, attempt: number): number {
-  if (error instanceof XRPCError) {
-    const retryAfter = error.headers?.['retry-after']
+  if (isXrpcError(error)) {
+    const retryAfter = getRetryAfter(error)
     if (retryAfter) {
       const seconds = Number(retryAfter)
       if (Number.isFinite(seconds)) {
@@ -761,13 +794,14 @@ function throwIfAborted(signal: AbortSignal) {
 }
 
 function isUnsupportedCollectionError(error: unknown): boolean {
+  if (!isXrpcError(error)) return false
+  const status = statusOf(error)
   return (
-    error instanceof XRPCError &&
-    (statusOf(error) === 404 ||
-      statusOf(error) === 501 ||
-      ['XRPCNotSupported', 'MethodNotFound', 'NotSupported'].includes(
-        error.error,
-      ))
+    status === 404 ||
+    status === 501 ||
+    ['XRPCNotSupported', 'MethodNotFound', 'NotSupported'].includes(
+      getErrorName(error) ?? '',
+    )
   )
 }
 
@@ -775,11 +809,12 @@ function safeFailureDetails(error: unknown): {
   failureStatus?: number
   failureName: string
 } {
-  if (error instanceof XRPCError) {
-    if (statusOf(error) === STATUS_NO_RESPONSE) {
+  if (isXrpcError(error)) {
+    const status = statusOf(error)
+    if (status === undefined) {
       return {failureName: 'NetworkError'}
     }
-    return {failureStatus: statusOf(error), failureName: error.error}
+    return {failureStatus: status, failureName: getErrorName(error) ?? 'Error'}
   }
   return {failureName: 'UnexpectedError'}
 }

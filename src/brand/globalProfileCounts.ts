@@ -1,10 +1,15 @@
-import {type AppBskyActorDefs, type AppBskyActorGetProfile} from '@atproto/api'
+import {type Service} from '@atproto/lex'
 
 import {logger} from '#/logger'
+import {type app} from '#/lexicons'
 import {type AppView, FALLBACK_APPVIEW} from './appview'
 
+/**
+ * Per-call `service` options that target the Bluesky appview. Mirrors the
+ * per-call override pattern in `src/brand/searchRouting.ts`.
+ */
 interface AppviewProxyOpts {
-  headers: {'atproto-proxy': string}
+  service: Service
 }
 
 /**
@@ -16,17 +21,15 @@ export async function getProfileWithGlobalCounts(
   operation: string,
   request: (
     opts?: AppviewProxyOpts,
-  ) => Promise<AppBskyActorGetProfile.Response>,
-): Promise<AppBskyActorDefs.ProfileViewDetailed> {
+  ) => Promise<app.bsky.actor.defs.ProfileViewDetailed>,
+): Promise<app.bsky.actor.defs.ProfileViewDetailed> {
   if (appview.did === FALLBACK_APPVIEW.did) {
-    return (await request()).data
+    return await request()
   }
 
   const routedPromise = request()
   const blueskyPromise = request({
-    headers: {
-      'atproto-proxy': `${FALLBACK_APPVIEW.did}#bsky_appview`,
-    },
+    service: `${FALLBACK_APPVIEW.did}#bsky_appview`,
   }).catch(error => {
     logger.warn(
       `globalProfileCounts: ${operation} failed on Bluesky; using ${appview.did}`,
@@ -35,12 +38,10 @@ export async function getProfileWithGlobalCounts(
     return null
   })
 
-  const [routedResponse, blueskyResponse] = await Promise.all([
+  const [routedProfile, blueskyProfile] = await Promise.all([
     routedPromise,
     blueskyPromise,
   ])
-  const routedProfile = routedResponse.data
-  const blueskyProfile = blueskyResponse?.data
 
   if (!blueskyProfile) {
     return routedProfile
