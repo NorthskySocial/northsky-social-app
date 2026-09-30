@@ -5,7 +5,7 @@ import {useNavigation} from '@react-navigation/native'
 import {type InfiniteData, useQueryClient} from '@tanstack/react-query'
 
 import {useBottomBarOffset} from '#/lib/hooks/useBottomBarOffset'
-import {isNetworkError} from '#/lib/hooks/useCleanError'
+import {isNetworkError} from '#/lib/network-error'
 import {
   type CommonNavigatorParams,
   type NativeStackScreenProps,
@@ -379,7 +379,7 @@ function JoinRequestsList({
               style={[a.flex_1, a.align_center, a.justify_center, a.py_4xl]}>
               <Loader size="xl" />
             </View>
-          ) : null
+          ) : undefined
         }
         contentContainerStyle={
           showFooter ? {paddingBottom: footerHeight} : undefined

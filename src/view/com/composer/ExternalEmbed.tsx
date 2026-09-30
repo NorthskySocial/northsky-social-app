@@ -10,6 +10,8 @@ import {
 import {ExternalEmbedRemoveBtn} from '#/view/com/composer/ExternalEmbedRemoveBtn'
 import {atoms as a, useTheme} from '#/alf'
 import {Loader} from '#/components/Loader'
+import {AtCard} from '#/components/Post/Embed/AtCard'
+import {getAtCardProvider} from '#/components/Post/Embed/AtCard/providers'
 import {ExternalEmbed} from '#/components/Post/Embed/ExternalEmbed'
 import {ModeratedFeedEmbed} from '#/components/Post/Embed/FeedEmbed'
 import {JoinRequestEmbed} from '#/components/Post/Embed/JoinRequestEmbed'
@@ -92,6 +94,7 @@ export const ExternalEmbedLink = ({
   const linkComponent = useMemo(() => {
     if (data) {
       if (data.type === 'external') {
+<<<<<<< HEAD
         // northsky: give a custom embed handler first refusal, so a link that
         // will post as a rich card previews as one instead of a plain link.
         const externalView = {
@@ -106,9 +109,18 @@ export const ExternalEmbedLink = ({
           return <CustomPreview view={externalView} />
         }
         if (data.view && isStandardSiteEmbed(data.view.external)) {
+=======
+        const atProvider = getAtCardProvider(uri)
+        if (
+          (data.view && isStandardSiteEmbed(data.view.external)) ||
+          atProvider
+        ) {
+          const Card = atProvider ? AtCard : StandardSiteEmbed
+>>>>>>> upstream/main
           return (
-            <StandardSiteEmbed
+            <Card
               preview
+              authorDid={data.authorDid}
               view={{
                 ...data.view?.external,
                 title: data.view?.external?.title || data.title || uri,

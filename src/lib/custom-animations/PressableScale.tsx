@@ -70,6 +70,7 @@ export function PressableScale({
         if (onPressIn) {
           onPressIn(e)
         }
+<<<<<<< HEAD
         // northsky: see pressScale for how the two kinds of caller differ
         scaleTo(
           pressScale({
@@ -79,12 +80,21 @@ export function PressableScale({
             enabled: PRESSES_SCALE,
           }),
         )
+=======
+        cancelAnimation(scale)
+        scale.set(withTiming(targetScale, {duration: 100}))
+>>>>>>> upstream/main
       }}
       onPressOut={e => {
         if (onPressOut) {
           onPressOut(e)
         }
+<<<<<<< HEAD
         scaleTo(REST_SCALE)
+=======
+        cancelAnimation(scale)
+        scale.set(withTiming(1, {duration: 100}))
+>>>>>>> upstream/main
       }}
       style={[!reducedMotion && animatedStyle, style]}
       {...rest}>

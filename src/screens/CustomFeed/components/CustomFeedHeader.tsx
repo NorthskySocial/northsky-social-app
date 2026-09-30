@@ -418,11 +418,13 @@ export function CustomFeedHeader({
           ) : null}
         </Layout.Header.Outer>
       </Layout.Center>
-      <Dialog.Outer control={infoControl}>
+      <Dialog.Outer
+        control={infoControl}
+        nativeOptions={{preventExpansion: true}}>
         <Dialog.Handle />
         <Dialog.ScrollableInner
           label={l`Feed menu`}
-          style={[gtMobile ? {width: 'auto', minWidth: 450} : a.w_full]}>
+          style={[a.w_full, gtMobile && web({width: 'auto', minWidth: 450})]}>
           <DialogInner
             info={info}
             likeUri={likeUri}
@@ -473,10 +475,16 @@ function DialogInner({
   const feedRkey = useMemo(() => new AtUri(info.uri).rkey, [info.uri])
 
   const onToggleLiked = async () => {
+    /*
+     * Hoisted out of the `try`: React Compiler cannot lower a logical
+     * expression in a test position there, and the `else` below rules out
+     * splitting this into nested ifs.
+     */
+    const shouldUnlike = isLiked && likeUri
     try {
       playHaptic()
 
-      if (isLiked && likeUri) {
+      if (shouldUnlike) {
         await unlikeFeed({uri: likeUri})
         setLikeUri('')
         ax.metric('feed:unlike', {feedUrl: info.uri})

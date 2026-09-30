@@ -22,7 +22,7 @@ import {P, Text} from '#/components/Typography'
 // northsky: takedowns come from the account's PDS, which may not be Northsky
 import {getHostModerationInfo, getHostModServiceProxy} from '#/brand/moderation'
 import {IS_WEB} from '#/env'
-import {com, tools} from '#/lexicons'
+import {tools} from '#/lexicons'
 
 const COL_WIDTH = 400
 
@@ -52,9 +52,11 @@ export function Takendown() {
     mutationFn: async (appealText: string) => {
       if (!currentAccount) throw new Error('No session')
       await client.call(
-        com.atproto.moderation.createReport,
+        tools.ozone.inbox.appealActionedSubject,
         {
-          reasonType: tools.ozone.report.defs.reasonAppeal.value,
+          action: {
+            $type: 'tools.ozone.inbox.appealActionedSubject#takedownRef',
+          },
           subject: {
             $type: 'com.atproto.admin.defs#repoRef',
             did: currentAccount.did,

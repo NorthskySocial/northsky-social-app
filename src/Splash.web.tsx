@@ -6,9 +6,13 @@
 
 import {useEffect, useRef, useState} from 'react'
 
+<<<<<<< HEAD
 import {atoms as a, flatten} from '#/alf'
 // northsky: splash logomark comes from the brand module (no dynamic loader)
 import {BrandLogo} from '#/brand/assets/Logo'
+=======
+import {atoms as a, flattenToCSS} from '#/alf'
+>>>>>>> upstream/main
 
 const size = 100
 
@@ -72,7 +76,7 @@ export function Splash({
       {!isAnimationComplete && (
         <div
           ref={splashRef}
-          style={flatten([
+          style={flattenToCSS([
             a.fixed,
             a.inset_0,
             a.flex,

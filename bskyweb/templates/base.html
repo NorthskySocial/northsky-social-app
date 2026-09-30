@@ -13,8 +13,12 @@
 
   <!-- Hello Humans! API docs at https://atproto.com -->
 
+<<<<<<< HEAD
   <!-- northsky: preload Geist body font (webpack-hashed filename) -->
   <link rel="preload" as="font" type="font/woff2" href="{{ staticCDNHost }}/static/media/Geist-Variable.c5aefc5d145b5333adad.woff2" crossorigin>
+=======
+  {% include "fonts.html" %}
+>>>>>>> upstream/main
 
   <style>
     /**
@@ -24,6 +28,7 @@
      *
      * THIS NEEDS TO BE DUPLICATED IN `bskyweb/templates/base.html`
      */
+<<<<<<< HEAD
     /* northsky: brand web fonts (Geist body + MuseoModerno display). Webpack-hashed filenames - regenerate both shells after any font-binary change. */
     @font-face {
       font-family: 'Geist';
@@ -46,6 +51,8 @@
       font-style: italic;
       font-display: swap;
     }
+=======
+>>>>>>> upstream/main
     html,
     body {
       margin: 0px;
@@ -152,6 +159,9 @@
   <script>window.__NORTHSKY_DONATIONS__ = {{ donationConfig|safe }}</script>
   {% endif %}
 
+  {% if featureGateBootstrap %}
+  <script id="bsky-app-config" type="application/json">{{ featureGateBootstrap|safe }}</script>
+  {% endif %}
   {% include "scripts.html" %}
   <link rel="apple-touch-icon" sizes="180x180" href="{{ staticCDNHost }}/static/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="{{ staticCDNHost }}/static/favicon-32x32.png">
@@ -179,10 +189,11 @@
   </div>
 
   <noscript>
-    <h1 lang="en">JavaScript Required</h1>
-    <p lang="en">This is a heavily interactive web application, and JavaScript is required. Simple HTML interfaces are possible, but that is not what this is.
-    <p lang="en">Learn more about Bluesky at <a href="https://bsky.social">bsky.social</a> and <a href="https://atproto.com">atproto.com</a>.
     {% block noscript_extra %}{% endblock %}
+    <div data-nosnippet>
+      <p lang="en">Enable JavaScript to use Bluesky.</p>
+      <p lang="en">Learn more about Bluesky at <a href="https://bsky.social">bsky.social</a> and <a href="https://atproto.com">atproto.com</a>.</p>
+    </div>
   </noscript>
 {% endblock -%}
 </body>

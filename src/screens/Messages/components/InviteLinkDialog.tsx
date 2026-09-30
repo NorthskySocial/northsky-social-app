@@ -7,7 +7,11 @@ import {Plural, Trans, useLingui} from '@lingui/react/macro'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {createSanitizedDisplayName} from '#/lib/moderation/create-sanitized-display-name'
 import {shareUrl} from '#/lib/sharing'
+<<<<<<< HEAD
 import {BSKY_APP_HOST} from '#/lib/strings/url-helpers' // northsky: brand invite links
+=======
+import {formatDateTime} from '#/lib/strings/time'
+>>>>>>> upstream/main
 import {useCreateJoinLink} from '#/state/queries/messages/create-join-link'
 import {useDisableJoinLink} from '#/state/queries/messages/disable-join-link'
 import {useEditJoinLink} from '#/state/queries/messages/edit-join-link'
@@ -352,7 +356,7 @@ export function InviteLinkDialog({
               <Text style={[a.mt_xs, a.text_xs, t.atoms.text_contrast_medium]}>
                 <Trans>
                   Created{' '}
-                  {i18n.date(createdAt, {
+                  {formatDateTime(i18n, createdAt, {
                     dateStyle: 'long',
                     timeStyle: 'short',
                   })}

@@ -76,29 +76,43 @@ export function StepFinished() {
         })
         starterPack = spRes.starterPack
       } catch (e) {
-        logger.error('Failed to fetch starter pack', {safeMessage: e})
+        logger.error('Failed to fetch Starter Pack', {safeMessage: e})
         // don't tell the user, just get them through onboarding.
       }
+      const starterPackList = starterPack?.list
       try {
-        if (starterPack?.list) {
+        if (starterPackList) {
           listItems = await getAllListMembers(
             appviewClient,
-            starterPack.list.uri,
+            starterPackList.uri,
           )
         }
       } catch (e) {
-        logger.error('Failed to fetch starter pack list items', {
+        logger.error('Failed to fetch Starter Pack list items', {
           safeMessage: e,
         })
         // don't tell the user, just get them through onboarding.
       }
     }
 
+    /*
+     * Hoisted above the `try`: React Compiler cannot lower these inside one, and
+     * `listItems` is already settled by the earlier try/catch.
+     */
+    const followDids = [
+      BSKY_APP_ACCOUNT_DID,
+      ...(listItems?.map(i => i.subject.did) ?? []),
+    ]
+    const starterPackRef = starterPack
+      ? {uri: starterPack.uri, cid: starterPack.cid}
+      : undefined
+
     try {
       const {interestsStepResults, profileStepResults} = state
       const {selectedInterests} = interestsStepResults
 
       await Promise.all([
+<<<<<<< HEAD
         bulkWriteFollows(
           pdsClient,
           appviewClient,
@@ -111,6 +125,9 @@ export function StepFinished() {
             ? {uri: starterPack.uri, cid: starterPack.cid}
             : undefined,
         ),
+=======
+        bulkWriteFollows(pdsClient, appviewClient, followDids, starterPackRef),
+>>>>>>> upstream/main
         (async () => {
           // Interests need to get saved first, then we can write the feeds to prefs
           await pdsClient.call(setInterestsPref, {tags: selectedInterests})
@@ -131,7 +148,7 @@ export function StepFinished() {
             },
           ]
 
-          // Any starter pack feeds will be pinned _after_ the defaults
+          // Any Starter Pack feeds will be pinned _after_ the defaults
           if (starterPack && starterPack.feeds?.length) {
             feedsToSave.push(
               ...starterPack.feeds.map(f => ({

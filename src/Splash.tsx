@@ -20,22 +20,41 @@ import * as SplashScreen from 'expo-splash-screen'
 
 import {Logotype} from '#/view/icons/Logotype'
 import {atoms as a} from '#/alf'
+<<<<<<< HEAD
 // northsky: splash logomark comes from the brand module (no dynamic loader)
 import {BrandLogo} from '#/brand/assets/Logo'
 // @ts-ignore
+=======
+// @ts-expect-error
+>>>>>>> upstream/main
 import splashImagePointer from '../assets/splash/splash.png'
-// @ts-ignore
+// @ts-expect-error
 import darkSplashImagePointer from '../assets/splash/splash-dark.png'
-const splashImageUri = RNImage.resolveAssetSource(splashImagePointer).uri
+
+const splashImageUri = RNImage.resolveAssetSource(splashImagePointer)!.uri
 const darkSplashImageUri = RNImage.resolveAssetSource(
   darkSplashImagePointer,
-).uri
+)!.uri
 
 export const Logo = forwardRef(function LogoImpl(props: SvgProps, ref) {
   // northsky: render the brand logomark; a solid fill keeps it monochrome on
   // the splash background, matching the upstream behavior.
   return (
+<<<<<<< HEAD
     <BrandLogo ref={ref} {...props} width={1000} fill={props.fill || '#fff'} />
+=======
+    <Svg
+      fill="none"
+      // @ts-expect-error it's fiiiiine
+      ref={ref}
+      viewBox="0 0 64 66"
+      style={[{width, height}, props.style]}>
+      <Path
+        fill={props.fill || '#fff'}
+        d="M13.873 3.77C21.21 9.243 29.103 20.342 32 26.3v15.732c0-.335-.13.043-.41.858-1.512 4.414-7.418 21.642-20.923 7.87-7.111-7.252-3.819-14.503 9.125-16.692-7.405 1.252-15.73-.817-18.014-8.93C1.12 22.804 0 8.431 0 6.488 0-3.237 8.579-.18 13.873 3.77ZM50.127 3.77C42.79 9.243 34.897 20.342 32 26.3v15.732c0-.335.13.043.41.858 1.512 4.414 7.418 21.642 20.923 7.87 7.111-7.252 3.819-14.503-9.125-16.692 7.405 1.252 15.73-.817 18.014-8.93C62.88 22.804 64 8.431 64 6.488 64-3.237 55.422-.18 50.127 3.77Z"
+      />
+    </Svg>
+>>>>>>> upstream/main
   )
 })
 
@@ -49,7 +68,7 @@ export function Splash(props: React.PropsWithChildren<Props>) {
   const intro = useSharedValue(0)
   const outroLogo = useSharedValue(0)
   const outroApp = useSharedValue(0)
-  const outroAppOpacity = useSharedValue(0)
+  const outroSplashOpacity = useSharedValue(0)
   const [isAnimationComplete, setIsAnimationComplete] = useState(false)
   const [isImageLoaded, setIsImageLoaded] = useState(false)
   const [isLayoutReady, setIsLayoutReady] = useState(false)
@@ -72,7 +91,7 @@ export function Splash(props: React.PropsWithChildren<Props>) {
 
     const introOpacity = interpolate(intro.get(), [0, 1], [0, 1], 'clamp')
     const outroOpacity = interpolate(
-      outroAppOpacity.get(),
+      outroSplashOpacity.get(),
       [0, 0.1, 0.2, 1],
       [1, 1, 0, 0],
       'clamp',
@@ -92,6 +111,21 @@ export function Splash(props: React.PropsWithChildren<Props>) {
     }
   })
 
+  const splashAnimation = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(
+        outroSplashOpacity.get(),
+        [0, 0.1, 0.2, 1],
+        [1, 1, 0, 0],
+        'clamp',
+      ),
+    }
+  })
+
+  /**
+   * Keep the app opaque so iOS blur/glass effects can initialize while the
+   * splash hides it.
+   */
   const appAnimation = useAnimatedStyle(() => {
     return {
       transform: [
@@ -99,12 +133,6 @@ export function Splash(props: React.PropsWithChildren<Props>) {
           scale: interpolate(outroApp.get(), [0, 1], [1.1, 1], 'clamp'),
         },
       ],
-      opacity: interpolate(
-        outroAppOpacity.get(),
-        [0, 0.1, 0.2, 1],
-        [0.02, 0.02, 1, 1], // first two values cant be 0 for the iOS blur/glass effects to work, the values obtained by trial and error
-        'clamp',
-      ),
     }
   })
 
@@ -116,14 +144,14 @@ export function Splash(props: React.PropsWithChildren<Props>) {
     if (isReady) {
       SplashScreen.hideAsync()
         .then(() => {
-          intro.set(() =>
+          intro.set(
             withTiming(
               1,
               {duration: 400, easing: Easing.out(Easing.cubic)},
               () => {
                 'worklet'
                 // set these values to check animation at specific point
-                outroLogo.set(() =>
+                outroLogo.set(
                   withTiming(
                     1,
                     {duration: 1200, easing: Easing.in(Easing.cubic)},
@@ -132,13 +160,13 @@ export function Splash(props: React.PropsWithChildren<Props>) {
                     },
                   ),
                 )
-                outroApp.set(() =>
+                outroApp.set(
                   withTiming(1, {
                     duration: 1200,
                     easing: Easing.inOut(Easing.cubic),
                   }),
                 )
-                outroAppOpacity.set(() =>
+                outroSplashOpacity.set(
                   withTiming(1, {
                     duration: 1200,
                     easing: Easing.in(Easing.cubic),
@@ -150,7 +178,7 @@ export function Splash(props: React.PropsWithChildren<Props>) {
         })
         .catch(() => {})
     }
-  }, [onFinish, intro, outroLogo, outroApp, outroAppOpacity, isReady])
+  }, [onFinish, intro, outroLogo, outroApp, outroSplashOpacity, isReady])
 
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion)
@@ -161,8 +189,21 @@ export function Splash(props: React.PropsWithChildren<Props>) {
 
   return (
     <View style={{flex: 1}} onLayout={onLayout}>
+      {isReady && (
+        <Animated.View style={[{flex: 1}, appAnimation]}>
+          {props.children}
+        </Animated.View>
+      )}
+
       {!isAnimationComplete && (
-        <View style={[a.absolute, a.inset_0]}>
+        <Animated.View
+          style={[
+            a.absolute,
+            a.inset_0,
+            // The splash PNGs contain partially transparent pixels.
+            {backgroundColor: isDarkMode ? '#002861' : '#006AFF'},
+            splashAnimation,
+          ]}>
           <Image
             accessibilityIgnoresInvertColors
             onLoadEnd={onLoadEnd}
@@ -185,31 +226,23 @@ export function Splash(props: React.PropsWithChildren<Props>) {
             ]}>
             <Logotype fill="#fff" width={90} />
           </Animated.View>
-        </View>
+        </Animated.View>
       )}
 
-      {isReady && (
-        <>
-          <Animated.View style={[{flex: 1}, appAnimation]}>
-            {props.children}
-          </Animated.View>
-
-          {!isAnimationComplete && (
-            <Animated.View
-              style={[
-                a.absolute,
-                a.inset_0,
-                logoAnimation,
-                {
-                  flex: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                },
-              ]}>
-              <Logo fill={logoBg} />
-            </Animated.View>
-          )}
-        </>
+      {isReady && !isAnimationComplete && (
+        <Animated.View
+          style={[
+            a.absolute,
+            a.inset_0,
+            logoAnimation,
+            {
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+            },
+          ]}>
+          <Logo fill={logoBg} />
+        </Animated.View>
       )}
     </View>
   )

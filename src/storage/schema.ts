@@ -1,6 +1,10 @@
 import {type ID as PolicyUpdate202508} from '#/components/PolicyUpdateOverlay/updates/202508/config'
+<<<<<<< HEAD
 // northsky: checkpoint type for the appview data transfer
 import {type AppViewTransferCheckpoint} from '#/features/appViewTransfer/types'
+=======
+import {type SessionRecord} from '#/analytics/identifiers/session'
+>>>>>>> upstream/main
 import {type Gif} from '#/features/gifPicker/types'
 import {type InviteThemeKey} from '#/features/inviteFriends/themes'
 import {type Geolocation} from '#/geolocation/types'
@@ -14,11 +18,8 @@ export type Device = {
    * device, used with our logging and metrics tracking.
    */
   deviceId?: string
-  /**
-   * Session ID storage for _native only_. On web, use we `sessionStorage`
-   */
-  nativeSessionId?: string
-  nativeSessionIdLastEventAt?: number
+  /** Analytics session ID with creation, native lifecycle, or web activity time. */
+  analyticsSession?: SessionRecord
 
   fontScale: '-2' | '-1' | '0' | '1' | '2'
   fontFamily: 'system' | 'theme'
@@ -112,9 +113,10 @@ export type Account = {
   recentGifs?: Gif[]
 
   /**
-   * Persistent cold-start snapshot of `bskyAppState.isBetaUser`. Hydrates the
-   * runtime cache so the GrowthBook attribute and request header are available
-   * synchronously before preferences load. Written back when preferences load.
+   * Cached from preferences (`bskyAppState.isBetaUser`) so the GrowthBook
+   * `isBetaUser` attribute can be set synchronously at analytics init, before
+   * beta-gated features (e.g. SearchV2Enable) are first evaluated. Written back
+   * when preferences load.
    *
    * Scoped per account, since `isBetaUser` is account-specific preference data.
    * Reading it globally would let a beta account's value leak into a non-beta

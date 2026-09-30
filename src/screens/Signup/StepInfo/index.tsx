@@ -48,6 +48,19 @@ function sanitizeDate(date: Date): Date {
   return date
 }
 
+/*
+ * Module scope because React Compiler cannot lower an `import()` expression
+ * inside a component or hook body.
+ */
+function loadTLDs(): Promise<typeof tldts> {
+  // @ts-expect-error - valid path
+  return import('tldts/dist/index.cjs.min.js')
+}
+
+function preloadViewShot() {
+  return import('react-native-view-shot')
+}
+
 export function StepInfo({
   onPressBack,
   isServerError,
@@ -70,8 +83,8 @@ export function StepInfo({
   const prevEmailValueRef = useRef<string>(state.email)
   const passwordValueRef = useRef<string>(state.password)
 
-  const emailInputRef = useRef<TextInput>(null)
-  const passwordInputRef = useRef<TextInput>(null)
+  const emailInputRef = useRef<React.ComponentRef<typeof TextInput>>(null)
+  const passwordInputRef = useRef<React.ComponentRef<typeof TextInput>>(null)
   const birthdateInputRef = useRef<DateFieldRef>(null)
 
   const aaRegionConfig = useAgeAssuranceRegionConfigWithFallback()
@@ -92,12 +105,11 @@ export function StepInfo({
 
   const tldtsRef = useRef<typeof tldts>(undefined)
   useEffect(() => {
-    // @ts-expect-error - valid path
-    void import('tldts/dist/index.cjs.min.js').then(tldts => {
+    void loadTLDs().then(tldts => {
       tldtsRef.current = tldts
     })
     // This will get used in the avatar creator a few steps later, so lets preload it now
-    void import('react-native-view-shot')
+    void preloadViewShot()
   }, [])
 
   const onNextPress = () => {
@@ -173,6 +185,13 @@ export function StepInfo({
         field: 'password',
       })
     }
+    if (!state.dateOfBirth) {
+      return dispatch({
+        type: 'setError',
+        value: l`Please enter your date of birth.`,
+        field: 'date-of-birth',
+      })
+    }
 
     preemptivelyCompleteActivePolicyUpdate()
     dispatch({type: 'setInviteCode', value: inviteCode})
@@ -187,7 +206,7 @@ export function StepInfo({
   return (
     <>
       <View style={[a.gap_md, a.pt_lg]}>
-        {state.error && (
+        {!!state.error && (
           <Admonition.Admonition type="error">
             {state.error}
           </Admonition.Admonition>
@@ -305,6 +324,7 @@ export function StepInfo({
                 />
               </TextField.Root>
             </View>
+<<<<<<< HEAD
             {/* northsky: the adult age gate asks two questions instead of a date. */}
             {ADULT_AGE_GATE_ENABLED ? (
               <AgeConfirmationFields
@@ -312,6 +332,30 @@ export function StepInfo({
                 onChange={value =>
                   dispatch({type: 'setAgeConfirmation', value})
                 }
+=======
+            <View>
+              <DateField.LabelText>
+                <Trans>Your birth date</Trans>
+              </DateField.LabelText>
+              <DateField.DateField
+                testID="date"
+                inputRef={birthdateInputRef}
+                value={state.dateOfBirth ?? ''}
+                isInvalid={state.errorField === 'date-of-birth'}
+                onChangeDate={date => {
+                  dispatch({
+                    type: 'setDateOfBirth',
+                    value: sanitizeDate(new Date(date)),
+                  })
+                  if (state.errorField === 'date-of-birth') {
+                    dispatch({type: 'clearError'})
+                  }
+                }}
+                label={l`Date of birth`}
+                placeholder={l`Select your date of birth`}
+                accessibilityHint={l`Select your date of birth`}
+                maximumDate={new Date()}
+>>>>>>> upstream/main
               />
             ) : (
               <View>
