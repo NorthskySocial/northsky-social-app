@@ -41,7 +41,7 @@ jobs:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
           set -euo pipefail
-          version="${RELEASE_TAG#v}"
+          version="${RELEASE_TAG#[vV]}"
           # Build metadata is not accepted. A Docker tag cannot contain "+".
           if ! printf '%s' "${version}" | grep -Eq '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?$'; then
             echo "The release tag '${RELEASE_TAG}' is not a semver version." >&2
