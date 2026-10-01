@@ -612,13 +612,8 @@ func TestBuildPostJSONLD_ReplyCommentsNoIsPartOf(t *testing.T) {
 	// never carry isPartOf, even when the main post has one.
 	pv := makePostView("alice.bsky.social", "did:plc:alice", "abc123", "main")
 	reply := makePostView("bob.bsky.social", "did:plc:bob", "rep1", "a reply")
-<<<<<<< HEAD
 	isPartOf := "https://northsky.app/profile/root.bsky.social/post/rootrkey"
-	out, _ := buildPostJSONLD(pv, buildReplies(reply), "u", isPartOf, hideEmbedLabels, hideReplyLabels)
-=======
-	isPartOf := "https://bsky.app/profile/root.bsky.social/post/rootrkey"
 	out, _ := buildPostJSONLD(pv, threadWithReplies(buildReplies(reply)), "u", isPartOf, hideEmbedLabels, hideReplyLabels)
->>>>>>> upstream/main
 	main := unmarshalLD(t, out)["mainEntity"].(map[string]any)
 	c := main["comment"].([]any)[0].(map[string]any)
 	if _, present := c["isPartOf"]; present {

@@ -118,7 +118,9 @@ export type ButtonProps = Pick<
     style?: StyleProp<ViewStyle>
     hoverStyle?: StyleProp<ViewStyle>
     children: NonTextElements | ((context: ButtonContext) => NonTextElements)
-    PressableComponent?: React.ComponentType<PressableProps>
+    PressableComponent?: React.ComponentType<
+      PressableProps & React.RefAttributes<React.ComponentRef<typeof View>>
+    >
   }
 
 export type ButtonTextProps = TextProps &

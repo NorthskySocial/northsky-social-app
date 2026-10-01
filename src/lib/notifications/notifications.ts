@@ -2,12 +2,8 @@ import {useCallback, useEffect} from 'react'
 import {Platform} from 'react-native'
 import * as Notifications from 'expo-notifications'
 import {getBadgeCountAsync, setBadgeCountAsync} from 'expo-notifications'
-<<<<<<< HEAD
 import {type Client, type Service} from '@atproto/lex'
-=======
-import {type Client} from '@atproto/lex'
 import BackgroundNotificationHandler from '@bsky.app/expo-background-notification-handler'
->>>>>>> upstream/main
 import debounce from 'lodash.debounce'
 
 import {PUBLIC_STAGING_APPVIEW_DID} from '#/lib/constants'

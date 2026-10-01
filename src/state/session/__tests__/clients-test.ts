@@ -18,18 +18,11 @@ jest.mock('jwt-decode', () => ({
   },
 }))
 
-<<<<<<< HEAD
 import {CHAT_PROXY_SERVICE} from '#/lib/constants'
-import {
-  invalidateCachedIsBetaUser,
-  setCachedIsBetaUser,
-} from '#/state/preferences/beta-user-cache'
 // northsky: buildAppviewClient routes by the resolved appview, not a header
 import {FALLBACK_APPVIEW} from '#/brand/appview'
-=======
-import {BLUESKY_PROXY_HEADER, CHAT_PROXY_SERVICE} from '#/lib/constants'
->>>>>>> upstream/main
 import {app, chat, com} from '#/lexicons'
+import {account} from '#/storage'
 import {configureGlobalAppLabelers} from '../additional-moderation-authorities'
 import {
   buildAppviewClient,
@@ -97,6 +90,7 @@ describe('buildAppviewClient', () => {
   let fetchMock: MockFetch
 
   beforeEach(() => {
+    account.remove([DID, 'isBetaUser'])
     fetchMock = makeProfileFetch()
     configureGlobalAppLabelers([])
   })
@@ -126,7 +120,6 @@ describe('buildAppviewClient', () => {
     ).toBe(`${FALLBACK_APPVIEW.did}#bsky_appview`)
   })
 
-<<<<<<< HEAD
   it.each([true, false])(
     'emits the current beta user header when the cached value is %s',
     async isBetaUser => {
@@ -134,7 +127,7 @@ describe('buildAppviewClient', () => {
         makeSession(fetchMock),
         FALLBACK_APPVIEW,
       )
-      setCachedIsBetaUser(DID, isBetaUser)
+      account.set([DID, 'isBetaUser'], isBetaUser)
 
       await client.call(app.bsky.actor.getProfile, {actor: HANDLE})
 
@@ -158,26 +151,45 @@ describe('buildAppviewClient', () => {
     ).toBeNull()
   })
 
-  it('reads the persisted beta preference only once', async () => {
-    account.set([DID, 'isBetaUser'], true)
-    const getSpy = jest.spyOn(account, 'get')
+  it('keeps appview reads working when the beta preference is unreadable', async () => {
     const client = buildAppviewClient(makeSession(fetchMock), FALLBACK_APPVIEW)
+    const spy = jest.spyOn(account, 'get').mockImplementation(() => {
+      throw new Error('corrupt preference')
+    })
+    try {
+      await client.call(app.bsky.actor.getProfile, {actor: HANDLE})
+      expect(
+        headersFor(fetchMock, 'app.bsky.actor.getProfile').get(
+          'x-bsky-is-beta-user',
+        ),
+      ).toBeNull()
+    } finally {
+      spy.mockRestore()
+    }
+  })
 
-    await client.call(app.bsky.actor.getProfile, {actor: HANDLE})
-    await client.call(app.bsky.actor.getProfile, {actor: HANDLE})
-
-    expect(getSpy).toHaveBeenCalledTimes(1)
-    getSpy.mockRestore()
-=======
   it('omits the device and session headers', async () => {
-    const client = buildAppviewClient(makeSession(fetchMock))
+    const client = buildAppviewClient(makeSession(fetchMock), FALLBACK_APPVIEW)
 
     await client.call(app.bsky.actor.getProfile, {actor: HANDLE})
 
     const headers = headersFor(fetchMock, 'app.bsky.actor.getProfile')
     expect(headers.get('x-atproto-device-id')).toBeNull()
     expect(headers.get('x-atproto-session-id')).toBeNull()
->>>>>>> upstream/main
+  })
+
+  it('reflects beta preference changes without rebuilding the client', async () => {
+    const client = buildAppviewClient(makeSession(fetchMock), FALLBACK_APPVIEW)
+    account.set([DID, 'isBetaUser'], true)
+    await client.call(app.bsky.actor.getProfile, {actor: HANDLE})
+    account.set([DID, 'isBetaUser'], false)
+    await client.call(app.bsky.actor.getProfile, {actor: HANDLE})
+    const calls = fetchMock.mock.calls.filter(c =>
+      String(c[0]).includes('app.bsky.actor.getProfile'),
+    )
+    expect(
+      calls.map(c => new Headers(c[1]?.headers).get('x-bsky-is-beta-user')),
+    ).toEqual(['true', 'false'])
   })
 
   it('emits an account subscription exactly once', async () => {
@@ -236,6 +248,7 @@ describe('buildPdsClient', () => {
   let fetchMock: MockFetch
 
   beforeEach(() => {
+    account.remove([DID, 'isBetaUser'])
     fetchMock = makeProfileFetch()
     configureGlobalAppLabelers([])
   })
@@ -300,6 +313,7 @@ describe('buildChatClient', () => {
   let fetchMock: MockFetch
 
   beforeEach(() => {
+    account.remove([DID, 'isBetaUser'])
     fetchMock = makeProfileFetch()
     configureGlobalAppLabelers([])
   })
@@ -362,6 +376,7 @@ describe('routeSessionToPds', () => {
   let fetchMock: MockFetch
 
   beforeEach(() => {
+    account.remove([DID, 'isBetaUser'])
     fetchMock = makeProfileFetch()
   })
 

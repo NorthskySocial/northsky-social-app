@@ -24,17 +24,12 @@ init({
   enableAutoSessionTracking: false,
   enableTombstone: true,
   dsn: env.SENTRY_DSN,
-<<<<<<< HEAD
-  integrations: [navigationIntegration],
-=======
-  sendDefaultPii: true,
->>>>>>> upstream/main
   debug: false, // If `true`, Sentry will try to print out useful debugging information if something goes wrong with sending the event. Set it to `false` in production
   environment: env.ENV,
   dist: env.BUNDLE_IDENTIFIER,
   release: env.RELEASE_VERSION,
   beforeSend: dropExpectedNetworkErrors,
-  integrations: [featureFlagsIntegration],
+  integrations: [navigationIntegration, featureFlagsIntegration],
   ignoreErrors: [
     /*
      * Unknown internals errors

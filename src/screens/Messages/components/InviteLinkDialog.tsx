@@ -7,11 +7,8 @@ import {Plural, Trans, useLingui} from '@lingui/react/macro'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {createSanitizedDisplayName} from '#/lib/moderation/create-sanitized-display-name'
 import {shareUrl} from '#/lib/sharing'
-<<<<<<< HEAD
-import {BSKY_APP_HOST} from '#/lib/strings/url-helpers' // northsky: brand invite links
-=======
 import {formatDateTime} from '#/lib/strings/time'
->>>>>>> upstream/main
+import {BSKY_APP_HOST} from '#/lib/strings/url-helpers' // northsky: brand invite links
 import {useCreateJoinLink} from '#/state/queries/messages/create-join-link'
 import {useDisableJoinLink} from '#/state/queries/messages/disable-join-link'
 import {useEditJoinLink} from '#/state/queries/messages/edit-join-link'

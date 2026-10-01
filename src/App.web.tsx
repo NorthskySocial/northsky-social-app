@@ -71,12 +71,9 @@ import {
   features,
   setupDeviceId,
 } from '#/analytics'
-<<<<<<< HEAD
-import {brandThemes} from '#/brand' // northsky: document background sync
-=======
 import {getDeviceId} from '#/analytics/identifiers'
 import {useSessionActivity} from '#/analytics/useSessionActivity'
->>>>>>> upstream/main
+import {brandThemes} from '#/brand' // northsky: document background sync
 import {
   prefetchLiveEvents,
   Provider as LiveEventsProvider,

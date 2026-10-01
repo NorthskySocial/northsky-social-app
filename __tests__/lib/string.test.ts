@@ -479,16 +479,13 @@ describe('parseEmbedPlayerFromUrl', () => {
       type: 'youtube_video',
       source: 'youtube',
       playerUri:
-<<<<<<< HEAD
-        'https://northsky.app/iframe/youtube.html?videoId=videoId&start=0',
-=======
-        'https://bsky.app/iframe/youtube.html?videoId=videoId&start=3723',
+        'https://northsky.app/iframe/youtube.html?videoId=videoId&start=3723',
     },
     {
       type: 'youtube_video',
       source: 'youtube',
-      playerUri: 'https://bsky.app/iframe/youtube.html?videoId=videoId&start=0',
->>>>>>> upstream/main
+      playerUri:
+        'https://northsky.app/iframe/youtube.html?videoId=videoId&start=0',
     },
     {
       type: 'youtube_video',
@@ -506,16 +503,13 @@ describe('parseEmbedPlayerFromUrl', () => {
       type: 'youtube_video',
       source: 'youtube',
       playerUri:
-<<<<<<< HEAD
-        'https://northsky.app/iframe/youtube.html?videoId=videoId&start=0',
-=======
-        'https://bsky.app/iframe/youtube.html?videoId=videoId&start=90',
+        'https://northsky.app/iframe/youtube.html?videoId=videoId&start=90',
     },
     {
       type: 'youtube_video',
       source: 'youtube',
-      playerUri: 'https://bsky.app/iframe/youtube.html?videoId=videoId&start=0',
->>>>>>> upstream/main
+      playerUri:
+        'https://northsky.app/iframe/youtube.html?videoId=videoId&start=0',
     },
     {
       type: 'youtube_video',

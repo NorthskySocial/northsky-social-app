@@ -94,7 +94,6 @@ export const ExternalEmbedLink = ({
   const linkComponent = useMemo(() => {
     if (data) {
       if (data.type === 'external') {
-<<<<<<< HEAD
         // northsky: give a custom embed handler first refusal, so a link that
         // will post as a rich card previews as one instead of a plain link.
         const externalView = {
@@ -108,15 +107,12 @@ export const ExternalEmbedLink = ({
         if (CustomPreview) {
           return <CustomPreview view={externalView} />
         }
-        if (data.view && isStandardSiteEmbed(data.view.external)) {
-=======
         const atProvider = getAtCardProvider(uri)
         if (
           (data.view && isStandardSiteEmbed(data.view.external)) ||
           atProvider
         ) {
           const Card = atProvider ? AtCard : StandardSiteEmbed
->>>>>>> upstream/main
           return (
             <Card
               preview

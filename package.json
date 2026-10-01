@@ -73,6 +73,7 @@
     "test-ci": "NODE_ENV=test jest --ci --forceExit --reporters=default --reporters=jest-junit",
     "test-coverage": "NODE_ENV=test jest --coverage",
     "lint": "oxlint --quiet src modules && node scripts/check-sentry-browser-version.mjs",
+    "lint:fix": "oxlint --fix --prune-suppressions src modules && node scripts/check-sentry-browser-version.mjs",
     "lint-native": "swiftlint ./modules && ktlint ./modules",
     "lint-native:fix": "swiftlint --fix ./modules && ktlint --format ./modules",
     "lexicons:generate": "lex build --clear --index-file --import-ext ''",
@@ -158,14 +159,10 @@
     "@react-navigation/bottom-tabs": "^7.15.5",
     "@react-navigation/native": "^7.1.33",
     "@react-navigation/native-stack": "^7.14.4",
-<<<<<<< HEAD
-    "@sentry/react-native": "~8.18.0",
-    "@stripe/react-stripe-js": "^6.8.1",
-    "@stripe/stripe-js": "^9.13.0",
-=======
     "@sentry/browser": "10.74.0",
     "@sentry/react-native": "~8.26.0",
->>>>>>> upstream/main
+    "@stripe/react-stripe-js": "^6.8.1",
+    "@stripe/stripe-js": "^9.13.0",
     "@tanstack/query-async-storage-persister": "^5.96.2",
     "@tanstack/react-query": "^5.96.2",
     "@tanstack/react-query-persist-client": "^5.96.2",

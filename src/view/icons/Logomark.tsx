@@ -9,11 +9,6 @@ export function Logomark({
   ...rest
 }: {fill?: PathProps['fill']} & SvgProps) {
   const pal = usePalette('default')
-<<<<<<< HEAD
-=======
-  // @ts-expect-error it's fiiiiine
-  const size = parseInt(rest.width || 32)
->>>>>>> upstream/main
 
   // northsky: delegate to the brand-owned logomark in src/brand/assets
   return <BrandLogo fill={fill || pal.text.color} {...rest} />

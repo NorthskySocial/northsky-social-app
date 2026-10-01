@@ -75,7 +75,7 @@ export function usePostThread({anchor}: {anchor?: string}) {
     enabled: isThreadPreferencesLoaded && !!anchor && !!moderationOpts,
     queryKey: postThreadQueryKey,
     async queryFn(ctx) {
-<<<<<<< HEAD
+      const placeholder = getThreadPlaceholder(qc, anchor!)
       // northsky: recover unavailable anchors and retryable request failures, preserving blocked, unauthenticated, and authorization states.
       const data = await getPostThreadWithSlingshotFallback({
         client,
@@ -88,14 +88,6 @@ export function usePostThread({anchor}: {anchor?: string}) {
             sort: sort,
           }),
         toThreadItem: views.postViewToThreadPlaceholder,
-=======
-      const placeholder = getThreadPlaceholder(qc, anchor!)
-      const data = await client.call(app.bsky.unspecced.getPostThreadV2, {
-        anchor: anchor! as AtUriString,
-        branchingFactor: view === 'linear' ? LINEAR_VIEW_BF : TREE_VIEW_BF,
-        below,
-        sort: sort,
->>>>>>> upstream/main
       })
 
       const cachedKnownLikers =

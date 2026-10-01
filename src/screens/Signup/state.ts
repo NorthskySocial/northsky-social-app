@@ -44,13 +44,9 @@ export type SignupState = {
   serviceUrl: string
   serviceDescription?: ServiceDescription
   userDomain: string
-<<<<<<< HEAD
-  dateOfBirth: Date
+  dateOfBirth: Date | undefined
   // northsky: answers to the age questions that replace the date field.
   ageConfirmation: AgeConfirmation
-=======
-  dateOfBirth: Date | undefined
->>>>>>> upstream/main
   email: string
   password: string
   inviteCode: string
@@ -78,13 +74,9 @@ export type SignupAction =
   | {type: 'setServiceDescription'; value: ServiceDescription | undefined}
   | {type: 'setEmail'; value: string}
   | {type: 'setPassword'; value: string}
-<<<<<<< HEAD
-  | {type: 'setDateOfBirth'; value: Date}
+  | {type: 'setDateOfBirth'; value: Date | undefined}
   // northsky: see the `setAgeConfirmation` case for how this sets the date.
   | {type: 'setAgeConfirmation'; value: AgeConfirmation}
-=======
-  | {type: 'setDateOfBirth'; value: Date | undefined}
->>>>>>> upstream/main
   | {type: 'setInviteCode'; value: string}
   | {type: 'setHandle'; value: string}
   | {type: 'setError'; value: string; field?: ErrorField}
@@ -103,12 +95,8 @@ export const initialState: SignupState = {
   serviceUrl: DEFAULT_SERVICE,
   serviceDescription: undefined,
   userDomain: '',
-<<<<<<< HEAD
-  dateOfBirth: DEFAULT_DATE,
-  ageConfirmation: EMPTY_AGE_CONFIRMATION,
-=======
   dateOfBirth: undefined,
->>>>>>> upstream/main
+  ageConfirmation: EMPTY_AGE_CONFIRMATION,
   email: '',
   password: '',
   handle: '',

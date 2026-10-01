@@ -68,62 +68,62 @@ fs.writeFileSync(templateFile, outputLines.join('\n'))
 // Generate fonts.html — preload + @font-face for the splash, using the same
 // content-hashed paths Metro emits for the bundle. Avoids shipping a duplicate
 // font copy under /static/media/ and ensures the preload is actually used.
-const fontsDir = path.join(distDir, 'assets', 'assets', 'fonts', 'inter')
-function findFontHash(prefix) {
-  if (!fs.existsSync(fontsDir)) return null
-  const match = fs
-    .readdirSync(fontsDir)
-    .find(name => name.startsWith(prefix) && name.endsWith('.woff2'))
-  return match || null
-}
-const interRegular = findFontHash('InterVariable.')
-const interItalic = findFontHash('InterVariable-Italic.')
-if (!interRegular || !interItalic) {
-  throw new Error(
-    `Could not find Inter font files in ${fontsDir}. ` +
-      'Update post-web-build.js if the font emit path changed.',
+// northsky: use the same brand fonts extracted from unusedUseFonts.ts by Expo.
+const brandFonts = [
+  {
+    directory: 'geist',
+    file: 'Geist-Variable',
+    family: 'Geist',
+    style: 'normal',
+  },
+  {
+    directory: 'museomoderno',
+    file: 'MuseoModerno-Variable',
+    family: 'MuseoModerno',
+    style: 'normal',
+  },
+  {
+    directory: 'museomoderno',
+    file: 'MuseoModerno-Italic-Variable',
+    family: 'MuseoModerno',
+    style: 'italic',
+  },
+]
+let fixedIndexHtml = indexHtml
+const fontFaces = brandFonts.map(font => {
+  const relativeDir = `/assets/assets/fonts/${font.directory}/`
+  const directory = path.join(distDir, relativeDir)
+  const file = fs.existsSync(directory)
+    ? fs
+        .readdirSync(directory)
+        .find(
+          name => name.startsWith(`${font.file}.`) && name.endsWith('.woff2'),
+        )
+    : undefined
+  if (!file) throw new Error(`Could not find ${font.file} font in ${directory}`)
+  fixedIndexHtml = fixedIndexHtml.replaceAll(
+    `${relativeDir}${font.file}.woff2`,
+    `${relativeDir}${file}`,
   )
-}
-
-const interFontPath = '/assets/assets/fonts/inter/'
-/*
- * The static index.html references the fonts by their unhashed names, but
- * Metro emits them content-hashed. Rewrite dist/index.html in place so the
- * font preload and @font-face URLs resolve when serving dist/ directly.
- */
-const fixedIndexHtml = indexHtml
-  .replaceAll(
-    '/assets/assets/fonts/inter/InterVariable.woff2',
-    `${interFontPath}${interRegular}`,
-  )
-  .replaceAll(
-    '/assets/assets/fonts/inter/InterVariable-Italic.woff2',
-    `${interFontPath}${interItalic}`,
-  )
+  const url = `{{ staticCDNHost }}/static${relativeDir}${file}`
+  return {font, url}
+})
 if (fixedIndexHtml !== indexHtml) {
-  console.log('Rewriting font paths in dist/index.html to hashed filenames')
   fs.writeFileSync(path.join(distDir, 'index.html'), fixedIndexHtml)
 }
-
-const interRegularPath = `{{ staticCDNHost }}/static${interFontPath}${interRegular}`
-const interItalicPath = `{{ staticCDNHost }}/static${interFontPath}${interItalic}`
-
-const fontsHtml = `<link rel="preload" as="font" type="font/woff2" href="${interRegularPath}" crossorigin>
+const fontsHtml = `<link rel="preload" as="font" type="font/woff2" href="${fontFaces[0].url}" crossorigin>
 <style>
-  @font-face {
-    font-family: 'InterVariable';
-    src: url("${interRegularPath}") format('woff2');
-    font-weight: 300 1000;
-    font-style: normal;
+${fontFaces
+  .map(
+    ({font, url}) => `  @font-face {
+    font-family: '${font.family}';
+    src: url("${url}") format('woff2');
+    font-weight: 100 900;
+    font-style: ${font.style};
     font-display: swap;
-  }
-  @font-face {
-    font-family: 'InterVariableItalic';
-    src: url("${interItalicPath}") format('woff2');
-    font-weight: 300 1000;
-    font-style: italic;
-    font-display: swap;
-  }
+  }`,
+  )
+  .join('\n')}
 </style>
 `
 console.log(`Writing ${fontsTemplateFile}`)
@@ -173,8 +173,7 @@ if (
   process.env.SENTRY_AUTH_TOKEN != 'unknown'
 ) {
   const release =
-    process.env.SENTRY_RELEASE ||
-    require(path.join(projectRoot, 'package.json')).version
+    process.env.SENTRY_RELEASE || require('../package.json').version
   /*
    * The runtime reports EXPO_PUBLIC_RELEASE_VERSION || package.json version
    * (src/env/common.ts), so maps uploaded under a bogus release never match
@@ -195,9 +194,9 @@ if (
     'sourcemaps',
     'upload',
     '--org',
-    'blueskyweb',
+    process.env.SENTRY_ORG || 'northsky-social-cooperative',
     '--project',
-    'app',
+    process.env.SENTRY_PROJECT || 'social-app',
     '--release',
     release,
     ...(dist ? ['--dist', dist] : []),

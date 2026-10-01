@@ -347,7 +347,7 @@ function Inner(
         error,
       })
     }
-<<<<<<< HEAD
+    setIsPending(false)
   }, [
     logger,
     submitReport,
@@ -358,10 +358,6 @@ function Inner(
     videoTimestampSeconds,
     modCustomLabel, // northsky:
   ])
-=======
-    setIsPending(false)
-  }, [logger, submitReport, props, state, ax, l, videoTimestampSeconds])
->>>>>>> upstream/main
 
   useCallOnce(() => {
     ax.metric('reportDialog:open', {

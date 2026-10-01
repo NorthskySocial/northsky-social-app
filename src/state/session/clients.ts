@@ -7,13 +7,41 @@ import {
   PUBLIC_BSKY_SERVICE,
 } from '#/lib/constants'
 import {createLexClient} from '#/lib/lexClient'
-<<<<<<< HEAD
-import {getCachedIsBetaUser} from '#/state/preferences/beta-user-cache'
 // northsky: appview routing per account service
 import {type AppView} from '#/brand/appview'
-=======
->>>>>>> upstream/main
+import {account} from '#/storage'
 import {networkAwareFetch} from './network'
+
+const IS_BETA_USER_HEADER = 'X-Bsky-Is-Beta-User'
+
+/**
+ * Add account-scoped headers to appview requests.
+ *
+ * Values are read from storage per request so preference changes are reflected
+ * immediately without rebuilding the session bundle.
+ */
+function withAppviewRequestHeaders(agent: Agent): Agent {
+  return {
+    get did() {
+      return agent.did
+    },
+    fetchHandler(path, init) {
+      const headers = new Headers(init?.headers)
+      let isBetaUser: boolean | undefined
+      try {
+        isBetaUser = agent.did
+          ? account.get([agent.did, 'isBetaUser'])
+          : undefined
+      } catch {
+        // northsky: a corrupt optional preference must not prevent appview reads.
+      }
+      if (isBetaUser !== undefined) {
+        headers.set(IS_BETA_USER_HEADER, String(isBetaUser))
+      }
+      return agent.fetchHandler(path, {...init, headers})
+    },
+  }
+}
 
 /**
  * Build the signed-in appview {@link Client}.
@@ -35,17 +63,11 @@ import {networkAwareFetch} from './network'
  * No `fetch` option: a client built over a session uses that session's own
  * fetch, which is `networkAwareFetch` wrapped in the disposal kill switch.
  */
-<<<<<<< HEAD
 export function buildAppviewClient(agent: Agent, appview: AppView): Client {
   return createLexClient(withAppviewRequestHeaders(agent), {
     // northsky: route to the resolved appview; the e2e override wins
     service: BLUESKY_PROXY_HEADER.override ?? `${appview.did}#bsky_appview`,
-=======
-export function buildAppviewClient(agent: Agent): Client {
-  return createLexClient(agent, {
-    service: BLUESKY_PROXY_HEADER.get(),
     includeDeviceSessionHeaders: false,
->>>>>>> upstream/main
   })
 }
 

@@ -6,6 +6,9 @@ import {fileURLToPath, pathToFileURL} from 'node:url'
 import {checkGitHub, githubReader} from './check-github.mjs'
 import {renderReport} from './prepare.mjs'
 
+// northsky: workflows retained by the fork do not support the upstream dispatch contract.
+const NORTHSKY_RELEASE_DISPATCH_SUPPORTED = false
+
 export const buildWorkflows = [
   {
     platform: 'iOS',
@@ -265,6 +268,11 @@ if (
     if (!directory || !repository || extra.length)
       throw new Error(
         'Usage: node scripts/release/plan.mjs REPORT_DIRECTORY OWNER/REPO. Live execution is not available.',
+      )
+    // northsky: retained build workflows lack the immutable dispatch contract.
+    if (!NORTHSKY_RELEASE_DISPATCH_SUPPORTED)
+      throw new Error(
+        'Release dispatch planning is unavailable in Northsky until its retained build workflows support sourceRef and submit. See docs/release-model.md.',
       )
     const report = await dryRunRelease(
       JSON.parse(readFileSync(join(directory, 'report.json'), 'utf8')),

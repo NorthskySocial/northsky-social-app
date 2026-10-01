@@ -44,7 +44,7 @@ ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN:-unknown}
 ARG EXPO_PUBLIC_SENTRY_DSN
 ENV EXPO_PUBLIC_SENTRY_DSN=$EXPO_PUBLIC_SENTRY_DSN
 # northsky: the org/project the source maps upload to. Unset falls back to the
-# Northsky defaults in webpack.config.js. SENTRY_URL is only needed for a
+# Northsky defaults in scripts/post-web-build.js. SENTRY_URL is only needed for a
 # self-hosted Sentry.
 ARG SENTRY_ORG
 ENV SENTRY_ORG=$SENTRY_ORG

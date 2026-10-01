@@ -1,10 +1,7 @@
 import {type ID as PolicyUpdate202508} from '#/components/PolicyUpdateOverlay/updates/202508/config'
-<<<<<<< HEAD
+import {type SessionRecord} from '#/analytics/identifiers/session'
 // northsky: checkpoint type for the appview data transfer
 import {type AppViewTransferCheckpoint} from '#/features/appViewTransfer/types'
-=======
-import {type SessionRecord} from '#/analytics/identifiers/session'
->>>>>>> upstream/main
 import {type Gif} from '#/features/gifPicker/types'
 import {type InviteThemeKey} from '#/features/inviteFriends/themes'
 import {type Geolocation} from '#/geolocation/types'

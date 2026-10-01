@@ -324,7 +324,6 @@ export function StepInfo({
                 />
               </TextField.Root>
             </View>
-<<<<<<< HEAD
             {/* northsky: the adult age gate asks two questions instead of a date. */}
             {ADULT_AGE_GATE_ENABLED ? (
               <AgeConfirmationFields
@@ -332,30 +331,6 @@ export function StepInfo({
                 onChange={value =>
                   dispatch({type: 'setAgeConfirmation', value})
                 }
-=======
-            <View>
-              <DateField.LabelText>
-                <Trans>Your birth date</Trans>
-              </DateField.LabelText>
-              <DateField.DateField
-                testID="date"
-                inputRef={birthdateInputRef}
-                value={state.dateOfBirth ?? ''}
-                isInvalid={state.errorField === 'date-of-birth'}
-                onChangeDate={date => {
-                  dispatch({
-                    type: 'setDateOfBirth',
-                    value: sanitizeDate(new Date(date)),
-                  })
-                  if (state.errorField === 'date-of-birth') {
-                    dispatch({type: 'clearError'})
-                  }
-                }}
-                label={l`Date of birth`}
-                placeholder={l`Select your date of birth`}
-                accessibilityHint={l`Select your date of birth`}
-                maximumDate={new Date()}
->>>>>>> upstream/main
               />
             ) : (
               <View>
@@ -365,7 +340,7 @@ export function StepInfo({
                 <DateField.DateField
                   testID="date"
                   inputRef={birthdateInputRef}
-                  value={state.dateOfBirth}
+                  value={state.dateOfBirth ?? ''}
                   onChangeDate={date => {
                     dispatch({
                       type: 'setDateOfBirth',

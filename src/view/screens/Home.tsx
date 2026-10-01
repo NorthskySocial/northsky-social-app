@@ -7,15 +7,11 @@ import {
 import {useLingui} from '@lingui/react/macro'
 import {useFocusEffect} from '@react-navigation/native'
 
-<<<<<<< HEAD
-import {DISCOVER_FEED_URI, PROD_DEFAULT_FEED} from '#/lib/constants'
-=======
 import {
   DISCOVER_FEED_URI,
   PROD_DEFAULT_FEED,
   TIMELINE_SAVED_FEED,
 } from '#/lib/constants'
->>>>>>> upstream/main
 import {useNonReactiveCallback} from '#/lib/hooks/useNonReactiveCallback'
 import {useOTAUpdates} from '#/lib/hooks/useOTAUpdates'
 import {useSetTitle} from '#/lib/hooks/useSetTitle'

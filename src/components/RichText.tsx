@@ -2,7 +2,6 @@ import {type ReactNode, useMemo} from 'react'
 import {type StyleProp, type TextStyle, View} from 'react-native'
 import {RichText as RichTextAPI} from '@bsky/sdk/richtext'
 
-<<<<<<< HEAD
 // northsky: Markdown-style code and emphasis in post text
 import {hasEmphasis} from '#/lib/code/emphasis'
 import {
@@ -10,9 +9,7 @@ import {
   type RichTextItem,
   segmentsWithCode,
 } from '#/lib/code/ranges'
-=======
 import {isRTLText} from '#/lib/strings/text-direction'
->>>>>>> upstream/main
 import {toShortUrl} from '#/lib/strings/url-helpers'
 import {android, atoms as a, flatten, type TextStyleProp} from '#/alf'
 import {isOnlyEmoji} from '#/alf/typography'
@@ -134,9 +131,6 @@ export function RichText({
       : null
   const interactiveStyles = [plainStyles, interactiveStyle]
 
-<<<<<<< HEAD
-  const {text, facets} = richText
-
   // northsky: fast guard - only run the formatting pipeline when the post
   // actually contains a marker.
   const codeActive = enableCode && hasFormatting(text)
@@ -212,9 +206,6 @@ export function RichText({
   }
 
   if (!facets?.length && !formattingActive) {
-=======
-  if (!facets?.length) {
->>>>>>> upstream/main
     if (isOnlyEmoji(text)) {
       const flattenedStyle = flatten(style)
       const fontSize =
@@ -291,7 +282,6 @@ export function RichText({
         bsky.matches(app.bsky.richtext.facet.mention, mention)) &&
       !disableLinks
     ) {
-<<<<<<< HEAD
       parts.push({
         block: false,
         node: (
@@ -309,28 +299,11 @@ export function RichText({
           </ProfileHoverCard>
         ),
       })
-=======
-      els.push(
-        <ProfileHoverCard key={key} did={mention.did}>
-          <InlineLinkText
-            selectable={selectable}
-            to={`/profile/${mention.did}`}
-            style={interactiveStyles}
-            // @ts-expect-error TODO
-            dataSet={WORD_WRAP}
-            shouldProxy={shouldProxyLinks}
-            onPress={onLinkPress}>
-            {segment.text}
-          </InlineLinkText>
-        </ProfileHoverCard>,
-      )
->>>>>>> upstream/main
     } else if (link && bsky.matches(app.bsky.richtext.facet.link, link)) {
       const isValidLink = URL_REGEX.test(link.uri)
       if (!isValidLink || disableLinks) {
         parts.push({block: false, node: toShortUrl(segment.text)})
       } else {
-<<<<<<< HEAD
         parts.push({
           block: false,
           node: (
@@ -349,23 +322,6 @@ export function RichText({
             </InlineLinkText>
           ),
         })
-=======
-        els.push(
-          <InlineLinkText
-            selectable={selectable}
-            key={key}
-            to={link.uri}
-            style={interactiveStyles}
-            // @ts-expect-error TODO
-            dataSet={WORD_WRAP}
-            shareOnLongPress
-            shouldProxy={shouldProxyLinks}
-            onPress={onLinkPress}
-            emoji>
-            {toShortUrl(segment.text)}
-          </InlineLinkText>,
-        )
->>>>>>> upstream/main
       }
     } else if (
       !disableLinks &&
@@ -391,23 +347,5 @@ export function RichText({
     key++
   }
 
-<<<<<<< HEAD
   return renderParts(parts)
-=======
-  return (
-    <Text
-      emoji
-      selectable={selectable}
-      testID={testID}
-      style={[plainStyles, suffixStyles]}
-      numberOfLines={numberOfLines}
-      onLayout={onLayout}
-      onTextLayout={onTextLayout}
-      dataSet={WORD_WRAP}>
-      {els}
-      {suffix ? ' ' : null}
-      {suffix}
-    </Text>
-  )
->>>>>>> upstream/main
 }

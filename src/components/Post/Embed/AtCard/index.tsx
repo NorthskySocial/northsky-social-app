@@ -1,9 +1,12 @@
 import {type StyleProp, View, type ViewStyle} from 'react-native'
 import {Image} from 'expo-image'
+import {moderateProfile} from '@bsky/sdk/moderation'
 import {useLingui} from '@lingui/react/macro'
 
 import {useHaptics} from '#/lib/haptics'
 import {shareUrl} from '#/lib/sharing'
+import {sanitizeDisplayName} from '#/lib/strings/display-names'
+import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {useProfileQuery} from '#/state/queries/profile'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
 import {atoms as a, useBreakpoints, useTheme} from '#/alf'
@@ -42,9 +45,19 @@ export function AtCard({
     did: showAttieAccount ? ATTIE_ACCOUNT_DID : undefined,
   })
   const displayedProfile = showAttieAccount ? attieProfile : authorProfile
-  const displayedName = showAttieAccount
+  // northsky: publisher-attributed creators need their own profile moderation.
+  const moderationOpts = useModerationOpts()
+  const profileModeration =
+    displayedProfile && moderationOpts
+      ? moderateProfile(displayedProfile, moderationOpts)
+      : undefined
+  const rawName = showAttieAccount
     ? displayedProfile?.displayName || 'Attie'
     : displayedProfile?.displayName || displayedProfile?.handle || authorDid
+  const displayedName = sanitizeDisplayName(
+    rawName ?? '',
+    profileModeration?.ui('displayName'),
+  )
   const displayedHandle = showAttieAccount
     ? displayedProfile?.handle || 'attie.ai'
     : displayedProfile?.handle
@@ -124,43 +137,46 @@ export function AtCard({
               a.gap_md,
               gtPhone && [a.flex_row, a.gap_sm],
             ]}>
-            <View
-              style={[
-                a.w_full,
-                a.flex_row,
-                a.align_center,
-                a.gap_sm,
-                a.pointer_events_none,
-                gtPhone && a.flex_1,
-              ]}>
-              <UserAvatar
-                avatar={displayedProfile?.avatar}
-                size={32}
-                type="user"
-              />
-              <View style={[a.flex_1, a.gap_2xs]}>
-                <Text
-                  emoji
-                  numberOfLines={1}
-                  style={[
-                    a.text_sm,
-                    a.font_medium,
-                    a.leading_tight,
-                    t.atoms.text,
-                  ]}>
-                  {displayedName}
-                </Text>
-                <Text
-                  numberOfLines={1}
-                  style={[
-                    a.text_xs,
-                    a.leading_tight,
-                    t.atoms.text_contrast_medium,
-                  ]}>
-                  {displayedHandle ? l`@${displayedHandle}` : authorDid}
-                </Text>
+            {!profileModeration?.ui('profileList').filter && (
+              <View
+                style={[
+                  a.w_full,
+                  a.flex_row,
+                  a.align_center,
+                  a.gap_sm,
+                  a.pointer_events_none,
+                  gtPhone && a.flex_1,
+                ]}>
+                <UserAvatar
+                  avatar={displayedProfile?.avatar}
+                  moderation={profileModeration?.ui('avatar')}
+                  size={32}
+                  type="user"
+                />
+                <View style={[a.flex_1, a.gap_2xs]}>
+                  <Text
+                    emoji
+                    numberOfLines={1}
+                    style={[
+                      a.text_sm,
+                      a.font_medium,
+                      a.leading_tight,
+                      t.atoms.text,
+                    ]}>
+                    {displayedName}
+                  </Text>
+                  <Text
+                    numberOfLines={1}
+                    style={[
+                      a.text_xs,
+                      a.leading_tight,
+                      t.atoms.text_contrast_medium,
+                    ]}>
+                    {displayedHandle ? l`@${displayedHandle}` : authorDid}
+                  </Text>
+                </View>
               </View>
-            </View>
+            )}
 
             {/* The CTA is visual; the enclosing link is the single interactive target. */}
             <View

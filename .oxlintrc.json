@@ -392,7 +392,8 @@
         "bskylink/**/*.{js,jsx,ts,tsx}",
         "bskyogcard/**/*.{js,jsx,ts,tsx}",
         "dev-env/**/*.{js,jsx,ts,tsx}",
-        "scripts/post-embed-build.js"
+        "scripts/post-embed-build.js",
+        "scripts/post-web-build.js"
       ],
       "rules": {
         "import/no-nodejs-modules": "off"

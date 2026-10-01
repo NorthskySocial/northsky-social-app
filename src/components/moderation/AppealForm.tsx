@@ -1,3 +1,4 @@
+// northsky: independent labelers may still use the legacy appeal endpoint.
 import {useState} from 'react'
 import {View} from 'react-native'
 import {type AtUriString, type DidString} from '@atproto/syntax'
@@ -10,7 +11,7 @@ import {useLabelSubject} from '#/lib/moderation'
 import {useLabelInfo} from '#/lib/moderation/useLabelInfo'
 import {makeProfileLink} from '#/lib/routes/links'
 import {sanitizeHandle} from '#/lib/strings/handles'
-import {matchXrpcError} from '#/lib/xrpc-error'
+import {getErrorName} from '#/lib/xrpc-error'
 import {logger} from '#/logger'
 import {useAppviewClient} from '#/state/session'
 import {atoms as a, useBreakpoints} from '#/alf'
@@ -21,8 +22,9 @@ import {InlineLinkText} from '#/components/Link'
 import {Loader} from '#/components/Loader'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
+import {submitModerationAppeal} from '#/brand/appeals'
 import {IS_ANDROID} from '#/env'
-import {type com, tools} from '#/lexicons'
+import {type com} from '#/lexicons'
 
 export function AppealForm({
   label,
@@ -47,8 +49,8 @@ export function AppealForm({
 
   const {mutate, isPending} = useMutation({
     mutationFn: async () => {
-      await client.call(
-        tools.ozone.inbox.appealActionedSubject,
+      await submitModerationAppeal(
+        client,
         {
           action: {
             $type: 'tools.ozone.inbox.appealActionedSubject#labelRef',
@@ -76,10 +78,8 @@ export function AppealForm({
       )
     },
     onError: err => {
-      if (
-        matchXrpcError(err, tools.ozone.inbox.appealActionedSubject) ===
-        'AlreadyAppealed'
-      ) {
+      // northsky: both modern and legacy appeal endpoints can return this code.
+      if (getErrorName(err) === 'AlreadyAppealed') {
         setError(
           _(
             msg`You've already appealed this label and it's being reviewed by our moderation team.`,

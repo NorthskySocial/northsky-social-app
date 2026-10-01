@@ -32,13 +32,16 @@ jobs:
           node-version-file: package.json
 
       - name: Reset pnpm-lock.yaml to base
+        # northsky: syncs carry upstream's resolved versions and matching patches.
+        # Re-resolving from our older base can select a different patched version.
+        if: ${{ github.head_ref != 'automated/upstream-sync' }}
         env:
           BASE_REF: ${{ github.base_ref }}
         run: git show "origin/$BASE_REF:pnpm-lock.yaml" > pnpm-lock.yaml
 
       - name: pnpm install
         # Fine to skip scripts since we don't run any code
-        run: pnpm clean && pnpm install --ignore-scripts --no-frozen-lockfile
+        run: pnpm install --ignore-scripts --no-frozen-lockfile
 
       - name: Verify pnpm-lock.yaml
         run: |

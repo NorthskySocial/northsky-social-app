@@ -6,13 +6,9 @@
 
 import {useEffect, useRef, useState} from 'react'
 
-<<<<<<< HEAD
-import {atoms as a, flatten} from '#/alf'
+import {atoms as a, flattenToCSS} from '#/alf'
 // northsky: splash logomark comes from the brand module (no dynamic loader)
 import {BrandLogo} from '#/brand/assets/Logo'
-=======
-import {atoms as a, flattenToCSS} from '#/alf'
->>>>>>> upstream/main
 
 const size = 100
 

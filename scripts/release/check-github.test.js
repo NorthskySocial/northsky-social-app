@@ -241,7 +241,7 @@ test('a missing or changed build workflow blocks all proposed operations', () =>
   })
 })
 
-test('planned build inputs match the actual dispatch definitions and no live option exists', () => {
+test('enabled build workflows match the dispatch contract and fork-disabled builds remain unavailable', () => {
   const result = spawnSync(
     process.execPath,
     [
@@ -257,6 +257,12 @@ test('planned build inputs match the actual dispatch definitions and no live opt
       const workflow = yaml.load(readFileSync('.github/workflows/' + build.file,'utf8'))
       assert('workflow_dispatch' in workflow.on)
       const definitions = workflow.on.workflow_dispatch?.inputs ?? {}
+      const job = workflow.jobs.build ?? workflow.jobs['bskyweb-container-aws']
+      // northsky: unported workflows must stay disabled for this fork.
+      if (!definitions.sourceRef || (build.platform !== 'web' && !definitions.submit)) {
+        assert([false, "github.repository == 'bluesky-social/social-app'"].includes(job.if))
+        continue
+      }
       const inputs = {...build.inputs,sourceRef:'candidate'}
       for (const [key,value] of Object.entries(inputs)) {
         assert(definitions[key], key)
@@ -265,7 +271,6 @@ test('planned build inputs match the actual dispatch definitions and no live opt
       }
       for (const [key,definition] of Object.entries(definitions)) if (definition.required && definition.default === undefined) assert(key in inputs)
       assert.match(workflowHashes()[build.file], /^[a-f0-9]{40}$/)
-      const job = workflow.jobs.build ?? workflow.jobs['bskyweb-container-aws']
       const checkout = job.steps.find(step => step.uses?.startsWith('actions/checkout@'))
       assert.equal(checkout.with.ref, '${'$'}{{ inputs.sourceRef || github.sha }}')
       assert.equal(job.outputs['source-sha'], '${'$'}{{ steps.source.outputs.sha }}')
@@ -323,4 +328,21 @@ test('read-only draft visibility allows a conditional dry-run plan but still cat
     github: {status: 'blocked'},
     execution: {status: 'blocked'},
   })
+})
+
+// northsky: the CLI must not present unsupported build dispatches as a valid plan.
+test('Northsky release planning stops before reading reports or contacting GitHub', () => {
+  const result = spawnSync(
+    process.execPath,
+    [
+      resolve('scripts/release/plan.mjs'),
+      'missing-report',
+      'NorthskySocial/northsky-social-app',
+    ],
+    {encoding: 'utf8'},
+  )
+  expect(result.status).toBe(1)
+  expect(result.stderr).toContain(
+    'Release dispatch planning is unavailable in Northsky',
+  )
 })

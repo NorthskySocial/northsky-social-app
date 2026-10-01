@@ -207,16 +207,8 @@ function StarterPackScreenLoaded({
 
   const onOpenShareDialog = useCallback(() => {
     const rkey = new AtUri(starterPack.uri).rkey
-<<<<<<< HEAD
     // northsky: share the full brand URL; do not use the go.bsky.app shortener
     setLink(makeStarterPackLink(starterPack.creator.did, rkey))
-=======
-    void shortenLink(makeStarterPackLink(starterPack.creator.did, rkey)).then(
-      res => {
-        setLink(res.url)
-      },
-    )
->>>>>>> upstream/main
     Image.prefetch(getStarterPackOgCard(starterPack))
       .then(() => {
         setImageLoaded(true)
@@ -590,11 +582,7 @@ function OverflowMenu({
   return (
     <>
       <Menu.Root>
-<<<<<<< HEAD
-        <Menu.Trigger label={_(msg`Reskeet or quote post`)}>
-=======
-        <Menu.Trigger label={l`Repost or quote post`}>
->>>>>>> upstream/main
+        <Menu.Trigger label={l`Reskeet or quote post`}>
           {({props}) => (
             <Button
               {...props}

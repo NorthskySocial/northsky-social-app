@@ -54,50 +54,32 @@ export const features = createGrowthBook(sdkOptions, bootstrap)
 
 /**
  * Initializer promise that must be awaited before using the GrowthBook
-<<<<<<< HEAD
- * instance or rendering the `AnalyticsFeaturesContext`. Note: this may not be
- * fully initialized if it takes longer than `TIMEOUT_INIT` to initialize. In
- * that case, we may see a flash of uncustomized content until the
- * initialization completes.
- *
- * northsky: while telemetry is off, the app fetches no gates. The promise
- * still resolves, because `App.<platform>.tsx` awaits it before it boots.
- */
-export const init = TELEMETRY_ENABLED
-  ? features.init({timeout: TIMEOUT_INIT}).then(res => {
-=======
  * instance or rendering the `AnalyticsFeaturesContext`. A valid HTML bootstrap
  * is available synchronously while this revalidates it. Without one, a slow
  * initialization may cause a flash of uncustomized content.
  */
-export const init = bootstrap
-  ? refreshGrowthBook(features, {timeout: TIMEOUT_INIT})
-  : features.init({timeout: TIMEOUT_INIT}).then(res => {
->>>>>>> upstream/main
-      if (!res.success) {
-        logger.warn('GrowthBook initialization failed or timed out', {
-          source: res.source,
-          safeMessage: res.error?.toString(),
-        })
-      }
-    })
-<<<<<<< HEAD
-  : Promise.resolve()
-=======
->>>>>>> upstream/main
+// northsky: telemetry-disabled builds do not fetch feature gates.
+export const init = !TELEMETRY_ENABLED
+  ? Promise.resolve()
+  : bootstrap
+    ? refreshGrowthBook(features, {timeout: TIMEOUT_INIT})
+    : features.init({timeout: TIMEOUT_INIT}).then(res => {
+        if (!res.success) {
+          logger.warn('GrowthBook initialization failed or timed out', {
+            source: res.source,
+            safeMessage: res.error?.toString(),
+          })
+        }
+      })
 
 /**
  * Refresh feature gates from GrowthBook.
  */
 export async function refresh({strategy}: {strategy: FeatureFetchStrategy}) {
-<<<<<<< HEAD
-  // northsky: see `src/features/telemetry`
+  // northsky: telemetry-disabled builds do not fetch feature gates.
   if (!TELEMETRY_ENABLED) return
 
-  await features.refreshFeatures({
-=======
   const options = {
->>>>>>> upstream/main
     timeout:
       strategy === 'prefer-low-latency'
         ? TIMEOUT_PREFER_LOW_LATENCY

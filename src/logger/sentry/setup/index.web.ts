@@ -1,4 +1,4 @@
-import {init} from '@sentry/browser'
+import {browserTracingIntegration, init} from '@sentry/browser'
 
 import {featureFlagsIntegration} from '#/logger/sentry/featureFlags'
 import {dropExpectedNetworkErrors} from '#/logger/sentry/network-errors'
@@ -14,7 +14,6 @@ import * as env from '#/env'
 init({
   enabled: !env.IS_DEV && !!env.SENTRY_DSN,
   dsn: env.SENTRY_DSN,
-  sendDefaultPii: true,
   debug: false, // If `true`, Sentry will try to print out useful debugging information if something goes wrong with sending the event. Set it to `false` in production
   environment: env.ENV,
   dist: env.BUNDLE_IDENTIFIER,
@@ -41,7 +40,7 @@ init({
    * this also enables the SDK's default stall and slow/frozen frame tracking,
    * whose measurements attach to every root span.
    */
-  tracesSampleRate: env.IS_INTERNAL ? 1.0 : 0.01,
+  tracesSampleRate: env.IS_INTERNAL ? 1.0 : 0.2,
   /*
    * The native setup passes `enableAutoSessionTracking: false`. The browser
    * SDK's equivalent is the BrowserSession default integration, so filter it
@@ -50,5 +49,13 @@ init({
   integrations: defaults => [
     ...defaults.filter(i => i.name !== 'BrowserSession'),
     featureFlagsIntegration,
+    // northsky: React Navigation supplies route spans via the brand adapter.
+    browserTracingIntegration({
+      instrumentPageLoad: false,
+      instrumentNavigation: false,
+    }),
   ],
 })
+
+// northsky: share the navigation registration contract across platforms.
+export {navigationIntegration} from '#/brand/sentryNavigation.web'

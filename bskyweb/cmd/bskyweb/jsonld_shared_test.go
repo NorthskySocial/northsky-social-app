@@ -118,7 +118,7 @@ func TestSharedContent_QuotePost(t *testing.T) {
 	main := mainEntity(t, out)
 
 	// isBasedOn is retained alongside sharedContent.
-	wantURL := "https://bsky.app/profile/bob.example.com/post/xyz"
+	wantURL := "https://northsky.app/profile/bob.example.com/post/xyz"
 	if main["isBasedOn"] != wantURL {
 		t.Errorf("isBasedOn = %v, want %v", main["isBasedOn"], wantURL)
 	}
@@ -142,7 +142,7 @@ func TestSharedContent_QuotePost(t *testing.T) {
 		t.Errorf("datePublished = %v", sc["datePublished"])
 	}
 	author, _ := sc["author"].(map[string]any)
-	if author == nil || author["name"] != "Quoted User" || author["url"] != "https://bsky.app/profile/bob.example.com" {
+	if author == nil || author["name"] != "Quoted User" || author["url"] != "https://northsky.app/profile/bob.example.com" {
 		t.Errorf("author = %v", sc["author"])
 	}
 	// Lightweight node: no stats.
@@ -157,7 +157,7 @@ func TestSharedContent_QuoteHandleInvalid(t *testing.T) {
 	pv := makePostView("alice.bsky.social", "did:plc:alice", "abc123", "quoting!", withQuote(q))
 	out, _ := buildPostJSONLD(pv, nil, "u", "", hideEmbedLabels, hideReplyLabels)
 	sc := mainEntity(t, out)["sharedContent"].(map[string]any)
-	if sc["url"] != "https://bsky.app/profile/did:plc:bob/post/xyz" {
+	if sc["url"] != "https://northsky.app/profile/did:plc:bob/post/xyz" {
 		t.Errorf("url should fall back to DID form, got %v", sc["url"])
 	}
 }
@@ -246,7 +246,7 @@ func TestSharedContent_QuoteAndLinkCard(t *testing.T) {
 	if arr[1].(map[string]any)["@type"] != "WebPage" {
 		t.Errorf("second entry should be the link card, got %v", arr[1])
 	}
-	if main["isBasedOn"] != "https://bsky.app/profile/bob.example.com/post/xyz" {
+	if main["isBasedOn"] != "https://northsky.app/profile/bob.example.com/post/xyz" {
 		t.Errorf("isBasedOn = %v", main["isBasedOn"])
 	}
 }
@@ -366,7 +366,7 @@ func TestParentItem_None(t *testing.T) {
 
 func TestParentItem_Chain(t *testing.T) {
 	leaf, ancestors := makeThread(3)
-	out, _ := buildPostJSONLD(leaf, buildChain(leaf, ancestors...), "u", "https://bsky.app/profile/root.bsky.social/post/rootrkey", hideEmbedLabels, hideReplyLabels)
+	out, _ := buildPostJSONLD(leaf, buildChain(leaf, ancestors...), "u", "https://northsky.app/profile/root.bsky.social/post/rootrkey", hideEmbedLabels, hideReplyLabels)
 	ids, types := chainIdentifiers(t, out)
 	wantIDs := []string{ancestors[0].Uri, ancestors[1].Uri, ancestors[2].Uri}
 	if fmt.Sprint(ids) != fmt.Sprint(wantIDs) {
@@ -378,7 +378,7 @@ func TestParentItem_Chain(t *testing.T) {
 	}
 	main := mainEntity(t, out)
 	// isPartOf is retained alongside parentItem.
-	if main["isPartOf"] != "https://bsky.app/profile/root.bsky.social/post/rootrkey" {
+	if main["isPartOf"] != "https://northsky.app/profile/root.bsky.social/post/rootrkey" {
 		t.Errorf("isPartOf = %v", main["isPartOf"])
 	}
 	// Ancestors are lightweight: text/author/date but no stats or comments.

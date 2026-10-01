@@ -952,25 +952,6 @@
       "count": 1
     }
   },
-<<<<<<< HEAD
-  "src/screens/StarterPack/StarterPackScreen.tsx": {
-    "typescript/no-misused-promises": {
-      "count": 2
-    },
-    "typescript/require-await": {
-      "count": 1
-    }
-  },
-  "src/screens/StarterPack/Wizard/index.tsx": {
-    "typescript/no-floating-promises": {
-      "count": 2
-    },
-    "typescript/require-await": {
-      "count": 1
-    }
-  },
-=======
->>>>>>> upstream/main
   "src/state/a11y.tsx": {
     "typescript/no-floating-promises": {
       "count": 1

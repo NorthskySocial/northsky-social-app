@@ -101,6 +101,7 @@ export function StepFinished() {
      */
     const followDids = [
       BSKY_APP_ACCOUNT_DID,
+      NORTHSKY_APP_ACCOUNT_DID, // northsky:
       ...(listItems?.map(i => i.subject.did) ?? []),
     ]
     const starterPackRef = starterPack
@@ -112,22 +113,7 @@ export function StepFinished() {
       const {selectedInterests} = interestsStepResults
 
       await Promise.all([
-<<<<<<< HEAD
-        bulkWriteFollows(
-          pdsClient,
-          appviewClient,
-          [
-            BSKY_APP_ACCOUNT_DID,
-            NORTHSKY_APP_ACCOUNT_DID, // northsky:
-            ...(listItems?.map(i => i.subject.did) ?? []),
-          ],
-          starterPack
-            ? {uri: starterPack.uri, cid: starterPack.cid}
-            : undefined,
-        ),
-=======
         bulkWriteFollows(pdsClient, appviewClient, followDids, starterPackRef),
->>>>>>> upstream/main
         (async () => {
           // Interests need to get saved first, then we can write the feeds to prefs
           await pdsClient.call(setInterestsPref, {tags: selectedInterests})

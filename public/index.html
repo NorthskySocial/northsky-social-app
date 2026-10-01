@@ -20,13 +20,8 @@
     <title></title>
     <meta name="description" content="Social media as it should be. Find your community among millions of users, unleash your creativity, and have some fun again." />
 
-<<<<<<< HEAD:web/index.html
-    <!-- northsky: preload Geist body font (webpack-hashed filename) -->
-    <link rel="preload" as="font" type="font/woff2" href="/static/media/Geist-Variable.c5aefc5d145b5333adad.woff2" crossorigin>
-    <link rel="stylesheet" href="/static/style.css">
-=======
-    <link rel="preload" as="font" type="font/woff2" href="/assets/assets/fonts/inter/InterVariable.woff2" crossorigin>
->>>>>>> upstream/main:public/index.html
+    <!-- northsky: Metro resolves brand font hashes after export. -->
+    <link rel="preload" as="font" type="font/woff2" href="/assets/assets/fonts/geist/Geist-Variable.woff2" crossorigin>
 
     <style>
       /**
@@ -38,35 +33,23 @@
        */
       /* northsky: brand web fonts (Geist body + MuseoModerno display). Webpack-hashed filenames - regenerate both shells after any font-binary change. */
       @font-face {
-<<<<<<< HEAD:web/index.html
         font-family: 'Geist';
-        src: url(/static/media/Geist-Variable.c5aefc5d145b5333adad.woff2) format('woff2');
-        font-weight: 100 900;
-=======
-        font-family: 'InterVariable';
-        src: url(/assets/assets/fonts/inter/InterVariable.woff2) format('woff2');
-        font-weight: 300 1000;
->>>>>>> upstream/main:public/index.html
-        font-style: normal;
-        font-display: swap;
-      }
-      @font-face {
-<<<<<<< HEAD:web/index.html
-        font-family: 'MuseoModerno';
-        src: url(/static/media/MuseoModerno-Variable.e9768c9f95f32d05362b.woff2) format('woff2');
+        src: url(/assets/assets/fonts/geist/Geist-Variable.woff2) format('woff2');
         font-weight: 100 900;
         font-style: normal;
         font-display: swap;
       }
       @font-face {
         font-family: 'MuseoModerno';
-        src: url(/static/media/MuseoModerno-Italic-Variable.18a09d17c1aac133031f.woff2) format('woff2');
+        src: url(/assets/assets/fonts/museomoderno/MuseoModerno-Variable.woff2) format('woff2');
         font-weight: 100 900;
-=======
-        font-family: 'InterVariableItalic';
-        src: url(/assets/assets/fonts/inter/InterVariable-Italic.woff2) format('woff2');
-        font-weight: 300 1000;
->>>>>>> upstream/main:public/index.html
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'MuseoModerno';
+        src: url(/assets/assets/fonts/museomoderno/MuseoModerno-Italic-Variable.woff2) format('woff2');
+        font-weight: 100 900;
         font-style: italic;
         font-display: swap;
       }

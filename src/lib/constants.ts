@@ -17,14 +17,9 @@ export const HELP_DESK_URL = BRAND.helpUrl // northsky: brand override
 export const CHAT_SERVICE = 'https://api.bsky.chat'
 export const EMBED_SERVICE = BRAND.embedServiceUrl // northsky: brand override
 export const EMBED_SCRIPT = `${EMBED_SERVICE}/static/embed.js`
-<<<<<<< HEAD
 export const BSKY_DOWNLOAD_URL = BRAND.downloadUrl // northsky: brand override
-export const STARTER_PACK_MAX_SIZE = 150
-=======
-export const BSKY_DOWNLOAD_URL = 'https://bsky.app/download'
 export const STARTER_PACK_DEFAULT_SIZE = 150
 export const STARTER_PACK_MAX_SIZE = 500
->>>>>>> upstream/main
 export const CARD_ASPECT_RATIO = 1200 / 630
 
 // HACK

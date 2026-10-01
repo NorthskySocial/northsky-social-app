@@ -1,3 +1,9 @@
+> Northsky: the upstream release preparation scripts are currently unavailable in
+> this fork. Their dispatch targets require `sourceRef` and `submit` inputs that
+> our retained build workflows do not expose, and the web target is the disabled
+> AWS workflow. Northsky continues to publish web containers through GHCR.
+> Adapting release preparation requires a separate infrastructure change.
+
 # Release model
 
 `RELEASE-x.y.z.md` holds the release version, build metadata, and cumulative

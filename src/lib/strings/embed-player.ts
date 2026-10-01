@@ -11,14 +11,8 @@ const {height: SCREEN_HEIGHT} = Dimensions.get('window')
  * frame policy. On native, load from the brand host in release builds.
  */
 const IFRAME_HOST = IS_WEB
-<<<<<<< HEAD
   ? // @ts-ignore only for web
     window.location.origin
-=======
-  ? window.location.host === 'localhost:8100'
-    ? 'http://localhost:8100'
-    : 'https://bsky.app'
->>>>>>> upstream/main
   : __DEV__ && !process.env.JEST_WORKER_ID
     ? 'http://localhost:8100'
     : BRAND.baseUrl
