@@ -22,6 +22,7 @@ module.exports = function (_config) {
 
   const IS_TESTFLIGHT = process.env.EXPO_PUBLIC_ENV === 'testflight'
   const IS_PRODUCTION = process.env.EXPO_PUBLIC_ENV === 'production'
+  const IS_E2E = process.env.EXPO_PUBLIC_ENV === 'e2e'
   const IS_DEV = !IS_TESTFLIGHT && !IS_PRODUCTION
 
   const ASSOCIATED_DOMAINS = [
@@ -183,9 +184,6 @@ module.exports = function (_config) {
           ],
         },
       },
-      androidStatusBar: {
-        barStyle: 'light-content',
-      },
       android: {
         icon: './assets/app-icons/android_icon_default_next.png',
         adaptiveIcon: {
@@ -218,6 +216,7 @@ module.exports = function (_config) {
         ],
       },
       web: {
+        bundler: 'metro',
         favicon: './assets/favicon.png',
       },
       updates: {
@@ -236,12 +235,44 @@ module.exports = function (_config) {
         checkAutomatically: 'NEVER',
       },
       plugins: [
+        [
+          'expo-dev-client',
+          {
+            toolsButton: false,
+            ...(IS_E2E
+              ? {
+                  launchMode: 'most-recent',
+                  skipOnboarding: true,
+                  showMenuAtLaunch: false,
+                  ios: {
+                    defaultLaunchURL: 'http://localhost:8081',
+                  },
+                  android: {
+                    defaultLaunchURL: 'http://10.0.2.2:8081',
+                  },
+                }
+              : {}),
+          },
+        ],
+        'expo-asset',
+        'expo-sharing',
         'expo-video',
         'expo-localization',
         'expo-web-browser',
         [
           'react-native-edge-to-edge',
           {android: {enforceNavigationBarContrast: false}},
+        ],
+        /*
+         * Expo runs Gradle mods in reverse registration order. Keep Bitdrift
+         * before Sentry so its plugins block is prepended after Sentry's apply
+         * statement and remains at the top, as required by Gradle.
+         */
+        [
+          '@bitdrift/react-native',
+          {
+            networkInstrumentation: true,
+          },
         ],
         ...(USE_SENTRY
           ? [
@@ -255,6 +286,9 @@ module.exports = function (_config) {
                     process.env.SENTRY_ORG || 'northsky-social-cooperative',
                   project: process.env.SENTRY_PROJECT || 'social-app',
                   url: process.env.SENTRY_URL || 'https://sentry.io',
+                  experimental_android: {
+                    enableAndroidGradlePlugin: true,
+                  },
                 },
               ]),
             ]
@@ -274,12 +308,14 @@ module.exports = function (_config) {
                   branch: 'main',
                 },
               ],
+              enableSceneSupport: true,
             },
             android: {
               compileSdkVersion: 36,
-              targetSdkVersion: 35,
-              buildToolsVersion: '35.0.0',
+              targetSdkVersion: 36,
+              buildToolsVersion: '36.0.0',
               buildReactNativeFromSource: IS_PRODUCTION,
+              enableMinifyInReleaseBuilds: true,
             },
           },
         ],
@@ -289,13 +325,6 @@ module.exports = function (_config) {
             icon: './assets/icon-android-notification.png',
             color: brand.primaryColor, // northsky: brand accent
             sounds: PLATFORM === 'ios' ? ['assets/dm.aiff'] : ['assets/dm.mp3'],
-          },
-        ],
-        'react-native-compressor',
-        [
-          '@bitdrift/react-native',
-          {
-            networkInstrumentation: true,
           },
         ],
         './plugins/starterPackAppClipExtension/withStarterPackAppClip.js',
@@ -461,6 +490,17 @@ module.exports = function (_config) {
                   {
                     targetName: 'BlueskyClip',
                     bundleIdentifier: 'xyz.blueskyweb.app.AppClip',
+                    parentBundleIdentifier: 'xyz.blueskyweb.app',
+                    entitlements: {
+                      'com.apple.security.application-groups': [
+                        'group.app.bsky',
+                      ],
+                      'com.apple.developer.parent-application-identifiers': [
+                        '$(AppIdentifierPrefix)xyz.blueskyweb.app',
+                      ],
+                      'com.apple.developer.associated-domains':
+                        ASSOCIATED_DOMAINS,
+                    },
                   },
                 ],
               },
@@ -468,6 +508,9 @@ module.exports = function (_config) {
           },
           projectId: '55bd077a-d905-4184-9c7f-94789ba0f302',
         },
+      },
+      experiments: {
+        baseUrl: '/static',
       },
     },
   }

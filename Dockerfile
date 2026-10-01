@@ -17,6 +17,10 @@ ENV CI=1
 # use the pnpm version specified in package.json
 ENV pnpm_config_pm_on_fail=download
 
+# Metro's web export needs far more heap than Node's default (~1GB in the
+# container), which crashes the bundle step with a V8 OOM.
+ENV NODE_OPTIONS="--max-old-space-size=8192"
+
 # The latest git hash of the preview branch on render.com
 # https://render.com/docs/docker-secrets#environment-variables-in-docker-builds
 ARG RENDER_GIT_COMMIT
@@ -40,7 +44,7 @@ ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN:-unknown}
 ARG EXPO_PUBLIC_SENTRY_DSN
 ENV EXPO_PUBLIC_SENTRY_DSN=$EXPO_PUBLIC_SENTRY_DSN
 # northsky: the org/project the source maps upload to. Unset falls back to the
-# Northsky defaults in webpack.config.js. SENTRY_URL is only needed for a
+# Northsky defaults in scripts/post-web-build.js. SENTRY_URL is only needed for a
 # self-hosted Sentry.
 ARG SENTRY_ORG
 ENV SENTRY_ORG=$SENTRY_ORG

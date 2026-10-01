@@ -52,6 +52,7 @@ describe('computeAgeAssuranceState with age assurance off', () => {
     const {computeAgeAssuranceState} = loadState(false)
     expect(
       computeAgeAssuranceState({
+        otherRequiredDataStatus: 'success',
         hasSession: true,
         geolocation: GB,
         config: DENY_ALL_CONFIG,
@@ -67,6 +68,7 @@ describe('computeAgeAssuranceState with age assurance off', () => {
     const {computeAgeAssuranceState} = loadState(false)
     expect(
       computeAgeAssuranceState({
+        otherRequiredDataStatus: 'success',
         hasSession: true,
         geolocation: GB,
         config: DENY_ALL_CONFIG,
@@ -82,6 +84,7 @@ describe('computeAgeAssuranceState with age assurance off', () => {
     const {computeAgeAssuranceState} = loadState(false)
     expect(
       computeAgeAssuranceState({
+        otherRequiredDataStatus: 'success',
         hasSession: true,
         geolocation: GB,
       }),
@@ -99,6 +102,7 @@ describe('computeAgeAssuranceState with age assurance off', () => {
     const {computeAgeAssuranceState} = loadState(false)
     expect(
       computeAgeAssuranceState({
+        otherRequiredDataStatus: 'success',
         hasSession: false,
         geolocation: GB,
         config: DENY_ALL_CONFIG,
@@ -115,6 +119,7 @@ describe('computeAgeAssuranceState with age assurance on', () => {
     const {computeAgeAssuranceState} = loadState(true)
     expect(
       computeAgeAssuranceState({
+        otherRequiredDataStatus: 'success',
         hasSession: true,
         geolocation: GB,
         config: DENY_ALL_CONFIG,

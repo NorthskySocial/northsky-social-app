@@ -10,6 +10,7 @@ import {
   getDeviceSignalsFromCacheForRegion,
   getOtherRequiredDataFromCache,
   getServerStateFromCache,
+  type OtherRequiredDataStatus,
   useAgeAssuranceServerDataContext,
 } from '#/ageAssurance/data'
 import {logger} from '#/ageAssurance/logger'
@@ -42,6 +43,7 @@ export function computeAgeAssuranceState({
   config,
   state,
   metadata,
+  otherRequiredDataStatus,
   deviceSignals,
 }: {
   hasSession: boolean
@@ -49,6 +51,7 @@ export function computeAgeAssuranceState({
   config?: app.bsky.ageassurance.defs.Config
   state?: app.bsky.ageassurance.defs.State
   metadata?: AgeAssuranceMetadata
+  otherRequiredDataStatus: OtherRequiredDataStatus
   deviceSignals?: AgeRange.AgeRangeResponse
 }) {
   /**
@@ -102,6 +105,14 @@ export function computeAgeAssuranceState({
       lastInitiatedAt: state.lastInitiatedAt,
       status: parseStatusFromString(state.status),
       access: parseAccessFromString(state.access),
+    }
+  }
+
+  if (otherRequiredDataStatus === 'error') {
+    return {
+      status: AgeAssuranceStatus.Unknown,
+      access: AgeAssuranceAccess.None,
+      error: 'account-data' as const,
     }
   }
 
@@ -199,6 +210,7 @@ export function unsafeGetAndComputeAgeAssurance({did}: {did: string}) {
     geolocation,
     state: state.state,
     metadata,
+    otherRequiredDataStatus: 'success',
     deviceSignals,
   })
 
@@ -216,7 +228,7 @@ export function unsafeGetAndComputeAgeAssurance({did}: {did: string}) {
 export function useAgeAssuranceState(): AgeAssuranceState {
   const {hasSession} = useSession()
   const geolocation = useGeolocation()
-  const {config, state, metadata, deviceSignals} =
+  const {config, state, metadata, otherRequiredDataStatus, deviceSignals} =
     useAgeAssuranceServerDataContext()
 
   return useMemo(
@@ -227,9 +239,18 @@ export function useAgeAssuranceState(): AgeAssuranceState {
         geolocation,
         state,
         metadata,
+        otherRequiredDataStatus,
         deviceSignals,
       }),
-    [hasSession, geolocation, config, state, metadata, deviceSignals],
+    [
+      hasSession,
+      geolocation,
+      config,
+      state,
+      metadata,
+      otherRequiredDataStatus,
+      deviceSignals,
+    ],
   )
 }
 

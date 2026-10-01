@@ -1,3 +1,4 @@
+// northsky: independent labelers may still use the legacy appeal endpoint.
 import {useCallback, useState} from 'react'
 import {View} from 'react-native'
 import {msg} from '@lingui/core/macro'
@@ -14,7 +15,8 @@ import * as Dialog from '#/components/Dialog'
 import {Loader} from '#/components/Loader'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
-import {type app, com, tools} from '#/lexicons'
+import {submitModerationAppeal} from '#/brand/appeals'
+import {type app} from '#/lexicons'
 
 export function GoLiveDisabledDialog({
   control,
@@ -56,10 +58,9 @@ export function DialogInner({
           details,
         })
       } else {
-        await client.call(
-          com.atproto.moderation.createReport,
+        await submitModerationAppeal(
+          client,
           {
-            reasonType: tools.ozone.report.defs.reasonAppeal.value,
             subject: {
               $type: 'com.atproto.repo.strongRef',
               // a status view's uri is an at-uri produced by the appview

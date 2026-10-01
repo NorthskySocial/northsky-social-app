@@ -9,7 +9,10 @@ const mockGrowthbook = {
 
 jest.mock('#/features/telemetry', () => ({TELEMETRY_ENABLED: false}))
 
-jest.mock('@growthbook/growthbook', () => ({setPolyfills: jest.fn()}))
+jest.mock('@growthbook/growthbook', () => ({
+  setPolyfills: jest.fn(),
+  GrowthBook: jest.fn(() => mockGrowthbook),
+}))
 
 jest.mock('@growthbook/growthbook-react', () => ({
   GrowthBook: jest.fn(() => mockGrowthbook),

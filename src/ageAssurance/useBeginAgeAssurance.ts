@@ -2,8 +2,8 @@ import {Platform} from 'react-native'
 import {useMutation} from '@tanstack/react-query'
 
 import {wait} from '#/lib/async/wait'
-import {isNetworkError} from '#/lib/hooks/useCleanError'
 import {createLexClient} from '#/lib/lexClient'
+import {isNetworkError} from '#/lib/network-error'
 import {useAppview, usePdsClient} from '#/state/session'
 import {usePatchAgeAssuranceServerState} from '#/ageAssurance'
 import {logger} from '#/ageAssurance/logger'
@@ -44,11 +44,14 @@ export function useBeginAgeAssurance() {
        * allowed to preset that header where a session-backed one is not, which
        * also makes the old `refreshJwt = ''` clone unnecessary.
        */
-      const scopedClient = createLexClient({
-        // northsky: talk to the appview routed for this account
-        service: appview.url,
-        headers: {authorization: `Bearer ${token}`},
-      })
+      const scopedClient = createLexClient(
+        {
+          // northsky: talk to the appview routed for this account
+          service: appview.url,
+          headers: {authorization: `Bearer ${token}`},
+        },
+        {includeDeviceSessionHeaders: false},
+      )
 
       ax.metric('ageAssurance:api:begin', {
         platform: Platform.OS,

@@ -1,7 +1,7 @@
 import {type DidString} from '@atproto/syntax'
 import {moderatePost, type ModerationOpts} from '@bsky/sdk/moderation'
 
-import {com} from '#/lexicons'
+import {type com} from '#/lexicons'
 import {hydratePostView, hydratePostViewRecord} from '../hydrate'
 
 const URI = 'at://did:plc:author/app.bsky.feed.post/3abc'

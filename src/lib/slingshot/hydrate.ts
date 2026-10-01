@@ -6,7 +6,7 @@ import {
   type UriString,
 } from '@atproto/syntax'
 
-import {app, com} from '#/lexicons'
+import {app, type com} from '#/lexicons'
 import * as bsky from '#/types/bsky'
 import {buildPdsBlobUrl} from './blobs'
 import {type PostInteractionCounts, type SlingshotMiniDoc} from './types'

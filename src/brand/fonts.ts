@@ -38,7 +38,9 @@ export const GEIST_ANDROID_MAP: Record<string, string> = {
 /** Appended to the display family on web only. */
 const WEB_DISPLAY_FALLBACK = `system-ui, sans-serif`
 
-export function applyDisplayFont(style: TextStyle) {
+export function applyDisplayFont(style: {
+  -readonly [K in keyof TextStyle]: TextStyle[K]
+}) {
   // Brand display is italic by default; a caller may opt out with fontStyle: 'normal'.
   const isItalic = style.fontStyle !== 'normal'
 

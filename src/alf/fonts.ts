@@ -11,6 +11,8 @@ import {
 import {IS_ANDROID, IS_WEB} from '#/env'
 import {type Device, device} from '#/storage'
 
+export type MutableTextStyle = {-readonly [K in keyof TextStyle]: TextStyle[K]}
+
 const WEB_FONT_FAMILIES = `system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"`
 
 const factor = 0.0625 // 1 - (15/16)
@@ -45,7 +47,10 @@ export function setFontFamily(fontFamily: Device['fontFamily']) {
 /*
  * Unused fonts are commented out, but the files are there if we need them.
  */
-export function applyFonts(style: TextStyle, fontFamily: 'system' | 'theme') {
+export function applyFonts(
+  style: MutableTextStyle,
+  fontFamily: 'system' | 'theme',
+) {
   // northsky: brand display text opts in via the NS_DISPLAY_FONT sentinel;
   // route it to MuseoModerno regardless of the theme/system font setting.
   if (style.fontFamily === NS_DISPLAY_FONT) {

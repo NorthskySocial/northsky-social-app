@@ -49,7 +49,8 @@ type Server struct {
 	chatXrpcc    *xrpc.Client
 	cfg          *Config
 
-	ipccClient http.Client
+	ipccClient   http.Client
+	featureGates *featureGateCache
 
 	// northsky: donation checkout for the Support screen
 	donations       *donationsConfig
@@ -183,6 +184,12 @@ func serve(cctx *cli.Context) error {
 				DisableCompression:  true,
 			},
 		},
+	}
+	if cctx.Bool("feature-gate-bootstrap") {
+		server.featureGates = newFeatureGateCache(cctx.String("growthbook-api-host"), cctx.String("growthbook-client-key"))
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		go server.featureGates.run(ctx)
 	}
 
 	// Create the HTTP server.
@@ -323,8 +330,8 @@ func serve(cctx *cli.Context) error {
 				path := c.Request().URL.Path
 				maxAge := 1 * (60 * 60) // default is 1 hour
 
-				// all assets in /static/js, /static/css, /static/media are content-hashed and can be cached for a long time
-				if strings.HasPrefix(path, "/static/js/") || strings.HasPrefix(path, "/static/css/") || strings.HasPrefix(path, "/static/media/") {
+				// all assets in /static/_expo, /static/assets, /static/media are content-hashed and can be cached for a long time
+				if strings.HasPrefix(path, "/static/_expo/") || strings.HasPrefix(path, "/static/assets/") || strings.HasPrefix(path, "/static/media/") {
 					maxAge = 365 * (60 * 60 * 24) // 1 year
 				}
 
@@ -535,10 +542,11 @@ func (srv *Server) Shutdown() error {
 // NewTemplateContext returns a new pongo2 context with some default values.
 func (srv *Server) NewTemplateContext() pongo2.Context {
 	return pongo2.Context{
-		"staticCDNHost": srv.cfg.staticCDNHost,
-		"favicon":       fmt.Sprintf("%s/static/favicon.png", srv.cfg.staticCDNHost),
-		"noindex":       false,
-		"nofollow":      false,
+		"staticCDNHost":        srv.cfg.staticCDNHost,
+		"featureGateBootstrap": srv.featureGates.snapshot(),
+		"favicon":              fmt.Sprintf("%s/static/favicon.png", srv.cfg.staticCDNHost),
+		"noindex":              false,
+		"nofollow":             false,
 	}
 }
 
@@ -776,7 +784,7 @@ func (srv *Server) WebPost(c echo.Context) error {
 		}
 	}
 
-	if jsonld, err := buildPostJSONLD(postView, threadView.Replies, jsonldURL, isPartOfURL, hideEmbedLabels, hideReplyLabels); err == nil {
+	if jsonld, err := buildPostJSONLD(postView, threadView, jsonldURL, isPartOfURL, hideEmbedLabels, hideReplyLabels); err == nil {
 		data["postJSONLD"] = jsonld
 	} else {
 		log.Warnf("failed to build post JSON-LD for %s: %v", uri, err)

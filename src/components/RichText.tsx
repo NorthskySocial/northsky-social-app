@@ -9,6 +9,7 @@ import {
   type RichTextItem,
   segmentsWithCode,
 } from '#/lib/code/ranges'
+import {isRTLText} from '#/lib/strings/text-direction'
 import {toShortUrl} from '#/lib/strings/url-helpers'
 import {android, atoms as a, flatten, type TextStyleProp} from '#/alf'
 import {isOnlyEmoji} from '#/alf/typography'
@@ -22,6 +23,7 @@ import {
 } from '#/components/RichTextCode'
 import {RichTextTag} from '#/components/RichTextTag'
 import {Text, type TextProps} from '#/components/Typography'
+import {IS_NATIVE} from '#/env'
 import {app} from '#/lexicons'
 import * as bsky from '#/types/bsky'
 
@@ -118,14 +120,16 @@ export function RichText({
     }
   }, [value])
 
-  const plainStyles = style
+  const {text, facets} = richText
+  const plainStyles: StyleProp<TextStyle> = [
+    style,
+    IS_NATIVE && isRTLText(text) ? {textAlign: 'right'} : null,
+  ]
   const suffixStyles =
     suffix && suffixOffset
       ? android({paddingBottom: suffixOffset, marginBottom: -suffixOffset})
       : null
   const interactiveStyles = [plainStyles, interactiveStyle]
-
-  const {text, facets} = richText
 
   // northsky: fast guard - only run the formatting pipeline when the post
   // actually contains a marker.
@@ -203,7 +207,7 @@ export function RichText({
 
   if (!facets?.length && !formattingActive) {
     if (isOnlyEmoji(text)) {
-      const flattenedStyle = flatten(style) ?? {}
+      const flattenedStyle = flatten(style)
       const fontSize =
         (flattenedStyle.fontSize ?? a.text_sm.fontSize) * emojiMultiplier
       return (
@@ -214,7 +218,6 @@ export function RichText({
           style={[plainStyles, {fontSize}, suffixStyles]}
           onLayout={onLayout}
           onTextLayout={onTextLayout}
-          // @ts-ignore web only -prf
           dataSet={WORD_WRAP}>
           {text}
           {suffix ? ' ' : null}
@@ -231,7 +234,6 @@ export function RichText({
         numberOfLines={numberOfLines}
         onLayout={onLayout}
         onTextLayout={onTextLayout}
-        // @ts-ignore web only -prf
         dataSet={WORD_WRAP}>
         {text}
         {suffix ? ' ' : null}

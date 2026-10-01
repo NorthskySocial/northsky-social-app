@@ -9,10 +9,7 @@ import {Platform} from 'react-native'
 import {type Result, type WidenPrimitives} from '@growthbook/growthbook-react'
 
 import {Logger} from '#/logger'
-import {
-  getCachedIsBetaUser,
-  subscribeToCachedIsBetaUser,
-} from '#/state/preferences/beta-user-cache'
+import {recordFeatureFlagEvaluation} from '#/logger/sentry/featureFlags'
 import {
   Features,
   features as feats,
@@ -23,21 +20,20 @@ import {
 import {
   getAndMigrateDeviceId,
   getDeviceId,
-  getInitialSessionId,
-  useDeviceId,
-  useSessionId,
+  getSessionId,
 } from '#/analytics/identifiers'
 import {
   getMetadataForLogger,
   getNavigationMetadata,
   type MergeableMetadata,
   type Metadata,
+  type MetricMetadata,
 } from '#/analytics/metadata'
 import {type Metrics, metrics} from '#/analytics/metrics'
 import * as refParams from '#/analytics/misc/refParams'
 import * as env from '#/env'
 import {useGeolocationServiceResponse} from '#/geolocation/service'
-import {device} from '#/storage'
+import {account, device} from '#/storage'
 
 export * as utils from '#/analytics/utils'
 export const features = {init, refresh}
@@ -79,15 +75,24 @@ export type AnalyticsBaseContextType = Omit<AnalyticsContextType, 'features'>
 
 function createLogger(
   context: Logger['context'],
-  metadata: Partial<Metadata>,
+  metadata: Record<string, unknown>,
 ): LoggerType {
   const logger = Logger.create(context, metadata)
+  const currentLogger = () => {
+    // Replace the snapshot so previously recorded entries stay unchanged.
+    logger.ambientMetadata = {
+      ...metadata,
+      deviceId: metadata.deviceId ?? getDeviceId() ?? 'unknown',
+      sessionId: getSessionId(),
+    }
+    return logger
+  }
   return {
-    debug: logger.debug.bind(logger),
-    info: logger.info.bind(logger),
-    log: logger.log.bind(logger),
-    warn: logger.warn.bind(logger),
-    error: logger.error.bind(logger),
+    debug: (...args) => currentLogger().debug(...args),
+    info: (...args) => currentLogger().info(...args),
+    log: (...args) => currentLogger().log(...args),
+    warn: (...args) => currentLogger().warn(...args),
+    error: (...args) => currentLogger().error(...args),
     useChild: (context: Exclude<Logger['context'], undefined>) => {
       // oxlint-disable-next-line react-hooks/exhaustive-deps
       return useMemo(() => createLogger(context, metadata), [context, metadata])
@@ -98,19 +103,28 @@ function createLogger(
 
 const Context = createContext<AnalyticsBaseContextType>({
   logger: createLogger(Logger.Context.Default, {}),
-  metric: (event, payload, metadata) => {
-    if (metadata && '__meta' in metadata) {
-      delete metadata.__meta
-    }
-    metrics.track(event, payload, {
+  /**
+   * Session IDs are captured when an event is emitted. Deferred exposure events
+   * use the reporting session, which may differ from the evaluation session.
+   */
+  metric: (event, payload, metadata: Partial<Metadata> = {}) => {
+    const snapshot: MetricMetadata = {
       ...metadata,
+      base: {
+        ...metadata.base,
+        deviceId: metadata.base?.deviceId ?? getDeviceId() ?? 'unknown',
+        sessionId: getSessionId(),
+      },
       navigation: getNavigationMetadata(),
-    })
+    }
+    if ('__meta' in snapshot) {
+      delete snapshot.__meta
+    }
+    metrics.track(event, payload, snapshot)
   },
   metadata: {
     base: {
       deviceId: getDeviceId() ?? 'unknown',
-      sessionId: getInitialSessionId(),
       platform: Platform.OS,
       appVersion: env.APP_VERSION,
       bundleIdentifier: env.BUNDLE_IDENTIFIER,
@@ -121,6 +135,7 @@ const Context = createContext<AnalyticsBaseContextType>({
     geolocation: device.get(['geolocationServiceResponse']) || {
       countryCode: '',
       regionCode: '',
+      city: '',
     },
   },
 })
@@ -135,7 +150,7 @@ export const setupDeviceId = getAndMigrateDeviceId()
 
 /**
  * Reads the per-account cached `isBetaUser` flag for `did`, kept in sync with
- * PDS preference query results and the beta settings toggle.
+ * writes from `BetaUserStorageSync` and the beta settings toggle.
  *
  * This deliberately does not use `useStorage`, whose `useState` seeds once and
  * only updates via the change listener. The consuming `AnalyticsContext` lives
@@ -150,13 +165,17 @@ function useAccountIsBetaUser(did: string | undefined): boolean | undefined {
   const subscribe = useCallback(
     (onChange: () => void) => {
       if (!did) return () => {}
-      return subscribeToCachedIsBetaUser(did, onChange)
+      const sub = account.addOnValueChangedListener(
+        [did, 'isBetaUser'],
+        onChange,
+      )
+      return () => sub.remove()
     },
     [did],
   )
   const getSnapshot = useCallback(() => {
     if (!did) return undefined
-    return getCachedIsBetaUser(did)
+    return account.get([did, 'isBetaUser'])
   }, [did])
   return useSyncExternalStore(subscribe, getSnapshot)
 }
@@ -179,8 +198,9 @@ export function AnalyticsContext({
       )
     }
   }
-  const deviceId = useDeviceId() ?? 'unknown'
-  const sessionId = useSessionId()
+  // Device identity is initialized before mount and stays stable across sessions.
+  const deviceId = getDeviceId() ?? 'unknown'
+  // only IP based, never GPS
   const geolocation = useGeolocationServiceResponse()
   const parentContext = useContext(Context)
   /*
@@ -200,7 +220,6 @@ export function AnalyticsContext({
       base: {
         ...parentContext.metadata.base,
         deviceId,
-        sessionId,
         isBetaUser,
       },
       geolocation,
@@ -220,7 +239,7 @@ export function AnalyticsContext({
       },
     }
     return context
-  }, [parentContext, metadata, deviceId, sessionId, isBetaUser, geolocation])
+  }, [parentContext, metadata, deviceId, isBetaUser, geolocation])
   return <Context.Provider value={childContext}>{children}</Context.Provider>
 }
 
@@ -311,6 +330,7 @@ export function AnalyticsFeaturesContext({
         ? sessionMetadataForResult(parentContext, result.experimentResult)
         : undefined,
     )
+    recordFeatureFlagEvaluation(feature, result.value)
   })
   setAttributes(parentContext.metadata)
 

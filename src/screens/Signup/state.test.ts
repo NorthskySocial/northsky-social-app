@@ -36,7 +36,7 @@ describe('reducer: setAgeConfirmation', () => {
       isOverMinAccessAge: true,
       isLegalAdult: true,
     })
-    expect(getAge(next.dateOfBirth)).toBe(ADULT_AGE)
+    expect(getAge(next.dateOfBirth!)).toBe(ADULT_AGE)
   })
 
   it('derives the minimum age from a complete non-adult answer', () => {
@@ -44,7 +44,7 @@ describe('reducer: setAgeConfirmation', () => {
       isOverMinAccessAge: true,
       isLegalAdult: false,
     })
-    expect(getAge(next.dateOfBirth)).toBe(MIN_ACCESS_AGE)
+    expect(getAge(next.dateOfBirth!)).toBe(MIN_ACCESS_AGE)
   })
 
   /* The date must block the step, so signup needs no rule of its own. */
@@ -53,7 +53,7 @@ describe('reducer: setAgeConfirmation', () => {
       isOverMinAccessAge: false,
       isLegalAdult: undefined,
     })
-    expect(getAge(next.dateOfBirth)).toBeLessThan(MIN_ACCESS_AGE)
+    expect(getAge(next.dateOfBirth!)).toBeLessThan(MIN_ACCESS_AGE)
   })
 
   it('derives a new date when the answer changes', () => {
@@ -65,7 +65,7 @@ describe('reducer: setAgeConfirmation', () => {
       isOverMinAccessAge: true,
       isLegalAdult: false,
     })
-    expect(getAge(minor.dateOfBirth)).toBe(MIN_ACCESS_AGE)
+    expect(getAge(minor.dateOfBirth!)).toBe(MIN_ACCESS_AGE)
   })
 
   it('starts with no answers', () => {

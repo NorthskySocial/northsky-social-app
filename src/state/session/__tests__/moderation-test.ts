@@ -23,6 +23,7 @@ function makeNorthskyAccount() {
 
 function makeBundle() {
   return {
+    chatClient: {setLabelers: jest.fn()} as unknown as Client,
     appviewClient: {
       setLabelers: jest.fn(),
       call: jest.fn(),

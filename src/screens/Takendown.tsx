@@ -1,3 +1,4 @@
+// northsky: independent labelers may still use the legacy appeal endpoint.
 import {useState} from 'react'
 import {View} from 'react-native'
 import {KeyboardAwareScrollView} from 'react-native-keyboard-controller'
@@ -19,10 +20,10 @@ import * as TextField from '#/components/forms/TextField'
 import {SimpleInlineLinkText} from '#/components/Link'
 import {Loader} from '#/components/Loader'
 import {P, Text} from '#/components/Typography'
+import {submitModerationAppeal} from '#/brand/appeals'
 // northsky: takedowns come from the account's PDS, which may not be Northsky
 import {getHostModerationInfo, getHostModServiceProxy} from '#/brand/moderation'
 import {IS_WEB} from '#/env'
-import {com, tools} from '#/lexicons'
 
 const COL_WIDTH = 400
 
@@ -51,10 +52,12 @@ export function Takendown() {
   } = useMutation({
     mutationFn: async (appealText: string) => {
       if (!currentAccount) throw new Error('No session')
-      await client.call(
-        com.atproto.moderation.createReport,
+      await submitModerationAppeal(
+        client,
         {
-          reasonType: tools.ozone.report.defs.reasonAppeal.value,
+          action: {
+            $type: 'tools.ozone.inbox.appealActionedSubject#takedownRef',
+          },
           subject: {
             $type: 'com.atproto.admin.defs#repoRef',
             did: currentAccount.did,

@@ -7,9 +7,9 @@ import {
   PUBLIC_BSKY_SERVICE,
 } from '#/lib/constants'
 import {createLexClient} from '#/lib/lexClient'
-import {getCachedIsBetaUser} from '#/state/preferences/beta-user-cache'
 // northsky: appview routing per account service
 import {type AppView} from '#/brand/appview'
+import {account} from '#/storage'
 import {networkAwareFetch} from './network'
 
 const IS_BETA_USER_HEADER = 'X-Bsky-Is-Beta-User'
@@ -17,7 +17,7 @@ const IS_BETA_USER_HEADER = 'X-Bsky-Is-Beta-User'
 /**
  * Add account-scoped headers to appview requests.
  *
- * Values are read from memory per request so preference changes are reflected
+ * Values are read from storage per request so preference changes are reflected
  * immediately without rebuilding the session bundle.
  */
 function withAppviewRequestHeaders(agent: Agent): Agent {
@@ -27,7 +27,14 @@ function withAppviewRequestHeaders(agent: Agent): Agent {
     },
     fetchHandler(path, init) {
       const headers = new Headers(init?.headers)
-      const isBetaUser = agent.did ? getCachedIsBetaUser(agent.did) : undefined
+      let isBetaUser: boolean | undefined
+      try {
+        isBetaUser = agent.did
+          ? account.get([agent.did, 'isBetaUser'])
+          : undefined
+      } catch {
+        // northsky: a corrupt optional preference must not prevent appview reads.
+      }
       if (isBetaUser !== undefined) {
         headers.set(IS_BETA_USER_HEADER, String(isBetaUser))
       }
@@ -60,6 +67,7 @@ export function buildAppviewClient(agent: Agent, appview: AppView): Client {
   return createLexClient(withAppviewRequestHeaders(agent), {
     // northsky: route to the resolved appview; the e2e override wins
     service: BLUESKY_PROXY_HEADER.override ?? `${appview.did}#bsky_appview`,
+    includeDeviceSessionHeaders: false,
   })
 }
 
@@ -86,13 +94,15 @@ export function buildPdsClient(agent: Agent): Client {
  * env-configurable `CHAT_PROXY_DID` rather than a hard-coded constant, so it can
  * be retargeted per environment.
  *
- * `appLabelers: null` for the same reason as the PDS client: the chat service
- * takes no moderation authorities.
+ * Unlike the PDS client, chat carries moderation authorities. The service uses
+ * them to hydrate labels on profiles embedded in conversation responses, so
+ * this client reads the global `Client.appLabelers` and receives the account's
+ * subscriptions through `configureModerationForAccount`.
  */
 export function buildChatClient(agent: Agent): Client {
   return createLexClient(agent, {
-    appLabelers: null,
     service: CHAT_PROXY_SERVICE,
+    includeDeviceSessionHeaders: false,
   })
 }
 
@@ -179,8 +189,11 @@ let publicLexClient: Client | undefined
  * building the bundle.
  */
 export function getPublicAppviewClient(): Client {
-  return (publicLexClient ??= createLexClient({
-    service: PUBLIC_BSKY_SERVICE,
-    fetch: networkAwareFetch,
-  }))
+  return (publicLexClient ??= createLexClient(
+    {
+      service: PUBLIC_BSKY_SERVICE,
+      fetch: networkAwareFetch,
+    },
+    {includeDeviceSessionHeaders: false},
+  ))
 }

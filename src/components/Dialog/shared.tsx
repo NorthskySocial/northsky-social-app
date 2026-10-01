@@ -42,8 +42,8 @@ export function Header({
         t.atoms.bg,
         // northsky: match the 32px dialog container / bottom-sheet corners
         // (rounded_xl) so the sticky header's top corners don't under-round
-        {borderTopLeftRadius: a.rounded_xl.borderRadius},
-        {borderTopRightRadius: a.rounded_xl.borderRadius},
+        !IS_LIQUID_GLASS && {borderTopLeftRadius: a.rounded_xl.borderRadius},
+        !IS_LIQUID_GLASS && {borderTopRightRadius: a.rounded_xl.borderRadius},
         style,
       ]}>
       {renderLeft && (

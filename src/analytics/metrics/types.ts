@@ -5,10 +5,7 @@
 import {type Platform} from 'react-native'
 
 import {type NotificationReason} from '#/lib/hooks/useNotificationHandler'
-import {
-  type VideoCompressSkipReason,
-  type VideoUploadTransport,
-} from '#/lib/media/video/types'
+import {type VideoCompressSkipReason} from '#/lib/media/video/types'
 import {type NotificationType} from '#/state/queries/notifications/types'
 import {type FeedDescriptor} from '#/state/queries/post-feed'
 import {type LiveEventFeedMetricContext} from '#/features/liveEvents/types'
@@ -47,6 +44,7 @@ export type Events = {
       | 'SignupQueued'
       | 'Deactivated'
       | 'Takendown'
+      | 'AgeAssuranceDataUnavailableScreen'
       | 'AgeAssuranceNoAccessScreen'
       // northsky: the sign out link on the age confirmation gate.
       | 'AgeConfirmationGate'
@@ -64,9 +62,7 @@ export type Events = {
     notificationType: NotificationType
     authorCount: number
   }
-  'state:background': {
-    secondsActive: number
-  }
+  'state:background': {}
   'state:foreground': {}
   'router:navigate': {
     from?: string
@@ -129,8 +125,20 @@ export type Events = {
     activeStep: number
   }
   'signup:captchaSuccess': {}
-  'signup:captchaFailure': {}
-  'signup:captchaBackPress': {}
+  'signup:captchaFailure': {
+    reason: 'state-mismatch' | 'webview-error' | 'http-error'
+    host?: string
+    statusCode?: number
+  }
+  'signup:captchaSlow': {}
+  'signup:captchaBlockedLoad': {
+    host: string
+    isTopFrame: boolean
+  }
+  'signup:captchaBackPress': {
+    phase?: 'attesting' | 'challenge'
+  }
+  'signup:attestTimeout': {}
   'signup:createAccountFailure': {
     reason: string
   }
@@ -222,18 +230,54 @@ export type Events = {
     feedType: string
     reason: 'pull-to-refresh' | 'soft-reset' | 'load-latest'
   }
-  'feed:save': {
-    feedUrl: string
-  }
-  'feed:unsave': {
-    feedUrl: string
-  }
-  'feed:pin': {
-    feedUrl: string
-  }
-  'feed:unpin': {
-    feedUrl: string
-  }
+  'feed:save': {feedUrl: string} & (
+    | {
+        logContext?: never
+        recId?: never
+        position?: never
+      }
+    | {
+        logContext: 'Explore'
+        recId: string
+        position: number
+      }
+  )
+  'feed:unsave': {feedUrl: string} & (
+    | {
+        logContext?: never
+        recId?: never
+        position?: never
+      }
+    | {
+        logContext: 'Explore'
+        recId: string
+        position: number
+      }
+  )
+  'feed:pin': {feedUrl: string} & (
+    | {
+        logContext?: never
+        recId?: never
+        position?: never
+      }
+    | {
+        logContext: 'Explore'
+        recId: string
+        position: number
+      }
+  )
+  'feed:unpin': {feedUrl: string} & (
+    | {
+        logContext?: never
+        recId?: never
+        position?: never
+      }
+    | {
+        logContext: 'Explore'
+        recId: string
+        position: number
+      }
+  )
   'feed:like': {
     feedUrl: string
   }
@@ -245,9 +289,15 @@ export type Events = {
   }
   'feed:suggestion:seen': {
     feedUrl: string
+    logContext: 'Explore'
+    recId?: string
+    position: number
   }
   'feed:suggestion:press': {
     feedUrl: string
+    logContext: 'Explore'
+    recId?: string
+    position: number
   }
   'post:showMore': {
     uri: string
@@ -457,6 +507,7 @@ export type Events = {
   'post:view': {
     uri: string
     authorDid: string
+    isReply: boolean
     logContext:
       | 'FeedItem'
       | 'PostThreadItem'
@@ -710,6 +761,7 @@ export type Events = {
   }
   'starterPack:removeUser': {
     starterPack?: string
+    context?: 'opt-out'
   }
   'starterPack:share': {
     starterPack: string
@@ -720,8 +772,26 @@ export type Events = {
     logContext: 'StarterPackProfilesList' | 'Onboarding'
     starterPack: string
     count: number
+    recId?: string
+    position?: number
+  }
+  'starterPack:suggestion:seen': {
+    logContext: 'Explore' | 'Onboarding'
+    starterPack: string
+    recId: string
+    position: number
+  }
+  'starterPack:suggestion:press': {
+    logContext: 'Explore'
+    starterPack: string
+    recId: string
+    position: number
   }
   'starterPack:delete': {}
+  'starterPack:optOut': {
+    starterPack: string
+    action: 'optOut' | 'undo'
+  }
   'starterPack:create': {
     setName: boolean
     setDescription: boolean
@@ -774,12 +844,14 @@ export type Events = {
   }
   'trendingTopic:seen': {
     context: 'sidebar' | 'interstitial' | 'explore'
+    feedUri?: string
     recId?: string
     rank: number
     feedSliceIndex?: number
   }
   'trendingTopic:click': {
     context: 'sidebar' | 'interstitial' | 'explore'
+    feedUri?: string
     recId?: string
     rank: number
     feedSliceIndex?: number
@@ -1403,6 +1475,41 @@ export type Events = {
     playlist: string
   }
 
+  /**
+   * The playable video was meaningfully visible. This is an exposure event,
+   * not proof that playback started. Fires once per mounted video item.
+   */
+  'video:impression': {
+    postUri?: string
+    postAuthorDid?: string
+    context: 'embed' | 'immersiveFeed'
+    presentation: 'video' | 'gif'
+  }
+  /**
+   * Playback advanced far enough to render the first frame. Preloading and
+   * merely becoming active do not count. Fires once per mounted video item;
+   * automatic loops do not produce another event.
+   */
+  'video:playback:start': {
+    postUri?: string
+    postAuthorDid?: string
+    context: 'embed' | 'immersiveFeed'
+    presentation: 'video' | 'gif'
+    autoplay: boolean
+  }
+  /**
+   * The user activated a third-party media player. Cross-origin players do
+   * not expose confirmed playback consistently, so this must not be treated
+   * as equivalent to video:playback:start without an explicit methodology.
+   */
+  'externalEmbed:playerActivated': {
+    postUri?: string
+    postAuthorDid?: string
+    source: string
+    playerType: string
+    mediaType: 'video' | 'audio' | 'gif' | 'other'
+  }
+
   // === Video upload funnel (Frontend Spec section D) ===
   // Every event carries uploadId (client-generated UUID, ties one upload
   // session end-to-end) + engine (compression engine id, e.g.
@@ -1477,7 +1584,6 @@ export type Events = {
     bytes: number
     elapsedMs: number
     throughputBytesPerSec: number
-    transport: VideoUploadTransport
   }
   'video:upload:uploadFailed': {
     uploadId: string
@@ -1485,7 +1591,6 @@ export type Events = {
     bytes: number
     errorClass: string
     elapsedMs: number
-    transport: VideoUploadTransport
   }
   'video:upload:processingStarted': {
     uploadId: string
