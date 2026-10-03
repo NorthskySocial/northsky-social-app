@@ -44,8 +44,8 @@ import {
   Bell_Stroke2_Corner0_Rounded as BellIcon,
 } from '#/components/icons/Bell'
 import {
-  Bookmark as BookmarkIcon,
-  BookmarkFilled as BookmarkFilledIcon,
+  Bookmark_Filled_Corner0_Rounded as BookmarkFilledIcon,
+  Bookmark_Stroke2_Corner0_Rounded as BookmarkIcon,
 } from '#/components/icons/Bookmark'
 import {
   BulletList_Filled_Corner0_Rounded as ListFilledIcon,
@@ -88,7 +88,11 @@ import {Text} from '#/components/Typography'
 import {useAgeAssurance} from '#/ageAssurance'
 import {useAnalytics} from '#/analytics'
 import {type Events} from '#/analytics/metrics/types'
+<<<<<<< HEAD
 import {navItemHoverWash} from '#/brand/gradients' // northsky: nav hover wash
+=======
+import {isFollowingV2HomeDotEnabled} from '#/features/followingV2/eligibility'
+>>>>>>> upstream/main
 import {useActorStatus} from '#/features/liveNow'
 // northsky: wording follows the "They're called" setting
 import {usePostVocabulary} from '#/features/postVocabulary'
@@ -674,9 +678,7 @@ export function DesktopLeftNav({routeName}: {routeName: string}) {
             href="/"
             navItem="home"
             minimal={leftNavMinimal}
-            hasNew={
-              hasHomeBadge && ax.features.enabled(ax.features.FollowingV2Enable)
-            }
+            hasNew={hasHomeBadge && isFollowingV2HomeDotEnabled(ax)}
             icons={{
               inactive: HomeIcon,
               active: HomeFilledIcon,
