@@ -5,6 +5,7 @@ import {app, com} from '#/lexicons'
 import {
   getPostThreadWithSlingshotFallback,
   getSlingshotPost,
+  getSlingshotProfile,
 } from '../slingshot'
 
 jest.mock('#/lib/slingshot/client', () => ({
@@ -154,6 +155,50 @@ describe('getSlingshotPost', () => {
       getSlingshotPost({client, atUri: URI}),
     ).resolves.toBeUndefined()
     expect(queryLabels).not.toHaveBeenCalled()
+  })
+})
+
+describe('getSlingshotProfile', () => {
+  it('hydrates profile fields and image URLs from Microcosm', async () => {
+    getRecordByUri.mockResolvedValue({
+      uri: 'at://did:plc:author/app.bsky.actor.profile/self',
+      value: {
+        $type: 'app.bsky.actor.profile',
+        displayName: 'Author',
+        description: 'Current profile description',
+        pronouns: 'they/them',
+        avatar: {ref: {$link: 'baf-avatar'}},
+        banner: {ref: {$link: 'baf-banner'}},
+      },
+    })
+
+    const profile = await getSlingshotProfile('did:plc:author')
+
+    expect(getRecordByUri).toHaveBeenCalledWith(
+      'at://did:plc:author/app.bsky.actor.profile/self',
+    )
+    expect(profile).toMatchObject({
+      did: 'did:plc:author',
+      handle: 'author.test',
+      displayName: 'Author',
+      description: 'Current profile description',
+      pronouns: 'they/them',
+      avatar:
+        'https://pds.example.com/xrpc/com.atproto.sync.getBlob?did=did%3Aplc%3Aauthor&cid=baf-avatar',
+      banner:
+        'https://pds.example.com/xrpc/com.atproto.sync.getBlob?did=did%3Aplc%3Aauthor&cid=baf-banner',
+    })
+  })
+
+  it('uses Microcosm identity when no profile record exists', async () => {
+    getRecordByUri.mockResolvedValue(undefined)
+
+    await expect(getSlingshotProfile('did:plc:author')).resolves.toMatchObject({
+      did: 'did:plc:author',
+      handle: 'author.test',
+      displayName: undefined,
+      description: undefined,
+    })
   })
 })
 
