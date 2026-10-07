@@ -178,7 +178,8 @@ void promiseForHls.then(Hls => {
 // northsky: the UMD build's inline-blob worker throws ReferenceError on init
 // due to a `module` var not present in the minified CommonJS wrapper,
 // so hls.js silently falls back to demuxing on the main thread.
-// We point at hls.js's own prebuilt worker script instead.// Metro web has no valid import.meta.url, so fall back to the default there.
+// We point at hls.js's own prebuilt worker script instead.
+// Metro web has no valid import.meta.url, so fall back to the default there.
 let hlsWorkerUrl: string | undefined
 try {
   hlsWorkerUrl = new URL(
