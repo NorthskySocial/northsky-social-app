@@ -36,7 +36,7 @@ export function AtCard({
   const t = useTheme()
   const {t: l} = useLingui()
   const {gtPhone} = useBreakpoints()
-  const playHaptic = useHaptics()
+  const haptics = useHaptics()
   const {data: authorProfile, isError: authorLookupFailed} = useProfileQuery({
     did: authorDid,
   })
@@ -75,13 +75,13 @@ export function AtCard({
           : l`Visit site on ${provider.name}`
       }
       onPress={() => {
-        playHaptic('Light')
+        haptics.tap()
         onEmbedInteractionCallback?.()
       }}
       onLongPress={
         IS_NATIVE
           ? () => {
-              playHaptic('Heavy')
+              haptics.longPress()
               void shareUrl(view.uri)
               return false
             }

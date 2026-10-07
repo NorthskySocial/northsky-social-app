@@ -37,7 +37,7 @@ export function PostControlButton({
   hitSlop?: Insets
 }) {
   const t = useTheme()
-  const playHaptic = useHaptics()
+  const haptics = useHaptics()
 
   const ctx = useMemo(
     () => ({
@@ -64,18 +64,18 @@ export function PostControlButton({
   const handlePress = useMemo(() => {
     if (!onPress) return
     return (evt: GestureResponderEvent) => {
-      playHaptic('Light')
+      haptics.tap()
       onPress(evt)
     }
-  }, [onPress, playHaptic])
+  }, [onPress, haptics])
 
   const handleLongPress = useMemo(() => {
     if (!onLongPress) return
     return (evt: GestureResponderEvent) => {
-      playHaptic('Heavy')
+      haptics.longPress()
       onLongPress(evt)
     }
-  }, [onLongPress, playHaptic])
+  }, [onLongPress, haptics])
 
   return (
     <Button

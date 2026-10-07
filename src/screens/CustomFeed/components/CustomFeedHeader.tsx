@@ -101,7 +101,7 @@ export function CustomFeedHeader({
   const {hasSession} = useSession()
   const {gtMobile} = useBreakpoints()
   const infoControl = Dialog.useDialogControl()
-  const playHaptic = useHaptics()
+  const haptics = useHaptics()
 
   /* northsky: the hover wash sits behind a title that wraps to two lines, so
    * its height changes. The ratio it grew by moved a one-line title 4px and a
@@ -139,7 +139,7 @@ export function CustomFeedHeader({
 
   const onToggleSaved = async () => {
     try {
-      playHaptic()
+      haptics.confirm()
 
       if (savedFeedConfig) {
         await removeFeed(savedFeedConfig)
@@ -169,7 +169,7 @@ export function CustomFeedHeader({
 
   const onTogglePinned = async () => {
     try {
-      playHaptic()
+      haptics.confirm()
 
       if (savedFeedConfig) {
         const pinned = !savedFeedConfig.pinned
@@ -235,7 +235,7 @@ export function CustomFeedHeader({
                   color="secondary"
                   variant="ghost"
                   onPress={() => {
-                    playHaptic()
+                    haptics.tap()
                     infoControl.open()
                   }}>
                   <ButtonIcon icon={EllipsisIcon} />
@@ -252,7 +252,7 @@ export function CustomFeedHeader({
                   },
                 ]}
                 onPress={() => {
-                  playHaptic()
+                  haptics.tap()
                   infoControl.open()
                 }}>
                 {({hovered, pressed}) => (
@@ -464,7 +464,7 @@ function DialogInner({
   const {t: l} = useLingui()
   const ax = useAnalytics()
   const {hasSession} = useSession()
-  const playHaptic = useHaptics()
+  const haptics = useHaptics()
   const control = Dialog.useDialogContext()
   const reportDialogControl = useReportDialogControl()
   const {mutateAsync: likeFeed, isPending: isLikePending} = useLikeMutation()
@@ -482,7 +482,7 @@ function DialogInner({
      */
     const shouldUnlike = isLiked && likeUri
     try {
-      playHaptic()
+      haptics.tap()
 
       if (shouldUnlike) {
         await unlikeFeed({uri: likeUri})
@@ -505,11 +505,11 @@ function DialogInner({
   }
 
   const onPressShare = useCallback(() => {
-    playHaptic()
+    haptics.tap()
     const url = toShareUrl(info.route.href)
     void shareUrl(url)
     ax.metric('feed:share', {feedUrl: info.uri})
-  }, [ax, info, playHaptic])
+  }, [ax, info, haptics])
 
   const onPressReport = useCallback(() => {
     reportDialogControl.open()
