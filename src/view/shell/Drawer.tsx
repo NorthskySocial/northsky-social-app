@@ -32,7 +32,7 @@ import {BetaTag} from '#/components/BetaTag'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {useDialogControl} from '#/components/Dialog'
 import {Divider} from '#/components/Divider'
-import {ArrowShareRight_Stroke2_Corner2_Rounded as ArrowShareRightIcon} from '#/components/icons/Arrow'
+import {ArrowShareRight_Stroke2_Corner2_Rounded as ArrowShareRightIcon} from '#/components/icons/ArrowShareRight'
 import {
   Bell_Filled_Corner0_Rounded as BellFilledIcon,
   Bell_Stroke2_Corner0_Rounded as BellIcon,
@@ -49,8 +49,8 @@ import {
 } from '#/components/icons/Hashtag'
 import {
   HomeOpen_Filled_Corner0_Rounded as HomeFilledIcon,
-  HomeOpen_Stroke2_Corner0_Rounded as HomeIcon,
-} from '#/components/icons/Home'
+  HomeOpen_Stoke2_Corner0_Rounded as HomeIcon,
+} from '#/components/icons/HomeOpen'
 import {
   MagnifyingGlass_Filled_Stroke2_Corner0_Rounded as MagnifyingGlassFilledIcon,
   MagnifyingGlass_Stroke2_Corner0_Rounded as MagnifyingGlassIcon,
@@ -59,13 +59,9 @@ import {
   Message_Stroke2_Corner0_Rounded as MessageIcon,
   Message_Stroke2_Corner0_Rounded_Filled as MessageFilledIcon,
 } from '#/components/icons/Message'
-<<<<<<< HEAD
 // northsky: donation screen icon
 import {MoneybagHeart_Stroke2_Corner2_Rounded as MoneybagHeart} from '#/components/icons/MoneybagHeart'
-import {SettingsGear2_Stroke2_Corner0_Rounded as Settings} from '#/components/icons/SettingsGear2'
-=======
 import {SettingsGear2_Stroke2_Corner0_Rounded as SettingsIcon} from '#/components/icons/Settings'
->>>>>>> upstream/main
 import {
   UserCircle_Filled_Corner0_Rounded as UserCircleFilledIcon,
   UserCircle_Stroke2_Corner0_Rounded as UserCircleIcon,
@@ -727,25 +723,21 @@ let SettingsMenuItem = ({onPress}: {onPress: () => void}): React.ReactNode => {
 }
 SettingsMenuItem = memo(SettingsMenuItem)
 
-<<<<<<< HEAD
 // northsky: donation screen
 let SupportMenuItem = ({onPress}: {onPress: () => void}): React.ReactNode => {
-  const {_} = useLingui()
+  const {t: l} = useLingui()
   const t = useTheme()
   return (
     <MenuItem
       icon={<MoneybagHeart style={[t.atoms.text]} width={iconWidth} />}
-      label={_(msg`Support`)}
+      label={l`Support`}
       onPress={onPress}
     />
   )
 }
 SupportMenuItem = memo(SupportMenuItem)
 
-function MenuItem({icon, label, count, bold, onPress}: MenuItemProps) {
-=======
 function MenuItem({icon, label, count, bold, beta, onPress}: MenuItemProps) {
->>>>>>> upstream/main
   const t = useTheme()
   const {t: l} = useLingui()
   return (
@@ -830,24 +822,14 @@ function ExtraLinks() {
     <View style={[a.flex_col, a.gap_md, a.flex_wrap]}>
       <InlineLinkText
         style={[a.text_md]}
-<<<<<<< HEAD
-        label={_(msg`Terms of Service`)}
-        to={webLinks.tos}>
-=======
         label={l`Terms of Service`}
-        to="https://bsky.social/about/support/tos">
->>>>>>> upstream/main
+        to={webLinks.tos}>
         <Trans>Terms of Service</Trans>
       </InlineLinkText>
       <InlineLinkText
         style={[a.text_md]}
-<<<<<<< HEAD
         to={webLinks.privacy}
-        label={_(msg`Privacy Policy`)}>
-=======
-        to="https://bsky.social/about/support/privacy-policy"
         label={l`Privacy Policy`}>
->>>>>>> upstream/main
         <Trans>Privacy Policy</Trans>
       </InlineLinkText>
       {logoVariant === 'kawaii' && (

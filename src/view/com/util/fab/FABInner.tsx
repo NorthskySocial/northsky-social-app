@@ -32,13 +32,8 @@ export interface FABProps extends ComponentProps<typeof Pressable> {
 export function FABInner({testID, icon, onPress, style, ...props}: FABProps) {
   const insets = useSafeAreaInsets()
   const {gtMobile} = useBreakpoints()
-<<<<<<< HEAD
-  const playHaptic = useHaptics()
-=======
-  const t = useTheme()
   const haptics = useHaptics()
   const pressInHapticAt = useRef(0)
->>>>>>> upstream/main
   const fabMinimalShellTransform = useMinimalShellFabTransform()
 
   const size = gtMobile ? styles.sizeLarge : styles.sizeRegular

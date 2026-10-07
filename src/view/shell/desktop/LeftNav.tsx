@@ -39,7 +39,7 @@ import {
 import {BetaTag} from '#/components/BetaTag'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {type DialogControlProps} from '#/components/Dialog'
-import {ArrowBoxLeft_Stroke2_Corner0_Rounded as LeaveIcon} from '#/components/icons/Arrow'
+import {ArrowBoxLeft_Stroke2_Corner0_Rounded as LeaveIcon} from '#/components/icons/ArrowBoxLeft'
 import {
   Bell_Filled_Corner0_Rounded as BellFilledIcon,
   Bell_Stroke2_Corner0_Rounded as BellIcon,
@@ -62,8 +62,8 @@ import {
 } from '#/components/icons/Hashtag'
 import {
   HomeOpen_Filled_Corner0_Rounded as HomeFilledIcon,
-  HomeOpen_Stroke2_Corner0_Rounded as HomeIcon,
-} from '#/components/icons/Home'
+  HomeOpen_Stoke2_Corner0_Rounded as HomeIcon,
+} from '#/components/icons/HomeOpen'
 import {
   MagnifyingGlass_Filled_Stroke2_Corner0_Rounded as MagnifyingGlassFilledIcon,
   MagnifyingGlass_Stroke2_Corner0_Rounded as MagnifyingGlassIcon,
