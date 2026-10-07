@@ -56,6 +56,8 @@ import {
 import {RQKEY_ROOT as RQKEY_LIST_CONVOS} from './messages/list-conversations'
 import {RQKEY as RQKEY_MY_BLOCKED} from './my-blocked-accounts'
 import {RQKEY as RQKEY_MY_MUTED} from './my-muted-accounts'
+// northsky: profile fields come from Microcosm
+import {getSlingshotProfile} from './slingshot'
 
 export * from '#/state/queries/unstable-profile-cache'
 /**
@@ -91,13 +93,25 @@ export function useProfileQuery({
     refetchOnWindowFocus: true,
     queryKey: RQKEY(did ?? ''),
     queryFn: async () => {
-      return getProfileWithGlobalCounts(appview, 'getProfile', opts =>
-        client.call(
-          app.bsky.actor.getProfile,
-          {actor: (did ?? '') as AtIdentifierString},
-          opts,
-        ),
-      )
+      // northsky: Microcosm is authoritative for profile fields
+      const microcosmProfile = await getSlingshotProfile(did ?? '')
+      const getAppviewProfile = () =>
+        getProfileWithGlobalCounts(appview, 'getProfile', opts =>
+          client.call(
+            app.bsky.actor.getProfile,
+            {actor: (did ?? '') as AtIdentifierString},
+            opts,
+          ),
+        )
+
+      if (!microcosmProfile) {
+        throw new Error('Microcosm profile lookup failed')
+      }
+      try {
+        return {...(await getAppviewProfile()), ...microcosmProfile}
+      } catch {
+        return microcosmProfile
+      }
     },
     placeholderData: () => {
       if (!did) return
@@ -120,9 +134,28 @@ export function useProfilesQuery({
     staleTime: STALE.MINUTES.FIVE,
     queryKey: profilesQueryKey(handles),
     queryFn: async () => {
-      return await client.call(app.bsky.actor.getProfiles, {
-        actors: handles as AtIdentifierString[],
+      // northsky: Microcosm is authoritative for profile fields
+      const [microcosmProfiles, appviewProfiles] = await Promise.all([
+        Promise.all(handles.map(handle => getSlingshotProfile(handle))),
+        client
+          .call(app.bsky.actor.getProfiles, {
+            actors: handles as AtIdentifierString[],
+          })
+          .then(response => response.profiles)
+          .catch(() => []),
+      ])
+      const profiles = handles.map((handle, index) => {
+        const microcosmProfile = microcosmProfiles[index]
+        const appviewProfile = appviewProfiles.find(
+          profile =>
+            profile.did === (microcosmProfile?.did ?? handle) ||
+            profile.handle === handle,
+        )
+        return microcosmProfile
+          ? {...appviewProfile, ...microcosmProfile}
+          : undefined
       })
+      return {profiles: profiles.filter(profile => profile !== undefined)}
     },
     placeholderData: maintainData ? keepPreviousData : undefined,
   })
@@ -138,13 +171,25 @@ export function usePrefetchProfileQuery() {
         staleTime: STALE.SECONDS.THIRTY,
         queryKey: RQKEY(did),
         queryFn: async () => {
-          return getProfileWithGlobalCounts(appview, 'getProfile', opts =>
-            client.call(
-              app.bsky.actor.getProfile,
-              {actor: (did || '') as AtIdentifierString},
-              opts,
-            ),
-          )
+          // northsky: Microcosm is authoritative for profile fields
+          const microcosmProfile = await getSlingshotProfile(did)
+          const getAppviewProfile = () =>
+            getProfileWithGlobalCounts(appview, 'getProfile', opts =>
+              client.call(
+                app.bsky.actor.getProfile,
+                {actor: did as AtIdentifierString},
+                opts,
+              ),
+            )
+
+          if (!microcosmProfile) {
+            throw new Error('Microcosm profile lookup failed')
+          }
+          try {
+            return {...(await getAppviewProfile()), ...microcosmProfile}
+          } catch {
+            return microcosmProfile
+          }
         },
       })
     },

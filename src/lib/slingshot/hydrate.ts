@@ -245,3 +245,26 @@ export function hydrateAvatarUrl(
   }
   return undefined
 }
+
+export function hydrateProfileView(
+  record: Record<string, unknown>,
+  miniDoc: SlingshotMiniDoc,
+): app.bsky.actor.defs.ProfileViewDetailed {
+  const blobUrl = (value: unknown) =>
+    isBlobRef(value)
+      ? buildPdsBlobUrl(miniDoc.pds, miniDoc.did, value.ref.$link)
+      : undefined
+
+  return {
+    $type: 'app.bsky.actor.defs#profileViewDetailed',
+    did: miniDoc.did as app.bsky.actor.defs.ProfileViewDetailed['did'],
+    handle: miniDoc.handle as app.bsky.actor.defs.ProfileViewDetailed['handle'],
+    displayName:
+      typeof record.displayName === 'string' ? record.displayName : undefined,
+    description:
+      typeof record.description === 'string' ? record.description : undefined,
+    pronouns: typeof record.pronouns === 'string' ? record.pronouns : undefined,
+    avatar: blobUrl(record.avatar),
+    banner: blobUrl(record.banner),
+  } as app.bsky.actor.defs.ProfileViewDetailed
+}
