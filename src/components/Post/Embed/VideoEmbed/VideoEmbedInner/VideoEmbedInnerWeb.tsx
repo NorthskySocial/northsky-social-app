@@ -178,11 +178,16 @@ void promiseForHls.then(Hls => {
 // northsky: the UMD build's inline-blob worker throws ReferenceError on init
 // due to a `module` var not present in the minified CommonJS wrapper,
 // so hls.js silently falls back to demuxing on the main thread.
-// We point at hls.js's own prebuilt worker script instead.
-const hlsWorkerUrl = new URL(
-  'hls.js/dist/hls.worker.js',
-  import.meta.url,
-).toString()
+// We point at hls.js's own prebuilt worker script instead.// Metro web has no valid import.meta.url, so fall back to the default there.
+let hlsWorkerUrl: string | undefined
+try {
+  hlsWorkerUrl = new URL(
+    'hls.js/dist/hls.worker.js',
+    import.meta.url,
+  ).toString()
+} catch {
+  hlsWorkerUrl = undefined
+}
 
 function useHLS({
   playlist,
@@ -315,7 +320,7 @@ function useHLS({
         latestEstimate === undefined ? -1 : Hls.DefaultConfig.startLevel,
       // the '-1' value makes a test request to estimate bandwidth and quality level
       // before showing the first fragment
-      workerPath: hlsWorkerUrl, // northsky: see hlsWorkerUrl above
+      ...(hlsWorkerUrl ? {workerPath: hlsWorkerUrl} : {}), // northsky: see hlsWorkerUrl above
     })
     hlsRef.current = hls
 
