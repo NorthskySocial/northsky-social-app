@@ -8,6 +8,7 @@ import {
   hydrateAvatarUrl,
   hydratePostView,
   hydratePostViewRecord,
+  hydrateProfileView,
 } from '#/lib/slingshot/hydrate'
 import {isNetworkError, shouldRetryError} from '#/lib/strings/errors'
 import {STALE} from '#/state/queries'
@@ -84,6 +85,21 @@ export async function getSlingshotPost({
     recovered.counts,
     recovered.labels,
   )
+}
+
+export async function getSlingshotProfile(
+  identifier: string,
+): Promise<app.bsky.actor.defs.ProfileViewDetailed | undefined> {
+  const miniDoc = await resolveMiniDoc(identifier)
+  if (!miniDoc) return undefined
+
+  const profileUri = `at://${miniDoc.did}/app.bsky.actor.profile/self`
+  const record = await getRecordByUri(profileUri)
+  if (record && !bsky.isType(app.bsky.actor.profile, record.value)) {
+    return undefined
+  }
+
+  return hydrateProfileView(record?.value ?? {}, miniDoc)
 }
 
 export async function getPostThreadWithSlingshotFallback({
