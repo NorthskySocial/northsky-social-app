@@ -175,6 +175,18 @@ void promiseForHls.then(Hls => {
   promiseForHls.value = Hls
 })
 
+// northsky: use the prebuilt worker when the bundler exposes an import URL.
+// Metro web does not, so hls.js must use its default worker setup instead.
+let hlsWorkerUrl: string | undefined
+try {
+  hlsWorkerUrl = new URL(
+    'hls.js/dist/hls.worker.js',
+    import.meta.url,
+  ).toString()
+} catch {
+  hlsWorkerUrl = undefined
+}
+
 function useHLS({
   playlist,
   setHasSubtitleTrack,
@@ -306,6 +318,7 @@ function useHLS({
         latestEstimate === undefined ? -1 : Hls.DefaultConfig.startLevel,
       // the '-1' value makes a test request to estimate bandwidth and quality level
       // before showing the first fragment
+      ...(hlsWorkerUrl ? {workerPath: hlsWorkerUrl} : {}), // northsky: optional for Metro web compatibility
     })
     hlsRef.current = hls
 
