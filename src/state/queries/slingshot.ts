@@ -198,11 +198,11 @@ export function useSlingshotRecordQuery({
   enabled?: boolean
 }) {
   const client = useAppviewClient()
-  return useQuery<app.bsky.embed.record.ViewRecord | undefined>({
+  return useQuery<app.bsky.embed.record.ViewRecord | null>({
     queryKey: slingshotRecordQueryKey(atUri),
     queryFn: async () => {
       const recovered = await getSlingshotPostData({client, atUri})
-      if (!recovered) return undefined
+      if (!recovered) return null
       return hydratePostViewRecord(
         recovered.record.value,
         recovered.record.uri,
@@ -228,7 +228,7 @@ export function useSlingshotAvatarQuery({
   did: string
   enabled?: boolean
 }) {
-  return useQuery<string | undefined>({
+  return useQuery<string | null>({
     queryKey: ['slingshot-avatar', did],
     queryFn: async () => {
       const profileUri = `at://${did}/app.bsky.actor.profile/self`
@@ -237,8 +237,8 @@ export function useSlingshotAvatarQuery({
         resolveMiniDoc(did),
       ])
 
-      if (!record || !miniDoc) return undefined
-      return hydrateAvatarUrl(record.value, miniDoc)
+      if (!record || !miniDoc) return null
+      return hydrateAvatarUrl(record.value, miniDoc) ?? null
     },
     staleTime: THIRTY_DAYS,
     gcTime: THIRTY_DAYS,

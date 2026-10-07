@@ -28,3 +28,7 @@ export const BookmarkDeleteLarge = createTablerIcon({
     'M3 3l18 18',
   ],
 })
+
+export const Bookmark_Filled_Corner0_Rounded = BookmarkFilled
+export const Bookmark_Stroke2_Corner0_Rounded = Bookmark
+export const BookmarkDelete_Stroke2_Corner0_Rounded_Large = BookmarkDeleteLarge

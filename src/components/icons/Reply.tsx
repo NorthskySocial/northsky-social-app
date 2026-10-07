@@ -23,3 +23,5 @@ export const ReplyFilled = createTablerIcon({
     'M19 16v6',
   ],
 })
+
+export const Reply_Stroke2_Corner0_Rounded = Reply

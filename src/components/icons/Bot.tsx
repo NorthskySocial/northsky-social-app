@@ -35,3 +35,6 @@ export const Bot_Filled = createTablerIcon({
     'M14 8v.01',
   ],
 })
+
+export const Bot_Stroke2_Corner0_Rounded = Bot_Stroke
+export const Bot_Filled_Corner0_Rounded = Bot_Filled
