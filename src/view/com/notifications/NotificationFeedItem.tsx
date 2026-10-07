@@ -991,6 +991,8 @@ function CondensedAuthorsList({
           profile={authors[0].profile}
           moderation={authors[0].moderation.ui('avatar')}
           type={authors[0].profile.associated?.labeler ? 'labeler' : 'user'}
+          // northsky: the notification row already provides this navigation link.
+          disableLink
         />
         {showDmButton ? <SayHelloBtn profile={authors[0].profile} /> : null}
       </View>
@@ -1008,6 +1010,8 @@ function CondensedAuthorsList({
               profile={author.profile}
               moderation={author.moderation.ui('avatar')}
               type={author.profile.associated?.labeler ? 'labeler' : 'user'}
+              // northsky: the notification row already provides this navigation link.
+              disableLink
             />
           </View>
         ))}
