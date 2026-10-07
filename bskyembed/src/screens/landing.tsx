@@ -7,12 +7,6 @@ import {app, com} from '@bsky/sdk/lexicons'
 import {h, render} from 'preact'
 import {useEffect, useMemo, useRef, useState} from 'preact/hooks'
 
-<<<<<<< HEAD
-import arrowBottom from '../../assets/arrowBottom_stroke2_corner0_rounded.svg'
-import logo from '../../assets/logo.svg'
-import {BRAND} from '../brand' // northsky: brand hosts
-=======
->>>>>>> upstream/main
 import {
   assertColorModeValues,
   ColorModeValues,
@@ -25,12 +19,13 @@ import {niceDate} from '#/util/nice-date'
 
 import arrowBottom from '../../assets/arrowBottom_stroke2_corner0_rounded.svg'
 import logo from '../../assets/logo.svg'
+import {BRAND} from '../brand'
 
 const DEFAULT_POST = `${BRAND.baseUrl}/profile/did:plc:bo2zngg7yxwavvsnhdzrufil/post/3mfgmvubn6k2t`
 const DEFAULT_URI =
   'at://did:plc:bo2zngg7yxwavvsnhdzrufil/app.bsky.feed.post/3mfgmvubn6k2t'
 
-export const EMBED_SERVICE = BRAND.embedServiceUrl // northsky: brand embed host
+export const EMBED_SERVICE = BRAND.embedServiceUrl
 export const EMBED_SCRIPT = `${EMBED_SERVICE}/static/embed.js`
 
 const root = document.getElementById('app')
@@ -38,13 +33,9 @@ if (!root) throw new Error('No root element')
 
 initSystemColorMode({additionalBodyClasses: 'dark:bg-dimmedBgDarken'})
 
-<<<<<<< HEAD
-const agent = new AtpAgent({
-  service: BRAND.publicAppViewUrl, // northsky: brand appview
+const client = new Client(BRAND.publicAppViewUrl, {
+  strictResponseProcessing: false,
 })
-=======
-const client = new Client(api.app.urlPublic, {strictResponseProcessing: false})
->>>>>>> upstream/main
 
 render(<LandingPage />, root)
 
@@ -70,9 +61,6 @@ function LandingPage() {
           } else {
             try {
               const urlp = new URL(uri)
-              // northsky: accept brand post URLs next to bsky.app ones
-              // Match bsky.app and its subdomains on a dot boundary so that
-              // look-alike hosts such as evilbsky.app do not pass.
               const isBskyHost =
                 urlp.hostname === 'bsky.app' ||
                 urlp.hostname.endsWith('.bsky.app')
@@ -103,11 +91,7 @@ function LandingPage() {
               atUri = `at://${did}/app.bsky.feed.post/${rkey}`
             } catch (err) {
               console.log(err)
-<<<<<<< HEAD
-              throw new Error(`Invalid ${BRAND.appName} URL`)
-=======
-              throw new Error('Invalid Bluesky URL', {cause: err})
->>>>>>> upstream/main
+              throw new Error(`Invalid ${BRAND.appName} URL`, {cause: err})
             }
           }
         }
@@ -314,7 +298,7 @@ function Snippet({
 }
 
 function toShareUrl(path: string) {
-  return `${BRAND.baseUrl}${path}?ref_src=embed` // northsky: brand share links
+  return `https://bsky.app${path}?ref_src=embed`
 }
 
 /**

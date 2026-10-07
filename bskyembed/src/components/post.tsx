@@ -16,26 +16,7 @@ import {prettyNumber} from '#/util/pretty-number'
 import {getRkey} from '#/util/rkey'
 import {getVerificationState} from '#/util/verification-state'
 
-<<<<<<< HEAD
-import logo from '../../assets/logo.svg' // northsky: brand logomark
-import {BRAND} from '../brand' // northsky: brand link recognition
-import {Like as LikeIcon} from '../icons/Like'
-import {Reply as ReplyIcon} from '../icons/Reply'
-import {Repost as RepostIcon} from '../icons/Repost'
-import {Robot as RobotIcon} from '../icons/Robot'
-import {CONTENT_LABELS} from '../labels'
-import * as bsky from '../types/bsky'
-import {niceDate} from '../util/nice-date'
-import {prettyNumber} from '../util/pretty-number'
-import {getRkey} from '../util/rkey'
-import {getVerificationState} from '../util/verification-state'
-import {Container} from './container'
-import {Embed} from './embed'
-import {Link} from './link'
-import {VerificationCheck} from './verification-check'
-=======
 import logo from '../../assets/logo_full_name.svg'
->>>>>>> upstream/main
 
 interface Props {
   post: app.bsky.feed.defs.PostView
@@ -153,11 +134,7 @@ export function Post({post}: Props) {
           <Link
             href={href}
             className="transition-transform hover:scale-110 shrink-0">
-            <img
-              src={logo}
-              className="h-5 min-[400px]:h-7"
-              alt={BRAND.appName}
-            />
+            <img src={logo} className="h-5 min-[400px]:h-7" />
           </Link>
         </div>
       </div>
@@ -181,7 +158,10 @@ function PostContent({record}: {record: app.bsky.feed.post.Main | null}) {
           key={counter}
           href={segment.link.uri}
           className="text-brand hover:underline"
-          disableTracking={!isFirstPartyUrl(segment.link.uri)}>
+          disableTracking={
+            !segment.link.uri.startsWith('https://bsky.app') &&
+            !segment.link.uri.startsWith('https://go.bsky.app')
+          }>
           {segment.text}
         </Link>,
       )
@@ -214,22 +194,4 @@ function PostContent({record}: {record: app.bsky.feed.post.Main | null}) {
       {richText}
     </p>
   )
-}
-
-/*
- * northsky: compare parsed origins so that look-alike hosts such as
- * bsky.appattacker.com do not count as first-party. Facet URIs come
- * from user records, so an unparseable URI is treated as external.
- */
-function isFirstPartyUrl(uri: string): boolean {
-  try {
-    const origin = new URL(uri).origin
-    return (
-      origin === 'https://bsky.app' ||
-      origin === 'https://go.bsky.app' ||
-      origin === BRAND.baseUrl
-    )
-  } catch {
-    return false
-  }
 }

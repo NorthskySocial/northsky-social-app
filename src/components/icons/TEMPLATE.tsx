@@ -87,9 +87,6 @@ export function createSinglePathSVG({
   return Icon
 }
 
-/**
- * Prefer `createSinglePathSVG` - do a boolean union in Figma prior to exporting, unless you have a specific reason.
- */
 export function createMultiPathSVG({
   paths,
   viewBox,

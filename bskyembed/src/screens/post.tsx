@@ -12,26 +12,14 @@ import {Post} from '#/components/post'
 import {getRkey} from '#/util/rkey'
 
 import logo from '../../assets/logo.svg'
-<<<<<<< HEAD
-import {BRAND} from '../brand' // northsky: brand hosts
-import {applyTheme, initSystemColorMode} from '../color-mode'
-import {Container} from '../components/container'
-import {Link} from '../components/link'
-import {Post} from '../components/post'
-import {getRkey} from '../util/rkey'
-=======
->>>>>>> upstream/main
+import {BRAND} from '../brand'
 
 const root = document.getElementById('app')
 if (!root) throw new Error('No root element')
 
-<<<<<<< HEAD
-const agent = new AtpAgent({
-  service: BRAND.publicAppViewUrl, // northsky: brand appview
+const client = new Client(BRAND.publicAppViewUrl, {
+  strictResponseProcessing: false,
 })
-=======
-const client = new Client(api.app.urlPublic, {strictResponseProcessing: false})
->>>>>>> upstream/main
 
 const uri = `at://${window.location.pathname.slice('/embed/'.length)}`
 if (!isAtUriString(uri)) {

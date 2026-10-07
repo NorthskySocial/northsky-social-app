@@ -12,17 +12,6 @@ import {getVerificationState} from '#/util/verification-state'
 import infoIcon from '../../assets/circleInfo_stroke2_corner0_rounded.svg'
 import playIcon from '../../assets/play_filled_corner0_rounded.svg'
 import starterPackIcon from '../../assets/starterPack.svg'
-<<<<<<< HEAD
-import {BRAND} from '../brand' // northsky: use the branded card-service host.
-import {Globe} from '../icons/Globe'
-import {CONTENT_LABELS, labelsToInfo} from '../labels'
-import * as bsky from '../types/bsky'
-import {getRkey} from '../util/rkey'
-import {getVerificationState} from '../util/verification-state'
-import {Link} from './link'
-import {VerificationCheck} from './verification-check'
-=======
->>>>>>> upstream/main
 
 export function Embed({
   content,
@@ -547,8 +536,7 @@ function getStarterPackImage(
   starterPack: app.bsky.graph.defs.StarterPackViewBasic,
 ) {
   const rkey = getRkey({uri: starterPack.uri})
-  // northsky: embeds use the branded card service.
-  return `${BRAND.ogcardServiceUrl}/start/${starterPack.creator.did}/${rkey}`
+  return `https://ogcard.cdn.bsky.app/start/${starterPack.creator.did}/${rkey}`
 }
 
 function getStarterPackHref(

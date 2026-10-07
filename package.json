@@ -110,9 +110,6 @@
     "upload-native-sourcemaps": "pnpm exec sentry-expo-upload-sourcemaps dist",
     "generate-web-stats": "EXPO_ATLAS=1 pnpm build-web",
     "open-analyzer": "npx expo-atlas .expo/atlas.jsonl",
-    "icons:generate": "node ./scripts/icons/generate.mts",
-    "icons:check": "node ./scripts/icons/generate.mts --check",
-    "icons:test": "node --test ./scripts/icons/lib.test.mts",
     "prettier": "prettier --check ."
   },
   "dependencies": {
