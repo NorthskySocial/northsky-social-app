@@ -29,12 +29,12 @@ export function TangledStringCard({
 }) {
   const t = useTheme()
   const {t: l} = useLingui()
-  const playHaptic = useHaptics()
+  const haptics = useHaptics()
   const panelBg = useCodePanelColor()
   const domain = toNiceDomain(uri)
 
   const onPress = () => {
-    playHaptic('Light')
+    haptics.tap()
     onOpen?.()
   }
 
@@ -85,7 +85,7 @@ export function TangledStringLink({
   children: ReactElement
 }) {
   const {t: l} = useLingui()
-  const playHaptic = useHaptics()
+  const haptics = useHaptics()
 
   return (
     <Link
@@ -93,7 +93,7 @@ export function TangledStringLink({
       to={uri}
       shouldProxy
       onPress={() => {
-        playHaptic('Light')
+        haptics.tap()
         onOpen?.()
       }}>
       {children}

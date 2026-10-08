@@ -34,7 +34,9 @@ jest.mock('#/components/Typography', () => ({
 jest.mock('#/components/icons/Code', () => ({
   Code_Stroke2_Corner2_Rounded: () => null,
 }))
-jest.mock('#/lib/haptics', () => ({useHaptics: () => mockPlayHaptic}))
+jest.mock('#/lib/haptics', () => ({
+  useHaptics: () => ({tap: mockPlayHaptic}),
+}))
 jest.mock('#/components/Link', () => ({
   Link: ({
     label,
@@ -120,7 +122,7 @@ describe('TangledStringCard', () => {
     fireEvent.press(screen.getByLabelText('Open moon.ts on tangled.org'))
 
     expect(onOpen).toHaveBeenCalledTimes(1)
-    expect(mockPlayHaptic).toHaveBeenCalledWith('Light')
+    expect(mockPlayHaptic).toHaveBeenCalledTimes(1)
   })
 
   it('renders its children below the header', () => {
@@ -159,6 +161,6 @@ describe('TangledStringLink', () => {
       </TangledStringLink>,
     )
     fireEvent.press(screen.getByTestId(`link:${URI}`))
-    expect(mockPlayHaptic).toHaveBeenCalledWith('Light')
+    expect(mockPlayHaptic).toHaveBeenCalledTimes(1)
   })
 })
