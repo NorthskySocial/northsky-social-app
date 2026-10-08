@@ -34,6 +34,11 @@ const LABEL: com.atproto.label.defs.Label = {
   val: 'warn',
   cts: '2026-09-01T00:00:00.000Z',
 }
+const TAKEDOWN_LABEL: com.atproto.label.defs.Label = {
+  ...LABEL,
+  src: 'did:plc:p2cxrw3ank4dzs55mpm6ohq4',
+  val: '!takedown',
+}
 
 /**
  * A lex client stub that dispatches `call` to one jest mock per lexicon
@@ -321,6 +326,21 @@ describe('getPostThreadWithSlingshotFallback', () => {
     expect(result.thread).toHaveLength(1)
     expect(result.thread[0]?.depth).toBe(0)
     expect(result.hasOtherReplies).toBe(false)
+  })
+
+  it('does not recover a post with an app-labeler takedown', async () => {
+    const {client, queryLabels} = createClient()
+    queryLabels.mockResolvedValue({labels: [TAKEDOWN_LABEL]})
+    const response = threadResponse([missingAnchor()])
+
+    const result = await getPostThreadWithSlingshotFallback({
+      client,
+      anchor: URI,
+      getThread: () => Promise.resolve(response),
+      toThreadItem: postThreadItem,
+    })
+
+    expect(result).toBe(response)
   })
 
   it('preserves a missing anchor when Slingshot cannot recover it', async () => {
