@@ -61,6 +61,21 @@ describe('facetFeatureForItem', () => {
     expect(f?.formats).not.toHaveProperty('apng_128')
   })
 
+  it('unwraps blob refs, which is what the AppView actually returns', () => {
+    const f = facetFeatureForItem(
+      item(':blobcat:', {
+        formats: {
+          png_128: {ref: {$link: 'bafkreiblob'}},
+          gif_128: {$link: 'bafkreigif'},
+        },
+      }),
+    )
+    expect(f?.formats).toMatchObject({
+      png_128: 'bafkreiblob',
+      gif_128: 'bafkreigif',
+    })
+  })
+
   it('returns undefined when there is nothing renderable', () => {
     expect(
       facetFeatureForItem(item(':x:', {formats: {apng_128: true}})),

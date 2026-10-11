@@ -1,6 +1,10 @@
 import {aliasToRkey} from './alias'
 import {BLUEMOJI_APPVIEW} from './constants'
-import {type BluemojiFormats, type BluemojiItemView} from './types'
+import {
+  type BluemojiBlobValue,
+  type BluemojiFormats,
+  type BluemojiItemView,
+} from './types'
 
 /**
  * Same-origin-cacheable image URL. All Bluemoji images go through the
@@ -8,6 +12,20 @@ import {type BluemojiFormats, type BluemojiItemView} from './types'
  */
 export function bluemojiImageUrl(did: string, cid: string): string {
   return `${BLUEMOJI_APPVIEW}/img/${encodeURIComponent(did)}/${encodeURIComponent(cid)}`
+}
+
+/**
+ * The CID inside a rendition value, whichever shape it came in. `itemView`
+ * returns blob refs rather than bare strings, so code that only accepted
+ * strings would silently render nothing.
+ */
+export function blobCid(
+  value: BluemojiBlobValue | undefined,
+): string | undefined {
+  if (typeof value === 'string') return value || undefined
+  if (!value || typeof value !== 'object') return undefined
+  const cid = value.ref?.$link ?? value.$link ?? value.cid
+  return typeof cid === 'string' && cid ? cid : undefined
 }
 
 const ANIMATED_FIRST = ['apng_128', 'gif_128', 'webp_128', 'png_128'] as const
@@ -29,8 +47,8 @@ export function pickInlineCid(
   {animate = true}: {animate?: boolean} = {},
 ): string | undefined {
   for (const key of animate ? ANIMATED_FIRST : STILL_FIRST) {
-    const cid = formats[key]
-    if (typeof cid === 'string' && cid) return cid
+    const cid = blobCid(formats[key])
+    if (cid) return cid
   }
   return undefined
 }

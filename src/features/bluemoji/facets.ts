@@ -1,6 +1,7 @@
 import {type RichText} from '@bsky/sdk/richtext'
 
 import {normalizeAlias} from './alias'
+import {blobCid} from './api'
 import {
   BLUEMOJI_FACET_TYPE,
   type BluemojiFacetFeature,
@@ -36,15 +37,18 @@ export function findAliases(text: string): AliasMatch[] {
   return out
 }
 
-/** Only string CIDs go in a facet; v0 booleans cannot be rendered from one. */
+/** Facets carry bare CIDs; v0 booleans have none and are dropped. */
 function facetFormats(formats: BluemojiFormats) {
   const out: Record<string, string> = {}
-  for (const key of ['png_128', 'webp_128', 'gif_128', 'apng_128'] as const) {
-    const cid = formats[key]
-    if (typeof cid === 'string' && cid) out[key] = cid
-  }
-  if (typeof formats.lottie === 'string' && formats.lottie) {
-    out.lottie = formats.lottie
+  for (const key of [
+    'png_128',
+    'webp_128',
+    'gif_128',
+    'apng_128',
+    'lottie',
+  ] as const) {
+    const cid = blobCid(formats[key])
+    if (cid) out[key] = cid
   }
   return Object.keys(out).length
     ? {$type: 'blue.moji.richtext.facet#formats_v1', ...out}

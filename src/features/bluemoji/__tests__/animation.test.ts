@@ -1,7 +1,7 @@
 import {describe, expect, it} from '@jest/globals'
 
 import {detectAnimatedFormat} from '../animation'
-import {pickInlineCid} from '../api'
+import {blobCid, pickInlineCid} from '../api'
 
 const bytes = (...parts: (number[] | string)[]) =>
   Uint8Array.from(
@@ -67,7 +67,24 @@ describe('pickInlineCid', () => {
     expect(pickInlineCid({gif_128: 'gif'}, {animate: false})).toBe('gif')
   })
 
+  it('reads CIDs out of blob refs', () => {
+    expect(pickInlineCid({png_128: {ref: {$link: 'bafkblob'}}})).toBe(
+      'bafkblob',
+    )
+  })
+
   it('ignores v0 booleans', () => {
     expect(pickInlineCid({apng_128: true, lottie: true})).toBeUndefined()
+  })
+})
+
+describe('blobCid', () => {
+  it('accepts every shape and rejects the rest', () => {
+    expect(blobCid('bafk')).toBe('bafk')
+    expect(blobCid({ref: {$link: 'bafk'}})).toBe('bafk')
+    expect(blobCid({$link: 'bafk'})).toBe('bafk')
+    expect(blobCid(true)).toBeUndefined()
+    expect(blobCid({})).toBeUndefined()
+    expect(blobCid(undefined)).toBeUndefined()
   })
 })

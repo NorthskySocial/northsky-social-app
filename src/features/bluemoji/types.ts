@@ -4,14 +4,22 @@
  * add hundreds of files to a fork for four record shapes.
  */
 
-/** CIDs keyed by rendition. Deprecated v0 may carry booleans instead of CIDs. */
+/**
+ * A rendition as it appears in the wild: a bare CID string (facets, embeds), a
+ * blob ref (`{ref: {$link}}`, which is what the AppView's `itemView` returns),
+ * or, in the deprecated v0 shape, a boolean with no CID at all.
+ */
+export type BluemojiBlobValue =
+  string | boolean | {ref?: {$link?: string}; $link?: string; cid?: string}
+
+/** Renditions keyed by format. */
 export type BluemojiFormats = {
   $type?: string
-  png_128?: string
-  webp_128?: string
-  gif_128?: string
-  apng_128?: string | boolean
-  lottie?: string | boolean
+  png_128?: BluemojiBlobValue
+  webp_128?: BluemojiBlobValue
+  gif_128?: BluemojiBlobValue
+  apng_128?: BluemojiBlobValue
+  lottie?: BluemojiBlobValue
 }
 
 /** `blue.moji.collection.item#itemView`, as returned by the AppView. */
@@ -23,7 +31,7 @@ export type BluemojiItemView = {
   name: string
   alt?: string
   formats: BluemojiFormats
-  stickerFormats?: Record<string, unknown>
+  stickerFormats?: Record<string, BluemojiBlobValue>
   adultOnly?: boolean
 }
 
