@@ -53,6 +53,7 @@ import {DiscoverDebug} from '#/components/PostControls/DiscoverDebug'
 import {RichText} from '#/components/RichText'
 import {SubtleHover} from '#/components/SubtleHover'
 import {Features, useAnalytics} from '#/analytics'
+import {BluemojiSticker} from '#/features/bluemoji/BluemojiSticker' // northsky: Bluemoji sticker
 import {useActorStatus} from '#/features/liveNow'
 import {app} from '#/lexicons'
 import * as bsky from '#/types/bsky'
@@ -573,6 +574,8 @@ let PostContent = ({
           />
         </View>
       ) : null}
+      {/* northsky: Bluemoji sticker */}
+      <BluemojiSticker post={post} />
     </ContentHider>
   )
 }

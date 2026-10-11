@@ -40,12 +40,38 @@ author's own collection), never from what the user typed.
   an existing alias.
 - **AppView** is `BLUEMOJI_APPVIEW` in `constants.ts`.
 
+## Stickers
+
+- **Attach:** a sticker button in the composer toolbar lists the user's
+  sticker-capable emoji (those with a 512px rendition). Choosing one sets the
+  post's embed to `blue.moji.embed.sticker`, rebuilt at post time from a fresh
+  verified lookup. A sticker cannot be combined with other media or a quote.
+- **Render:** Bluesky's AppView does not hydrate embeds it does not know, so
+  there is no embed view; `BluemojiSticker` reads the post *record* instead and
+  is rendered next to the embed in the feed, thread and post components. The
+  embed is self-attested, so only the emoji it names is used: the image and
+  adult flag come from the verified record, which must match the embed's strong
+  ref. Failures show the `:name:` text.
+
+## Animation
+
+Animated GIF, APNG and WebP uploads keep their original file when it fits the
+blob limit (the image manipulator can only flatten them), plus a still. Larger
+animations are saved as stills and the user is told. Renderers prefer the
+animated rendition, and the still when reduce motion or autoplay-off is set.
+Lottie is not rendered.
+
+## Adult-only emoji
+
+Moderation has a Show/Hide row (default Hide) stored on the device. It only
+takes effect with adult content enabled, so it cannot loosen existing settings.
+
 ## Not done yet
 
-- Sticker embed rendering (`blue.moji.embed.sticker`) and attaching one in the
-  composer. Stickers can be uploaded but not yet posted.
 - Reactions UI.
-- A picker for native. Upstream has no native emoji picker (the keyboard is used),
-  so there was nothing to add a tab to; `:alias:` typed by hand still works.
-- Animated emoji (APNG/Lottie/GIF renditions).
-- Drafts and DMs do not create Bluemoji facets.
+- A native emoji picker tab. Upstream has no native emoji picker (the keyboard is
+  used), so there was nothing to add a tab to; `:alias:` typed by hand still works.
+- Drafts: stickers and Bluemoji facets are not saved with drafts.
+- DMs do not create Bluemoji facets.
+- Resizing animations on device (needs a transcoder; the AppView's
+  `transcodeAnimation` requires a moji.blue login this app does not have).

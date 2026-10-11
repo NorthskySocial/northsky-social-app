@@ -49,6 +49,7 @@ import {RichText} from '#/components/RichText'
 import * as Skele from '#/components/Skeleton'
 import {SubtleHover} from '#/components/SubtleHover'
 import {Text} from '#/components/Typography'
+import {BluemojiSticker} from '#/features/bluemoji/BluemojiSticker' // northsky: Bluemoji sticker
 import {useActorStatus} from '#/features/liveNow'
 import {type app} from '#/lexicons'
 
@@ -375,6 +376,8 @@ const ThreadItemPostInner = memo(function ThreadItemPostInner({
                   />
                 </View>
               )}
+              {/* northsky: Bluemoji sticker */}
+              <BluemojiSticker post={post} />
               <PostControls
                 post={postShadow}
                 record={record}

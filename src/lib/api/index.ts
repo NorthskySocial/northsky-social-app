@@ -1,5 +1,5 @@
 import {TID} from '@atproto/common-web'
-import {type $Typed, type Client} from '@atproto/lex'
+import {type $Typed, type Client, type l} from '@atproto/lex'
 import {
   type AtUriString,
   toDatetimeString,
@@ -32,6 +32,7 @@ import {
 // northsky: Bluemoji custom emoji facets
 import {attachBluemojiFacets} from '#/features/bluemoji/facets'
 import {fetchBluemojiItem} from '#/features/bluemoji/queries'
+import {buildStickerEmbed, isStickerCapable} from '#/features/bluemoji/sticker'
 import {app, chat, com} from '#/lexicons'
 import * as bsky from '#/types/bsky'
 import {createGIFDescription} from '../gif-alt-text'
@@ -344,8 +345,20 @@ async function resolveMedia(
   | $Typed<app.bsky.embed.images.Main>
   | $Typed<app.bsky.embed.gallery.Main>
   | $Typed<app.bsky.embed.video.Main>
+  | l.Unknown$TypedObject // northsky: Bluemoji sticker
   | undefined
 > {
+  // northsky: Bluemoji sticker. Rebuilt from a fresh verified lookup rather than
+  // the item the picker held, in case the emoji changed or was deleted since.
+  if (embedDraft.media?.type === 'sticker') {
+    const {did, name} = embedDraft.media.item
+    const item = await fetchBluemojiItem(queryClient, did, name)
+    if (!item || !isStickerCapable(item)) {
+      throw new Error(`Sticker ${name} is no longer available`)
+    }
+    // Not a lexicon this app ships, so it travels as an unknown typed object.
+    return buildStickerEmbed(item) as unknown as l.Unknown$TypedObject
+  }
   if (embedDraft.media?.type === 'images') {
     const imagesDraft = embedDraft.media.images
     logger.debug(`Uploading images`, {

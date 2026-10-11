@@ -143,6 +143,9 @@ import {
   IS_WEB,
   IS_WEB_SAFARI,
 } from '#/env'
+import {SelectStickerBtn} from '#/features/bluemoji/SelectStickerBtn' // northsky: Bluemoji sticker
+import {StickerDraftPreview} from '#/features/bluemoji/StickerDraftPreview' // northsky: Bluemoji sticker
+import {type BluemojiItemView} from '#/features/bluemoji/types' // northsky: Bluemoji sticker
 import {type Gif} from '#/features/gifPicker/types'
 // northsky: wording follows the "They're called" setting
 import {usePostVocabulary} from '#/features/postVocabulary'
@@ -1964,6 +1967,14 @@ function ComposerEmbeds({
         </View>
       )}
 
+      {/* northsky: Bluemoji sticker preview */}
+      {embed.media?.type === 'sticker' && (
+        <StickerDraftPreview
+          item={embed.media.item}
+          onRemove={() => dispatch({type: 'embed_remove_sticker'})}
+        />
+      )}
+
       {!embed.media && embed.link && (
         <View style={[a.relative, a.mt_lg]} key={embed.link.uri}>
           <ExternalEmbedLink
@@ -2062,6 +2073,7 @@ function ComposerPills({
     media?.type === 'images' ||
     media?.type === 'gallery' ||
     media?.type === 'gif' ||
+    media?.type === 'sticker' || // northsky
     media?.type === 'video'
   const hasLink = !!post.embed.link
 
@@ -2182,6 +2194,14 @@ function ComposerFooter({
     [dispatch],
   )
 
+  // northsky: Bluemoji sticker
+  const onSelectSticker = useCallback(
+    (item: BluemojiItemView) => {
+      dispatch({type: 'embed_add_sticker', item})
+    },
+    [dispatch],
+  )
+
   /*
    * Reset if the user clears any selected media
    */
@@ -2264,6 +2284,11 @@ function ComposerFooter({
                 onAdd={onImageAdd}
               />
               <SelectGifBtn onSelectGif={onSelectGif} disabled={!!media} />
+              {/* northsky: Bluemoji sticker */}
+              <SelectStickerBtn
+                onSelectSticker={onSelectSticker}
+                disabled={!!media || !!post.embed.quote}
+              />
               {IS_WEB && gtPhone ? (
                 // northsky: `bluemoji` adds the Bluemoji tab to the picker
                 <EmojiPicker.Root nextFocusRef={textInputRef} bluemoji>
