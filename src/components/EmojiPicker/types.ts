@@ -18,6 +18,12 @@ export type Emoji = {
   unified: string
   /** Skin tone variant (1–6), if applicable */
   skin?: number
+  /**
+   * northsky: set for a Bluemoji (custom emoji) selection. `native` then holds
+   * the text to insert - the colon-wrapped alias and a trailing space - rather
+   * than a unicode character.
+   */
+  src?: string
 }
 
 type FocusableElement = {focus: () => void}
@@ -37,6 +43,14 @@ export interface RootProps {
    * until the picker is actually opened.
    */
   preloadOnMount?: boolean
+  /**
+   * northsky: add the signed-in user's Bluemoji as a custom tab. Only for
+   * surfaces that turn `:alias:` text into facets (the post composer); other
+   * surfaces would insert text that never renders as an image.
+   *
+   * @default false
+   */
+  bluemoji?: boolean
   /**
    * Element to return focus to when the picker closes. Accepts either a ref
    * or a getter function.

@@ -29,6 +29,9 @@ import {
   type PostDraft,
   type ThreadDraft,
 } from '#/view/com/composer/state/composer'
+// northsky: Bluemoji custom emoji facets
+import {attachBluemojiFacets} from '#/features/bluemoji/facets'
+import {fetchBluemojiItem} from '#/features/bluemoji/queries'
 import {app, chat, com} from '#/lexicons'
 import * as bsky from '#/types/bsky'
 import {createGIFDescription} from '../gif-alt-text'
@@ -91,7 +94,12 @@ export async function post(queryClient: QueryClient, opts: PostOpts) {
     const draft = thread.posts[i]
 
     // Not awaited to avoid waterfalls.
-    const rtPromise = resolveRT(opts.appviewClient, draft.richtext)
+    const rtPromise = resolveRT(
+      opts.appviewClient,
+      draft.richtext,
+      queryClient,
+      did,
+    )
     const embedPromise = resolveEmbed(
       opts.appviewClient,
       opts.chatClient,
@@ -202,7 +210,12 @@ export async function post(queryClient: QueryClient, opts: PostOpts) {
   return {uris}
 }
 
-async function resolveRT(appviewClient: Client, richtext: RichText) {
+async function resolveRT(
+  appviewClient: Client,
+  richtext: RichText,
+  queryClient: QueryClient,
+  did: string,
+) {
   const trimmedText = richtext.text
     // Trim leading whitespace-only lines (but don't break ASCII art).
     .replace(/^(\s*\n)+/, '')
@@ -213,6 +226,10 @@ async function resolveRT(appviewClient: Client, richtext: RichText) {
 
   rt = shortenLinks(rt)
   rt = stripInvalidMentions(rt)
+  // northsky: `:alias:` from the author's own Bluemoji collection become facets
+  rt = await attachBluemojiFacets(rt, name =>
+    fetchBluemojiItem(queryClient, did, name),
+  )
   return rt
 }
 

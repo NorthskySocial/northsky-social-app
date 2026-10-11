@@ -5,6 +5,11 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import {useA11y} from '#/state/a11y'
 import {textInputWebEmitter} from '#/view/com/composer/text-input/textInputWebEmitter'
 import {atoms as a, flatten} from '#/alf'
+// northsky: Bluemoji custom tab
+import {
+  BLUEMOJI_CATEGORY_ID,
+  useBluemojiPickerCategory,
+} from '#/features/bluemoji/pickerData'
 import * as Menu from '../Menu'
 import {useWebPreloadEmoji} from './preload'
 import {
@@ -19,6 +24,7 @@ export * from './types'
 const EmojiPickerContext = createContext<{
   onEmojiSelect: (emoji: Emoji) => void
   nextFocusRef: RootProps['nextFocusRef']
+  bluemoji: boolean
 } | null>(null)
 
 /**
@@ -36,19 +42,25 @@ export function Root({
   onEmojiSelect,
   preloadOnMount = true,
   nextFocusRef,
+  bluemoji = false,
 }: RootProps) {
   useWebPreloadEmoji({immediate: preloadOnMount})
 
   const value = useMemo(
     () => ({
       onEmojiSelect: (emoji: Emoji) => {
+        // northsky: custom emoji carry no unicode; insert the alias instead
+        if (!emoji.native) {
+          emoji = {...emoji, native: `:${emoji.id}: `}
+        }
         textInputWebEmitter.emit('emoji-inserted', emoji)
 
         if (onEmojiSelect) onEmojiSelect(emoji)
       },
       nextFocusRef,
+      bluemoji,
     }),
-    [onEmojiSelect, nextFocusRef],
+    [onEmojiSelect, nextFocusRef, bluemoji],
   )
 
   return (
@@ -79,7 +91,8 @@ export function Trigger(props: TriggerProps) {
  * @platform web
  */
 export function Picker({keepOpenWhenShiftHeld = true}: PickerProps) {
-  const {onEmojiSelect, nextFocusRef} = useEmojiPickerContext()
+  const {onEmojiSelect, nextFocusRef, bluemoji} = useEmojiPickerContext()
+  const {category, iconSrc} = useBluemojiPickerCategory(bluemoji)
   const {control} = Menu.useMenuContext()
   const {reduceMotionEnabled} = useA11y()
   const isShiftDown = useRef(false)
@@ -126,6 +139,11 @@ export function Picker({keepOpenWhenShiftHeld = true}: PickerProps) {
           style={flatten([!reduceMotionEnabled && a.zoom_fade_in])}>
           <EmojiPicker
             autoFocus
+            // northsky: Bluemoji tab, present only once the user has some
+            custom={category ? [category] : undefined}
+            categoryIcons={
+              iconSrc ? {[BLUEMOJI_CATEGORY_ID]: {src: iconSrc}} : undefined
+            }
             onEmojiSelect={(emoji: Emoji) => {
               onEmojiSelect(emoji)
 

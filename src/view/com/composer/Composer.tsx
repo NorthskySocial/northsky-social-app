@@ -2265,7 +2265,8 @@ function ComposerFooter({
               />
               <SelectGifBtn onSelectGif={onSelectGif} disabled={!!media} />
               {IS_WEB && gtPhone ? (
-                <EmojiPicker.Root nextFocusRef={textInputRef}>
+                // northsky: `bluemoji` adds the Bluemoji tab to the picker
+                <EmojiPicker.Root nextFocusRef={textInputRef} bluemoji>
                   <EmojiPicker.Trigger label={l`Open emoji picker`}>
                     {({props}) => (
                       <Button
