@@ -10,13 +10,26 @@ export function bluemojiImageUrl(did: string, cid: string): string {
   return `${BLUEMOJI_APPVIEW}/img/${encodeURIComponent(did)}/${encodeURIComponent(cid)}`
 }
 
+const ANIMATED_FIRST = ['apng_128', 'gif_128', 'webp_128', 'png_128'] as const
+const STILL_FIRST = ['png_128', 'webp_128', 'gif_128', 'apng_128'] as const
+
 /**
- * The CID to show inline. Only static, blob-backed renditions are rendered;
- * the deprecated v0 `apng_128`/`lottie` are booleans with no CID, so those
- * items fall back to their text alias.
+ * The CID to show inline. Only blob-backed renditions are rendered; the
+ * deprecated v0 `apng_128`/`lottie` are booleans with no CID, and Lottie needs
+ * a player this app does not ship, so those fall back to another rendition or
+ * to the text alias.
+ *
+ * With `animate` (the default) animated renditions win; without it, a still
+ * is preferred so users who turn animation off are not shown moving images.
+ * Items that only have an animated rendition still show it either way, since
+ * a still of it does not exist.
  */
-export function pickInlineCid(formats: BluemojiFormats): string | undefined {
-  for (const cid of [formats.png_128, formats.webp_128, formats.gif_128]) {
+export function pickInlineCid(
+  formats: BluemojiFormats,
+  {animate = true}: {animate?: boolean} = {},
+): string | undefined {
+  for (const key of animate ? ANIMATED_FIRST : STILL_FIRST) {
+    const cid = formats[key]
     if (typeof cid === 'string' && cid) return cid
   }
   return undefined

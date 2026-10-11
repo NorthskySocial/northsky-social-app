@@ -26,7 +26,7 @@ import {BluemojiUploadError} from '#/features/bluemoji/upload'
 import {useUploadBluemoji} from '#/features/bluemoji/useUploadBluemoji'
 import * as SettingsList from './components/SettingsList'
 
-type Picked = {uri: string; width: number; height: number}
+type Picked = {uri: string; width: number; height: number; mime: string}
 
 type Props = NativeStackScreenProps<CommonNavigatorParams, 'BluemojiSettings'>
 export function BluemojiSettingsScreen({}: Props) {
@@ -90,7 +90,12 @@ function UploadForm() {
     setError(undefined)
     const [image] = await openPicker({aspect: [1, 1]})
     if (image) {
-      setPicked({uri: image.path, width: image.width, height: image.height})
+      setPicked({
+        uri: image.path,
+        width: image.width,
+        height: image.height,
+        mime: image.mime,
+      })
     }
   }
 
@@ -98,14 +103,18 @@ function UploadForm() {
     if (!picked) return
     setError(undefined)
     try {
-      await upload({
+      const {animationDropped} = await upload({
         source: picked,
         alias,
         alt,
         asSticker,
         adultOnly,
       })
-      Toast.show(l`Added :${normalizeAlias(alias)}:`)
+      Toast.show(
+        animationDropped
+          ? l`Added :${normalizeAlias(alias)}: as a still. The animation was too large to keep.`
+          : l`Added :${normalizeAlias(alias)}:`,
+      )
       setPicked(undefined)
       setAlias('')
       setAlt('')
@@ -284,7 +293,7 @@ function Collection() {
     <View style={[a.w_full, a.gap_md]}>
       <View style={[a.flex_row, a.flex_wrap, a.gap_md]}>
         {items.map(item => {
-          const cid = pickInlineCid(item.formats)
+          const cid = pickInlineCid(item.formats, {animate: false})
           return (
             <View
               key={item.uri}

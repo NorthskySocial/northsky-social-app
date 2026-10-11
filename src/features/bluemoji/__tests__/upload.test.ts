@@ -18,7 +18,7 @@ describe('buildItemRecord', () => {
     alias: ':BlobCat:',
     alt: '  a cat  ',
     adultOnly: false,
-    inline: {format: 'png' as const, blob: blob('a') as never},
+    inline: {png: blob('a') as never},
     createdAt: '2026-01-01T00:00:00.000Z',
   }
 
@@ -30,7 +30,7 @@ describe('buildItemRecord', () => {
       alt: 'a cat',
       formats: {
         $type: 'blue.moji.collection.item#formats_v1',
-        png_128: base.inline.blob,
+        png_128: base.inline.png,
       },
     })
     expect(r).not.toHaveProperty('stickerFormats')
@@ -40,11 +40,27 @@ describe('buildItemRecord', () => {
   it('marks sticker-capable items with stickerFormats', () => {
     const r = buildItemRecord({
       ...base,
-      sticker: {format: 'webp', blob: blob('b') as never},
+      sticker: {webp: blob('b') as never},
     })
     expect(r.stickerFormats).toMatchObject({
       $type: 'blue.moji.collection.item#stickerFormats_v0',
       webp_512: expect.anything(),
+    })
+  })
+
+  it('writes each rendition into its own slot', () => {
+    const r = buildItemRecord({
+      ...base,
+      inline: {png: blob('a') as never, gif: blob('g') as never},
+      sticker: {png: blob('p') as never, gif: blob('h') as never},
+    })
+    expect(r.formats).toMatchObject({
+      png_128: expect.anything(),
+      gif_128: expect.anything(),
+    })
+    expect(r.stickerFormats).toMatchObject({
+      png_512: expect.anything(),
+      gif_512: expect.anything(),
     })
   })
 
