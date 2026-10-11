@@ -1,5 +1,6 @@
 import {useEffect} from 'react'
 
+import {useAdultEmojiVisible} from './adultPref'
 import {bluemojiImageUrl, pickInlineCid} from './api'
 import {useMyBluemoji} from './queries'
 
@@ -25,14 +26,16 @@ export const BLUEMOJI_CATEGORY_ID = 'bluemoji'
  * picker renders as its own tab. `undefined` while disabled, loading, or when
  * the user has nothing usable, so the tab only appears when it has content.
  *
- * Emoji marked `adultOnly` are left out: renderers show those as plain text,
- * so offering them here would insert something that never displays as an image.
+ * Emoji marked `adultOnly` are left out unless the user allows them to render
+ * (see `useAdultEmojiVisible`): otherwise they would insert something that
+ * never displays as an image.
  */
 export function useBluemojiPickerCategory(enabled: boolean): {
   category: EmojiMartCustomCategory | undefined
   iconSrc: string | undefined
 } {
   const query = useMyBluemoji('', {enabled})
+  const adultVisible = useAdultEmojiVisible()
   const {hasNextPage, isFetchingNextPage, fetchNextPage, data} = query
 
   const pageCount = data?.pages.length ?? 0
@@ -51,8 +54,8 @@ export function useBluemojiPickerCategory(enabled: boolean): {
 
   const emojis: EmojiMartCustomCategory['emojis'] = []
   for (const item of data.pages.flatMap(p => p.items)) {
-    const cid = pickInlineCid(item.formats)
-    if (!cid || item.adultOnly) continue
+    const cid = pickInlineCid(item.formats, {animate: false})
+    if (!cid || (item.adultOnly && !adultVisible)) continue
     const alias = item.name.replace(/^:|:$/g, '')
     emojis.push({
       id: alias,

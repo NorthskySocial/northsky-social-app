@@ -66,6 +66,8 @@ export type Device = {
   chatServiceWarningDismissed?: boolean
   // northsky: what the app calls a post, chosen in Settings > Appearance
   postNaming?: 'post' | 'skeet'
+  // northsky: whether adult-only Bluemoji draw as images, set in Moderation
+  bluemojiAdultOnly?: 'show' | 'hide'
   inviteFriendsFollowersPromoDismissed?: boolean
   pendingOTAUpdate?: {
     attemptedAt: number

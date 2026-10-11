@@ -1,6 +1,9 @@
 import {Image} from 'expo-image'
 
+import {useA11y} from '#/state/a11y'
+import {useAutoplayDisabled} from '#/state/preferences'
 import {web} from '#/alf'
+import {useAdultEmojiVisible} from './adultPref'
 import {bluemojiImageUrl, pickInlineCid} from './api'
 import {useBluemojiItem} from './queries'
 import {type BluemojiFacetFeature} from './types'
@@ -14,9 +17,9 @@ import {type BluemojiFacetFeature} from './types'
  * the emoji is gone, the colon-wrapped alias shows instead, which is how
  * unsupported facets degrade elsewhere.
  *
- * Emoji flagged `adultOnly` on the source record are shown as text. There is
- * no tap-to-reveal inside running text, so the safe fallback is to not draw
- * the image.
+ * Emoji flagged `adultOnly` on the source record are shown as text unless the
+ * user has allowed them in Moderation (and has adult content enabled). There is
+ * no tap-to-reveal inside running text, so the default is to not draw the image.
  */
 export function BluemojiInline({
   feature,
@@ -29,8 +32,15 @@ export function BluemojiInline({
   size: number
 }) {
   const {data: item} = useBluemojiItem(feature.did, feature.name)
+  const adultVisible = useAdultEmojiVisible()
+  const {reduceMotionEnabled} = useA11y()
+  const autoplayDisabled = useAutoplayDisabled()
+  const animate = !reduceMotionEnabled && !autoplayDisabled
 
-  const cid = item && !item.adultOnly ? pickInlineCid(item.formats) : undefined
+  const cid =
+    item && (!item.adultOnly || adultVisible)
+      ? pickInlineCid(item.formats, {animate})
+      : undefined
   if (!item || !cid) return <>{fallbackText}</>
 
   return (

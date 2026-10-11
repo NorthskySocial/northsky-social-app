@@ -47,6 +47,8 @@ import {Text} from '#/components/Typography'
 import {useAgeAssurance} from '#/ageAssurance'
 import {useAnalytics} from '#/analytics'
 import {IS_IOS} from '#/env'
+// northsky: Bluemoji adult-only emoji
+import {AdultEmojiPreference} from '#/features/bluemoji/AdultEmojiPreference'
 
 const UNREAD_NOTIFICATION_CAP = 100
 
@@ -498,6 +500,9 @@ export function ModerationScreenInner({
                   />
                   <Divider />
                   <GlobalLabelPreference labelDefinition={LABELS.nudity} />
+                  {/* northsky: Bluemoji adult-only emoji */}
+                  <Divider />
+                  <AdultEmojiPreference />
                 </>
               )}
             </>
