@@ -16,9 +16,7 @@ describe('getHostModerationInfo', () => {
   it('resolves northsky.social to the Northsky operator', () => {
     const result = getHostModerationInfo('https://northsky.social')
     expect(result.name).toBe('Northsky Social')
-    expect(result.tosUrl).toBe(
-      'https://northskysocial.ca/terms-of-service/',
-    )
+    expect(result.tosUrl).toBe('https://northskysocial.ca/terms-of-service/')
     expect(result.modServiceDid).toBe(NORTHSKY_MOD_DID)
   })
 
