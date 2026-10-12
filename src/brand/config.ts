@@ -16,16 +16,15 @@ export const BRAND = {
   helpUrl: 'https://tally.so/r/yPN6k6',
   feedbackUrl:
     'https://userinput.app/#/s/did:plc:23cnpffmuf4vkpsnwhgyvljw/3mrrtpve7ab2f',
-  privacyPolicyUrl: 'https://northskysocial.com/posts/privacy-policy',
-  termsOfServiceUrl: 'https://northskysocial.com/posts/terms-of-service',
+  privacyPolicyUrl: 'https://northskysocial.ca/privacy-policy/',
+  termsOfServiceUrl: 'https://northskysocial.ca/terms-of-service/',
   copyrightPolicyUrl: 'https://bsky.social/about/support/copyright',
-  communityGuidelinesUrl:
-    'https://northskysocial.com/posts/community-guidelines',
+  communityGuidelinesUrl: 'https://northskysocial.ca/community-guidelines/',
   supportPageUrl: 'https://tally.so/r/yPN6k6',
   nciiReportFormUrl: 'https://forms.bsky.app/f/ncii',
-  aboutUrl: 'https://northskysocial.com/posts/about',
-  blogUrl: 'https://northskysocial.com/profile/posts',
-  supportUsUrl: 'https://northskysocial.com/profile/products',
+  aboutUrl: 'https://northskysocial.ca/about/',
+  blogUrl: 'https://northskysocial.ca/',
+  supportUsUrl: 'https://northskysocial.ca/support/',
   discoverFeedUri:
     'at://did:plc:23cnpffmuf4vkpsnwhgyvljw/app.bsky.feed.generator/NorthskySocial',
   slingshotServiceUrl: 'https://slingshot.microcosm.blue',
