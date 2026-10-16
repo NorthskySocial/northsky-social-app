@@ -60,7 +60,7 @@ async function getPostLabels({
       const profile = await client.call(app.bsky.actor.getProfile, {
         actor: authorDid as AtIdentifierString,
       })
-      return profile.labels ?? []
+      return profile.labels?.length ? profile.labels : undefined
     } catch {
       return undefined
     }
@@ -182,6 +182,14 @@ async function getSlingshotPostData({
     authorDid: miniDoc.did,
   })
   if (!labels) return undefined
+
+  // Check if the post has been redacted based on labels from trusted labelers.
+  const isRedacted = labels.some(
+    label =>
+      APP_LABELER_DIDS.includes(label.src) &&
+      (label.val === '!takedown' || label.val === '!suspend'),
+  )
+  if (isRedacted) return undefined
 
   return {record, miniDoc, counts, labels}
 }
