@@ -60,7 +60,7 @@ async function getPostLabels({
       const profile = await client.call(app.bsky.actor.getProfile, {
         actor: authorDid as AtIdentifierString,
       })
-      return profile.labels ?? []
+      return profile.labels?.length ? profile.labels : undefined
     } catch {
       return undefined
     }

@@ -136,6 +136,22 @@ describe('getSlingshotPost', () => {
     expect(getProfile).toHaveBeenCalledWith({actor: 'did:plc:author'})
   })
 
+  it.each([
+    {name: 'missing', profile: {}},
+    {name: 'empty', profile: {labels: []}},
+  ])(
+    'does not recover when profile labels are $name after post-label lookup fails',
+    async ({profile}) => {
+      const {client, queryLabels, getProfile} = createClient()
+      queryLabels.mockRejectedValue(new Error('label service unavailable'))
+      getProfile.mockResolvedValue(profile)
+
+      await expect(
+        getSlingshotPost({client, atUri: URI}),
+      ).resolves.toBeUndefined()
+    },
+  )
+
   /*
    * A lex client throws on an unsuccessful response instead of returning a
    * `success: false` body, so the failed-lookup case above is the only shape
