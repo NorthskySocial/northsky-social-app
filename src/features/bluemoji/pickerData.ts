@@ -53,10 +53,14 @@ export function useBluemojiPickerCategory(enabled: boolean): {
   if (!enabled || !data) return {category: undefined, iconSrc: undefined}
 
   const emojis: EmojiMartCustomCategory['emojis'] = []
+  // Pages can shift while the user adds emoji; emoji-mart needs unique ids.
+  const seen = new Set<string>()
   for (const item of data.pages.flatMap(p => p.items)) {
     const cid = pickInlineCid(item.formats, {animate: false})
     if (!cid || (item.adultOnly && !adultVisible)) continue
     const alias = item.name.replace(/^:|:$/g, '')
+    if (seen.has(alias)) continue
+    seen.add(alias)
     emojis.push({
       id: alias,
       name: item.alt || alias,

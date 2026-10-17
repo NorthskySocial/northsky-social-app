@@ -539,7 +539,8 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
       let nextQuote = prevQuote
       let nextLink = prevLink
       if (isBskyPostUrl(action.uri)) {
-        if (!prevQuote) {
+        // A sticker cannot ride in recordWithMedia, so it blocks a quote.
+        if (!prevQuote && state.embed.media?.type !== 'sticker') {
           nextQuote = {
             type: 'link',
             uri: action.uri,

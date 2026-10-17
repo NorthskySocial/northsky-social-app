@@ -39,6 +39,13 @@ describe('findAliases', () => {
     expect(findAliases('at 3:30:45 or note: this')).toEqual([])
   })
 
+  it('accepts one-character aliases', () => {
+    expect(findAliases('a :a: and :🦋:').map(m => m.name)).toEqual([
+      ':a:',
+      ':🦋:',
+    ])
+  })
+
   it('accepts internationalised aliases', () => {
     expect(findAliases(':日本語:').map(m => m.name)).toEqual([':日本語:'])
   })

@@ -19,7 +19,7 @@ import * as Layout from '#/components/Layout'
 import {Loader} from '#/components/Loader'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
-import {normalizeAlias} from '#/features/bluemoji/alias'
+import {aliasToRkey, normalizeAlias} from '#/features/bluemoji/alias'
 import {bluemojiImageUrl, pickInlineCid} from '#/features/bluemoji/api'
 import {useMyBluemoji} from '#/features/bluemoji/queries'
 import {BluemojiUploadError} from '#/features/bluemoji/upload'
@@ -79,7 +79,8 @@ function UploadForm() {
   let aliasError: string | undefined
   if (alias.trim()) {
     try {
-      normalizeAlias(alias)
+      // the rkey rules are stricter than the alias rules
+      aliasToRkey(alias)
     } catch (e) {
       aliasError = e instanceof Error ? e.message : l`Invalid name`
     }

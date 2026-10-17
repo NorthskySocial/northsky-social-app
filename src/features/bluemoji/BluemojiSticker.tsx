@@ -42,7 +42,12 @@ function VerifiedSticker({
   const {reduceMotionEnabled} = useA11y()
   const autoplayDisabled = useAutoplayDisabled()
 
-  const matchesRef = !sticker.record || sticker.record.uri === item?.uri
+  // The rkey is the alias, so the record at this URI can be rewritten after
+  // posting; comparing the CID pins the sticker the author actually chose.
+  const matchesRef =
+    !sticker.record ||
+    (sticker.record.uri === item?.uri &&
+      (!item?.cid || sticker.record.cid === item.cid))
   const cid =
     item && matchesRef
       ? pickStickerCid(item.stickerFormats, {

@@ -136,6 +136,26 @@ async function planRenditions(
   return {uploads, animationDropped: !!animated && !keepsAnimation}
 }
 
+async function recordExists(
+  client: Client,
+  did: AtIdentifierString,
+  rkey: string,
+): Promise<boolean> {
+  return client
+    .call(com.atproto.repo.getRecord, {
+      repo: did,
+      collection: BLUEMOJI_ITEM_COLLECTION,
+      rkey,
+    })
+    .then(
+      () => true,
+      e => {
+        if (isRecordNotFoundError(e)) return false
+        throw e
+      },
+    )
+}
+
 type ItemRecordInput = {
   alias: string
   alt: string
@@ -215,20 +235,7 @@ export async function uploadBluemojiItem({
   }
 
   // The rkey is the alias, so writing would silently replace an existing emoji.
-  const exists = await client
-    .call(com.atproto.repo.getRecord, {
-      repo: did,
-      collection: BLUEMOJI_ITEM_COLLECTION,
-      rkey,
-    })
-    .then(
-      () => true,
-      e => {
-        if (isRecordNotFoundError(e)) return false
-        throw e
-      },
-    )
-  if (exists) {
+  if (await recordExists(client, did, rkey)) {
     throw new BluemojiUploadError('alias-taken', `:${alias}: already exists`)
   }
 
@@ -261,21 +268,34 @@ export async function uploadBluemojiItem({
   const inlineBlobs = await send(inline)
   const stickerBlobs = sticker ? await send(sticker) : undefined
 
-  await client.call(com.atproto.repo.createRecord, {
-    repo: did,
-    collection: BLUEMOJI_ITEM_COLLECTION,
-    rkey,
-    // Not a lexicon this app ships, so there is nothing to validate against.
-    validate: false,
-    record: buildItemRecord({
-      alias,
-      alt,
-      adultOnly,
-      inline: inlineBlobs,
-      sticker: stickerBlobs,
-      createdAt: new Date().toISOString(),
-    }),
-  })
+  try {
+    await client.call(com.atproto.repo.createRecord, {
+      repo: did,
+      collection: BLUEMOJI_ITEM_COLLECTION,
+      rkey,
+      // Not a lexicon this app ships, so there is nothing to validate against.
+      validate: false,
+      record: buildItemRecord({
+        alias,
+        alt,
+        adultOnly,
+        inline: inlineBlobs,
+        sticker: stickerBlobs,
+        createdAt: new Date().toISOString(),
+      }),
+    })
+  } catch (e) {
+    /*
+     * Rendering and uploading take a while; another device may have claimed the
+     * alias in the meantime. Rather than depend on the PDS's exact error code
+     * for a duplicate rkey, look again. The blobs uploaded above are left for
+     * the PDS to garbage-collect.
+     */
+    if (await recordExists(client, did, rkey).catch(() => false)) {
+      throw new BluemojiUploadError('alias-taken', `:${alias}: already exists`)
+    }
+    throw e
+  }
   return {
     rkey,
     animationDropped: inline.animationDropped || !!sticker?.animationDropped,

@@ -354,7 +354,7 @@ async function resolveMedia(
     const {did, name} = embedDraft.media.item
     const item = await fetchBluemojiItem(queryClient, did, name)
     if (!item || !isStickerCapable(item)) {
-      throw new Error(`Sticker ${name} is no longer available`)
+      throw new Error(t`Sticker ${name} is no longer available`)
     }
     // Not a lexicon this app ships, so it travels as an unknown typed object.
     return buildStickerEmbed(item) as unknown as l.Unknown$TypedObject

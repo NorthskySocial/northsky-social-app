@@ -36,8 +36,8 @@ author's own collection), never from what the user typed.
   copy of the reference implementation and should stay in sync with it.
 - **Uploads** are centre-cropped to a square, rendered as PNG (WebP if PNG is over
   the lexicon's blob limit) at 128px, plus 512px if "also a sticker" is ticked.
-  Animated images are flattened to a still for now. Uploading refuses to overwrite
-  an existing alias.
+  Animated images are handled as described under Animation. Uploading refuses to
+  overwrite an existing alias.
 - **AppView** is `BLUEMOJI_APPVIEW` in `constants.ts`.
 
 ## Stickers

@@ -10,10 +10,10 @@ import {
 } from './types'
 
 /**
- * `:alias:` - 2 to 64 non-space, non-colon characters between colons. The
+ * `:alias:` - 1 to 64 non-space, non-colon characters between colons. The
  * negative lookahead keeps clock times like `3:30:45` from matching.
  */
-const ALIAS_PATTERN = /:(?!\d+:)([^\s:]{2,64}):/gu
+const ALIAS_PATTERN = /:(?!\d+:)([^\s:]{1,64}):/gu
 
 export type AliasMatch = {
   /** Colon-wrapped, as typed */
