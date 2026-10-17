@@ -11,7 +11,7 @@ export const BRAND = {
   /** `baseUrl` from src/brand/brand.json */
   baseUrl: 'https://northsky.app',
   /** `aboutUrl` from src/brand/config.ts */
-  aboutUrl: 'https://northskysocial.com/posts/about',
+  aboutUrl: 'https://northskysocial.ca/about/',
   /** `embedServiceUrl` from src/brand/config.ts */
   embedServiceUrl: 'https://embed.northsky.app',
   /** `ogcardServiceUrl` from src/brand/brand.json */

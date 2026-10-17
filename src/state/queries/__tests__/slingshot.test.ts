@@ -34,6 +34,15 @@ const LABEL: com.atproto.label.defs.Label = {
   val: 'warn',
   cts: '2026-09-01T00:00:00.000Z',
 }
+const TAKEDOWN_LABEL: com.atproto.label.defs.Label = {
+  ...LABEL,
+  src: 'did:plc:p2cxrw3ank4dzs55mpm6ohq4',
+  val: '!takedown',
+}
+const SUSPEND_LABEL: com.atproto.label.defs.Label = {
+  ...TAKEDOWN_LABEL,
+  val: '!suspend',
+}
 
 /**
  * A lex client stub that dispatches `call` to one jest mock per lexicon
@@ -126,6 +135,22 @@ describe('getSlingshotPost', () => {
     expect(post?.labels).toEqual([LABEL])
     expect(getProfile).toHaveBeenCalledWith({actor: 'did:plc:author'})
   })
+
+  it.each([
+    {name: 'missing', profile: {}},
+    {name: 'empty', profile: {labels: []}},
+  ])(
+    'does not recover when profile labels are $name after post-label lookup fails',
+    async ({profile}) => {
+      const {client, queryLabels, getProfile} = createClient()
+      queryLabels.mockRejectedValue(new Error('label service unavailable'))
+      getProfile.mockResolvedValue(profile)
+
+      await expect(
+        getSlingshotPost({client, atUri: URI}),
+      ).resolves.toBeUndefined()
+    },
+  )
 
   /*
    * A lex client throws on an unsuccessful response instead of returning a
@@ -321,6 +346,38 @@ describe('getPostThreadWithSlingshotFallback', () => {
     expect(result.thread).toHaveLength(1)
     expect(result.thread[0]?.depth).toBe(0)
     expect(result.hasOtherReplies).toBe(false)
+  })
+
+  it.each([
+    {name: '!takedown', label: TAKEDOWN_LABEL},
+    {name: '!suspend', label: SUSPEND_LABEL},
+  ])(
+    'does not recover a post with an app-labeler $name label',
+    async ({label}) => {
+      const {client, queryLabels} = createClient()
+      queryLabels.mockResolvedValue({labels: [label]})
+      const response = threadResponse([missingAnchor()])
+
+      const result = await getPostThreadWithSlingshotFallback({
+        client,
+        anchor: URI,
+        getThread: () => Promise.resolve(response),
+        toThreadItem: postThreadItem,
+      })
+
+      expect(result).toBe(response)
+    },
+  )
+
+  it('does not treat a non-app-labeler takedown as trusted', async () => {
+    const {client, queryLabels, getProfile} = createClient()
+    queryLabels.mockRejectedValue(new Error('label service unavailable'))
+    const untrustedLabel = {...LABEL, val: '!takedown'}
+    getProfile.mockResolvedValue({labels: [untrustedLabel]})
+
+    const post = await getSlingshotPost({client, atUri: URI})
+
+    expect(post?.labels).toEqual([untrustedLabel])
   })
 
   it('preserves a missing anchor when Slingshot cannot recover it', async () => {
