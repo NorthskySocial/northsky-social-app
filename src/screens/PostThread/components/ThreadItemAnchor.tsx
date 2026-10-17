@@ -59,6 +59,7 @@ import * as Skele from '#/components/Skeleton'
 import {Text} from '#/components/Typography'
 import {WhoCanReply} from '#/components/WhoCanReply'
 import {Features, useAnalytics} from '#/analytics'
+import {BluemojiSticker} from '#/features/bluemoji/BluemojiSticker' // northsky: Bluemoji sticker
 import {useActorStatus} from '#/features/liveNow'
 import {app} from '#/lexicons'
 import * as bsky from '#/types/bsky'
@@ -452,6 +453,8 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
                   />
                 </View>
               )}
+              {/* northsky: Bluemoji sticker */}
+              <BluemojiSticker post={post} />
             </ContentHider>
             <ExpandedPostDetails
               post={item.value.post}

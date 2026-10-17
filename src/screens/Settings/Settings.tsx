@@ -46,6 +46,7 @@ import {CircleQuestion_Stroke2_Corner2_Rounded as CircleQuestionIcon} from '#/co
 import {CodeBrackets_Stroke2_Corner2_Rounded as CodeBracketsIcon} from '#/components/icons/CodeBrackets'
 import {Contacts_Stroke2_Corner2_Rounded as ContactsIcon} from '#/components/icons/Contacts'
 import {DotGrid3x1_Stroke2_Corner0_Rounded as DotsHorizontal} from '#/components/icons/DotGrid'
+import {EmojiArc_Stroke2_Corner0_Rounded as EmojiIcon} from '#/components/icons/Emoji'
 import {Earth_Stroke2_Corner2_Rounded as EarthIcon} from '#/components/icons/Globe'
 import {Lock_Stroke2_Corner2_Rounded as LockIcon} from '#/components/icons/Lock'
 import {PaintRoller_Stroke2_Corner2_Rounded as PaintRollerIcon} from '#/components/icons/PaintRoller'
@@ -195,6 +196,13 @@ export function SettingsScreen({}: Props) {
             <SettingsList.ItemIcon icon={RobotIcon} />
             <SettingsList.ItemText>
               <Trans>AI Preferences</Trans>
+            </SettingsList.ItemText>
+          </SettingsList.LinkItem>
+          {/* northsky: Bluemoji custom emoji */}
+          <SettingsList.LinkItem to="/settings/bluemoji" label={l`Bluemoji`}>
+            <SettingsList.ItemIcon icon={EmojiIcon} />
+            <SettingsList.ItemText>
+              <Trans>Bluemoji</Trans>
             </SettingsList.ItemText>
           </SettingsList.LinkItem>
           <SettingsList.LinkItem

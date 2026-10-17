@@ -24,6 +24,9 @@ import {
 import {RichTextTag} from '#/components/RichTextTag'
 import {Text, type TextProps} from '#/components/Typography'
 import {IS_NATIVE} from '#/env'
+// northsky: Bluemoji custom emoji facets
+import {BluemojiInline} from '#/features/bluemoji/BluemojiInline'
+import {getBluemojiFeature} from '#/features/bluemoji/facets'
 import {app} from '#/lexicons'
 import * as bsky from '#/types/bsky'
 
@@ -244,6 +247,10 @@ export function RichText({
 
   const parts: CodePart[] = []
   let key = 0
+  // northsky: inline custom emoji sit slightly taller than the surrounding text
+  const bluemojiSize = Math.round(
+    (flatten(style)?.fontSize ?? a.text_sm.fontSize) * 1.3,
+  )
   // northsky: with formatting active, code and emphasis are resolved over the
   // full text before facets, so a fence containing a link stays a fence.
   // See `#/lib/code/ranges`.
@@ -275,6 +282,7 @@ export function RichText({
     const link = segment.link
     const mention = segment.mention
     const tag = segment.tag
+    const bluemoji = getBluemojiFeature(segment.facet)
 
     if (
       mention &&
@@ -338,6 +346,19 @@ export function RichText({
             tag={tag.tag}
             textStyle={[interactiveStyles, emphasis]}
             authorHandle={authorHandle}
+          />
+        ),
+      })
+    } else if (bluemoji) {
+      // northsky: custom emoji; falls back to the alias text until verified
+      parts.push({
+        block: false,
+        node: (
+          <BluemojiInline
+            key={key}
+            feature={bluemoji}
+            fallbackText={segment.text}
+            size={bluemojiSize}
           />
         ),
       })

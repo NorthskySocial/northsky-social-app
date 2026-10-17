@@ -34,6 +34,7 @@ import {TranslatedPost} from '#/components/Post/Translated'
 import {PostControls} from '#/components/PostControls'
 import {RichText} from '#/components/RichText'
 import {SubtleHover} from '#/components/SubtleHover'
+import {BluemojiSticker} from '#/features/bluemoji/BluemojiSticker' // northsky: Bluemoji sticker
 import {app} from '#/lexicons'
 import * as bsky from '#/types/bsky'
 
@@ -257,6 +258,8 @@ function PostInner({
                   />
                 </View>
               ) : null}
+              {/* northsky: Bluemoji sticker */}
+              <BluemojiSticker post={post} />
             </ContentHider>
             <PostControls
               post={post}

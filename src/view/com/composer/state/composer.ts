@@ -23,6 +23,7 @@ import {
   type LinkFacetMatch,
   suggestLinkCardUri,
 } from '#/view/com/composer/text-input/text-input-util'
+import {type BluemojiItemView} from '#/features/bluemoji/types' // northsky: Bluemoji sticker
 import {type Gif} from '#/features/gifPicker/types'
 import {app} from '#/lexicons'
 import * as bsky from '#/types/bsky'
@@ -54,6 +55,12 @@ type GifMedia = {
   alt: string
 }
 
+// northsky: a Bluemoji sticker, sent as a blue.moji.embed.sticker
+type StickerMedia = {
+  type: 'sticker'
+  item: BluemojiItemView
+}
+
 type Link = {
   type: 'link'
   /*
@@ -69,7 +76,13 @@ type Link = {
 export type EmbedDraft = {
   // We'll always submit quote and actual media (images, video, gifs) chosen by the user.
   quote: Link | undefined
-  media: ImagesMedia | GalleryMedia | VideoMedia | GifMedia | undefined
+  media:
+    | ImagesMedia
+    | GalleryMedia
+    | VideoMedia
+    | GifMedia
+    | StickerMedia // northsky
+    | undefined
   // This field may end up ignored if we have more important things to display than a link card:
   link: Link | undefined
 }
@@ -102,6 +115,9 @@ export type PostAction =
   | {type: 'embed_add_gif'; gif: Gif}
   | {type: 'embed_update_gif'; alt: string}
   | {type: 'embed_remove_gif'}
+  // northsky: Bluemoji sticker
+  | {type: 'embed_add_sticker'; item: BluemojiItemView}
+  | {type: 'embed_remove_sticker'}
 
 export type ThreadDraft = {
   posts: PostDraft[]
@@ -523,7 +539,8 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
       let nextQuote = prevQuote
       let nextLink = prevLink
       if (isBskyPostUrl(action.uri)) {
-        if (!prevQuote) {
+        // A sticker cannot ride in recordWithMedia, so it blocks a quote.
+        if (!prevQuote && state.embed.media?.type !== 'sticker') {
           nextQuote = {
             type: 'link',
             uri: action.uri,
@@ -603,6 +620,20 @@ function postReducer(state: PostDraft, action: PostAction): PostDraft {
           media: nextMedia,
         },
       }
+    }
+    // northsky: Bluemoji sticker
+    case 'embed_add_sticker': {
+      // A sticker is media; it never replaces what is already attached, and
+      // cannot ride along with a quote (recordWithMedia only admits known media).
+      if (state.embed.media || state.embed.quote) return state
+      return {
+        ...state,
+        embed: {...state.embed, media: {type: 'sticker', item: action.item}},
+      }
+    }
+    case 'embed_remove_sticker': {
+      if (state.embed.media?.type !== 'sticker') return state
+      return {...state, embed: {...state.embed, media: undefined}}
     }
     case 'embed_remove_gif': {
       const prevMedia = state.embed.media

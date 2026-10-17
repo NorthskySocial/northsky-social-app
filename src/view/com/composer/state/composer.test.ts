@@ -58,3 +58,50 @@ describe('composerReducer', () => {
     })
   })
 })
+
+// northsky: Bluemoji sticker
+describe('sticker embed', () => {
+  const item = {
+    uri: 'at://did:plc:abc/blue.moji.collection.item/blobcat',
+    did: 'did:plc:abc',
+    name: ':blobcat:',
+    formats: {},
+  }
+
+  function apply(
+    state: ReturnType<typeof createState>,
+    postAction: Parameters<typeof composerReducer>[1] extends infer A
+      ? A extends {type: 'update_post'; postAction: infer P}
+        ? P
+        : never
+      : never,
+  ) {
+    return composerReducer(state, {
+      type: 'update_post',
+      postId: state.thread.posts[0].id,
+      postAction,
+    })
+  }
+
+  it('does not accept a quote while a sticker is attached', () => {
+    let state = apply(createState(), {type: 'embed_add_sticker', item})
+    expect(state.thread.posts[0].embed.media?.type).toBe('sticker')
+
+    state = apply(state, {
+      type: 'embed_add_uri',
+      uri: 'https://bsky.app/profile/alice.test/post/3kabc',
+    })
+    expect(state.thread.posts[0].embed.quote).toBeUndefined()
+  })
+
+  it('does not attach a sticker over existing media', () => {
+    const state = apply(createState(), {type: 'embed_add_sticker', item})
+    const again = apply(state, {
+      type: 'embed_add_sticker',
+      item: {...item, name: ':other:'},
+    })
+    expect(again.thread.posts[0].embed.media).toMatchObject({
+      item: {name: ':blobcat:'},
+    })
+  })
+})

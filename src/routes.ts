@@ -71,6 +71,7 @@ export const router = new Router<AllNavigatableRoutes>({
   ActivityNotificationSettings: '/settings/notifications/activity',
   FindContactsSettings: '/settings/find-contacts',
   AiSettings: '/settings/ai', // northsky: AI preferences screen
+  BluemojiSettings: '/settings/bluemoji', // northsky: Bluemoji custom emoji
   // support
   Support: '/support',
   PrivacyPolicy: '/support/privacy',
