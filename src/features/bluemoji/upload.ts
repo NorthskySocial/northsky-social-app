@@ -136,7 +136,7 @@ async function planRenditions(
   return {uploads, animationDropped: !!animated && !keepsAnimation}
 }
 
-async function recordExists(
+export async function recordExists(
   client: Client,
   did: AtIdentifierString,
   rkey: string,

@@ -66,6 +66,32 @@ Lottie is not rendered.
 Moderation has a Show/Hide row (default Hide) stored on the device. It only
 takes effect with adult content enabled, so it cannot loosen existing settings.
 
+## Packs
+
+A pack (`blue.moji.packs.pack`) is a named group of emoji; membership is a
+separate `packitem` record per emoji in the owner's repo. Code is in `packs/`;
+screens are `screens/Settings/BluemojiPack.tsx` and the Packs section of Settings
+> Bluemoji.
+
+- **Reading** goes through the AppView (`getPack`, `getActorPacks`), so a pack
+  shows verified emoji. A write is learned of from the firehose, so a read right
+  after one can lag: queries are re-run after a short delay, and a just-created
+  pack is polled for rather than shown as missing.
+- **Create / edit / delete:** edit is read-modify-write so unknown fields survive;
+  delete removes the pack's `packitem` records in the same commit.
+- **Add your emoji to a pack:** "Add to pack" on any emoji in your collection, or
+  "Add emoji" inside one of your packs (multi-select).
+- **Install:** one emoji, with a rename field first (the alias is the record key),
+  or the whole pack. Installing copies the bytes into your repo and records
+  `copyOf`, so it survives the source account going away. `saveToCollection` on
+  the AppView is not used: it needs a moji.blue login this app does not have.
+  "Add all" skips aliases you already have (never overwrites) and reports them, so
+  they can be added one at a time under a new name.
+- **Share:** copy link (the moji.blue pack page, which works without this app) or
+  start a post containing it.
+- **Not done:** pack icons, and pack-level adult labels (items are still gated
+  individually by the adult-only emoji preference).
+
 ## Not done yet
 
 - Reactions UI.
