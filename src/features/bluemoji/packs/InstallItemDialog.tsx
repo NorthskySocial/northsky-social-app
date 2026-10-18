@@ -11,6 +11,7 @@ import {Loader} from '#/components/Loader'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {aliasToRkey, normalizeAlias} from '../alias'
+import {ProvenanceLine} from '../ProvenanceLine'
 import {type BluemojiItemView} from '../types'
 import {EmojiTile} from './EmojiTile'
 import {describeError} from './errors'
@@ -81,8 +82,9 @@ function Body({
         <Text style={[a.text_lg, a.font_semi_bold]}>
           <Trans>Add to your collection</Trans>
         </Text>
-        <View style={[a.align_start]}>
+        <View style={[a.align_start, a.gap_sm]}>
           <EmojiTile item={item} />
+          <ProvenanceLine license={item.license} source={item.source} />
         </View>
         <View>
           <TextField.LabelText>

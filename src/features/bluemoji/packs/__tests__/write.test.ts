@@ -34,6 +34,7 @@ function source(name = ':blobcat:', over: Partial<BluemojiItemView> = {}) {
     did: SRC,
     name,
     alt: 'a cat',
+    license: 'CC-BY-4.0',
     formats: {png_128: {ref: {$link: 'bafkpng'}}},
     ...over,
   } satisfies BluemojiItemView
@@ -214,6 +215,136 @@ describe('installItem', () => {
         fetchBlob: () => Promise.resolve(undefined),
       }),
     ).rejects.toThrow(/Could not download/)
+  })
+})
+
+describe('installItem and licenses (RFC 0006)', () => {
+  it('refuses an emoji with no license: silence is not a grant', async () => {
+    const {client} = fakeClient()
+    await expect(
+      installItem({
+        client,
+        did: DID,
+        source: source(':nolicense:', {license: undefined}),
+        fetchBlob,
+      }),
+    ).rejects.toMatchObject({code: 'not-copyable'})
+  })
+
+  it('refuses all-rights-reserved but allows an OR alternative', async () => {
+    const {client} = fakeClient()
+    await expect(
+      installItem({
+        client,
+        did: DID,
+        source: source(':arr:', {license: 'LicenseRef-All-Rights-Reserved'}),
+        fetchBlob,
+      }),
+    ).rejects.toMatchObject({code: 'not-copyable'})
+
+    await expect(
+      installItem({
+        client,
+        did: DID,
+        source: source(':either:', {
+          license: 'LicenseRef-All-Rights-Reserved OR CC-BY-4.0',
+        }),
+        fetchBlob,
+      }),
+    ).resolves.toBeDefined()
+  })
+
+  it('does not download anything for a non-copyable emoji', async () => {
+    const {client} = fakeClient()
+    const dl = jest.fn(fetchBlob)
+    await installItem({
+      client,
+      did: DID,
+      source: source(':x:', {license: undefined}),
+      fetchBlob: dl,
+    }).catch(() => {})
+    expect(dl).not.toHaveBeenCalled()
+  })
+
+  it('keeps the license and source on the copy, re-validated', async () => {
+    const {client, calls} = fakeClient()
+    await installItem({
+      client,
+      did: DID,
+      source: source(':cc:', {
+        license: 'cc-by-4.0',
+        source: 'https://example.com/art',
+      }),
+      fetchBlob,
+    })
+    const rec = calls.find(c => c.method === 'createRecord')!.input.record
+    expect(rec).toMatchObject({
+      license: 'CC-BY-4.0',
+      source: 'https://example.com/art',
+    })
+  })
+
+  it('drops a hostile source and a junk license instead of copying them', async () => {
+    const {client, calls} = fakeClient()
+    await installItem({
+      client,
+      did: DID,
+      source: source(':evil:', {
+        license: 'CC-BY-4.0 AND (',
+        source: 'javascript:alert(1)',
+      }),
+      fetchBlob,
+    }).catch(() => {})
+    // a junk license is no license, so it is not copyable at all
+    expect(calls.some(c => c.method === 'createRecord')).toBe(false)
+
+    const ok = fakeClient()
+    await installItem({
+      client: ok.client,
+      did: DID,
+      source: source(':okay:', {source: 'javascript:alert(1)'}),
+      fetchBlob,
+    })
+    const rec = ok.calls.find(c => c.method === 'createRecord')!.input.record
+    expect(rec).not.toHaveProperty('source')
+    expect(rec).toHaveProperty('license', 'CC-BY-4.0')
+  })
+})
+
+describe('pack provenance', () => {
+  it('writes normalised license and source on create', async () => {
+    const {client, calls} = fakeClient()
+    await createPack(client, DID, {
+      name: 'P',
+      license: 'cc0-1.0',
+      source: ' https://example.com/p ',
+    })
+    expect(calls[0].input.record).toMatchObject({
+      license: 'CC0-1.0',
+      source: 'https://example.com/p',
+    })
+  })
+
+  it('rejects a bad license or source before writing', async () => {
+    const {client, calls} = fakeClient()
+    await expect(
+      createPack(client, DID, {name: 'P', license: 'NONE'}),
+    ).rejects.toMatchObject({code: 'invalid-provenance'})
+    await expect(
+      createPack(client, DID, {name: 'P', source: 'ftp://x.test/a'}),
+    ).rejects.toMatchObject({code: 'invalid-provenance'})
+    expect(calls).toHaveLength(0)
+  })
+
+  it('clears a field on edit with an empty string, and leaves it alone when absent', async () => {
+    const {client, calls} = fakeClient(['tid1'])
+    // the fake record has no license/source, so seed via a changed value first
+    await updatePack(client, DID, `at://${DID}/blue.moji.packs.pack/tid1`, {
+      license: 'MIT',
+    })
+    const put = calls.find(c => c.method === 'putRecord')!
+    expect(put.input.record).toMatchObject({license: 'MIT', extra: 1})
+    expect(put.input.record).not.toHaveProperty('source')
   })
 })
 

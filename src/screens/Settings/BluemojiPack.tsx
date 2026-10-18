@@ -33,7 +33,14 @@ import {
 } from '#/features/bluemoji/packs/queries'
 import {packShareUrl, packUriFor} from '#/features/bluemoji/packs/types'
 import {type InstallOutcome} from '#/features/bluemoji/packs/write'
+import {isCopyable, viewProvenance} from '#/features/bluemoji/provenance'
+import {ProvenanceLine} from '#/features/bluemoji/ProvenanceLine'
 import {type BluemojiItemView} from '#/features/bluemoji/types'
+
+/** Whether the creator's license lets this be copied (RFC 0006). */
+function canCopy(item: BluemojiItemView) {
+  return isCopyable(viewProvenance(item.license, item.source).license)
+}
 
 type Props = NativeStackScreenProps<CommonNavigatorParams, 'BluemojiPack'>
 
@@ -127,7 +134,7 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
     .map(i => i.subject)
     .filter(s => {
       try {
-        return !mine.aliases.has(normalizeAlias(s.name))
+        return !mine.aliases.has(normalizeAlias(s.name)) && canCopy(s)
       } catch {
         return false
       }
@@ -167,6 +174,7 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
         {pack.description ? (
           <Text style={[a.text_md, a.mt_sm]}>{pack.description}</Text>
         ) : null}
+        <ProvenanceLine license={pack.license} source={pack.source} />
       </View>
 
       <View style={[a.flex_row, a.flex_wrap, a.gap_sm]}>
@@ -182,7 +190,7 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
               {toInstall.length ? (
                 <Trans>Add all ({toInstall.length})</Trans>
               ) : (
-                <Trans>You have them all</Trans>
+                <Trans>Nothing more to add</Trans>
               )}
             </ButtonText>
             {isInstalling ? <ButtonIcon icon={Loader} /> : null}
@@ -280,11 +288,18 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
             try {
               have = mine.aliases.has(normalizeAlias(subject.name))
             } catch {}
+            const copyable = canCopy(subject)
             return (
               <EmojiTile
                 key={uri}
                 item={subject}
-                badge={!isOwner && have ? l`In your collection` : undefined}>
+                badge={
+                  !isOwner && have
+                    ? l`In your collection`
+                    : !isOwner && !copyable
+                      ? l`Copying not allowed`
+                      : undefined
+                }>
                 {isOwner ? (
                   <Button
                     label={l`Remove ${subject.name} from this pack`}
@@ -296,7 +311,7 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
                       <Trans>Remove</Trans>
                     </ButtonText>
                   </Button>
-                ) : !have ? (
+                ) : !have && copyable ? (
                   <Button
                     label={l`Add ${subject.name} to my collection`}
                     size="tiny"
@@ -355,6 +370,8 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
             initial={{
               name: pack.name,
               description: pack.description,
+              license: pack.license,
+              source: pack.source,
             }}
             onSubmit={updatePack}
           />

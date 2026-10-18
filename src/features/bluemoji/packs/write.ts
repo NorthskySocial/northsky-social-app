@@ -5,6 +5,7 @@ import {uploadBlob} from '#/lib/api/upload-blob'
 import {com} from '#/lexicons'
 import {aliasToRkey, normalizeAlias} from '../alias'
 import {blobCid, bluemojiImageUrl} from '../api'
+import {cleanProvenance, isCopyable, viewProvenance} from '../provenance'
 import {BLUEMOJI_ITEM_COLLECTION, type BluemojiItemView} from '../types'
 import {BluemojiUploadError, recordExists} from '../upload'
 import {
@@ -33,6 +34,10 @@ export async function createPack(
   did: Did,
   input: PackInput,
 ): Promise<string> {
+  const provenance = cleanProvenance(input.license, input.source)
+  if ('error' in provenance) {
+    throw new BluemojiUploadError('invalid-provenance', provenance.error)
+  }
   const res = await client.call(com.atproto.repo.createRecord, {
     repo: did,
     collection: PACK_COLLECTION,
@@ -44,6 +49,7 @@ export async function createPack(
         ? {description: input.description.trim()}
         : {}),
       ...(input.adultOnly ? {adultOnly: true} : {}),
+      ...provenance,
       createdAt: new Date().toISOString(),
     },
   })
@@ -77,6 +83,24 @@ export async function updatePack(
   if (changes.adultOnly !== undefined) {
     if (changes.adultOnly) record.adultOnly = true
     else delete record.adultOnly
+  }
+  // An empty string clears the field; absent leaves it alone.
+  if (changes.license !== undefined || changes.source !== undefined) {
+    const next = cleanProvenance(
+      changes.license ?? (record.license as string | undefined),
+      changes.source ?? (record.source as string | undefined),
+    )
+    if ('error' in next) {
+      throw new BluemojiUploadError('invalid-provenance', next.error)
+    }
+    if (changes.license !== undefined) {
+      if (next.license) record.license = next.license
+      else delete record.license
+    }
+    if (changes.source !== undefined) {
+      if (next.source) record.source = next.source
+      else delete record.source
+    }
   }
   await client.call(com.atproto.repo.putRecord, {
     repo: did,
@@ -174,6 +198,8 @@ export async function removeFromPack(
 export type InstallOutcome =
   | {status: 'installed'; rkey: string}
   | {status: 'exists'}
+  /** The creator has not granted copying (see RFC 0006). */
+  | {status: 'not-copyable'}
   | {status: 'failed'; error: unknown}
 
 type Fetcher = (url: string) => Promise<Blob | undefined>
@@ -209,7 +235,10 @@ async function copyRenditions(
  * it came from.
  *
  * `renameTo` is the alias to save it as (the rkey follows it). Throws
- * `alias-taken` if the user already has that alias.
+ * `alias-taken` if the user already has that alias, and `not-copyable` unless
+ * the emoji carries a license that permits copying (RFC 0006: no license is no
+ * grant). The copy keeps the license and source it was shared under. Both are
+ * re-validated here, since the AppView's copy of them is the owner's say-so.
  */
 export async function installItem({
   client,
@@ -224,6 +253,14 @@ export async function installItem({
   renameTo?: string
   fetchBlob?: Fetcher
 }): Promise<{rkey: string; uri: string}> {
+  const provenance = viewProvenance(source.license, source.source)
+  if (!isCopyable(provenance.license)) {
+    throw new BluemojiUploadError(
+      'not-copyable',
+      `${source.name} does not allow copying`,
+    )
+  }
+
   let alias: string
   let rkey: string
   try {
@@ -278,6 +315,7 @@ export async function installItem({
           }
         : {}),
       ...(source.adultOnly ? {adultOnly: true} : {}),
+      ...provenance,
       copyOf: source.uri,
     },
   })
@@ -328,7 +366,9 @@ export async function installPack({
         outcome =
           e instanceof BluemojiUploadError && e.code === 'alias-taken'
             ? {status: 'exists'}
-            : {status: 'failed', error: e}
+            : e instanceof BluemojiUploadError && e.code === 'not-copyable'
+              ? {status: 'not-copyable'}
+              : {status: 'failed', error: e}
       }
     }
     results.push({item, outcome})

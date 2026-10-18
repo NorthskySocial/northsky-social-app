@@ -15,10 +15,16 @@ import {
   STICKER_MAX_BYTES,
   STICKER_SIZE,
 } from './constants'
+import {cleanProvenance} from './provenance'
 import {readHead} from './readHead'
 import {BLUEMOJI_ITEM_COLLECTION} from './types'
 
-export type UploadErrorCode = 'alias-taken' | 'too-large' | 'invalid-alias'
+export type UploadErrorCode =
+  | 'alias-taken'
+  | 'too-large'
+  | 'invalid-alias'
+  | 'invalid-provenance'
+  | 'not-copyable'
 
 export class BluemojiUploadError extends Error {
   constructor(
@@ -160,6 +166,8 @@ type ItemRecordInput = {
   alias: string
   alt: string
   adultOnly: boolean
+  license?: string
+  source?: string
   inline: Blobs
   sticker?: Blobs
   createdAt: string
@@ -197,6 +205,8 @@ export function buildItemRecord(input: ItemRecordInput) {
         }
       : {}),
     ...(input.adultOnly ? {adultOnly: true} : {}),
+    ...(input.license ? {license: input.license} : {}),
+    ...(input.source ? {source: input.source} : {}),
   }
 }
 
@@ -209,6 +219,10 @@ export type UploadParams = {
   /** Also store a 512px rendition so the item can be used as a sticker. */
   asSticker: boolean
   adultOnly: boolean
+  /** SPDX expression; omit when unspecified (which is not public domain). */
+  license?: string
+  /** http(s) URL the image was re-uploaded from. */
+  sourceUrl?: string
 }
 
 /**
@@ -223,6 +237,8 @@ export async function uploadBluemojiItem({
   alt,
   asSticker,
   adultOnly,
+  license,
+  sourceUrl,
 }: UploadParams): Promise<{rkey: string; animationDropped: boolean}> {
   let rkey: string
   try {
@@ -232,6 +248,11 @@ export async function uploadBluemojiItem({
       'invalid-alias',
       e instanceof Error ? e.message : 'Invalid name',
     )
+  }
+
+  const provenance = cleanProvenance(license, sourceUrl)
+  if ('error' in provenance) {
+    throw new BluemojiUploadError('invalid-provenance', provenance.error)
   }
 
   // The rkey is the alias, so writing would silently replace an existing emoji.
@@ -279,6 +300,7 @@ export async function uploadBluemojiItem({
         alias,
         alt,
         adultOnly,
+        ...provenance,
         inline: inlineBlobs,
         sticker: stickerBlobs,
         createdAt: new Date().toISOString(),
