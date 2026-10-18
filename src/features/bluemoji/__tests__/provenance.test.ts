@@ -202,9 +202,6 @@ describe('provenance (RFC 0006 reference tests)', () => {
       sourceHost('https://files.example.com:8080/x'),
       'files.example.com:8080',
     )
-    console.log(
-      'ok - source URLs: http(s) only, no credentials, no javascript:/data:',
-    )
 
     // --------------------------------------------------------- cleanProvenance
     assert.deepEqual(cleanProvenance('', ''), {})
