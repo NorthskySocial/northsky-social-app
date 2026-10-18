@@ -24,6 +24,10 @@ import {aliasToRkey, normalizeAlias} from '#/features/bluemoji/alias'
 import {bluemojiImageUrl, pickInlineCid} from '#/features/bluemoji/api'
 import {AddToPackDialog} from '#/features/bluemoji/packs/AddToPackDialog'
 import {PacksSection} from '#/features/bluemoji/packs/PacksSection'
+import {
+  ProvenanceFields,
+  provenanceProblem,
+} from '#/features/bluemoji/ProvenanceFields'
 import {useMyBluemoji} from '#/features/bluemoji/queries'
 import {type BluemojiItemView as BluemojiItem} from '#/features/bluemoji/types'
 import {BluemojiUploadError} from '#/features/bluemoji/upload'
@@ -86,6 +90,8 @@ function UploadForm() {
   const [alt, setAlt] = useState('')
   const [asSticker, setAsSticker] = useState(false)
   const [adultOnly, setAdultOnly] = useState(false)
+  const [license, setLicense] = useState('')
+  const [sourceUrl, setSourceUrl] = useState('')
   const [error, setError] = useState<string>()
 
   let aliasError: string | undefined
@@ -97,7 +103,9 @@ function UploadForm() {
       aliasError = e instanceof Error ? e.message : l`Invalid name`
     }
   }
-  const canSubmit = !!picked && !!alias.trim() && !aliasError && !isPending
+  const provenanceBad = !!provenanceProblem(license, sourceUrl)
+  const canSubmit =
+    !!picked && !!alias.trim() && !aliasError && !provenanceBad && !isPending
 
   const onPick = async () => {
     setError(undefined)
@@ -122,6 +130,8 @@ function UploadForm() {
         alt,
         asSticker,
         adultOnly,
+        license,
+        sourceUrl,
       })
       Toast.show(
         animationDropped
@@ -133,6 +143,8 @@ function UploadForm() {
       setAlt('')
       setAsSticker(false)
       setAdultOnly(false)
+      setLicense('')
+      setSourceUrl('')
     } catch (e) {
       if (e instanceof BluemojiUploadError) {
         setError(
@@ -247,6 +259,13 @@ function UploadForm() {
           <Trans>Mark as adult content</Trans>
         </Toggle.LabelText>
       </Toggle.Item>
+
+      <ProvenanceFields
+        license={license}
+        source={sourceUrl}
+        onLicenseChange={setLicense}
+        onSourceChange={setSourceUrl}
+      />
 
       {error ? <Admonition type="error">{error}</Admonition> : null}
 

@@ -64,6 +64,21 @@ describe('buildItemRecord', () => {
     })
   })
 
+  it('records license and source only when given', () => {
+    const r = buildItemRecord({
+      ...base,
+      license: 'CC-BY-4.0',
+      source: 'https://example.com/art',
+    })
+    expect(r).toMatchObject({
+      license: 'CC-BY-4.0',
+      source: 'https://example.com/art',
+    })
+    const bare = buildItemRecord(base)
+    expect(bare).not.toHaveProperty('license')
+    expect(bare).not.toHaveProperty('source')
+  })
+
   it('omits empty alt and records adultOnly', () => {
     const r = buildItemRecord({...base, alt: ' ', adultOnly: true})
     expect(r).not.toHaveProperty('alt')

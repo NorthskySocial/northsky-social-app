@@ -92,6 +92,26 @@ screens are `screens/Settings/BluemojiPack.tsx` and the Packs section of Setting
 - **Not done:** pack icons, and pack-level adult labels (items are still gated
   individually by the adult-only emoji preference).
 
+## License and source (RFC 0006)
+
+Items and packs can carry an optional SPDX `license` and a `source` URL. Both are
+the owner's own claim and unverified. `provenance.ts` is a copy of the Bluemoji
+reference implementation (keep it in sync).
+
+- **Write:** the upload form and pack form take both (one-tap common licenses, or
+  any SPDX expression). Values are validated and normalised before anything is
+  uploaded.
+- **Read:** every value is re-validated before it is shown (`ProvenanceLine`), so
+  a `javascript:` source or junk license from a hostile record never becomes a
+  link.
+- **Copying needs a grant.** Installing an emoji from a pack is refused unless it
+  has a license that allows copying: no license is not permission, and
+  `LicenseRef-All-Rights-Reserved` withholds it. The copy keeps the license and
+  source it was shared under. This is a courtesy gate, not enforcement.
+- **Consequence:** emoji uploaded before this existed have no license, so others
+  cannot copy them until the owner adds one. Northsky has no edit screen for an
+  existing emoji yet; moji.blue's collection page does.
+
 ## Not done yet
 
 - Reactions UI.
