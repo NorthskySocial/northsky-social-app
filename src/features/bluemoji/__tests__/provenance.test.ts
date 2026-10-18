@@ -250,6 +250,5 @@ describe('provenance (RFC 0006 reference tests)', () => {
       provenanceError('Apache 2.0', '') ?? '',
       /identifier|Unexpected/,
     )
-    console.log('provenance tests passed')
   })
 })
