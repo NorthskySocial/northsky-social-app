@@ -109,8 +109,18 @@ reference implementation (keep it in sync).
   `LicenseRef-All-Rights-Reserved` withholds it. The copy keeps the license and
   source it was shared under. This is a courtesy gate, not enforcement.
 - **Consequence:** emoji uploaded before this existed have no license, so others
-  cannot copy them until the owner adds one. Northsky has no edit screen for an
-  existing emoji yet; moji.blue's collection page does.
+  cannot copy them until the owner adds one (see Editing below).
+
+## Editing
+
+Settings > Bluemoji > Your collection > Edit changes an emoji's description,
+adult flag, license and source (`edit.ts`). The name is the record key and the
+images are what old posts show, so neither can be changed; add a new emoji
+instead. Saving reads the record and writes it back with only those fields
+changed, pinned to the CID it read, so a concurrent edit elsewhere is refused
+rather than overwritten, and blobs and unknown fields are preserved. Delete
+asks twice. The AppView learns of the write from the firehose a moment later,
+so the list is patched immediately and refetched after a few seconds.
 
 ## Not done yet
 
