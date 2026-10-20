@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import {useMemo} from 'react'
 import {Image as RNImage, View} from 'react-native'
 import Animated, {FadeIn, FadeOut} from 'react-native-reanimated'
@@ -130,3 +131,6 @@ export const SplashScreen = ({
     </>
   )
 }
+=======
+export {NativeSplashScreen as SplashScreen} from './NativeSplashScreen'
+>>>>>>> upstream/main

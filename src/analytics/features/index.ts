@@ -112,6 +112,60 @@ export function getFeatureDescription(feature: Features, i18n: I18n) {
           }),
         ),
       }
+    case Features.FollowingV2Enable:
+      // Following v2 behaviour is native-only, see `isFollowingV2Eligible`
+      if (env.IS_WEB) return null
+      return {
+        key: feature,
+        name: i18n._(
+          msg({
+            message: 'Keep your place in the Following feed',
+            comment: 'Name for a feature flag',
+          }),
+        ),
+        description: i18n._(
+          msg({
+            message:
+              'Save your position in the Following feed between sessions. New posts wait above you until you’re ready to view them.',
+            comment:
+              'Description of a feature flag (Keep your place in the Following feed)',
+          }),
+        ),
+      }
+    case Features.NotificationsV2Enable:
+      return {
+        key: feature,
+        name: i18n._(
+          msg({
+            message: 'Redesigned notifications',
+            comment: 'Name for a feature flag',
+          }),
+        ),
+        description: i18n._(
+          msg({
+            message:
+              'Notifications sorted into tabs – people you follow, followers, replies and activity.',
+            comment: 'Description of a feature flag (Redesigned notifications)',
+          }),
+        ),
+      }
+    case Features.ModerationInboxEnable:
+      return {
+        key: feature,
+        name: i18n._(
+          msg({
+            message: 'Moderation inbox',
+            comment: 'Name for a feature flag',
+          }),
+        ),
+        description: i18n._(
+          msg({
+            message:
+              'Track your reports, review moderation decisions, and submit appeals.',
+            comment: 'Description of a feature flag (Moderation inbox)',
+          }),
+        ),
+      }
     default:
       return null
   }
@@ -171,6 +225,19 @@ export function getTargetedFeatures(i18n: I18n) {
   }
 
   return targetedFeatures
+}
+
+/**
+ * Whether `feature` is on for the current user because they opted in to beta
+ * features, i.e. the rule GrowthBook matched for them targets the beta user
+ * attribute, as the features listed on the Beta features screen do.
+ */
+export function isOnForBetaUser(feature: Features): boolean {
+  const result = features.evalFeature(feature)
+  if (!result.on || !result.ruleId) return false
+  const rules = features.getFeatures()[feature]?.rules
+  const rule = rules?.find(({id}) => id === result.ruleId)
+  return conditionTargetsAttribute(rule?.condition, BETA_USER_ATTRIBUTE)
 }
 
 /**

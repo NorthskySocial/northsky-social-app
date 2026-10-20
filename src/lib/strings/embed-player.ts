@@ -3,6 +3,7 @@ import {Dimensions} from 'react-native'
 import {BRAND} from '#/brand/config' // northsky: brand host for the native iframe player
 import {IS_WEB} from '#/env'
 
+<<<<<<< HEAD
 const {height: SCREEN_HEIGHT} = Dimensions.get('window')
 
 /*
@@ -10,6 +11,8 @@ const {height: SCREEN_HEIGHT} = Dimensions.get('window')
  * serves the /iframe assets, and same-origin loads satisfy the SAMEORIGIN
  * frame policy. On native, load from the brand host in release builds.
  */
+=======
+>>>>>>> upstream/main
 const IFRAME_HOST = IS_WEB
   ? // @ts-ignore only for web
     window.location.origin
@@ -612,7 +615,7 @@ export function getPlayerAspect({
     case 'vimeo_video':
       return {aspectRatio: 16 / 9}
     case 'youtube_short':
-      if (SCREEN_HEIGHT < 600) {
+      if (Dimensions.get('window').height < 600) {
         return {aspectRatio: (9 / 16) * 1.75}
       } else {
         return {aspectRatio: (9 / 16) * 1.5}

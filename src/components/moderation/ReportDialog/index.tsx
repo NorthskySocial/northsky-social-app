@@ -300,6 +300,7 @@ function Inner(
       )
       setIsSuccess(true)
       ax.metric('reportDialog:success', {
+        subjectType: props.subject.type,
         reason: state.selectedOption?.reason ?? '',
         labeler: state.selectedLabeler?.creator.handle ?? '',
         details: !!state.details,

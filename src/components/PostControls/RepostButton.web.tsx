@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 
@@ -111,3 +112,6 @@ export const RepostButton = ({
     </PostControlButton>
   )
 }
+=======
+export {RepostButtonMenu as RepostButton} from './RepostButtonMenu'
+>>>>>>> upstream/main
