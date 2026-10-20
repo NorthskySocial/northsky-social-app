@@ -11,6 +11,7 @@ import {isNetworkError} from '#/lib/strings/errors'
 import {atoms as a, useTheme} from '#/alf'
 import {Admonition} from '#/components/Admonition'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
+import * as Dialog from '#/components/Dialog'
 import * as TextField from '#/components/forms/TextField'
 import * as Toggle from '#/components/forms/Toggle'
 import {EmojiArc_Stroke2_Corner0_Rounded as EmojiIcon} from '#/components/icons/Emoji'
@@ -21,7 +22,10 @@ import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {aliasToRkey, normalizeAlias} from '#/features/bluemoji/alias'
 import {bluemojiImageUrl, pickInlineCid} from '#/features/bluemoji/api'
+import {AddToPackDialog} from '#/features/bluemoji/packs/AddToPackDialog'
+import {PacksSection} from '#/features/bluemoji/packs/PacksSection'
 import {useMyBluemoji} from '#/features/bluemoji/queries'
+import {type BluemojiItemView as BluemojiItem} from '#/features/bluemoji/types'
 import {BluemojiUploadError} from '#/features/bluemoji/upload'
 import {useUploadBluemoji} from '#/features/bluemoji/useUploadBluemoji'
 import * as SettingsList from './components/SettingsList'
@@ -49,6 +53,14 @@ export function BluemojiSettingsScreen({}: Props) {
               <Trans>Add a custom emoji</Trans>
             </SettingsList.ItemText>
             <UploadForm />
+          </SettingsList.Group>
+          <SettingsList.Divider />
+          <SettingsList.Group contentContainerStyle={[a.gap_md]}>
+            <SettingsList.ItemIcon icon={EmojiIcon} />
+            <SettingsList.ItemText>
+              <Trans>Packs</Trans>
+            </SettingsList.ItemText>
+            <PacksSection />
           </SettingsList.Group>
           <SettingsList.Divider />
           <SettingsList.Group contentContainerStyle={[a.gap_md]}>
@@ -265,6 +277,8 @@ function Collection() {
     fetchNextPage,
     isFetchingNextPage,
   } = useMyBluemoji()
+  const addToPackControl = Dialog.useDialogControl()
+  const [packTarget, setPackTarget] = useState<BluemojiItem>()
 
   if (isPending) {
     return (
@@ -320,10 +334,26 @@ function Collection() {
                   {l`sticker`}
                 </Text>
               ) : null}
+              <Button
+                label={l`Add ${item.name} to a pack`}
+                size="tiny"
+                color="secondary"
+                variant="solid"
+                onPress={() => {
+                  setPackTarget(item)
+                  addToPackControl.open()
+                }}>
+                <ButtonText>
+                  <Trans>Add to pack</Trans>
+                </ButtonText>
+              </Button>
             </View>
           )
         })}
       </View>
+      {packTarget ? (
+        <AddToPackDialog control={addToPackControl} item={packTarget} />
+      ) : null}
       {hasNextPage ? (
         <Button
           label={l`Load more`}

@@ -83,6 +83,7 @@ export type CommonNavigatorParams = {
   FindContactsSettings: undefined
   AiSettings: undefined // northsky: AI preferences screen
   BluemojiSettings: undefined // northsky: Bluemoji custom emoji
+  BluemojiPack: {name: string; rkey: string} // northsky: Bluemoji pack
   InviteScanner: undefined
   Search: SearchParams
   Hashtag: {tag: string; author?: string}
