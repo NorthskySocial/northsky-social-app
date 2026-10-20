@@ -6,6 +6,7 @@
 // northsky: upstream glyphs replaced with Tabler icons
 import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
+<<<<<<< HEAD
 /** Tabler: text-size (outline) */
 export const TextSize_Stroke2_Corner0_Rounded = createTablerIcon({
   paths: [
@@ -16,4 +17,12 @@ export const TextSize_Stroke2_Corner0_Rounded = createTablerIcon({
     'M18 12v7',
     'M17 19h2',
   ],
+=======
+import {createSinglePathSVG} from './TEMPLATE'
+
+export const TextSize_Stroke2_Corner0_Rounded = createSinglePathSVG({
+  path: 'M9 5a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2h-5v14a1 1 0 1 1-2 0V6h-5a1 1 0 0 1-1-1Zm-3.073 7v8a1 1 0 1 0 2 0v-8H12a1 1 0 1 0 0-2H2a1 1 0 1 0 0 2h3.927Z',
+  viewBox: '0 0 24 24',
+  glyph: 'TextSize_Stroke2_Corner0_Rounded',
+>>>>>>> upstream/main
 })

@@ -26,10 +26,16 @@ export function ConstrainedImage({
   fullBleed,
   children,
   minMobileAspectRatio,
+  showPlaceholder = true,
 }: {
   aspectRatio: number
   fullBleed?: boolean
   minMobileAspectRatio?: number
+  /**
+   * Whether to fill the box with a placeholder colour behind `children`.
+   * Turn this off if the children paint their own.
+   */
+  showPlaceholder?: boolean
   children: React.ReactNode
 }) {
   const t = useTheme()
@@ -53,7 +59,7 @@ export function ConstrainedImage({
               a.h_full,
               a.rounded_md,
               a.overflow_hidden,
-              t.atoms.bg_contrast_25,
+              showPlaceholder && t.atoms.bg_contrast_25,
               fullBleed ? a.w_full : {aspectRatio},
             ]}>
             {children}
@@ -121,6 +127,7 @@ export function AutoSizedImage({
   const isContain = aspectRatio === undefined
   const hasAlt = !!image.alt
 
+<<<<<<< HEAD
   /* northsky: a fixed ratio shrinks a wide desktop image much further than a
    * narrow mobile one. Measure the image and shrink it by a set distance.
    * Only the web branches below read the scale, so only web pays for the
@@ -128,8 +135,17 @@ export function AutoSizedImage({
   const press = useMeasuredScale(-PRESS_SHRINK_PX)
   const onPressLayout = IS_NATIVE ? undefined : press.onLayout
 
+=======
+  /*
+   * The placeholder colour goes on the ref'd view rather than the boxes around
+   * it, so that the lightbox hiding the thumbnail hides the placeholder too.
+   */
+>>>>>>> upstream/main
   const contents = (
-    <Animated.View ref={containerRef} collapsable={false} style={{flex: 1}}>
+    <Animated.View
+      ref={containerRef}
+      collapsable={false}
+      style={[{flex: 1}, t.atoms.bg_contrast_25]}>
       <Image
         contentFit={isContain ? 'contain' : 'cover'}
         style={[a.w_full, a.h_full]}
@@ -239,7 +255,6 @@ export function AutoSizedImage({
           a.w_full,
           a.rounded_md,
           a.overflow_hidden,
-          t.atoms.bg_contrast_25,
           {aspectRatio: max ?? 1},
           web([
             a.transition_transform,
@@ -257,7 +272,8 @@ export function AutoSizedImage({
     return (
       <ConstrainedImage
         fullBleed={crop === 'square'}
-        aspectRatio={constrained ?? 1}>
+        aspectRatio={constrained ?? 1}
+        showPlaceholder={false}>
         <Pressable
           onPress={() => onPress?.(containerRef, fetchedDimsRef.current)}
           onLongPress={onLongPress}

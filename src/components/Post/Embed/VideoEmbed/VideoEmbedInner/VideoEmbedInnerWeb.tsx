@@ -17,6 +17,7 @@ import {AltBadgeWithDialog} from '#/components/AltBadgeWithDialog'
 import {useFullscreen} from '#/components/hooks/useFullscreen'
 import {useReportDialogMetadataContext} from '#/components/moderation/ReportDialog/ReportDialogMetadataContext'
 import * as BandwidthEstimate from './bandwidth-estimate'
+import {loadHls} from './loadHls'
 import {
   HLSFatalError,
   HLSUnsupportedError,
@@ -164,6 +165,7 @@ function canPlayBskyVideoCodecs(): boolean {
   )
 }
 
+<<<<<<< HEAD
 type CachedPromise<T> = Promise<T> & {value: undefined | T}
 const promiseForHls = import(
   // @ts-expect-error
@@ -190,6 +192,8 @@ try {
   hlsWorkerUrl = undefined
 }
 
+=======
+>>>>>>> upstream/main
 function useHLS({
   playlist,
   setHasSubtitleTrack,
@@ -203,18 +207,30 @@ function useHLS({
   videoRef: React.RefObject<HTMLVideoElement | null>
   setHlsLoading: (v: boolean) => void
 }) {
-  const [Hls, setHls] = useState<typeof HlsTypes.default | undefined>(
-    () => promiseForHls.value,
-  )
+  const [Hls, setHls] = useState<typeof HlsTypes.default | undefined>(undefined)
   useEffect(() => {
-    if (!Hls) {
-      setHlsLoading(true)
-      void promiseForHls.then(loadedHls => {
+    let cancelled = false
+    setHlsLoading(true)
+    void loadHls().then(
+      loadedHls => {
+        if (cancelled) return
         setHls(() => loadedHls)
         setHlsLoading(false)
-      })
+      },
+      error => {
+        if (cancelled) return
+        setHlsLoading(false)
+        setError(
+          error instanceof Error
+            ? error
+            : new Error('Failed to load video player', {cause: error}),
+        )
+      },
+    )
+    return () => {
+      cancelled = true
     }
-  }, [Hls, setHlsLoading])
+  }, [setError, setHlsLoading])
 
   const hlsRef = useRef<HlsTypes.default | undefined>(undefined)
   const controlsVisibleRef = useRef(false)

@@ -27,6 +27,7 @@ everything else does not open up our identity. See [Section 3](#3-northsky-brand
 Every entry here is redistributable on its own terms. Those terms travel with the files, and
 you must keep them there.
 
+<<<<<<< HEAD
 | Asset                 | Path                                       | License                  | License file                                     |
 | -----------------------| --------------------------------------------| --------------------------| --------------------------------------------------|
 | Tabler Icons          | `src/assets/tabler`                        | MIT, (c) Pawel Kuna      | `src/assets/tabler/LICENSE`                      |
@@ -36,6 +37,9 @@ you must keep them there.
 | MuseoModerno typeface | `assets/fonts/museomoderno`                | SIL OFL 1.1              | `assets/fonts/museomoderno/MuseoModerno-OFL.txt` |
 | country-flag-icons    | `assets/icons/flags`                       | MIT, (c) @catamphetamine | `assets/icons/flags/README.md`                   |
 | Material Icons        | `bskyweb/static/media/MaterialIcons.*.ttf` | Apache 2.0               | `licenses/APACHE-2.0.txt`                        |
+=======
+The landing-screen illustration, in light and dark variants, used by `src/view/com/auth/NativeSplashScreen.tsx`. Each comes as a phone version extended with extra sky and ground (`assets/illustrations/illustration-mobile.webp` and `assets/illustrations/illustration-mobile-dark.webp`) and an unextended version for wider screens (`assets/illustrations/illustration-mobile-safe.webp` and `assets/illustrations/illustration-mobile-dark-safe.webp`).
+>>>>>>> upstream/main
 
 Inter, Geist, and MuseoModerno are all under the SIL Open Font License, which includes a
 Reserved Font Name provision. If you modify or subset one of these fonts, you may not

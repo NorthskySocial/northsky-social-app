@@ -15,9 +15,9 @@ import {DeviceLocationRequestDialog} from '#/components/dialogs/DeviceLocationRe
 import * as DateField from '#/components/forms/DateField'
 import {type DateFieldRef} from '#/components/forms/DateField/types'
 import {HostingProvider} from '#/components/forms/HostingProvider'
+import {PasswordField} from '#/components/forms/PasswordField'
 import * as TextField from '#/components/forms/TextField'
 import {Envelope_Stroke2_Corner0_Rounded as Envelope} from '#/components/icons/Envelope'
-import {Lock_Stroke2_Corner0_Rounded as Lock} from '#/components/icons/Lock'
 import {Ticket_Stroke2_Corner0_Rounded as Ticket} from '#/components/icons/Ticket'
 import {createStaticClick, SimpleInlineLinkText} from '#/components/Link'
 import {Loader} from '#/components/Loader'
@@ -288,6 +288,7 @@ export function StepInfo({
               <TextField.LabelText>
                 <Trans>Password</Trans>
               </TextField.LabelText>
+<<<<<<< HEAD
               <TextField.Root isInvalid={state.errorField === 'password'}>
                 <TextField.Icon icon={Lock} />
                 <TextField.Input
@@ -319,6 +320,28 @@ export function StepInfo({
                   passwordRules="minlength: 8;"
                 />
               </TextField.Root>
+=======
+              <PasswordField
+                isInvalid={state.errorField === 'password'}
+                testID="passwordInput"
+                inputRef={passwordInputRef}
+                onChangeText={value => {
+                  dispatch({type: 'setPassword', value})
+                  if (state.errorField === 'password' && value.length >= 8) {
+                    dispatch({type: 'clearError'})
+                  }
+                }}
+                label={l`Choose your password`}
+                value={state.password}
+                autoComplete="new-password"
+                returnKeyType="next"
+                submitBehavior={native('blurAndSubmit')}
+                onSubmitEditing={native(() =>
+                  birthdateInputRef.current?.focus(),
+                )}
+                passwordRules="minlength: 8;"
+              />
+>>>>>>> upstream/main
             </View>
             {/* northsky: the adult age gate asks two questions instead of a date. */}
             {ADULT_AGE_GATE_ENABLED ? (

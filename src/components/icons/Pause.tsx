@@ -9,6 +9,7 @@ import {
   createTablerIcon,
 } from '#/features/tablerIcons/createTablerIcon'
 
+<<<<<<< HEAD
 /** Tabler: player-pause (outline) */
 export const Pause_Stroke2_Corner0_Rounded = createTablerIcon({
   paths: [
@@ -39,4 +40,30 @@ export const Pause_Filled_Corner2_Rounded = createTablerFilledIcon({
     'M9 4h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h2a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2z',
     'M17 4h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h2a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2z',
   ],
+=======
+import {createSinglePathSVG} from './TEMPLATE'
+
+export const Pause_Filled_Corner0_Rounded = createSinglePathSVG({
+  path: 'M4 4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4Zm10 0a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V4Z',
+  viewBox: '0 0 24 24',
+  glyph: 'Pause_Filled_Corner0_Rounded',
+})
+
+export const Pause_Filled_Corner2_Rounded = createSinglePathSVG({
+  path: 'M4 6a3 3 0 0 1 6 0v12a3 3 0 1 1-6 0V6Zm10 0a3 3 0 1 1 6 0v12a3 3 0 1 1-6 0V6Z',
+  viewBox: '0 0 24 24',
+  glyph: 'Pause_Filled_Corner2_Rounded',
+})
+
+export const Pause_Stroke2_Corner0_Rounded = createSinglePathSVG({
+  path: 'M4 4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4Zm2 1v14h2V5H6Zm8-1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V4Zm2 1v14h2V5h-2Z',
+  viewBox: '0 0 24 24',
+  glyph: 'Pause_Stroke2_Corner0_Rounded',
+})
+
+export const Pause_Stroke2_Corner2_Rounded = createSinglePathSVG({
+  path: 'M4 6a3 3 0 0 1 6 0v12a3 3 0 1 1-6 0V6Zm3-1a1 1 0 0 0-1 1v12a1 1 0 1 0 2 0V6a1 1 0 0 0-1-1Zm7 1a3 3 0 1 1 6 0v12a3 3 0 1 1-6 0V6Zm3-1a1 1 0 0 0-1 1v12a1 1 0 1 0 2 0V6a1 1 0 0 0-1-1Z',
+  viewBox: '0 0 24 24',
+  glyph: 'Pause_Stroke2_Corner2_Rounded',
+>>>>>>> upstream/main
 })

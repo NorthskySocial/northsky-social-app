@@ -9,6 +9,7 @@ import {
   createTablerIcon,
 } from '#/features/tablerIcons/createTablerIcon'
 
+<<<<<<< HEAD
 /** Tabler: badge-cc (outline) */
 export const CC_Stroke2_Corner0_Rounded = createTablerIcon({
   paths: [
@@ -23,4 +24,18 @@ export const CC_Filled_Corner0_Rounded = createTablerFilledIcon({
   paths: [
     'M19 4a3 3 0 0 1 3 3v10a3 3 0 0 1 -3 3h-14a3 3 0 0 1 -3 -3v-10a3 3 0 0 1 3 -3zm-10.5 4a2.5 2.5 0 0 0 -2.5 2.5v3a2.5 2.5 0 1 0 5 0a1 1 0 0 0 -2 0a.5 .5 0 1 1 -1 0v-3a.5 .5 0 1 1 1 0a1 1 0 0 0 2 0a2.5 2.5 0 0 0 -2.5 -2.5m7 0a2.5 2.5 0 0 0 -2.5 2.5v3a2.5 2.5 0 1 0 5 0a1 1 0 0 0 -2 0a.5 .5 0 1 1 -1 0v-3a.5 .5 0 1 1 1 0a1 1 0 0 0 2 0a2.5 2.5 0 0 0 -2.5 -2.5',
   ],
+=======
+import {createSinglePathSVG} from './TEMPLATE'
+
+export const CC_Filled_Corner0_Rounded = createSinglePathSVG({
+  path: 'M3 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4Zm11.543 7.293a1 1 0 0 1 1.414 0 1 1 0 0 0 1.414-1.414 3 3 0 1 0 0 4.242 1 1 0 0 0-1.414-1.414 1 1 0 0 1-1.414-1.414Zm-6 0a1 1 0 0 1 1.414 0 1 1 0 0 0 1.414-1.414 3 3 0 1 0 0 4.243 1 1 0 0 0-1.414-1.415 1 1 0 0 1-1.414-1.414Z',
+  viewBox: '0 0 24 24',
+  glyph: 'CC_Filled_Corner0_Rounded',
+})
+
+export const CC_Stroke2_Corner0_Rounded = createSinglePathSVG({
+  path: 'M3 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4Zm2 1v14h14V5H5Zm10.957 6.293a1 1 0 1 0 0 1.414 1 1 0 0 1 1.414 1.414 3 3 0 1 1 0-4.242 1 1 0 0 1-1.414 1.414Zm-6.331-.22a1 1 0 1 0 .331 1.634 1 1 0 0 1 1.414 1.414 3 3 0 1 1 0-4.242 1 1 0 0 1-1.414 1.414 1 1 0 0 0-.331-.22Z',
+  viewBox: '0 0 24 24',
+  glyph: 'CC_Stroke2_Corner0_Rounded',
+>>>>>>> upstream/main
 })

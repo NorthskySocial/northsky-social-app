@@ -6,6 +6,7 @@
 // northsky: upstream glyphs replaced with Tabler icons
 import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
+<<<<<<< HEAD
 /** Tabler: chevron-left (outline) */
 export const ChevronLeft_Stroke2_Corner0_Rounded = createTablerIcon({
   paths: ['M15 6l-6 6l6 6'],
@@ -29,6 +30,39 @@ export const ChevronBottom_Stroke2_Corner0_Rounded = createTablerIcon({
 /** Tabler: selector (outline) */
 export const ChevronTopBottom_Stroke2_Corner0_Rounded = createTablerIcon({
   paths: ['M8 9l4 -4l4 4', 'M16 15l-4 4l-4 -4'],
+=======
+import {createSinglePathSVG} from './TEMPLATE'
+import {TinyChevronBottom_Stroke2_Corner0_Rounded as CanonicalTinyChevronBottom_Stroke2_Corner0_Rounded} from './TinyChevronBottom'
+
+export const ChevronBottom_Stroke2_Corner0_Rounded = createSinglePathSVG({
+  path: 'M3.293 8.293a1 1 0 0 1 1.414 0L12 15.586l7.293-7.293a1 1 0 1 1 1.414 1.414l-8 8a1 1 0 0 1-1.414 0l-8-8a1 1 0 0 1 0-1.414Z',
+  viewBox: '0 0 24 24',
+  glyph: 'ChevronBottom_Stroke2_Corner0_Rounded',
+})
+
+export const ChevronLeft_Stroke2_Corner0_Rounded = createSinglePathSVG({
+  path: 'M15.707 3.293a1 1 0 0 1 0 1.414L8.414 12l7.293 7.293a1 1 0 0 1-1.414 1.414l-8-8a1 1 0 0 1 0-1.414l8-8a1 1 0 0 1 1.414 0Z',
+  viewBox: '0 0 24 24',
+  glyph: 'ChevronLeft_Stroke2_Corner0_Rounded',
+})
+
+export const ChevronRight_Stroke2_Corner0_Rounded = createSinglePathSVG({
+  path: 'M8.293 3.293a1 1 0 0 1 1.414 0l8 8a1 1 0 0 1 0 1.414l-8 8a1 1 0 0 1-1.414-1.414L15.586 12 8.293 4.707a1 1 0 0 1 0-1.414Z',
+  viewBox: '0 0 24 24',
+  glyph: 'ChevronRight_Stroke2_Corner0_Rounded',
+})
+
+export const ChevronTop_Stroke2_Corner0_Rounded = createSinglePathSVG({
+  path: 'M12 6a1 1 0 0 1 .707.293l8 8a1 1 0 0 1-1.414 1.414L12 8.414l-7.293 7.293a1 1 0 0 1-1.414-1.414l8-8A1 1 0 0 1 12 6Z',
+  viewBox: '0 0 24 24',
+  glyph: 'ChevronTop_Stroke2_Corner0_Rounded',
+})
+
+export const ChevronTopBottom_Stroke2_Corner0_Rounded = createSinglePathSVG({
+  path: 'M11.293 4.293a1 1 0 0 1 1.414 0l4 4a1 1 0 0 1-1.414 1.414L12 6.414 8.707 9.707a1 1 0 0 1-1.414-1.414l4-4Zm-4 10a1 1 0 0 1 1.414 0L12 17.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-4 4a1 1 0 0 1-1.414 0l-4-4a1 1 0 0 1 0-1.414Z',
+  viewBox: '0 0 24 24',
+  glyph: 'ChevronTopBottom_Stroke2_Corner0_Rounded',
+>>>>>>> upstream/main
 })
 
 /** Tabler: chevron-down (outline) */
