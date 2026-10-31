@@ -408,7 +408,10 @@ export function createProxiedUrl(url: string): string {
     return url
   }
 
-  return `https://go.bsky.app/redirect?u=${encodeURIComponent(url)}`
+  // northsky: use a configured proxy, or open the original URL directly.
+  return BRAND.linkProxyUrl
+    ? `${BRAND.linkProxyUrl}${encodeURIComponent(url)}`
+    : url
 }
 
 export function isShortLink(url: string): boolean {
