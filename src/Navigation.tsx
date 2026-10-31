@@ -119,6 +119,7 @@ import {AppPasswordsScreen} from '#/screens/Settings/AppPasswords'
 import {AppViewTransferSettingsScreen} from '#/screens/Settings/AppViewTransfer'
 import {AutomationLabelSettingsScreen} from '#/screens/Settings/AutomationLabelSettings'
 import {BetaFeaturesSettingsScreen} from '#/screens/Settings/BetaFeaturesSettings'
+import {BluemojiPackScreen} from '#/screens/Settings/BluemojiPack' // northsky: Bluemoji pack
 import {BluemojiSettingsScreen} from '#/screens/Settings/BluemojiSettings' // northsky: Bluemoji
 import {ContentAndMediaSettingsScreen} from '#/screens/Settings/ContentAndMediaSettings'
 import {ExternalMediaPreferencesScreen} from '#/screens/Settings/ExternalMediaPreferences'
@@ -445,6 +446,11 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
           title: title(msg`Bluemoji`),
           requireAuth: true,
         }}
+      />
+      <Stack.Screen
+        name="BluemojiPack"
+        getComponent={() => BluemojiPackScreen}
+        options={{title: title(msg`Emoji pack`), requireAuth: true}}
       />
       <Stack.Screen
         name="AppearanceSettings"
