@@ -54,34 +54,38 @@ export const PersonX_Stroke2_Corner0_Rounded_Large = createTablerIcon({
   ],
 })
 
-/** Tabler: user-plus (outline) */
+/** Tabler: northsky-user-plus (outline) */
 export const PersonPlus_Stroke2_Corner0_Rounded = createTablerIcon({
   paths: [
-    'M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0',
-    'M16 19h6',
-    'M19 16v6',
-    'M6 21v-2a4 4 0 0 1 4 -4h4',
+    'M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0',
+    'M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2',
+    'M24 14.5v7',
+    'M20.5 18h7',
   ],
+  viewBox: '0 0 30 24',
 })
 
-/** Tabler: user-plus (outline) */
-export const PersonPlus_Filled_Stroke2_Corner0_Rounded = createTablerIcon({
-  paths: [
-    'M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0',
-    'M16 19h6',
-    'M19 16v6',
-    'M6 21v-2a4 4 0 0 1 4 -4h4',
-  ],
-})
+/** Tabler: northsky-user-plus (filled) */
+export const PersonPlus_Filled_Stroke2_Corner0_Rounded = createTablerFilledIcon(
+  {
+    paths: [
+      'M12 2a5 5 0 1 1-5 5l.005-.217A5 5 0 0 1 12 2',
+      'M14 14a5 5 0 0 1 5 5v1a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-1a5 5 0 0 1 5-5z',
+      'M24 14a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3a.5.5 0 0 1 .5-.5',
+    ],
+    viewBox: '0 0 30 24',
+  },
+)
 
-/** Tabler: user-plus (outline) */
+/** Tabler: northsky-user-plus (outline) */
 export const PersonPlus_Stroke2_Corner2_Rounded = createTablerIcon({
   paths: [
-    'M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0',
-    'M16 19h6',
-    'M19 16v6',
-    'M6 21v-2a4 4 0 0 1 4 -4h4',
+    'M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0',
+    'M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2',
+    'M24 14.5v7',
+    'M20.5 18h7',
   ],
+  viewBox: '0 0 30 24',
 })
 
 /** Tabler: users (outline) */
@@ -100,4 +104,14 @@ export const Person_Filled_Corner2_Rounded = createTablerFilledIcon({
     'M12 2a5 5 0 1 1 -5 5l.005 -.217a5 5 0 0 1 4.995 -4.783z',
     'M14 14a5 5 0 0 1 5 5v1a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-1a5 5 0 0 1 5 -5h4z',
   ],
+})
+
+/** Tabler: northsky-user-plus (filled) */
+export const PersonPlus_Filled_Corner2_Rounded = createTablerFilledIcon({
+  paths: [
+    'M12 2a5 5 0 1 1-5 5l.005-.217A5 5 0 0 1 12 2',
+    'M14 14a5 5 0 0 1 5 5v1a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-1a5 5 0 0 1 5-5z',
+    'M24 14a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3a.5.5 0 0 1 .5-.5',
+  ],
+  viewBox: '0 0 30 24',
 })
