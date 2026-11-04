@@ -1,6 +1,6 @@
 import {useState} from 'react'
 import {type GestureResponderEvent, View} from 'react-native'
-import {moderatePost, type ModerationDecision} from '@bsky/sdk/moderation'
+import {moderatePost} from '@bsky/sdk/moderation'
 import {RichText as RichTextAPI} from '@bsky/sdk/richtext'
 import {Trans, useLingui} from '@lingui/react/macro'
 
@@ -18,6 +18,7 @@ import {
 } from '#/state/cache/post-shadow'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {type ParentPost} from '#/state/queries/notifications/grouped/types'
+import {useSlingshotRecordQuery} from '#/state/queries/slingshot'
 import {useSession} from '#/state/session'
 import {TimeElapsed} from '#/view/com/util/TimeElapsed'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
@@ -27,7 +28,8 @@ import {type Props as SVGIconProps} from '#/components/icons/common'
 import {Link, WebOnlyInlineLinkText} from '#/components/Link'
 import {ContentHider} from '#/components/moderation/ContentHider'
 import {PostAlerts} from '#/components/moderation/PostAlerts'
-import {ExternalEmbed} from '#/components/Post/Embed/ExternalEmbed'
+// northsky: notifications share custom embeds, moderation and quote recovery.
+import {Embed, PostEmbedViewContext} from '#/components/Post/Embed'
 import {ShowMoreTextButton} from '#/components/Post/ShowMoreTextButton'
 import {PostControls} from '#/components/PostControls'
 import {ProfileBadges} from '#/components/ProfileBadges'
@@ -38,7 +40,7 @@ import {Text} from '#/components/Typography'
 import {app} from '#/lexicons'
 import * as bsky from '#/types/bsky'
 import {makePostLink} from '../links'
-import {Card, FeedCard, getPostThumbnails, InlineImages} from './media'
+import {Card, InlineImages} from './media'
 import {Strong, useDisplayName} from './text'
 
 type PostView = app.bsky.feed.defs.PostView
@@ -230,6 +232,8 @@ function ReplyContextPost({
   const previewNode =
     record && preview && !isHidden ? (
       <RichText
+        enableCode
+        enableEmphasis
         value={
           new RichTextAPI({
             text: flattenLines(record.text),
@@ -288,7 +292,6 @@ export function PostBody({post}: {post: PostView}) {
   const moderation = moderationOpts
     ? moderatePost(post, moderationOpts)
     : undefined
-  const embedPreview = post.embed ? getEmbedPreviewKind(post.embed) : undefined
 
   const onPressShowMore = (event: GestureResponderEvent) => {
     // Keep the press from reaching the row, which on web would follow its link
@@ -309,6 +312,8 @@ export function PostBody({post}: {post: PostView}) {
         // Keeps "Show more" right under the text, without the hider's gap
         <View>
           <RichText
+            enableCode
+            enableEmphasis
             enableTags
             value={richText}
             authorHandle={post.author.handle}
@@ -322,118 +327,15 @@ export function PostBody({post}: {post: PostView}) {
           )}
         </View>
       )}
-      {post.embed && embedPreview && (
-        /*
-         * The row stacks its lines 4px apart, but an embed gets 8px from
-         * the header when there's no text, and media and links get 8px
-         * before the timestamp too.
-         */
-        <View
-          style={[!richText && a.mt_xs, embedPreview === 'media' && a.mb_xs]}>
-          <EmbedPreview
-            embed={post.embed}
-            post={post}
-            moderation={moderation}
-          />
-        </View>
+      {post.embed && (
+        <Embed
+          embed={post.embed}
+          post={post}
+          moderation={moderation}
+          viewContext={PostEmbedViewContext.Feed}
+        />
       )}
     </ContentHider>
-  )
-}
-
-/**
- * What `EmbedPreview` shows for an embed, by what it ends with: `media` for
- * thumbnails and links, `quote` for a quoted post or a shared feed (with or
- * without media above it), or undefined when it shows nothing.
- */
-function getEmbedPreviewKind(
-  embed: NonNullable<PostView['embed']>,
-): 'media' | 'quote' | undefined {
-  if (bsky.isType(app.bsky.embed.recordWithMedia.view, embed)) {
-    return hasRecordCard(embed.record)
-      ? 'quote'
-      : getEmbedPreviewKind(embed.media)
-  }
-  if (bsky.isType(app.bsky.embed.record.view, embed)) {
-    return hasRecordCard(embed) ? 'quote' : undefined
-  }
-  if (bsky.isType(app.bsky.embed.external.view, embed)) {
-    return 'media'
-  }
-  return getPostThumbnails(embed).length > 0 ? 'media' : undefined
-}
-
-/**
- * Whether `RecordPreview` renders anything for a record embed.
- */
-function hasRecordCard(embed: app.bsky.embed.record.View) {
-  switch (bsky.post.parseEmbedRecordView(embed).type) {
-    case 'post':
-    case 'post_blocked':
-    case 'post_not_found':
-    case 'post_detached':
-    case 'feed':
-      return true
-    default:
-      return false
-  }
-}
-
-/**
- * The card for a record embed: a quoted post, or a feed that was shared.
- * Without it a post that shares a feed reads like a plain reply to whoever
- * made the feed. Other records, like lists, render nothing.
- */
-function RecordPreview({embed}: {embed: app.bsky.embed.record.View}) {
-  const parsed = bsky.post.parseEmbedRecordView(embed)
-
-  if (parsed.type === 'feed') {
-    return <FeedCard generator={parsed.view} />
-  }
-  return <QuoteCard embed={embed} />
-}
-
-/**
- * A compact stand-in for the full post embed: thumbnails for media, the
- * usual external embed for links, a card for quoted posts and shared feeds,
- * and nothing for lists and the like.
- */
-function EmbedPreview({
-  embed,
-  post,
-  moderation,
-}: {
-  embed: NonNullable<PostView['embed']>
-  post: PostView
-  /**
-   * The post's own moderation, for its media. Quoted posts apply their own.
-   */
-  moderation: ModerationDecision | undefined
-}) {
-  if (bsky.isType(app.bsky.embed.recordWithMedia.view, embed)) {
-    return (
-      <View style={[a.gap_sm]}>
-        <EmbedPreview embed={embed.media} post={post} moderation={moderation} />
-        <RecordPreview embed={embed.record} />
-      </View>
-    )
-  }
-  if (bsky.isType(app.bsky.embed.record.view, embed)) {
-    return <RecordPreview embed={embed} />
-  }
-  if (bsky.isType(app.bsky.embed.external.view, embed)) {
-    return (
-      <ContentHider modui={moderation?.ui('contentMedia')}>
-        <ExternalEmbed link={embed.external} post={post} />
-      </ContentHider>
-    )
-  }
-  return (
-    <InlineImages
-      embed={embed}
-      size={80}
-      blurred={moderation?.ui('contentMedia').blur ?? false}
-    />
   )
 }
 
@@ -475,8 +377,14 @@ export function QuoteCard({
       placeholder = <Trans>Blocked post</Trans>
       break
     case 'post_not_found':
-      placeholder = <Trans>Deleted post</Trans>
-      break
+      // northsky: recover only missing quotes, never blocked or detached ones.
+      return (
+        <RecoveredQuoteCard
+          uri={parsed.view.uri}
+          numberOfLines={numberOfLines}
+          isMuted={isMuted}
+        />
+      )
     case 'post_detached': {
       const isViewerOwner = currentAccount?.did
         ? parsed.view.uri.includes(currentAccount.did)
@@ -496,6 +404,38 @@ export function QuoteCard({
     <Card>
       <Text style={[a.text_md, a.leading_snug, t.atoms.text_contrast_medium]}>
         {placeholder}
+      </Text>
+    </Card>
+  )
+}
+
+// northsky: recovery uses the same compact rendering and moderation as found quotes.
+function RecoveredQuoteCard({
+  uri,
+  numberOfLines,
+  isMuted,
+}: {
+  uri: string
+  numberOfLines: number
+  isMuted: boolean
+}) {
+  const t = useTheme()
+  const {data: view, isLoading} = useSlingshotRecordQuery({
+    atUri: uri,
+    enabled: true,
+  })
+  if (view)
+    return (
+      <QuoteCardPost
+        view={view}
+        numberOfLines={numberOfLines}
+        isMuted={isMuted}
+      />
+    )
+  return (
+    <Card>
+      <Text style={[a.text_md, a.leading_snug, t.atoms.text_contrast_medium]}>
+        {isLoading ? <Trans>Loading...</Trans> : <Trans>Deleted</Trans>}
       </Text>
     </Card>
   )
@@ -596,6 +536,8 @@ function QuoteCardPost({
             </View>
             {quotedRecord?.text.trim() ? (
               <RichText
+                enableCode
+                enableEmphasis
                 value={
                   new RichTextAPI({
                     text: quotedRecord.text,
