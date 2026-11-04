@@ -69,6 +69,12 @@ export type Device = {
   // northsky: whether adult-only Bluemoji draw as images, set in Moderation
   bluemojiAdultOnly?: 'show' | 'hide'
   inviteFriendsFollowersPromoDismissed?: boolean
+  /**
+   * Whether the trending topics widget was installed the last time we checked,
+   * so `trendingWidget:installed` and `trendingWidget:uninstalled` are only
+   * logged when that changes.
+   */
+  trendingWidgetInstalled?: boolean
   pendingOTAUpdate?: {
     attemptedAt: number
     channel: string

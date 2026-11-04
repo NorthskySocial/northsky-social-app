@@ -986,19 +986,24 @@
       "tabler": "user-x"
     },
     "PersonPlus_Stroke2_Corner0_Rounded": {
-      "tabler": "user-plus"
+      "tabler": "northsky-user-plus"
     },
     "PersonPlus_Filled_Stroke2_Corner0_Rounded": {
-      "tabler": "user-plus"
+      "tabler": "northsky-user-plus",
+      "variant": "filled"
     },
     "PersonPlus_Stroke2_Corner2_Rounded": {
-      "tabler": "user-plus"
+      "tabler": "northsky-user-plus"
     },
     "PersonGroup_Stroke2_Corner2_Rounded": {
       "tabler": "users"
     },
     "Person_Filled_Corner2_Rounded": {
       "tabler": "user",
+      "variant": "filled"
+    },
+    "PersonPlus_Filled_Corner2_Rounded": {
+      "tabler": "northsky-user-plus",
       "variant": "filled"
     }
   },

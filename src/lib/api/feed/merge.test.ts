@@ -1,11 +1,67 @@
+import {Platform} from 'react-native'
 import {type Client} from '@atproto/lex'
 
-import {type app} from '#/lexicons'
+import {BSKY_APP_ACCOUNT_DID, DISCOVER_FEED_URI} from '#/lib/constants'
+import {getContentLanguages} from '#/state/preferences/languages'
+import {app} from '#/lexicons'
+import {device} from '#/storage'
 import {MergeFeedAPI} from './merge'
 
 const post = {} as app.bsky.feed.defs.FeedViewPost
 
 describe('MergeFeedAPI', () => {
+  it('sends platform and service geolocation only to Bluesky-owned merged sources', async () => {
+    const get = jest.spyOn(device, 'get').mockReturnValue({
+      countryCode: 'JP',
+      regionCode: '13',
+      city: '東京',
+      ip: '192.0.2.1',
+    })
+    const call = jest.fn().mockResolvedValue({feed: []})
+    const thirdPartyFeed = DISCOVER_FEED_URI
+    // northsky: use a Bluesky-owned feed, not the branded Discover feed.
+    const blueskyFeed = `at://${BSKY_APP_ACCOUNT_DID}/app.bsky.feed.generator/whats-hot`
+    const api = new MergeFeedAPI({
+      client: {call} as unknown as Client,
+      feedParams: {
+        mergeFeedEnabled: true,
+        mergeFeedSources: [blueskyFeed, thirdPartyFeed],
+      },
+      feedTuners: [],
+      userInterests: 'music',
+    })
+    api.reset()
+    api.following.hasMore = false
+
+    try {
+      await api.fetch({cursor: 'started', limit: 10})
+
+      expect(call).toHaveBeenCalledTimes(2)
+      expect(call).toHaveBeenCalledWith(
+        app.bsky.feed.getFeed,
+        expect.objectContaining({feed: blueskyFeed}),
+        {
+          headers: {
+            'x-atproto-bsky-platform': Platform.OS,
+            'x-atproto-bsky-topics': 'music',
+            'x-atproto-bsky-geo-country': 'JP',
+            'x-atproto-bsky-geo-region': '13',
+            'x-atproto-bsky-geo-city': '%E6%9D%B1%E4%BA%AC',
+            'x-atproto-bsky-geo-ip': '192.0.2.1',
+            'Accept-Language': getContentLanguages().join(','),
+          },
+        },
+      )
+      expect(call).toHaveBeenCalledWith(
+        app.bsky.feed.getFeed,
+        expect.objectContaining({feed: thirdPartyFeed}),
+        {headers: {'Accept-Language': getContentLanguages().join(',')}},
+      )
+    } finally {
+      get.mockRestore()
+    }
+  })
+
   it('drains a terminal following queue without restarting the source', async () => {
     const api = new MergeFeedAPI({
       client: {} as Client,
