@@ -173,13 +173,26 @@ if (
   process.env.SENTRY_AUTH_TOKEN != 'unknown'
 ) {
   const releasePackage = 'xyz.blueskyweb.app'
-  const release =
-<<<<<<< HEAD
-    process.env.SENTRY_RELEASE || require('../package.json').version
-=======
-    process.env.SENTRY_RELEASE ||
-    `${releasePackage}@${require(path.join(projectRoot, 'package.json')).version}`
->>>>>>> upstream/main
+  let release =
+    typeof process.env.SENTRY_RELEASE === 'string'
+      ? process.env.SENTRY_RELEASE
+      : ''
+  if (!release) {
+    const packageMetadata = /** @type {unknown} */ (
+      require(path.join(projectRoot, 'package.json'))
+    )
+    if (
+      typeof packageMetadata !== 'object' ||
+      packageMetadata === null ||
+      !('version' in packageMetadata) ||
+      typeof packageMetadata.version !== 'string'
+    ) {
+      throw new Error(
+        'Expected a string version in package.json for Sentry release',
+      )
+    }
+    release = `${releasePackage}@${packageMetadata.version}`
+  }
   /*
    * The runtime reports `xyz.blueskyweb.app@` + (EXPO_PUBLIC_RELEASE_VERSION
    * || package.json version) (SENTRY_RELEASE in src/env/common.ts), so maps
