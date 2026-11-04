@@ -61,7 +61,12 @@ every open PR at once. Instead:
 git fetch upstream
 git switch main && git pull --ff-only origin main
 git switch -c sync/upstream-YYYY-MM-DD     # dated sync branch
-git merge upstream/main                      # resolve conflicts here, not on main
+asset_state=$(mktemp -d)
+cp scripts/owned-assets.mjs "$asset_state/owned-assets.mjs"
+node "$asset_state/owned-assets.mjs" capture "$asset_state/assets.json" upstream/main
+git merge --no-commit --no-ff upstream/main
+# Run even after conflicts, before completing the merge.
+node "$asset_state/owned-assets.mjs" restore "$asset_state/assets.json"
 pnpm install && pnpm typecheck && pnpm lint && pnpm test
 git push -u origin sync/upstream-YYYY-MM-DD
 # open a PR: "Sync upstream <date> (<upstream short-sha>)" -> review -> merge
@@ -296,8 +301,6 @@ and `<Trans>` for JSX. Use `plural()` for counts. Prefer `i18n.date` over
 `Intl.DateTimeFormat`. Add `comment`/`context` when a string is ambiguous.
 
 ```tsx
-<<<<<<< HEAD
-=======
 import {Fragment} from 'react'
 import {View} from 'react-native'
 import {Trans} from '@lingui/react/macro'
@@ -410,7 +413,6 @@ Prefer Unicode punctuation over keyboard punctuation, e.g., `“quote”` over `
 
 ```tsx
 import {plural} from '@lingui/core/macro'
->>>>>>> upstream/main
 import {Trans, useLingui} from '@lingui/react/macro'
 const {t: l} = useLingui()
 const title = l`Settings`
@@ -435,7 +437,7 @@ const title = l`Settings`
   from `#/env`.
 - **Dialog close callback (critical):** always use `control.close(() => …)` when
   navigating, opening another dialog/menu, or doing state updates after closing.
-- Prefer `defaultValue` over `value` for `TextInput` (old architecture perf).
+- Use controlled inputs when other UI depends on their current value.
 - **React Compiler is enabled** — do NOT add `useMemo`/`useCallback`
   proactively; only when a value feeds an effect dep array or a non-React lib
   needs referential stability.
