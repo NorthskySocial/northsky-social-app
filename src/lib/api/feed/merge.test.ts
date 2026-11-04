@@ -1,14 +1,10 @@
 import {Platform} from 'react-native'
 import {type Client} from '@atproto/lex'
 
-<<<<<<< HEAD
-import {type app} from '#/lexicons'
-=======
-import {DISCOVER_FEED_URI} from '#/lib/constants'
+import {BSKY_APP_ACCOUNT_DID, DISCOVER_FEED_URI} from '#/lib/constants'
 import {getContentLanguages} from '#/state/preferences/languages'
 import {app} from '#/lexicons'
 import {device} from '#/storage'
->>>>>>> upstream/main
 import {MergeFeedAPI} from './merge'
 
 const post = {} as app.bsky.feed.defs.FeedViewPost
@@ -22,12 +18,14 @@ describe('MergeFeedAPI', () => {
       ip: '192.0.2.1',
     })
     const call = jest.fn().mockResolvedValue({feed: []})
-    const thirdPartyFeed = 'at://did:example:feed/app.bsky.feed.generator/test'
+    const thirdPartyFeed = DISCOVER_FEED_URI
+    // northsky: use a Bluesky-owned feed, not the branded Discover feed.
+    const blueskyFeed = `at://${BSKY_APP_ACCOUNT_DID}/app.bsky.feed.generator/whats-hot`
     const api = new MergeFeedAPI({
       client: {call} as unknown as Client,
       feedParams: {
         mergeFeedEnabled: true,
-        mergeFeedSources: [DISCOVER_FEED_URI, thirdPartyFeed],
+        mergeFeedSources: [blueskyFeed, thirdPartyFeed],
       },
       feedTuners: [],
       userInterests: 'music',
@@ -41,7 +39,7 @@ describe('MergeFeedAPI', () => {
       expect(call).toHaveBeenCalledTimes(2)
       expect(call).toHaveBeenCalledWith(
         app.bsky.feed.getFeed,
-        expect.objectContaining({feed: DISCOVER_FEED_URI}),
+        expect.objectContaining({feed: blueskyFeed}),
         {
           headers: {
             'x-atproto-bsky-platform': Platform.OS,

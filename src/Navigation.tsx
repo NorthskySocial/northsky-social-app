@@ -52,11 +52,7 @@ import {
   type SearchTabNavigatorParams,
 } from '#/lib/routes/types'
 import {bskyTitle} from '#/lib/strings/headings'
-<<<<<<< HEAD
-import {CHAT_INVITE_CODE_REGEX} from '#/lib/strings/url-helpers'
 import {navigationIntegration} from '#/logger/sentry/setup'
-=======
->>>>>>> upstream/main
 import {emitSoftReset} from '#/state/events'
 import {useUnreadNotifications} from '#/state/queries/notifications/unread'
 import {useSession} from '#/state/session'

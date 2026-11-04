@@ -12,19 +12,17 @@ import {Plural, Trans, useLingui} from '@lingui/react/macro'
 import {type NavigationState} from '@react-navigation/native'
 import {StackActions, useNavigation} from '@react-navigation/native'
 
-<<<<<<< HEAD
-import {FEEDBACK_FORM_URL, HELP_DESK_URL, webLinks} from '#/lib/constants'
-=======
 import {
   FEEDBACK_FORM_URL,
   HELP_DESK_URL,
   UNREAD_NOTIFICATION_CAP,
+  webLinks,
 } from '#/lib/constants'
->>>>>>> upstream/main
 import {type PressableScale} from '#/lib/custom-animations/PressableScale'
 import {useNavigationTabState} from '#/lib/hooks/useNavigationTabState'
 import {getTabState, TabState} from '#/lib/routes/helpers'
 import {
+  getCommonNavigationAction,
   getTabNavigationAction,
   getTabResetAction,
 } from '#/lib/routes/navigation'
@@ -357,7 +355,12 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
   // northsky: donation screen
   const onPressSupport = useCallback(() => {
     ax.metric('nav:click', {item: 'support', surface: 'drawer'})
-    navigation.navigate('Support')
+    navigation.dispatch(
+      getCommonNavigationAction(
+        {name: 'Support', params: undefined},
+        navigation.getState(),
+      ),
+    )
     setDrawerOpen(false)
   }, [navigation, setDrawerOpen, ax])
 
@@ -801,7 +804,6 @@ let SettingsMenuItem = ({onPress}: {onPress: () => void}): React.ReactNode => {
 }
 SettingsMenuItem = memo(SettingsMenuItem)
 
-<<<<<<< HEAD
 // northsky: donation screen
 let SupportMenuItem = ({onPress}: {onPress: () => void}): React.ReactNode => {
   const {t: l} = useLingui()
@@ -816,8 +818,6 @@ let SupportMenuItem = ({onPress}: {onPress: () => void}): React.ReactNode => {
 }
 SupportMenuItem = memo(SupportMenuItem)
 
-function MenuItem({icon, label, count, bold, beta, onPress}: MenuItemProps) {
-=======
 function MenuItem({
   icon,
   label,
@@ -827,7 +827,6 @@ function MenuItem({
   onPress,
   accessibilityHint,
 }: MenuItemProps) {
->>>>>>> upstream/main
   const t = useTheme()
   const {t: l} = useLingui()
   return (

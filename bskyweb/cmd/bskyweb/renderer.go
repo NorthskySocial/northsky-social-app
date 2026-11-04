@@ -58,19 +58,13 @@ type Renderer struct {
 	Debug       bool
 }
 
-<<<<<<< HEAD
-func NewRenderer(prefix string, fs *embed.FS, debug bool) *Renderer {
-	set := pongo2.NewSet(prefix, NewRendererLoader(prefix, fs))
+func NewRenderer(prefix string, fsys fs.FS, debug bool) *Renderer {
+	set := pongo2.NewSet(prefix, NewRendererLoader(prefix, fsys))
 	// northsky: keep brand values out of the templates themselves
 	applyBrandGlobals(set.Globals)
 	applyBrandGlobals(pongo2.Globals)
 	return &Renderer{
 		TemplateSet: set,
-=======
-func NewRenderer(prefix string, fsys fs.FS, debug bool) *Renderer {
-	return &Renderer{
-		TemplateSet: pongo2.NewSet(prefix, NewRendererLoader(prefix, fsys)),
->>>>>>> upstream/main
 		Debug:       debug,
 	}
 }

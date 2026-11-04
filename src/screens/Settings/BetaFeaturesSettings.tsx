@@ -302,14 +302,6 @@ export function BetaFeaturesSettingsScreen({}: Props) {
           )}
         </SettingsList.Container>
       </Layout.Content>
-<<<<<<< HEAD
-=======
-
-      <BetaFeaturesFeedbackDialog
-        control={feedbackControl}
-        betaFeatures={listedFeatures}
-      />
->>>>>>> upstream/main
     </Layout.Screen>
   )
 }

@@ -4,11 +4,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bluesky-social/social-app/bskyweb/brand"
 	"github.com/flosch/pongo2/v6"
 )
 
 func TestBskyProfileCanonicalURL(t *testing.T) {
-	baseURL := "https://bsky.app/profile/alice.bsky.social"
+	baseURL := brand.BaseURL + "/profile/alice.bsky.social"
 	for _, test := range []struct {
 		tab  string
 		want string
@@ -34,7 +35,7 @@ func TestBskyProfileCanonicalURL(t *testing.T) {
 func TestRenderProfileWithTabKeepsCanonicalQuery(t *testing.T) {
 	canonicalURL := bskyProfileCanonicalURL("alice.bsky.social", "replies")
 	html := renderTemplate(t, "profile.html", pongo2.Context{
-		"requestURI":   "https://bsky.app/profile/alice.bsky.social?tab=replies",
+		"requestURI":   brand.BaseURL + "/profile/alice.bsky.social?tab=replies",
 		"canonicalURL": canonicalURL,
 	})
 

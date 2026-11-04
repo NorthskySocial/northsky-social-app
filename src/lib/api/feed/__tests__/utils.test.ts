@@ -1,7 +1,11 @@
 import {Platform} from 'react-native'
 import {afterEach, beforeEach, describe, expect, it, jest} from '@jest/globals'
 
-import {BSKY_FEED_OWNER_DIDS, DISCOVER_FEED_URI} from '#/lib/constants'
+import {
+  BSKY_APP_ACCOUNT_DID,
+  BSKY_FEED_OWNER_DIDS,
+  DISCOVER_FEED_URI,
+} from '#/lib/constants'
 import {type UsePreferencesQueryResponse} from '#/state/queries/preferences'
 import {device} from '#/storage'
 
@@ -13,6 +17,8 @@ import {
   createBskyFeedHeaders,
   createBskyTopicsHeader,
 } from '../utils'
+
+const blueskyFeed = `at://${BSKY_APP_ACCOUNT_DID}/app.bsky.feed.generator/whats-hot`
 
 beforeEach(() => {
   jest.mocked(device.get).mockReset()
@@ -27,7 +33,7 @@ describe('createBskyFeedHeaders', () => {
     'sends the %s platform even without geolocation data',
     platform => {
       jest.replaceProperty(Platform, 'OS', platform)
-      expect(createBskyFeedHeaders(DISCOVER_FEED_URI)).toEqual({
+      expect(createBskyFeedHeaders(blueskyFeed)).toEqual({
         'x-atproto-bsky-platform': platform,
       })
     },
@@ -57,30 +63,32 @@ describe('createBskyFeedHeaders', () => {
     },
   )
 
-  it('does not send platform or read location for third-party feeds', () => {
-    expect(
-      createBskyFeedHeaders(
-        'at://did:example:feed/app.bsky.feed.generator/test',
-      ),
-    ).toEqual({})
-    expect(device.get).not.toHaveBeenCalled()
-  })
+  it.each([
+    DISCOVER_FEED_URI,
+    'at://did:example:feed/app.bsky.feed.generator/test',
+  ])(
+    'does not send platform or read location for third-party feed %s',
+    feed => {
+      expect(createBskyFeedHeaders(feed)).toEqual({})
+      expect(device.get).not.toHaveBeenCalled()
+    },
+  )
 
   it('omits missing values and reads updated service data on each request', () => {
     const get = jest.mocked(device.get)
     get.mockReturnValueOnce(undefined)
-    expect(createBskyFeedHeaders(DISCOVER_FEED_URI)).toEqual({
+    expect(createBskyFeedHeaders(blueskyFeed)).toEqual({
       'x-atproto-bsky-platform': 'ios',
     })
 
     get.mockReturnValueOnce({countryCode: 'US', regionCode: undefined})
-    expect(createBskyFeedHeaders(DISCOVER_FEED_URI)).toEqual({
+    expect(createBskyFeedHeaders(blueskyFeed)).toEqual({
       'x-atproto-bsky-platform': 'ios',
       'x-atproto-bsky-geo-country': 'US',
     })
 
     get.mockReturnValueOnce({countryCode: '', regionCode: '', city: '', ip: ''})
-    expect(createBskyFeedHeaders(DISCOVER_FEED_URI)).toEqual({
+    expect(createBskyFeedHeaders(blueskyFeed)).toEqual({
       'x-atproto-bsky-platform': 'ios',
     })
   })

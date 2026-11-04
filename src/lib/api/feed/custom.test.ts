@@ -1,7 +1,7 @@
 import {Platform} from 'react-native'
 import {type Client} from '@atproto/lex'
 
-import {DISCOVER_FEED_URI} from '#/lib/constants'
+import {BSKY_APP_ACCOUNT_DID, DISCOVER_FEED_URI} from '#/lib/constants'
 import {CustomFeedAPI as FollowingV2CustomFeedAPI} from '#/features/followingV2/home/api/custom'
 import {CustomFeedAPI as LegacyCustomFeedAPI} from './custom'
 
@@ -29,6 +29,7 @@ const fetchMock = jest.spyOn(global, 'fetch')
 beforeEach(() => fetchMock.mockReset())
 afterAll(() => fetchMock.mockRestore())
 
+const blueskyFeed = `at://${BSKY_APP_ACCOUNT_DID}/app.bsky.feed.generator/whats-hot`
 const thirdPartyFeed = 'at://did:example:feed/app.bsky.feed.generator/test'
 const feedHeaders = {
   'x-atproto-bsky-platform': Platform.OS,
@@ -42,7 +43,7 @@ describe.each([
   ['legacy', LegacyCustomFeedAPI],
   ['following v2', FollowingV2CustomFeedAPI],
 ] as const)('CustomFeedAPI (%s)', (_name, CustomFeedAPI) => {
-  it.each([DISCOVER_FEED_URI, thirdPartyFeed] as const)(
+  it.each([blueskyFeed, DISCOVER_FEED_URI, thirdPartyFeed] as const)(
     'gates platform and geolocation headers for authenticated fetches and peeks: %s',
     async feed => {
       const call = jest.fn().mockResolvedValue({feed: []})
@@ -55,7 +56,7 @@ describe.each([
       await api.fetch({cursor: undefined, limit: 10})
       await api.peekLatest()
 
-      const owned = feed === DISCOVER_FEED_URI
+      const owned = feed === blueskyFeed
       const headers = {
         ...(owned ? feedHeaders : {}),
         'Accept-Language': '',
@@ -104,7 +105,7 @@ describe.each([
     )
   })
 
-  it.each([DISCOVER_FEED_URI, thirdPartyFeed] as const)(
+  it.each([blueskyFeed, DISCOVER_FEED_URI, thirdPartyFeed] as const)(
     'preserves the cursor and gates feed headers on both logged-out attempts: %s',
     async feed => {
       fetchMock
@@ -123,9 +124,7 @@ describe.each([
       for (const [, init] of fetchMock.mock.calls) {
         const headers = new Headers(init?.headers)
         for (const [key, value] of Object.entries(feedHeaders)) {
-          expect(headers.get(key)).toBe(
-            feed === DISCOVER_FEED_URI ? value : null,
-          )
+          expect(headers.get(key)).toBe(feed === blueskyFeed ? value : null)
         }
       }
     },

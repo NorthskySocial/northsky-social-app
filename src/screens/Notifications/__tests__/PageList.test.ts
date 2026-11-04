@@ -22,7 +22,12 @@ jest.mock('#/components/Button', () => ({}))
 jest.mock('#/analytics', () => ({}))
 jest.mock('#/view/com/util/error/ErrorMessage', () => ({}))
 jest.mock('#/view/com/util/LoadMoreRetryBtn', () => ({}))
-jest.mock('#/alf', () => ({atoms: {}, useTheme: jest.fn(), web: jest.fn()}))
+jest.mock('#/alf', () => ({
+  atoms: {},
+  tokens: jest.requireActual('#/alf/tokens'),
+  useTheme: jest.fn(),
+  web: jest.fn(),
+}))
 
 describe('getPlaceholderRow', () => {
   it('shows the skeleton before the first load', () => {

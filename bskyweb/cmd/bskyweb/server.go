@@ -224,14 +224,10 @@ func serve(cctx *cli.Context) error {
 	}
 
 	e.HideBanner = true
-<<<<<<< HEAD
-	renderer := NewRenderer("templates/", &bskyweb.TemplateFS, debug)
+	renderer := NewRenderer("templates/", templateFS, debug)
 	// northsky: the app reads the donation config from the page
 	renderer.SetDonationConfig(donations.clientConfigLiteral())
 	e.Renderer = renderer
-=======
-	e.Renderer = NewRenderer("templates/", templateFS, debug)
->>>>>>> upstream/main
 	e.HTTPErrorHandler = server.errorHandler
 
 	e.IPExtractor = echo.ExtractIPFromXFFHeader()
@@ -860,8 +856,8 @@ func (srv *Server) WebStarterPack(c echo.Context) error {
 		return c.Render(http.StatusOK, "starterpack.html", data)
 	}
 	data["title"] = rec.Name
-	data["starterPackURI"] = spv.StarterPack.Uri;
-	
+	data["starterPackURI"] = spv.StarterPack.Uri
+
 	if srv.cfg.ogcardHost != "" {
 		data["imgThumbUrl"] = fmt.Sprintf("%s/start/%s/%s", srv.cfg.ogcardHost, identifier, rkey)
 	}

@@ -370,17 +370,13 @@ importers:
         version: 10.74.0
       '@sentry/react-native':
         specifier: ~8.26.0
-<<<<<<< HEAD
-        version: 8.26.0(@expo/env@2.4.3(supports-color@8.1.1))(dotenv@17.4.2)(expo@57.0.24)(react-native@0.86.3(patch_hash=d6c16c8305d443b2ed7969db4b7217555c7e686ac3757a0fb46fcb82ea8c40ac)(@babel/core@7.29.0(supports-color@8.1.1))(@react-native/jest-preset@0.86.3(@babel/core@7.29.0(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.0(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1)(webpack@5.106.2(@swc/core@1.16.2)(csso@5.0.5)(esbuild@0.25.12)(lightningcss@1.32.0)(postcss@8.5.14))
+        version: 8.26.0(@expo/env@2.5.4(supports-color@8.1.1))(dotenv@17.4.2)(expo@58.0.23)(react-native@0.88.1(patch_hash=905e68a17bb8b11f9e555f6c8dea94e2738f48b2c6e5f88e42ed2ef4e4778019)(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)(supports-color@8.1.1)(webpack@5.106.2(@swc/core@1.16.2)(csso@5.0.5)(esbuild@0.25.12)(lightningcss@1.32.0)(postcss@8.5.31))
       '@stripe/react-stripe-js':
         specifier: ^6.8.1
-        version: 6.12.0(@stripe/stripe-js@9.17.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 6.12.0(@stripe/stripe-js@9.17.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@stripe/stripe-js':
         specifier: ^9.13.0
         version: 9.17.0
-=======
-        version: 8.26.0(@expo/env@2.5.4(supports-color@8.1.1))(dotenv@17.4.2)(expo@58.0.23)(react-native@0.88.1(patch_hash=905e68a17bb8b11f9e555f6c8dea94e2738f48b2c6e5f88e42ed2ef4e4778019)(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)(supports-color@8.1.1)(webpack@5.106.2(@swc/core@1.16.2)(csso@5.0.5)(esbuild@0.25.12)(lightningcss@1.32.0)(postcss@8.5.31))
->>>>>>> upstream/main
       '@tanstack/query-async-storage-persister':
         specifier: ^5.96.2
         version: 5.100.10
@@ -779,16 +775,11 @@ importers:
         version: 3.25.76
     devDependencies:
       '@babel/core':
-<<<<<<< HEAD
-        specifier: ^7.26.0
-        version: 7.29.0(supports-color@8.1.1)
-      '@babel/plugin-transform-dynamic-import':
-        specifier: ^7.27.1
-        version: 7.27.1(@babel/core@7.29.0(supports-color@8.1.1))
-=======
         specifier: ^7.29.7
         version: 7.29.7(supports-color@8.1.1)
->>>>>>> upstream/main
+      '@babel/plugin-transform-dynamic-import':
+        specifier: ^7.27.1
+        version: 7.27.1(@babel/core@7.29.7(supports-color@8.1.1))
       '@babel/preset-env':
         specifier: ^7.26.0
         version: 7.29.5(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1)
@@ -5787,16 +5778,9 @@ packages:
   detect-node-es@1.1.0:
     resolution: {integrity: sha512-ypdmJU/TbBby2Dxibuv7ZLW3Bs1QEmM7nHjEANfohJLvE0XVujisn1qPJcZxg+qDucsr+bP6fLD1rPS3AhJ7EQ==}
 
-<<<<<<< HEAD
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
 
-  diff-sequences@29.6.3:
-    resolution: {integrity: sha512-EjePK1srD3P08o2j4f0ExnylqRs5B9tJjcp9t1krH2qRi8CCdsYfwe9JgSLurFBWwq4uOlipzfk5fHNvwFKr8Q==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-
-=======
->>>>>>> upstream/main
   diff@4.0.4:
     resolution: {integrity: sha512-X07nttJQkwkfKfvTPG/KSnE2OMdcUCao6+eXF3wmnIQRn2aPAHH3VxDbDOdegkd6JbPsXqShpvEOHfAT+nCNwQ==}
     engines: {node: '>=0.3.1'}
@@ -13932,12 +13916,12 @@ snapshots:
 
   '@standard-schema/spec@1.1.0': {}
 
-  '@stripe/react-stripe-js@6.12.0(@stripe/stripe-js@9.17.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+  '@stripe/react-stripe-js@6.12.0(@stripe/stripe-js@9.17.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@stripe/stripe-js': 9.17.0
       prop-types: 15.8.1
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
+      react: 19.3.0
+      react-dom: 19.3.0(react@19.3.0)
 
   '@stripe/stripe-js@9.17.0': {}
 
@@ -15450,15 +15434,10 @@ snapshots:
 
   detect-node-es@1.1.0: {}
 
-<<<<<<< HEAD
   devlop@1.1.0:
     dependencies:
       dequal: 2.0.3
 
-  diff-sequences@29.6.3: {}
-
-=======
->>>>>>> upstream/main
   diff@4.0.4:
     optional: true
 
