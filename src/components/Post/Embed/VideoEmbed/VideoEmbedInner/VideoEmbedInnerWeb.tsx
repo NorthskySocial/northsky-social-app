@@ -165,18 +165,6 @@ function canPlayBskyVideoCodecs(): boolean {
   )
 }
 
-<<<<<<< HEAD
-type CachedPromise<T> = Promise<T> & {value: undefined | T}
-const promiseForHls = import(
-  // @ts-expect-error
-  'hls.js/dist/hls.min'
-  // oxlint-disable-next-line typescript/no-unsafe-member-access
-).then(mod => mod.default) as CachedPromise<typeof HlsTypes.default>
-promiseForHls.value = undefined
-void promiseForHls.then(Hls => {
-  promiseForHls.value = Hls
-})
-
 // northsky: the UMD build's inline-blob worker throws ReferenceError on init
 // due to a `module` var not present in the minified CommonJS wrapper,
 // so hls.js silently falls back to demuxing on the main thread.
@@ -192,8 +180,6 @@ try {
   hlsWorkerUrl = undefined
 }
 
-=======
->>>>>>> upstream/main
 function useHLS({
   playlist,
   setHasSubtitleTrack,

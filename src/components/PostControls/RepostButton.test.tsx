@@ -3,6 +3,11 @@ import {render} from '@testing-library/react-native'
 import * as env from '#/env'
 import {RepostButton} from './RepostButton'
 
+jest.mock('#/components/Button', () => ({
+  Button: () => null,
+  ButtonText: () => null,
+  ButtonIcon: () => null,
+}))
 jest.mock('#/env', () => ({__esModule: true, IS_IPAD: false}))
 jest.mock('#/lib/haptics', () => ({
   useHaptics: () => ({longPress: jest.fn()}),

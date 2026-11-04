@@ -63,18 +63,11 @@ function withAppviewRequestHeaders(agent: Agent): Agent {
  * No `fetch` option: a client built over a session uses that session's own
  * fetch, which is `networkAwareFetch` wrapped in the disposal kill switch.
  */
-<<<<<<< HEAD
 export function buildAppviewClient(agent: Agent, appview: AppView): Client {
   return createLexClient(withAppviewRequestHeaders(agent), {
     // northsky: route to the resolved appview; the e2e override wins
     service: BLUESKY_PROXY_HEADER.override ?? `${appview.did}#bsky_appview`,
     includeDeviceSessionHeaders: false,
-=======
-export function buildAppviewClient(agent: Agent): Client {
-  return createLexClient(agent, {
-    service: BLUESKY_PROXY_HEADER.get(),
-    includeDeviceSessionHeaders: true,
->>>>>>> upstream/main
   })
 }
 

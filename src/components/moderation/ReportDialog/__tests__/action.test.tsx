@@ -70,6 +70,8 @@ describe('useSubmitReportMutation', () => {
       meta: {label: 'ableism'},
     })
     expect(options).toEqual({
+      strictResponseProcessing: false,
+      validateResponse: false,
       service: `${NORTHSKY_MOD_DID}#atproto_labeler`,
     })
   })
@@ -110,6 +112,8 @@ describe('useSubmitReportMutation', () => {
     expect(report.reason).toBe('see the third reply')
     expect(report.modTool).toBeUndefined()
     expect(options).toEqual({
+      strictResponseProcessing: false,
+      validateResponse: false,
       service: `${OTHER_LABELER_DID}#atproto_labeler`,
     })
   })

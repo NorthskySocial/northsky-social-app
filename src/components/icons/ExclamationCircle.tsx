@@ -1,10 +1,12 @@
-import {createSinglePathSVG} from './TEMPLATE'
+/**
+ * Generated from Tabler icons. Do not edit by hand.
+ *
+ * Regenerate with scripts/generate-tabler-icons.mjs.
+ */
+// northsky: upstream glyphs replaced with Tabler icons
+import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
-export const ExclamationCircle_Stroke2_Corner0_Rounded = createSinglePathSVG({
-  path: 'M20 12a8 8 0 1 0-16 0 8 8 0 0 0 16 0m2 0c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2s10 4.477 10 10m-10.843.256-.47-3.768a1.324 1.324 0 1 1 2.627 0l-.47 3.768a.85.85 0 0 1-1.687 0M12 17a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4',
-<<<<<<< HEAD
-=======
-  viewBox: '0 0 24 24',
-  glyph: 'ExclamationCircle_Stroke2_Corner0_Rounded',
->>>>>>> upstream/main
+/** Tabler: info-circle (outline) */
+export const ExclamationCircle_Stroke2_Corner0_Rounded = createTablerIcon({
+  paths: ['M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0', 'M12 9h.01', 'M11 12h1v4h1'],
 })

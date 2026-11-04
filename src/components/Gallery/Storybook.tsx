@@ -29,7 +29,7 @@ const kawaiiSmol = Asset.fromModule(
   require('../../../assets/kawaii_smol.png'),
 ).uri // 246x138
 const welcome = Asset.fromModule(
-  require('../../../assets/images/welcome-modal-bg.jpg'),
+  require('../../../assets/images/welcome-modal-bg.webp'),
 ).uri // 1432x1025
 
 /**

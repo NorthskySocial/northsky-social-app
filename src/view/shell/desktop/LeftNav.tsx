@@ -106,11 +106,8 @@ import {Text} from '#/components/Typography'
 import {useAgeAssurance} from '#/ageAssurance'
 import {useAnalytics} from '#/analytics'
 import {type Events} from '#/analytics/metrics/types'
-<<<<<<< HEAD
 import {navItemHoverWash} from '#/brand/gradients' // northsky: nav hover wash
-=======
 import {IS_IOS, IS_NATIVE, IS_WEB} from '#/env'
->>>>>>> upstream/main
 import {isFollowingV2HomeDotEnabled} from '#/features/followingV2/eligibility'
 import {useActorStatus} from '#/features/liveNow'
 // northsky: wording follows the "They're called" setting
@@ -808,7 +805,6 @@ export function DesktopLeftNav({
             minimal={leftNavMinimal}
             icons={{inactive: SettingsIcon, active: SettingsFilledIcon}}
           />
-<<<<<<< HEAD
           {/* northsky: donation screen */}
           <NavItem
             label={l`Support`}
@@ -821,8 +817,6 @@ export function DesktopLeftNav({
             }}
           />
 
-=======
->>>>>>> upstream/main
           <ComposeBtn minimal={leftNavMinimal} />
         </>
       )}

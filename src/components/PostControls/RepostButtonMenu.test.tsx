@@ -150,7 +150,7 @@ describe('RepostButtonMenu', () => {
     const undoButton = screen.getByTestId('repostDropdownRepostBtn')
     const quoteButton = screen.getByTestId('repostDropdownQuoteBtn')
 
-    expect(undoButton.props.accessibilityLabel).toBe('Undo repost')
+    expect(undoButton.props.accessibilityLabel).toBe('Undo reskeet')
     fireEvent.press(undoButton)
     expect(onRepost).toHaveBeenCalledTimes(1)
 

@@ -54,11 +54,8 @@ import {
 } from '#/lib/routes/types'
 import {bskyTitle} from '#/lib/strings/headings'
 import {CHAT_INVITE_CODE_REGEX} from '#/lib/strings/url-helpers'
-<<<<<<< HEAD
 import {navigationIntegration} from '#/logger/sentry/setup'
-=======
 import {emitSoftReset} from '#/state/events'
->>>>>>> upstream/main
 import {useUnreadNotifications} from '#/state/queries/notifications/unread'
 import {useSession} from '#/state/session'
 import {useOnboardingState} from '#/state/shell'

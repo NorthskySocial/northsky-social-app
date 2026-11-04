@@ -131,17 +131,12 @@ export function BetaFeaturesSettingsScreen({}: Props) {
     })
   }
 
-<<<<<<< HEAD
   /*
    * northsky: the app data transfer is a local beta feature, not a remote
    * gate, so a beta user always has one. `getTargetedFeatures` reports only
    * the remote gates.
    */
-  const hasBetaFeatures = isBetaUser || betaFeatures.length > 0
-=======
-  const canSubmitFeedback =
-    !isPending && (isBetaUser || IS_IPAD) && listedFeatures.length > 0
->>>>>>> upstream/main
+  const hasBetaFeatures = isBetaUser || listedFeatures.length > 0
 
   return (
     <Layout.Screen>
@@ -211,11 +206,7 @@ export function BetaFeaturesSettingsScreen({}: Props) {
               </ButtonText>
             </Link>
 
-<<<<<<< HEAD
             {!hasBetaFeatures ? (
-=======
-            {listedFeatures.length < 1 ? (
->>>>>>> upstream/main
               <View style={[a.align_center, a.gap_xs, a.py_5xl]}>
                 <BeakerIcon
                   size="4xl"
@@ -232,7 +223,6 @@ export function BetaFeaturesSettingsScreen({}: Props) {
                 </Text>
               </View>
             ) : (
-<<<<<<< HEAD
               <Text style={[a.text_md, a.font_semi_bold]}>
                 <Trans>Current beta features</Trans>
               </Text>
@@ -258,17 +248,9 @@ export function BetaFeaturesSettingsScreen({}: Props) {
                 </SettingsList.LinkItem>
               )}
 
-              {betaFeatures.length > 0 && (
+              {listedFeatures.length > 0 && (
                 <View style={[a.px_xl, a.pt_md, a.gap_sm]}>
-                  {betaFeatures.map(feature => (
-=======
-              <>
-                <Text style={[a.text_md, a.font_semi_bold]}>
-                  <Trans>Current beta features</Trans>
-                </Text>
-                <View style={[a.gap_sm]}>
                   {listedFeatures.map(feature => (
->>>>>>> upstream/main
                     <View
                       key={feature.key}
                       style={[
@@ -320,14 +302,6 @@ export function BetaFeaturesSettingsScreen({}: Props) {
           )}
         </SettingsList.Container>
       </Layout.Content>
-<<<<<<< HEAD
-=======
-
-      <BetaFeaturesFeedbackDialog
-        control={feedbackControl}
-        betaFeatureKeys={feedbackFeatureKeys}
-      />
->>>>>>> upstream/main
     </Layout.Screen>
   )
 }

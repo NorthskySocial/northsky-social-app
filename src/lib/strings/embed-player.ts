@@ -3,16 +3,11 @@ import {Dimensions} from 'react-native'
 import {BRAND} from '#/brand/config' // northsky: brand host for the native iframe player
 import {IS_WEB} from '#/env'
 
-<<<<<<< HEAD
-const {height: SCREEN_HEIGHT} = Dimensions.get('window')
-
 /*
  * northsky: on web, load the iframe trampoline from our own origin. bskyweb
  * serves the /iframe assets, and same-origin loads satisfy the SAMEORIGIN
  * frame policy. On native, load from the brand host in release builds.
  */
-=======
->>>>>>> upstream/main
 const IFRAME_HOST = IS_WEB
   ? // @ts-ignore only for web
     window.location.origin

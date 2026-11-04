@@ -1,3 +1,4 @@
+// northsky: preserve reskeet wording in the shared native/web menu.
 import {useLingui} from '@lingui/react/macro'
 
 import {useRequireAuth, useSession} from '#/state/session'
@@ -41,7 +42,7 @@ export function RepostButtonMenu({
   return hasSession ? (
     <EventStopper onKeyDown={false}>
       <Menu.Root>
-        <Menu.Trigger label={l`Repost or quote post`}>
+        <Menu.Trigger label={l`Reskeet or quote post`}>
           {({props}) => (
             <PostControlButton
               testID="repostBtn"
@@ -76,15 +77,15 @@ export function RepostButtonMenu({
             <Menu.Item
               label={
                 isReposted
-                  ? l`Undo repost`
-                  : l({message: `Repost`, context: 'action'})
+                  ? l`Undo reskeet`
+                  : l({message: `Reskeet`, context: 'action'})
               }
               testID="repostDropdownRepostBtn"
               onPress={onRepost}>
               <Menu.ItemText>
                 {isReposted
-                  ? l`Undo repost`
-                  : l({message: `Repost`, context: 'action'})}
+                  ? l`Undo reskeet`
+                  : l({message: `Reskeet`, context: 'action'})}
               </Menu.ItemText>
               <Menu.ItemIcon icon={RepostIcon} position="right" />
             </Menu.Item>
@@ -109,7 +110,7 @@ export function RepostButtonMenu({
       onPress={() => requireAuth(() => {})}
       active={isReposted}
       activeColor={t.palette.positive_500}
-      label={l`Repost or quote post`}
+      label={l`Reskeet or quote post`}
       big={big}>
       <PostControlButtonIcon icon={RepostIcon} />
       {typeof repostCount !== 'undefined' && repostCount > 0 && (

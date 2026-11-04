@@ -127,7 +127,6 @@ export function AutoSizedImage({
   const isContain = aspectRatio === undefined
   const hasAlt = !!image.alt
 
-<<<<<<< HEAD
   /* northsky: a fixed ratio shrinks a wide desktop image much further than a
    * narrow mobile one. Measure the image and shrink it by a set distance.
    * Only the web branches below read the scale, so only web pays for the
@@ -135,12 +134,10 @@ export function AutoSizedImage({
   const press = useMeasuredScale(-PRESS_SHRINK_PX)
   const onPressLayout = IS_NATIVE ? undefined : press.onLayout
 
-=======
   /*
    * The placeholder colour goes on the ref'd view rather than the boxes around
    * it, so that the lightbox hiding the thumbnail hides the placeholder too.
    */
->>>>>>> upstream/main
   const contents = (
     <Animated.View
       ref={containerRef}

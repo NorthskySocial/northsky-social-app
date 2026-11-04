@@ -19,16 +19,12 @@ import {unstableCacheProfileView} from '#/state/queries/profile'
 import {useSession} from '#/state/session'
 import {Link} from '#/view/com/util/Link'
 import {PostMeta} from '#/view/com/util/PostMeta'
-<<<<<<< HEAD
-import {atoms as a, tokens, useTheme} from '#/alf'
-=======
 import {
   POST_NUMBER_INLINE_OFFSET,
   ThreadItemPostNumber,
   useHasThreadItemPostNumber,
 } from '#/screens/PostThread/components/ThreadItemPostNumber'
-import {atoms as a, useTheme} from '#/alf'
->>>>>>> upstream/main
+import {atoms as a, tokens, useTheme} from '#/alf'
 import {useInteractionState} from '#/components/hooks/useInteractionState'
 import {GalleryBleed} from '#/components/images/Gallery'
 import {ContentHider} from '#/components/moderation/ContentHider'

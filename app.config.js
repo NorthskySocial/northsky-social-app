@@ -368,7 +368,6 @@ module.exports = function (_config) {
         [
           'expo-font',
           {
-<<<<<<< HEAD
             // northsky: brand fonts (Geist body + MuseoModerno display) replace Inter
             fonts: [
               // Variable woff2 (iOS + web)
@@ -387,34 +386,6 @@ module.exports = function (_config) {
               './assets/fonts/museomoderno/MuseoModerno-SemiBold.ttf',
               './assets/fonts/museomoderno/MuseoModerno-SemiBoldItalic.ttf',
             ],
-=======
-            ios: {
-              /*
-               * Uncompressed TTF rather than WOFF2: iOS decompresses WOFF2
-               * fonts on every launch, which took ~200 ms of the startup
-               * critical path. These are the same Inter 4.001 fonts as the
-               * WOFF2 files used on web.
-               */
-              fonts: [
-                './assets/fonts/inter/InterVariable.ttf',
-                './assets/fonts/inter/InterVariable-Italic.ttf',
-              ],
-            },
-            android: {
-              fonts: [
-                './assets/fonts/inter/InterVariable.woff2',
-                './assets/fonts/inter/InterVariable-Italic.woff2',
-                './assets/fonts/inter/Inter-Regular.otf',
-                './assets/fonts/inter/Inter-Italic.otf',
-                './assets/fonts/inter/Inter-Medium.otf',
-                './assets/fonts/inter/Inter-MediumItalic.otf',
-                './assets/fonts/inter/Inter-SemiBold.otf',
-                './assets/fonts/inter/Inter-SemiBoldItalic.otf',
-                './assets/fonts/inter/Inter-Bold.otf',
-                './assets/fonts/inter/Inter-BoldItalic.otf',
-              ],
-            },
->>>>>>> upstream/main
           },
         ],
         [

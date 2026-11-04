@@ -237,13 +237,10 @@ function DialogInner({
         updates: {
           displayName: displayName.trimEnd(),
           description: description.trimEnd(),
-<<<<<<< HEAD
           pronouns: normalizePronouns(pronouns), // northsky: pronouns
-=======
           ...(written && {
             links: written.refs.length ? written.refs : undefined,
           }),
->>>>>>> upstream/main
         },
         newUserAvatar,
         newUserBanner,
@@ -471,7 +468,6 @@ function DialogInner({
           )}
         </View>
 
-<<<<<<< HEAD
         {/* northsky: pronouns */}
         <View>
           <TextField.LabelText>
@@ -501,7 +497,6 @@ function DialogInner({
             </Text>
           )}
         </View>
-=======
         {linksEnabled && links && (
           <ProfileLinksEditor
             did={profile.did}
@@ -518,7 +513,6 @@ function DialogInner({
             }}
           />
         )}
->>>>>>> upstream/main
       </View>
     </Dialog.ScrollableInner>
   )

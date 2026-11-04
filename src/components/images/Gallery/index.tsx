@@ -27,12 +27,8 @@ import {ImageContextMenu} from '#/components/Post/Embed/ImageContextMenu'
 import {PostEmbedViewContext} from '#/components/Post/Embed/types'
 import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
-<<<<<<< HEAD
 // northsky: size-independent press feedback
-import {PRESS_SHRINK_PX, scaleForDelta} from '#/brand'
-import {IS_ANDROID, IS_WEB} from '#/env'
-=======
->>>>>>> upstream/main
+import {PRESS_SHRINK_PX, scaleForDelta} from '#/brand/motionScale'
 import {type app} from '#/lexicons'
 
 export * from './const'

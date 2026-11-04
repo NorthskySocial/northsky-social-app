@@ -2,12 +2,8 @@ import {type Insets, Platform} from 'react-native'
 import {type Service} from '@atproto/lex'
 import {api} from '@bsky/sdk'
 
-<<<<<<< HEAD
 import {BRAND} from '#/brand/config'
-import {CHAT_PROXY_DID, IS_DEV} from '#/env'
-=======
-import {BLUESKY_PROXY_DID, CHAT_PROXY_DID, IS_DEV, MOD_PROXY_DID} from '#/env'
->>>>>>> upstream/main
+import {CHAT_PROXY_DID, IS_DEV, MOD_PROXY_DID} from '#/env'
 import {type app} from '#/lexicons'
 
 export const LOCAL_DEV_SERVICE =

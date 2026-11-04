@@ -168,19 +168,14 @@ describe('buildAppviewClient', () => {
     }
   })
 
-<<<<<<< HEAD
   it('omits the device and session headers', async () => {
     const client = buildAppviewClient(makeSession(fetchMock), FALLBACK_APPVIEW)
-=======
-  it('emits the device and session headers', async () => {
-    const client = buildAppviewClient(makeSession(fetchMock))
->>>>>>> upstream/main
 
     await client.call(app.bsky.actor.getProfile, {actor: HANDLE})
 
     const headers = headersFor(fetchMock, 'app.bsky.actor.getProfile')
-    expect(headers.get('x-atproto-device-id')).toBe('device-123')
-    expect(headers.get('x-atproto-session-id')).toBe('session-456')
+    expect(headers.get('x-atproto-device-id')).toBeNull()
+    expect(headers.get('x-atproto-session-id')).toBeNull()
   })
 
   it('reflects beta preference changes without rebuilding the client', async () => {
