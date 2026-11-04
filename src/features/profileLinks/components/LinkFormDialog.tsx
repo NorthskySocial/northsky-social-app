@@ -143,7 +143,6 @@ function LinkFormInner({
     if (
       !targetUrl ||
       provider ||
-      validation.isBlocked ||
       validation.isShortener ||
       validation.isInsecure
     ) {
@@ -153,7 +152,8 @@ function LinkFormInner({
     void getLinkMeta(targetUrl, 8e3).then(meta => {
       if (cancelled || meta.error) return
       setReachability('reachable')
-      const suggestion = suggestTitle(meta.title)
+      // a standard.site record's title, like a blog's name, beats the HTML one
+      const suggestion = suggestTitle(meta.view?.external?.title || meta.title)
       if (!suggestion) return
       const previousAuto = autoTitle.current
       autoTitle.current = suggestion
@@ -164,13 +164,7 @@ function LinkFormInner({
     return () => {
       cancelled = true
     }
-  }, [
-    targetUrl,
-    provider,
-    validation.isBlocked,
-    validation.isShortener,
-    validation.isInsecure,
-  ])
+  }, [targetUrl, provider, validation.isShortener, validation.isInsecure])
 
   const nextTitle = title.trim() || undefined
   const isUnchanged =
@@ -185,14 +179,6 @@ function LinkFormInner({
     if (!canSave) return
     if (!targetUrl) {
       setError('invalid')
-      return
-    }
-    if (validation.isBlocked) {
-      setError('blocked')
-      ax.metric('profile:links:rejected', {
-        reason: 'blocked',
-        domain: getLinkHost(targetUrl),
-      })
       return
     }
     if (validation.isShortener) {
@@ -214,10 +200,13 @@ function LinkFormInner({
     const isNewDestination = targetUrl !== link?.url
     // a saved link has proven itself; only check new destinations
     const needsCheck = isNewDestination && reachability === 'unchecked'
-    const keptIcon = isNewDestination ? undefined : link?.icon
-    // support links use bundled logos instead
-    const needsIcon = !provider && !keptIcon
-    let icon = keptIcon
+    /*
+     * Fetch the icon on every save, not just for new links, so editing a link
+     * picks up a favicon the site has changed. If that fails, an edit keeps
+     * the icon it had. Support links use bundled logos instead.
+     */
+    const needsIcon = !provider
+    let icon = isNewDestination ? undefined : link?.icon
     let iconUrl = isNewDestination ? undefined : link?.iconUrl
     if (needsCheck || needsIcon || isNewDestination) {
       setReachability('checking')

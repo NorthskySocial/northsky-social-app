@@ -143,7 +143,16 @@ func (srv *Server) WebOEmbed(c echo.Context) error {
 
 	aturi, err := srv.parseBlueskyURL(c.Request().Context(), c.QueryParam("url"))
 	if err != nil {
+<<<<<<< HEAD
 		return c.String(http.StatusBadRequest, fmt.Sprintf("Expected 'url' to be a %s URL or AT-URI: %v", brand.AppName, err))
+=======
+		if isHandleResolutionError(err) {
+			// Names internal addresses and ports; log it, don't return it.
+			log.Warn("handle resolution failed", "err", err)
+			return c.String(http.StatusBadRequest, "Expected 'url' to point at an account that can be resolved")
+		}
+		return c.String(http.StatusBadRequest, fmt.Sprintf("Expected 'url' to be bsky.app URL or AT-URI: %v", err))
+>>>>>>> upstream/main
 	}
 	if aturi.Collection() != syntax.NSID("app.bsky.feed.post") {
 		return c.String(http.StatusNotImplemented, "Only posts (app.bsky.feed.post records) can be embedded currently")

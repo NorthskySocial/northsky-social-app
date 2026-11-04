@@ -27,7 +27,7 @@ import {useListConvosQuery} from '#/state/queries/messages/list-conversations'
 import {useUpdateAllRead} from '#/state/queries/messages/update-all-read'
 import {EmptyState} from '#/view/com/util/EmptyState'
 import {List, type ListRef} from '#/view/com/util/List'
-import {ChatListLoadingPlaceholder} from '#/view/com/util/LoadingPlaceholder'
+import {ChatListSkeleton} from '#/screens/Messages/components/ChatListSkeleton'
 import {atoms as a, useBreakpoints, useTheme, web} from '#/alf'
 import {AgeRestrictedScreen} from '#/components/ageAssurance/AgeRestrictedScreen'
 import {useAgeAssuranceCopy} from '#/components/ageAssurance/useAgeAssuranceCopy'
@@ -395,9 +395,83 @@ export function ChatList({
   if (conversations.length === 0) {
     return (
       <Layout.Center style={web({minHeight: '100%'})}>
+<<<<<<< HEAD
         {/* northsky: one-time unencrypted-chat warning */}
         {!isLoading && (
           <ChatServiceWarning style={[a.mx_lg, a.mt_sm, a.mb_sm]} />
+=======
+        {isLoading ? (
+          <ChatListSkeleton />
+        ) : (
+          <>
+            {isError ? (
+              <>
+                <View style={[a.pt_3xl, a.align_center]}>
+                  <CircleInfoIcon
+                    width={48}
+                    fill={t.atoms.text_contrast_low.color}
+                  />
+                  <Text
+                    style={[a.pt_md, a.pb_sm, a.text_2xl, a.font_semi_bold]}>
+                    <Trans>Whoops!</Trans>
+                  </Text>
+                  <Text
+                    style={[
+                      a.text_md,
+                      a.pb_xl,
+                      a.text_center,
+                      a.leading_snug,
+                      t.atoms.text_contrast_medium,
+                      {maxWidth: 360},
+                    ]}>
+                    {cleanError(error) || l`Failed to load conversations`}
+                  </Text>
+
+                  <Button
+                    label={l`Reload conversations`}
+                    size="small"
+                    color="secondary_inverted"
+                    onPress={() => void refetch()}>
+                    <ButtonText>
+                      <Trans>Retry</Trans>
+                    </ButtonText>
+                    <ButtonIcon icon={RetryIcon} />
+                  </Button>
+                </View>
+              </>
+            ) : isWithinSplitView ? (
+              <EmptyState
+                message={l`Inbox empty`}
+                icon={InboxLargeIcon}
+                iconSize="4xl"
+                textStyle={t.atoms.text}
+                iconColor={t.atoms.text.color}
+                style={web([a.h_full, a.justify_center, {paddingBottom: 120}])}
+              />
+            ) : (
+              <EmptyState
+                message={l`Say hi to someone`}
+                icon={BubbleSmileIcon}
+                textStyle={t.atoms.text}
+                iconColor={t.atoms.text.color}
+                iconSize="4xl"
+                button={
+                  chatStatus?.chatDisabled
+                    ? undefined
+                    : {
+                        label: l`New chat`,
+                        text: l`New chat`,
+                        onPress: wrappedOpenChatControl,
+                        size: 'small',
+                        color: 'primary',
+                        icon: MessagePlusIcon,
+                      }
+                }
+                style={[a.h_full, {paddingTop: '20%'}]}
+              />
+            )}
+          </>
+>>>>>>> upstream/main
         )}
         {/*
          * northsky: the h_full empty states below size against the container.

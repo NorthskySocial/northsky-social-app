@@ -2,10 +2,10 @@ package main
 
 import (
 	"bytes"
-	"embed"
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"path/filepath"
 
 	"github.com/bluesky-social/social-app/bskyweb/brand"
@@ -25,13 +25,13 @@ func applyBrandGlobals(globals pongo2.Context) {
 
 type RendererLoader struct {
 	prefix string
-	fs     *embed.FS
+	fs     fs.FS
 }
 
-func NewRendererLoader(prefix string, fs *embed.FS) pongo2.TemplateLoader {
+func NewRendererLoader(prefix string, fsys fs.FS) pongo2.TemplateLoader {
 	return &RendererLoader{
 		prefix: prefix,
-		fs:     fs,
+		fs:     fsys,
 	}
 }
 func (l *RendererLoader) Abs(_, name string) string {
@@ -46,7 +46,7 @@ func (l *RendererLoader) Abs(_, name string) string {
 }
 
 func (l *RendererLoader) Get(path string) (io.Reader, error) {
-	b, err := l.fs.ReadFile(path)
+	b, err := fs.ReadFile(l.fs, path)
 	if err != nil {
 		return nil, fmt.Errorf("reading template %q failed: %w", path, err)
 	}
@@ -58,6 +58,7 @@ type Renderer struct {
 	Debug       bool
 }
 
+<<<<<<< HEAD
 func NewRenderer(prefix string, fs *embed.FS, debug bool) *Renderer {
 	set := pongo2.NewSet(prefix, NewRendererLoader(prefix, fs))
 	// northsky: keep brand values out of the templates themselves
@@ -65,6 +66,11 @@ func NewRenderer(prefix string, fs *embed.FS, debug bool) *Renderer {
 	applyBrandGlobals(pongo2.Globals)
 	return &Renderer{
 		TemplateSet: set,
+=======
+func NewRenderer(prefix string, fsys fs.FS, debug bool) *Renderer {
+	return &Renderer{
+		TemplateSet: pongo2.NewSet(prefix, NewRendererLoader(prefix, fsys)),
+>>>>>>> upstream/main
 		Debug:       debug,
 	}
 }

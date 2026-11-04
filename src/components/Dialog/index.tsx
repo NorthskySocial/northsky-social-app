@@ -83,6 +83,7 @@ export function Outer({
   control,
   onOpen,
   onClose,
+  preventDismiss = false,
   nativeOptions,
   testID,
 }: React.PropsWithChildren<DialogOuterProps>) {
@@ -112,6 +113,12 @@ export function Outer({
     popover: nativeOptions?.popover,
   })
 
+  /*
+   * Only user dismissal paths are blocked natively; the imperative `close`
+   * below still dismisses the sheet.
+   */
+  const shouldPreventDismiss = preventDismiss || !!nativeOptions?.preventDismiss
+
   const callQueuedCallbacks = useCallback(() => {
     for (const cb of closeCallbacks.current) {
       try {
@@ -136,6 +143,19 @@ export function Outer({
         }),
       )
       setDesiredContentHeight(undefined)
+      /*
+       * A full-height sheet only has the large detent, so it always opens at
+       * Full. Set that before the content mounts rather than waiting for
+       * onSnapPointChange: an autofocused input raises the keyboard mid-present,
+       * and ScrollView ignores that keyboard notification if
+       * automaticallyAdjustKeyboardInsets is still false, leaving the content
+       * unscrollable until the keyboard reopens.
+       */
+      setSnapPoint(
+        nativeOptions?.fullHeight
+          ? BottomSheetSnapPoint.Full
+          : BottomSheetSnapPoint.Partial,
+      )
       onOpen?.()
       setDialogIsOpen(control.id, true)
       ref.current?.present()
@@ -147,6 +167,7 @@ export function Outer({
       onOpen,
       nativeOptions?.popover,
       nativeOptions?.sourceViewTag,
+      nativeOptions?.fullHeight,
       setDesiredContentHeight,
     ],
   )
@@ -250,6 +271,7 @@ export function Outer({
       isNativePopover: IS_IOS && presentation?.isPopover === true,
       nativeSnapPoint: snapPoint,
       disableDrag,
+      preventDismiss: shouldPreventDismiss,
       setDisableDrag,
       isWithinDialog: true,
       isHeightConstrained,
@@ -261,6 +283,7 @@ export function Outer({
       presentation,
       snapPoint,
       disableDrag,
+      shouldPreventDismiss,
       setDisableDrag,
       isHeightConstrained,
       shouldMeasureContentHeight,
@@ -280,6 +303,7 @@ export function Outer({
       backgroundColor={t.atoms.bg.backgroundColor}
       colorScheme={t.scheme}
       {...nativeOptions}
+      preventDismiss={shouldPreventDismiss}
       sourceViewTag={sourceViewTag ?? nativeOptions?.sourceViewTag}
       onSnapPointChange={onSnapPointChange}
       onStateChange={onStateChange}

@@ -12,8 +12,18 @@ load guidance from a single source of truth.
 
 ## 1. Fork model (read this first)
 
+<<<<<<< HEAD
 As Northsky is a fork of `social-app` that needs to be kept in sync, the overriding goal is to
 keep upstream merges cheap. That shapes every decision:
+=======
+- React 19.3
+- React Native 0.88 with Expo 58
+- TypeScript 7
+- React Navigation 7 for routing
+- TanStack Query (React Query) for data fetching
+- Lingui 5 for internationalization
+- Custom design system called ALF (Application Layout Framework)
+>>>>>>> upstream/main
 
 > **Every line we change in an upstream file is a future merge conflict.**
 
@@ -459,6 +469,7 @@ features/components may include a `README.md` and co-located tests
 
 ## 12. Key files
 
+<<<<<<< HEAD
 | Purpose | Location |
 | --- | --- |
 | Brand config (source of truth) | `src/brand/brand.json`, `src/brand/config.ts` |
@@ -471,3 +482,191 @@ features/components may include a `README.md` and co-located tests
 | Query hooks | `src/state/queries/*.ts` |
 | Session state | `src/state/session/index.tsx` |
 | i18n setup | `src/locale/i18n.ts` |
+=======
+### Preferences (React Context)
+
+Boolean/simple UI preferences are exposed as paired hooks from `#/state/preferences`,
+e.g. `useAutoplayDisabled()` / `useSetAutoplayDisabled()`.
+
+### Session State
+
+`import {useSession, useAgent} from '#/state/session'`. `useSession()` gives
+`hasSession` and `currentAccount`; `useAgent()` gives the atproto agent for API calls.
+
+## Navigation
+
+React Navigation with type-safe route params. Type a screen with
+`NativeStackScreenProps<CommonNavigatorParams, 'X'>` (`route`/`navigation` come
+from props; params via `route.params`). Navigate programmatically with
+`useNavigation()`, or the `navigate` helper from `#/Navigation`. Config lives in
+`src/Navigation.tsx`, routes in `src/routes.ts`, types in `src/lib/routes/types.ts`.
+
+## Platform-Specific Code
+
+Use file extensions for platform-specific implementations. The bundler resolves
+them automatically - just import the base path normally, never a conditional
+`require()`.
+
+```
+Component.tsx          # Shared/default
+Component.web.tsx      # Web-only
+Component.native.tsx   # iOS + Android
+Component.ios.tsx      # iOS-only
+Component.android.tsx  # Android-only
+```
+
+Prefer grouping variants into a `Component/` directory (`index.tsx`,
+`index.web.tsx`, `index.native.tsx`) rather than sibling `Component.web.tsx` files,
+so the shared surface reads as one "macro" module (e.g. `src/components/Dialog/index.tsx`
+native vs `index.web.tsx` web). The app has both patterns; the directory form is
+preferred for new code.
+
+```tsx
+// CORRECT - bundler picks storage.ts or storage.web.ts automatically
+import * as storage from '#/state/drafts/storage'
+
+// WRONG - don't use require() or conditional imports for platform files
+const storage = IS_NATIVE
+  ? require('#/state/drafts/storage')
+  : require('#/state/drafts/storage.web')
+```
+
+Runtime platform detection (not for imports): `import {IS_WEB, IS_NATIVE, IS_IOS, IS_ANDROID} from '#/env'`.
+
+## Import Aliases
+
+Always use the `#/` alias for absolute imports:
+
+```tsx
+// Good
+import {useSession} from '#/state/session'
+import {atoms as a, useTheme} from '#/alf'
+import {Button} from '#/components/Button'
+
+// Avoid
+import {useSession} from '../../../state/session'
+```
+
+## Footguns
+
+Common pitfalls to avoid in this codebase:
+
+### Dialog Close Callback (Critical)
+
+**Always use `control.close(() => ...)` when performing actions after closing a dialog.** The callback ensures the action runs after the dialog's close animation completes. Failing to do this causes race conditions with React state updates.
+
+```tsx
+// WRONG - causes bugs with state updates, navigation, opening other dialogs
+const onConfirm = () => {
+  control.close()
+  navigation.navigate('Home') // May race with dialog animation
+}
+
+// WRONG - same problem
+const onConfirm = () => {
+  control.close()
+  otherDialogControl.open() // Will likely fail or cause visual glitches
+}
+
+// CORRECT - action runs after dialog fully closes
+const onConfirm = () => {
+  control.close(() => {
+    navigation.navigate('Home')
+  })
+}
+
+// CORRECT - opening another dialog after close
+const onConfirm = () => {
+  control.close(() => {
+    otherDialogControl.open()
+  })
+}
+
+// CORRECT - state updates after close
+const onConfirm = () => {
+  control.close(() => {
+    setSomeState(newValue)
+    onCallback?.()
+  })
+}
+```
+
+This applies to:
+
+- Navigation (`navigation.navigate()`, `navigation.push()`)
+- Opening other dialogs or menus
+- State updates that affect UI (`setState`, `queryClient.invalidateQueries`)
+- Callbacks passed from parent components
+
+The Menu component on iOS specifically uses this pattern – see `src/components/Menu/index.tsx:151`.
+
+### Platform-Specific Behavior
+
+Some components behave differently across platforms:
+
+- `Dialog.Handle` – Only renders on native (drag handle for bottom sheet)
+- `Dialog.Close` – Only renders on web (X button)
+- `Menu.Divider` – Only renders on web
+- `Menu.ContainerItem` – Only works on native
+
+Always test on multiple platforms when using these components.
+
+### React Compiler is Enabled
+
+This codebase uses React Compiler, so **don't proactively add `useMemo` or `useCallback`**. The compiler handles memoization automatically.
+
+```tsx
+// UNNECESSARY - React Compiler handles this
+const handlePress = useCallback(() => {
+  doSomething()
+}, [doSomething])
+
+// JUST WRITE THIS
+const handlePress = () => {
+  doSomething()
+}
+```
+
+Only use `useMemo`/`useCallback` when you have a specific reason, such as:
+
+- The value is immediately used in an effect's dependency array
+- You're passing a callback to a non-React library that needs referential stability
+
+### Patching react-native
+
+`patches/react-native@<version>.patch` is generated - don't edit it or use
+`pnpm patch react-native` directly. Each change lives in `patches/react-native/`
+as its own patch against pristine react-native, with a `.patch.md` explaining
+it. After adding or changing one, run `pnpm patch:react-native` to rebuild the
+combined patch. See `patches/react-native/README.md`.
+
+## Best Practices
+
+1. **Accessibility**: Always provide `label` prop for interactive elements, use `accessibilityHint` where helpful
+
+2. **Translations**: Wrap ALL user-facing strings with the `` l`…` `` macro or the `<Trans>` component
+
+3. **Styling**: Combine static atoms with theme atoms, use platform utilities for platform-specific styles
+
+4. **State**: Use TanStack Query for server state, React Context for UI preferences
+
+5. **Components**: Check if a component exists in `#/components/` before creating new ones
+
+6. **Types**: Define explicit types for props, use `NativeStackScreenProps` for screens
+
+7. **Testing**: Components should have `testID` props for E2E testing
+
+## Key Files Reference
+
+| Purpose           | Location                                     |
+| ----------------- | -------------------------------------------- |
+| Theme definitions | `src/alf/themes.ts`                          |
+| Design tokens     | `src/alf/tokens.ts`                          |
+| Static atoms      | `src/alf/atoms.ts` (extends `@bsky.app/alf`) |
+| Navigation config | `src/Navigation.tsx`                         |
+| Route definitions | `src/routes.ts`                              |
+| Route types       | `src/lib/routes/types.ts`                    |
+| Query hooks       | `src/state/queries/*.ts`                     |
+| Session state     | `src/state/session/index.tsx`                |
+| i18n setup        | `src/locale/i18n.ts`                         |
+>>>>>>> upstream/main

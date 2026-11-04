@@ -11,6 +11,7 @@ import {plural} from '@lingui/core/macro'
 import {Trans, useLingui} from '@lingui/react/macro'
 import {useNavigation, useNavigationState} from '@react-navigation/native'
 
+import {UNREAD_NOTIFICATION_CAP} from '#/lib/constants'
 import {useAccountSwitcher} from '#/lib/hooks/useAccountSwitcher'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {
@@ -32,6 +33,7 @@ import {emitSoftReset} from '#/state/events'
 import {useHomeBadge} from '#/state/home-badge'
 import {useFetchHandle} from '#/state/queries/handle'
 import {useUnreadMessageCount} from '#/state/queries/messages/list-conversations'
+import {useModerationInboxUnreadCountQuery} from '#/state/queries/moderation-inbox'
 import {useUnreadNotifications} from '#/state/queries/notifications/unread'
 import {useProfilesQuery} from '#/state/queries/profile'
 import {type SessionAccount, useSession, useSessionApi} from '#/state/session'
@@ -43,6 +45,7 @@ import {UserAvatar} from '#/view/com/util/UserAvatar'
 import {NavSignupCard} from '#/view/shell/NavSignupCard'
 import {
   atoms as a,
+  native,
   tokens,
   useBreakpoints,
   useLayoutBreakpoints,
@@ -126,6 +129,7 @@ const NAV_ITEM_TO_TAB: Partial<
   chat: 'Messages',
   notifications: 'Notifications',
   profile: 'MyProfile',
+  atmosphere: 'Atmosphere',
   feeds: 'Feeds',
   lists: 'Lists',
   saved: 'Bookmarks',
@@ -670,7 +674,7 @@ export function DesktopLeftNav({
   onNavigateTab?: (tab: SidebarTab) => void
 }) {
   const {hasSession, currentAccount} = useSession()
-  const {t: l} = useLingui()
+  const {i18n, t: l} = useLingui()
   const ax = useAnalytics()
   const {gtMobile} = useBreakpoints()
 
@@ -685,9 +689,28 @@ export function DesktopLeftNav({
     useLayoutBreakpoints()
   const numUnreadNotifications = useUnreadNotifications()
   const numUnreadMessages = useUnreadMessageCount()
+  const isModerationInboxEnabled = ax.features.enabled(
+    ax.features.ModerationInboxEnable,
+  )
+  const moderationInboxUnreadCountQuery = useModerationInboxUnreadCountQuery(
+    isModerationInboxEnabled,
+  )
+  const moderationInboxUnreadCount = isModerationInboxEnabled
+    ? (moderationInboxUnreadCountQuery.data?.unreadCounts.total ?? 0)
+    : 0
+  const numUnreadModerationInbox =
+    moderationInboxUnreadCount > 0
+      ? moderationInboxUnreadCount >= UNREAD_NOTIFICATION_CAP
+        ? l({
+            message: `${i18n.number(UNREAD_NOTIFICATION_CAP - 1)}+`,
+            comment:
+              'Displayed when the number of notifications exceeds the cap – for example, 99+',
+          })
+        : i18n.number(moderationInboxUnreadCount)
+      : undefined
   const hasHomeBadge = useHomeBadge()
   const isAtmosphereExploreEnabled = ax.features.enabled(
-    ax.features.AtmosphereExploreEnable,
+    ax.features.AtmosphereScreenEnable,
   )
   const insets = useSafeAreaInsets()
 
@@ -745,6 +768,7 @@ export function DesktopLeftNav({
               label={l`Atmosphere`}
               href="/atmosphere"
               navItem="atmosphere"
+              onNavigateTab={onNavigateTab}
               minimal={leftNavMinimal}
               beta
               icons={{
@@ -803,6 +827,7 @@ export function DesktopLeftNav({
             navItem="settings"
             onNavigateTab={onNavigateTab}
             minimal={leftNavMinimal}
+            count={numUnreadModerationInbox}
             icons={{inactive: SettingsIcon, active: SettingsFilledIcon}}
           />
           {/* northsky: donation screen */}
@@ -830,9 +855,9 @@ export function DesktopLeftNav({
       style={[
         a.fixed,
         a.top_0,
-        a.p_lg,
+        web(a.p_lg),
         styles.leftNav,
-        IS_NATIVE && {top: insets.top, bottom: insets.bottom},
+        native(a.bottom_0),
         !hasSession && !leftNavMinimal && {width: LEFT_NAV_PWI_WIDTH},
         leftNavMinimal && [
           {width: LEFT_NAV_MINIMAL_WIDTH},
@@ -859,7 +884,18 @@ export function DesktopLeftNav({
         },
       ]}>
       {IS_NATIVE ? (
-        <ScrollView style={[a.flex_1, a.w_full]}>{content}</ScrollView>
+        <ScrollView
+          style={[a.flex_1, a.w_full]}
+          contentContainerStyle={[
+            a.p_lg,
+            {
+              paddingTop: insets.top + tokens.space.lg,
+              paddingBottom: insets.bottom + tokens.space.lg,
+            },
+          ]}
+          showsVerticalScrollIndicator={false}>
+          {content}
+        </ScrollView>
       ) : (
         content
       )}
