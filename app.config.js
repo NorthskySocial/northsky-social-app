@@ -34,7 +34,13 @@ module.exports = function (_config) {
     ...(IS_DEV || IS_TESTFLIGHT ? [] : []),
   ]
 
-  const UPDATES_ENABLED = IS_TESTFLIGHT || IS_PRODUCTION
+  /*
+   * EXPO_PUBLIC_ENV is also an EAS environment secret, which wins over a build
+   * profile's env, so profiles opt out of OTA updates with their own flag. A
+   * dev client with updates on rejects unsigned manifests from a local Metro.
+   */
+  const UPDATES_ENABLED =
+    (IS_TESTFLIGHT || IS_PRODUCTION) && !process.env.DISABLE_UPDATES
 
   const USE_SENTRY = Boolean(process.env.SENTRY_AUTH_TOKEN)
 
@@ -59,7 +65,7 @@ module.exports = function (_config) {
       userInterfaceStyle: 'automatic',
       primaryColor: brand.primaryColor, // northsky: brand override
       ios: {
-        supportsTablet: false,
+        supportsTablet: IS_DEV || IS_TESTFLIGHT,
         bundleIdentifier: 'xyz.blueskyweb.app',
         appleTeamId: process.env.EXPO_APPLE_TEAM_ID,
         config: {
@@ -67,6 +73,13 @@ module.exports = function (_config) {
         },
         icon: IOS_ICON_FILE,
         infoPlist: {
+          UISupportedInterfaceOrientations: ['UIInterfaceOrientationPortrait'],
+          'UISupportedInterfaceOrientations~ipad': [
+            'UIInterfaceOrientationPortrait',
+            'UIInterfaceOrientationPortraitUpsideDown',
+            'UIInterfaceOrientationLandscapeLeft',
+            'UIInterfaceOrientationLandscapeRight',
+          ],
           CADisableMinimumFrameDurationOnPhone: true,
           UIBackgroundModes: ['remote-notification'],
           NSUserActivityTypes: ['INSendMessageIntent'],
@@ -260,6 +273,20 @@ module.exports = function (_config) {
         'expo-localization',
         'expo-web-browser',
         [
+          'react-native-nano-icons',
+          {
+            /*
+             * One font per codegen directory under `assets/icons/`, see
+             * `scripts/icons/README.md`.
+             */
+            iconSets: ['ui', 'brands', 'community'].map(lane => ({
+              inputDir: `./assets/icons/${lane}`,
+              outputDir: './assets/nano-icons/nanoicons',
+              fontFamily: `icons-${lane}`,
+            })),
+          },
+        ],
+        [
           'react-native-edge-to-edge',
           {android: {enforceNavigationBarContrast: false}},
         ],
@@ -314,7 +341,7 @@ module.exports = function (_config) {
               compileSdkVersion: 36,
               targetSdkVersion: 36,
               buildToolsVersion: '36.0.0',
-              buildReactNativeFromSource: IS_PRODUCTION,
+              buildReactNativeFromSource: true,
               enableMinifyInReleaseBuilds: true,
             },
           },
@@ -334,6 +361,8 @@ module.exports = function (_config) {
         './plugins/withAndroidManifestIntentQueriesPlugin.js',
         './plugins/withAndroidStylesAccentColorPlugin.js',
         './plugins/withAndroidNoJitpackPlugin.js',
+        './plugins/withAndroidPreparedTextLayoutPlugin.js',
+        './plugins/withAndroidComposeVersion.js',
         './plugins/shareExtension/withShareExtensions.js',
         './plugins/notificationsExtension/withNotificationsExtension.js',
         [
@@ -453,7 +482,7 @@ module.exports = function (_config) {
             },
           },
         ],
-        ['expo-screen-orientation', {initialOrientation: 'PORTRAIT_UP'}],
+        ['expo-screen-orientation'],
         ['expo-location'],
         [
           'expo-contacts',

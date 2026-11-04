@@ -53,7 +53,7 @@ See `NOTICE.md` for the consolidated attribution text.
 Upstream's interface glyphs come from a commercial icon system licensed to Bluesky for
 Bluesky's own products. We replaced the set.
 
-156 of the 160 modules in `src/components/icons` are now generated from openly licensed
+179 mapped modules in `src/components/icons` are generated from openly licensed
 sources: Tabler for almost everything, and Zendesk Garden for the repost mark.
 
 **Use the asset map as your guide when replacing icons.**
@@ -125,6 +125,8 @@ would.
 Pomery, licensed to Bluesky exclusively. It cannot be sublicensed, so there is no point
 approaching the artist. Replace it.
 
+The landing-screen illustration, in light and dark variants, used by `src/view/com/auth/NativeSplashScreen.tsx`. Each comes as a phone version extended with extra sky and ground (`assets/illustrations/illustration-mobile.webp` and `assets/illustrations/illustration-mobile-dark.webp`) and an unextended version for wider screens (`assets/illustrations/illustration-mobile-safe.webp` and `assets/illustrations/illustration-mobile-dark-safe.webp`).
+
 **Product imagery.** `assets/images/` - onboarding art, chat backgrounds, and announcement
 graphics. Some of it is commissioned. The line is drawn at the directory rather than file by
 file.
@@ -187,3 +189,12 @@ than have someone guess.
 
 *This document describes the licensing position of assets in this repository. It is not a grant
 of rights, and it does not modify the MIT license in `LICENSE` as it applies to source code.*
+
+## Development: preserving owned assets during sync
+
+Sync maintainers use `scripts/owned-assets.json` plus the icon mapping as the
+concrete ownership inventory. Capture the premerge commit and path list before
+merging, then restore unconditionally, including clean edits, deletions and
+renames. Follow the commands in AGENTS.md. Illustrations, product imagery and
+upstream app icons are deliberately not protected. New icon exports still need
+licensed mappings and regeneration after restoration.

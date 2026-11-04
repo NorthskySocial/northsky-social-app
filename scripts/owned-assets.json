@@ -1,0 +1,35 @@
+{
+  "roots": [
+    "src/assets/tabler",
+    "src/assets/gardenSvg",
+    "assets/fonts/inter",
+    "assets/fonts/geist",
+    "assets/fonts/museomoderno",
+    "assets/icons/flags"
+  ],
+  "files": [
+    "assets/favicon.png",
+    "bskyweb/static/favicon.png",
+    "bskyweb/static/favicon-16x16.png",
+    "bskyweb/static/favicon-32x32.png",
+    "bskyweb/static/apple-touch-icon.png",
+    "bskyweb/static/safari-pinned-tab.svg",
+    "bskyweb/static/social-card-default.png",
+    "bskyweb/static/social-card-default-gradient.png",
+    "bskyweb/embedr-static/favicon.png",
+    "bskyweb/embedr-static/favicon-16x16.png",
+    "bskyweb/embedr-static/favicon-32x32.png",
+    "bskyweb/embedr-static/apple-touch-icon.png",
+    "bskyweb/embedr-static/safari-pinned-tab.svg",
+    "bskyembed/assets/logo.svg",
+    "src/brand/assets/Logo.tsx",
+    "src/brand/assets/Logotype.tsx",
+    "src/view/icons/Logo.tsx",
+    "src/view/icons/Logotype.tsx",
+    "src/features/tablerIcons/mapping.json",
+    "scripts/generate-tabler-icons.mjs",
+    "scripts/owned-assets.json",
+    "scripts/owned-assets.mjs",
+    "scripts/icons/generate.mts"
+  ]
+}

@@ -268,9 +268,14 @@ describe('icon mapping', () => {
     }
   })
 
-  it('does not name the same export in two modules', () => {
-    const names = entries.flatMap(([, exports]) => Object.keys(exports))
-    expect(new Set(names).size).toBe(names.length)
+  it('keeps compatibility exports identical across old and new modules', () => {
+    const specs = new Map<string, unknown>()
+    for (const [, exports] of entries) {
+      for (const [name, spec] of Object.entries(exports)) {
+        if (specs.has(name)) expect(spec).toEqual(specs.get(name))
+        specs.set(name, spec)
+      }
+    }
   })
 })
 

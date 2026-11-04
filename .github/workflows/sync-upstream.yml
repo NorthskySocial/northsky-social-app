@@ -87,10 +87,18 @@ jobs:
 
           git switch -C "$SYNC_BRANCH" "origin/$BASE_BRANCH"
 
+          # Capture both policy and executor before upstream can change either.
+          ASSET_STATE=$(mktemp -d)
+          cp scripts/owned-assets.mjs "$ASSET_STATE/owned-assets.mjs"
+          node "$ASSET_STATE/owned-assets.mjs" capture "$ASSET_STATE/assets.json" "upstream/$UPSTREAM_BRANCH"
+
           # Attempt the merge; don't abort on conflicts.
           set +e
           git merge --no-ff --no-commit "upstream/$UPSTREAM_BRANCH"
           set -e
+
+          # Clean edits, deletions and renames need restoration too.
+          node "$ASSET_STATE/owned-assets.mjs" restore "$ASSET_STATE/assets.json"
 
           # Always keep our .github/ - the token can't push workflow changes
           # and our CI diverges from upstream's. reset+checkout+clean rather

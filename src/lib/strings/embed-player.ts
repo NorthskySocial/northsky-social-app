@@ -3,8 +3,6 @@ import {Dimensions} from 'react-native'
 import {BRAND} from '#/brand/config' // northsky: brand host for the native iframe player
 import {IS_WEB} from '#/env'
 
-const {height: SCREEN_HEIGHT} = Dimensions.get('window')
-
 /*
  * northsky: on web, load the iframe trampoline from our own origin. bskyweb
  * serves the /iframe assets, and same-origin loads satisfy the SAMEORIGIN
@@ -612,7 +610,7 @@ export function getPlayerAspect({
     case 'vimeo_video':
       return {aspectRatio: 16 / 9}
     case 'youtube_short':
-      if (SCREEN_HEIGHT < 600) {
+      if (Dimensions.get('window').height < 600) {
         return {aspectRatio: (9 / 16) * 1.75}
       } else {
         return {aspectRatio: (9 / 16) * 1.5}

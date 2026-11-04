@@ -27,6 +27,8 @@ import {
 import {dirname, join} from 'node:path'
 import {fileURLToPath} from 'node:url'
 
+const check = process.argv.includes('--check')
+const {format, resolveConfig} = await import('prettier')
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const ICONS_DIR = join(ROOT, 'src', 'components', 'icons')
 const ASSETS_DIR = join(ROOT, 'src', 'assets')
@@ -79,6 +81,8 @@ function vendorMissingIcons() {
   const missing = mappedIcons().filter(icon => !existsSync(iconPath(icon)))
   if (missing.length === 0) return
 
+  if (check)
+    throw new Error('Mapped SVGs are missing; check mode does not vendor files')
   const checkout = process.env.TABLER_ICONS_PATH
   const copyable = checkout
     ? missing.filter(icon => icon.source === 'tabler')
@@ -130,7 +134,11 @@ function glyphOf(icon) {
 /** Export names the file declares today. */
 function currentExports(file) {
   const src = readFileSync(join(ICONS_DIR, file), 'utf8')
-  return [...src.matchAll(/^export const ([A-Za-z0-9_]+)/gm)].map(m => m[1])
+  return [
+    ...new Set(
+      [...src.matchAll(/^export const ([A-Za-z0-9_]+)/gm)].map(m => m[1]),
+    ),
+  ]
 }
 
 function render(entries) {
@@ -220,10 +228,20 @@ for (const [file, exports] of Object.entries(MAPPING)) {
   }
 
   /* Emit in the file's existing export order so the diff stays readable. */
-  writeFileSync(
-    join(ICONS_DIR, file),
+  const target = join(ICONS_DIR, file)
+  const output = await format(
     render(present.map(name => [name, exports[name]])),
+    {
+      ...(await resolveConfig(target)),
+      filepath: target,
+    },
   )
+  if (check) {
+    if (readFileSync(target, 'utf8') !== output)
+      skipped.push([file, 'generated output is stale'])
+  } else {
+    writeFileSync(target, output)
+  }
   written.push(file)
 }
 

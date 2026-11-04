@@ -1,9 +1,10 @@
 # tablerIcons
 
 Renders [Tabler](https://tabler.io/icons) and [Garden](https://github.com/zendeskgarden/svg-icons) icons with the app's existing icon
-props. 156 of the 160 modules in `src/components/icons` are generated from
-these sources. The four that are not are the brand mark and the three
-verification badges, which carry product meaning generic icon sets cannot express.
+props. For contributors updating icons, `mapping.json` inventories the 179
+generated modules, including compatibility exports and notification glyphs.
+Unmapped upstream modules still require a licensing audit; brand marks and
+verification badges deliberately retain their distinct product meaning.
 
 ## Why a new helper
 
@@ -64,7 +65,7 @@ Two weights are pinned per-icon:
 
 ```bash
 node scripts/generate-tabler-icons.mjs
-npx prettier --write src/components/icons
+node scripts/icons/generate.mts --check
 ```
 
 The SVGs under `src/assets/tabler/{outline,filled}` are the source of truth, so
@@ -115,3 +116,6 @@ Seven exports named `Filled` render an outline glyph, because Tabler has no
 filled twin for them: `Bot`, `CircleAndSquare`, `Contacts`, `Hashtag`,
 `PersonPlus`, `Reply` and `UserCircle`. Those icons therefore look the same in
 their active and inactive states.
+
+The upstream `icons:generate` entrypoint delegates to this generator. It does not
+write commercial SVG modules or regenerate nano fonts over mapped SVG icons.
