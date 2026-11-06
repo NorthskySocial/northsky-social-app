@@ -1,14 +1,15 @@
-import {Trans} from '@lingui/react/macro'
+import {Trans, useLingui} from '@lingui/react/macro'
 
 import {atoms as a, useTheme} from '#/alf'
 import {InlineLinkText} from '#/components/Link'
 import {Text} from '#/components/Typography'
 import {
-  licenseLabel,
   licenseUrl,
+  normalizeLicense,
   sourceHost,
   viewProvenance,
 } from './provenance'
+import {LICENSE_DESCRIPTIONS} from './provenanceMessages'
 
 /**
  * License and source for an emoji or pack, as a line of small text. Both come
@@ -24,10 +25,16 @@ export function ProvenanceLine({
   source?: string
 }) {
   const t = useTheme()
+  const {i18n} = useLingui()
   const view = viewProvenance(license, source)
   if (!view.license && !view.source) return null
 
   const spdx = view.license ? licenseUrl(view.license) : null
+  // Known licenses read as words in the user's language; anything else shows as typed.
+  const known = view.license
+    ? LICENSE_DESCRIPTIONS[normalizeLicense(view.license)]
+    : undefined
+  const licenseText = known ? i18n._(known) : view.license
 
   return (
     <Text style={[a.text_xs, a.leading_snug, t.atoms.text_contrast_medium]}>
@@ -39,10 +46,10 @@ export function ProvenanceLine({
               to={spdx}
               label={view.license}
               style={[a.text_xs, t.atoms.text_link]}>
-              {licenseLabel(view.license)}
+              {licenseText}
             </InlineLinkText>
           ) : (
-            licenseLabel(view.license)
+            licenseText
           )}
         </>
       ) : null}
