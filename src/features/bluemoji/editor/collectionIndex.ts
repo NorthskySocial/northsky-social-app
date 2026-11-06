@@ -4,12 +4,13 @@ import {STALE} from '#/state/queries'
 import {createQueryKey} from '#/state/queries/util'
 import {normalizeAlias} from '../alias'
 import {listBluemoji} from '../api'
+import {COLLECTION_INDEX_ROOT} from '../queryKeys'
 import {type BluemojiItemView} from '../types'
 
 /** Enough for any realistic personal collection; stops a runaway cursor. */
 const MAX_PAGES = 12
 
-const key = (did: string) => createQueryKey('bluemoji-collection-all', {did})
+const key = (did: string) => createQueryKey(COLLECTION_INDEX_ROOT, {did})
 
 /**
  * The user's whole collection, fetched once and shared. The composer filters
@@ -39,12 +40,6 @@ export function loadCollection(
       }
       return out
     },
-  })
-}
-
-export function invalidateCollectionIndex(queryClient: QueryClient) {
-  void queryClient.invalidateQueries({
-    predicate: ({queryKey}) => queryKey[0] === 'bluemoji-collection-all',
   })
 }
 

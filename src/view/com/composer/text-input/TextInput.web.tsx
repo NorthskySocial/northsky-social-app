@@ -44,7 +44,10 @@ import {Portal} from '#/components/Portal'
 import {Text} from '#/components/Typography'
 // northsky: Bluemoji in the editor
 import {BLUEMOJI_NODE} from '#/features/bluemoji/editor/BluemojiNode'
-import {useBluemojiEditor} from '#/features/bluemoji/editor/useBluemojiEditor'
+import {
+  useBluemojiEditor,
+  useHideAdultEmojiInEditor,
+} from '#/features/bluemoji/editor/useBluemojiEditor'
 import {MarkdownDecorator} from '#/features/markdownComposer/MarkdownDecorator'
 import {app} from '#/lexicons'
 import * as bsky from '#/types/bsky'
@@ -313,6 +316,8 @@ export function TextInput({
     [modeClass, markdownDecorator],
   )
 
+  useHideAdultEmojiInEditor(editor) // northsky
+
   const onEmojiInserted = useCallback(
     (emoji: Emoji) => {
       // northsky: a picked Bluemoji arrives as `:alias: `; insert it as an image
@@ -349,7 +354,9 @@ export function TextInput({
       const pos = editor?.state.selection.$anchor.pos
       return pos ? editor?.view.coordsAtPos(pos) : undefined
     },
-    maybeClosePopup: () => autocompleteRef.current?.maybeClose() ?? false,
+    // northsky: also closes the Bluemoji completion popup
+    maybeClosePopup: () =>
+      (autocompleteRef.current?.maybeClose() ?? false) || bluemoji.closePopup(),
   }))
 
   const inputStyle = useMemo(() => {

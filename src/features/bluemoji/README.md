@@ -75,6 +75,17 @@ is unchanged. Typing `:` plus a non-space character opens a completion popup
 swaps it for the image. The collection is loaded once and filtered locally, so
 completion does not hit the network per keystroke.
 
+- **Adult-only emoji** follow the same setting as everywhere else (Moderation,
+  and adult content on): hidden ones are left out of completions, a finished
+  `:alias:` stays as text, and if the setting is switched off while the composer
+  is open, any already in the draft go back to their text.
+- **Escape** closes the completion popup first (it is part of the composer's
+  popup-first cancellation, so a second Escape is what offers to discard the
+  draft). It stays closed for the same query and returns when the query changes.
+- **Fresh after a write.** The collection index is invalidated by uploads and
+  edits (now, and again after the AppView has indexed them), and the open
+  composer reloads it, so a just-added emoji works without reopening.
+
 ## Load on the AppView
 
 Every lookup (`getItem`) is a request to moji.blue, so the client is deliberately

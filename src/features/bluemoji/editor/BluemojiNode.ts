@@ -30,6 +30,9 @@ export function nodeAttrsFor(item: BluemojiItemView) {
     name: item.name,
     alt: item.alt ?? item.name,
     src: cid ? bluemojiImageUrl(item.did, cid) : null,
+    // Remembered on the node so it can be taken back out if adult emoji stop
+    // being allowed while the composer is open (see `stripAdultNodes`).
+    adult: !!item.adultOnly,
   }
 }
 
@@ -74,6 +77,11 @@ export const BluemojiNode = Node.create<BluemojiNodeOptions>({
       name: {default: null},
       alt: {default: null},
       src: {default: null},
+      adult: {
+        default: false,
+        parseHTML: el => el.getAttribute('data-adult') === 'true',
+        renderHTML: attrs => (attrs.adult ? {'data-adult': 'true'} : {}),
+      },
     }
   },
 

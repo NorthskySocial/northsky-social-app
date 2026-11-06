@@ -11,6 +11,7 @@ import {createQueryKey} from '#/state/queries/util'
 import {useSession} from '#/state/session'
 import {normalizeAlias} from './alias'
 import {type BluemojiPage, getBluemojiItem, listBluemoji} from './api'
+import {invalidateBluemoji} from './queryKeys'
 import {CircuitOpenError} from './requestGate'
 import {type BluemojiItemView} from './types'
 
@@ -23,8 +24,6 @@ export const itemQueryKey = (did: string, alias: string) =>
 
 const collectionQueryKey = (did: string, q: string) =>
   createQueryKey('bluemoji-collection', {did, q})
-
-export const COLLECTION_ROOT = 'bluemoji-collection'
 
 function safeAlias(alias: string) {
   try {
@@ -89,13 +88,8 @@ export function useMyBluemoji(q: string = '', {enabled = true} = {}) {
   })
 }
 
-/** Call after writing a new emoji so the picker and renderers see it. */
+/** Call after writing an emoji so the picker, composer and renderers see it. */
 export function useInvalidateBluemoji() {
   const queryClient = useQueryClient()
-  return () => {
-    void queryClient.invalidateQueries({
-      predicate: ({queryKey}) =>
-        queryKey[0] === COLLECTION_ROOT || queryKey[0] === 'bluemoji-item',
-    })
-  }
+  return () => invalidateBluemoji(queryClient)
 }
