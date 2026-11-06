@@ -16,11 +16,13 @@ jest.mock('#/lib/xrpc-error', () => ({
 
 import {type BluemojiItemView} from '../../types'
 import {
+  addManyToPack,
   addToPack,
   createPack,
   deletePack,
   installItem,
   installPack,
+  PartialAddError,
   removeFromPack,
   updatePack,
 } from '../write'
@@ -140,6 +142,150 @@ describe('pack records', () => {
       'blue.moji.packs.packitem/a',
       'blue.moji.packs.pack/1',
     ])
+  })
+})
+
+describe('updatePack concurrency', () => {
+  it('pins the write to the record it read', async () => {
+    const {client, calls} = fakeClient(['tid1'])
+    await updatePack(client, DID, `at://${DID}/blue.moji.packs.pack/tid1`, {
+      name: 'N',
+    })
+    expect(calls.find(c => c.method === 'putRecord')!.input).toMatchObject({
+      swapRecord: 'c',
+    })
+  })
+
+  it('does not drop the adult flag on an unrelated edit', async () => {
+    const {client, calls} = fakeClient(['tid1'])
+    await updatePack(client, DID, `at://${DID}/blue.moji.packs.pack/tid1`, {
+      description: 'only the description',
+    })
+    // `adultOnly` is not in `changes`, so whatever the record has is kept
+    const put = calls.find(c => c.method === 'putRecord')!
+    expect(put.input.record).toMatchObject({name: 'Old', extra: 1})
+  })
+})
+
+describe('deletePack across several commits', () => {
+  function bigPack(failOnCall?: number) {
+    const calls: Call[] = []
+    let applyCalls = 0
+    const client = {
+      call: jest.fn((def: {$nsid: string}, input: Input) => {
+        const method = def.$nsid.split('.').pop()!
+        calls.push({method, input})
+        if (method === 'listRecords') {
+          return Promise.resolve({
+            records: Array.from({length: 150}, (_, i) => ({
+              uri: `at://${DID}/x/m${i}`,
+              value: {pack: 'at://p/1'},
+            })),
+          })
+        }
+        if (method === 'applyWrites') {
+          applyCalls++
+          if (applyCalls === failOnCall)
+            return Promise.reject(new Error('boom'))
+        }
+        return Promise.resolve({})
+      }),
+    }
+    return {client: client as never, calls}
+  }
+
+  it('chunks the writes and deletes the pack in the last one', async () => {
+    const {client, calls} = bigPack()
+    await deletePack(client, DID, 'at://p/1')
+    const batches = calls
+      .filter(c => c.method === 'applyWrites')
+      .map(c => c.input.writes)
+    expect(batches.map(b => b.length)).toEqual([100, 51])
+    const last = batches[1]
+    expect(`${last[50].collection}/${last[50].rkey}`).toBe(
+      'blue.moji.packs.pack/1',
+    )
+  })
+
+  it('leaves the pack in place when a later chunk fails, so it can be retried', async () => {
+    const {client, calls} = bigPack(2)
+    await expect(deletePack(client, DID, 'at://p/1')).rejects.toThrow('boom')
+    const deletedPack = calls
+      .filter(c => c.method === 'applyWrites')
+      .flatMap(c => c.input.writes)
+      .some(w => w.collection === 'blue.moji.packs.pack')
+    // the second chunk (the one holding the pack) failed, so it never counted
+    expect(deletedPack).toBe(true) // it was attempted...
+    expect(calls.filter(c => c.method === 'applyWrites')).toHaveLength(2)
+  })
+})
+
+describe('addManyToPack', () => {
+  const itemUris = (n: number) =>
+    Array.from(
+      {length: n},
+      (_, i) => `at://${DID}/blue.moji.collection.item/e${i}`,
+    )
+
+  it('skips what the pack already has and batches the rest atomically', async () => {
+    const {client, calls} = fakeClient()
+    const have = new Set([itemUris(3)[0]])
+    const added = await addManyToPack(
+      client,
+      DID,
+      'at://p/1',
+      itemUris(3),
+      have,
+    )
+    expect(added).toEqual(itemUris(3).slice(1))
+    const writes = calls.find(c => c.method === 'applyWrites')!.input.writes
+    expect(writes).toHaveLength(2)
+    expect(writes[0]).toMatchObject({
+      $type: 'com.atproto.repo.applyWrites#create',
+      collection: 'blue.moji.packs.packitem',
+    })
+  })
+
+  it('writes nothing when everything is already in the pack', async () => {
+    const {client, calls} = fakeClient()
+    const added = await addManyToPack(
+      client,
+      DID,
+      'at://p/1',
+      itemUris(2),
+      new Set(itemUris(2)),
+    )
+    expect(added).toEqual([])
+    expect(calls).toHaveLength(0)
+  })
+
+  it('reports which batches went in when a later one fails, so a retry does not repeat them', async () => {
+    let n = 0
+    const client = {
+      call: jest.fn(() => {
+        n++
+        return n === 2 ? Promise.reject(new Error('503')) : Promise.resolve({})
+      }),
+    } as never
+    const uris = itemUris(150)
+    const err = await addManyToPack(
+      client,
+      DID,
+      'at://p/1',
+      uris,
+      new Set(),
+    ).catch(e => e)
+    expect(err).toBeInstanceOf(PartialAddError)
+    expect((err as PartialAddError).added).toEqual(uris.slice(0, 100))
+  })
+
+  it('a first-batch failure is a plain error, not a partial one', async () => {
+    const client = {
+      call: jest.fn(() => Promise.reject(new Error('down'))),
+    } as never
+    await expect(
+      addManyToPack(client, DID, 'at://p/1', itemUris(2), new Set()),
+    ).rejects.toThrow('down')
   })
 })
 

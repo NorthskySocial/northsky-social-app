@@ -1,6 +1,10 @@
 import {aliasToRkey} from './alias'
 import {BLUEMOJI_APPVIEW} from './constants'
-import {type PackListPage, type PackPage} from './packs/types'
+import {
+  type PackItemView,
+  type PackListPage,
+  type PackPage,
+} from './packs/types'
 import {
   type BluemojiBlobValue,
   type BluemojiFormats,
@@ -170,4 +174,28 @@ export async function getActorPacksPage({
     signal,
   )
   return body ?? {packs: []}
+}
+
+/** Pages to read when gathering a whole pack; a guard against a runaway cursor. */
+const MAX_PACK_PAGES = 30
+
+/**
+ * Every item in a pack, across pages. Both "Add all" and the duplicate checks
+ * need the whole pack, not whichever pages a screen happens to have loaded.
+ * `truncated` is set if the page cap was hit.
+ */
+export async function getAllPackItems(
+  uri: string,
+  signal?: AbortSignal,
+): Promise<{items: PackItemView[]; truncated: boolean}> {
+  const items: PackItemView[] = []
+  let cursor: string | undefined
+  for (let i = 0; i < MAX_PACK_PAGES; i++) {
+    const page = await getPackPage({uri, cursor, signal})
+    if (!page) break
+    items.push(...page.items)
+    cursor = page.cursor
+    if (!cursor) return {items, truncated: false}
+  }
+  return {items, truncated: !!cursor}
 }

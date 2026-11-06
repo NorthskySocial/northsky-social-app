@@ -12,6 +12,7 @@ import {Text} from '#/components/Typography'
 import {EmojiTile} from './EmojiTile'
 import {describeError} from './errors'
 import {useAddToPack, useAllMyBluemoji} from './queries'
+import {PartialAddError} from './write'
 
 /**
  * Pick emoji from the user's collection to add to a pack. Emoji already in the
@@ -64,11 +65,19 @@ function Body({
   const onAdd = async () => {
     setError(undefined)
     try {
-      await add({packUri, itemUris: [...selected]})
-      Toast.show(l`Added ${selected.size} to the pack`)
+      const added = await add({packUri, itemUris: [...selected]})
+      Toast.show(l`Added ${added.length} to the pack`)
       control.close()
     } catch (e) {
-      setError(describeError(e))
+      // Some batches may have gone in before one failed. Take those out of the
+      // selection so a retry does not write them a second time.
+      if (e instanceof PartialAddError) {
+        const done = new Set(e.added)
+        setSelected(prev => new Set([...prev].filter(u => !done.has(u))))
+        setError(describeError(e.cause))
+      } else {
+        setError(describeError(e))
+      }
     }
   }
 

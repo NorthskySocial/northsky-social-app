@@ -370,9 +370,7 @@ function Collection() {
           )
         })}
       </View>
-      {packTarget ? (
-        <AddToPackDialog control={addToPackControl} item={packTarget} />
-      ) : null}
+      <AddToPackDialog control={addToPackControl} item={packTarget} />
       {hasNextPage ? (
         <Button
           label={l`Load more`}
