@@ -357,6 +357,7 @@ function Collection() {
                 </Text>
               ) : null}
               <Button
+                testID={`editEmoji-${item.name}`}
                 label={l`Edit ${item.name}`}
                 size="tiny"
                 color="secondary"
@@ -386,12 +387,8 @@ function Collection() {
           )
         })}
       </View>
-      {editTarget ? (
-        <EditEmojiDialog control={editControl} item={editTarget} />
-      ) : null}
-      {packTarget ? (
-        <AddToPackDialog control={addToPackControl} item={packTarget} />
-      ) : null}
+      <EditEmojiDialog control={editControl} item={editTarget} />
+      <AddToPackDialog control={addToPackControl} item={packTarget} />
       {hasNextPage ? (
         <Button
           label={l`Load more`}

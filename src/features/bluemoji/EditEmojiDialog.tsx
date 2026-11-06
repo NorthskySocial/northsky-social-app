@@ -13,6 +13,7 @@ import {Loader} from '#/components/Loader'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {bluemojiImageUrl, pickInlineCid} from './api'
+import {diffItemChanges} from './edit'
 import {describeError} from './packs/errors'
 import {ProvenanceFields, provenanceProblem} from './ProvenanceFields'
 import {type BluemojiItemView} from './types'
@@ -30,13 +31,20 @@ export function EditEmojiDialog({
   item,
 }: {
   control: Dialog.DialogControlProps
-  item: BluemojiItemView
+  /** Undefined until an emoji is chosen; the outer dialog stays mounted regardless. */
+  item: BluemojiItemView | undefined
 }) {
+  /*
+   * `Dialog.Outer` has to be mounted already when `control.open()` is called,
+   * or the call is a no-op (the real implementation attaches on mount). The
+   * press that picks the emoji also opens the dialog, so the shell is always
+   * rendered and only its contents wait for an item.
+   */
   return (
     <Dialog.Outer control={control}>
       <Dialog.Handle />
       {/* Keyed so reopening on another emoji starts from its own values. */}
-      <Body key={item.uri} control={control} item={item} />
+      {item ? <Body key={item.uri} control={control} item={item} /> : null}
     </Dialog.Outer>
   )
 }
@@ -67,8 +75,13 @@ function Body({
   const onSave = async () => {
     setError(undefined)
     try {
-      await edit({item, changes: {alt, adultOnly, license, source}})
-      Toast.show(l`Saved ${item.name}`)
+      // Only what the user changed, so a field they never touched is not
+      // overwritten with the value this form was opened with.
+      const changes = diffItemChanges(item, {alt, adultOnly, license, source})
+      if (Object.keys(changes).length) {
+        await edit({item, changes})
+        Toast.show(l`Saved ${item.name}`)
+      }
       control.close()
     } catch (e) {
       setError(describeError(e))
@@ -146,6 +159,7 @@ function Body({
         {error ? <Admonition type="error">{error}</Admonition> : null}
 
         <Button
+          testID="editEmojiSave"
           label={l`Save changes`}
           size="large"
           color="primary"
@@ -168,6 +182,7 @@ function Body({
             </Text>
             <View style={[a.flex_row, a.gap_sm]}>
               <Button
+                testID="editEmojiDeleteConfirm"
                 label={l`Yes, delete ${item.name}`}
                 size="small"
                 color="negative"
@@ -180,6 +195,7 @@ function Body({
                 {isDeleting ? <ButtonIcon icon={Loader} /> : null}
               </Button>
               <Button
+                testID="editEmojiDeleteCancel"
                 label={l`Keep it`}
                 size="small"
                 color="secondary"
@@ -194,6 +210,7 @@ function Body({
           </View>
         ) : (
           <Button
+            testID="editEmojiDelete"
             label={l`Delete ${item.name}`}
             size="small"
             color="negative_subtle"

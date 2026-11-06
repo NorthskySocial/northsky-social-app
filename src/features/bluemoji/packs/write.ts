@@ -4,7 +4,7 @@ import {type AtIdentifierString} from '@atproto/syntax'
 import {uploadBlob} from '#/lib/api/upload-blob'
 import {com} from '#/lexicons'
 import {aliasToRkey, normalizeAlias} from '../alias'
-import {blobCid, bluemojiImageUrl} from '../api'
+import {blobCid, bluemojiImageUrl, getAllPackItems} from '../api'
 import {cleanProvenance, isCopyable, viewProvenance} from '../provenance'
 import {BLUEMOJI_ITEM_COLLECTION, type BluemojiItemView} from '../types'
 import {BluemojiUploadError, recordExists} from '../upload'
@@ -107,13 +107,22 @@ export async function updatePack(
     collection: PACK_COLLECTION,
     rkey,
     validate: false,
+    // Refuse the write if the record changed since it was read, rather than
+    // silently discarding another device's edit.
+    swapRecord: current.cid,
     record,
   })
 }
 
 /**
- * Deletes a pack along with the pack-item records that point at it, in one
- * commit, so no orphaned memberships are left behind in the repo.
+ * Deletes a pack along with the pack-item records that point at it.
+ *
+ * `applyWrites` is capped per call, so a large pack takes several commits:
+ * memberships first, the pack record last. That ordering is the recovery story.
+ * If a later chunk fails, the pack still exists (with some memberships gone),
+ * so it is still listed and deleting it again finishes the job. It never leaves
+ * memberships pointing at a pack that no longer exists. A pack small enough for
+ * one call is deleted atomically.
  */
 export async function deletePack(
   client: Client,
@@ -157,6 +166,69 @@ export async function deletePack(
       writes: writes.slice(i, i + CHUNK),
     })
   }
+}
+
+/** Memberships per `applyWrites` call. Each call is all-or-nothing. */
+const MEMBERSHIP_CHUNK = 100
+
+/**
+ * Thrown when some, but not all, memberships were written. `added` are the item
+ * URIs that did go in, so a caller can drop them from a retry instead of
+ * writing them twice (membership record keys are generated, so a repeat would
+ * be a second record).
+ */
+export class PartialAddError extends Error {
+  constructor(
+    readonly added: string[],
+    readonly cause: unknown,
+  ) {
+    super('Only some emoji were added to the pack')
+    this.name = 'PartialAddError'
+  }
+}
+
+/**
+ * Adds several emoji to a pack in `applyWrites` batches (atomic per batch),
+ * skipping any the pack already holds. The existing-membership check reads the
+ * whole pack, so it is right even when the screen has only loaded one page.
+ * Returns the URIs actually added.
+ */
+export async function addManyToPack(
+  client: Client,
+  did: Did,
+  packUri: string,
+  itemUris: string[],
+  existingUris?: ReadonlySet<string>,
+): Promise<string[]> {
+  const have =
+    existingUris ??
+    new Set((await getAllPackItems(packUri)).items.map(i => i.subject.uri))
+  const todo = [...new Set(itemUris)].filter(u => !have.has(u))
+
+  const added: string[] = []
+  for (let i = 0; i < todo.length; i += MEMBERSHIP_CHUNK) {
+    const chunk = todo.slice(i, i + MEMBERSHIP_CHUNK)
+    try {
+      await client.call(com.atproto.repo.applyWrites, {
+        repo: did,
+        writes: chunk.map(subject => ({
+          $type: 'com.atproto.repo.applyWrites#create' as const,
+          collection: PACK_ITEM_COLLECTION,
+          value: {
+            $type: PACK_ITEM_COLLECTION,
+            subject,
+            pack: packUri,
+            createdAt: new Date().toISOString(),
+          },
+        })),
+      })
+    } catch (e) {
+      if (added.length) throw new PartialAddError(added, e)
+      throw e
+    }
+    added.push(...chunk)
+  }
+  return added
 }
 
 /** Adds an emoji (by its item record's AT-URI) to a pack. */

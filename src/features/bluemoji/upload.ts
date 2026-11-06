@@ -25,6 +25,7 @@ export type UploadErrorCode =
   | 'invalid-alias'
   | 'invalid-provenance'
   | 'not-copyable'
+  | 'stale'
 
 export class BluemojiUploadError extends Error {
   constructor(

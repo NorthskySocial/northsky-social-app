@@ -27,6 +27,45 @@ const assert = {
   ok: (a: unknown, _msg?: string) => expect(a).toBeTruthy(),
 }
 
+describe('northsky review fixes', () => {
+  it('judges a compound license by evaluating it, not by finding an OR', () => {
+    const ARR = 'LicenseRef-All-Rights-Reserved'
+    expect(isCopyable(`${ARR} AND (MIT OR Apache-2.0)`)).toBe(false)
+    expect(isCopyable(`(MIT OR Apache-2.0) AND ${ARR}`)).toBe(false)
+    expect(isCopyable(`${ARR} OR MIT`)).toBe(true)
+    expect(isCopyable(`(${ARR} OR MIT) AND CC-BY-4.0`)).toBe(true)
+    expect(isCopyable(`(${ARR} OR MIT) AND ${ARR}`)).toBe(false)
+    expect(isCopyable(`MIT AND (CC-BY-4.0 OR ${ARR})`)).toBe(true)
+    expect(isCopyable('Apache-2.0 WITH LLVM-exception')).toBe(true)
+    expect(isCopyable(`${ARR} WITH LLVM-exception`)).toBe(false)
+  })
+
+  it('does not offer copying for an expression it cannot parse', () => {
+    expect(isCopyable('MIT OR')).toBe(false)
+    expect(isCopyable('(MIT')).toBe(false)
+    expect(isCopyable('not a license!')).toBe(false)
+  })
+
+  it('refuses a source that is only short enough before encoding', () => {
+    // 700 bytes as typed, but each "é" becomes "%C3%A9" (6 bytes) once stored
+    const typed = 'https://example.com/' + 'é'.repeat(340)
+    expect(new TextEncoder().encode(typed).length).toBeLessThan(2048)
+    expect(sourceError(typed)).toBeNull()
+    const cleaned = cleanProvenance(undefined, typed)
+    expect(cleaned).toHaveProperty('error')
+  })
+
+  it('round-trips a Unicode source that still fits once encoded', () => {
+    const typed = 'https://example.com/' + 'é'.repeat(100)
+    const cleaned = cleanProvenance(undefined, typed)
+    expect(cleaned).toHaveProperty('source')
+    const stored = (cleaned as {source: string}).source
+    // what is written must survive the read-side check unchanged
+    expect(safeHref(stored)).toBe(stored)
+    expect(viewProvenance(undefined, stored).source).toBe(stored)
+  })
+})
+
 describe('provenance (RFC 0006 reference tests)', () => {
   it('validates, normalises and gates as the reference does', () => {
     // ---------------------------------------------------------- SPDX expressions

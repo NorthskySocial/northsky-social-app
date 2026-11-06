@@ -2,8 +2,8 @@ import {type Client, type LexMap} from '@atproto/lex'
 import {type AtIdentifierString} from '@atproto/syntax'
 
 import {com} from '#/lexicons'
-import {cleanProvenance} from './provenance'
-import {BLUEMOJI_ITEM_COLLECTION} from './types'
+import {cleanProvenance, normalizeLicense, safeHref} from './provenance'
+import {BLUEMOJI_ITEM_COLLECTION, type BluemojiItemView} from './types'
 import {BluemojiUploadError} from './upload'
 
 export type ItemChanges = {
@@ -12,6 +12,40 @@ export type ItemChanges = {
   /** An empty string clears it; undefined leaves it alone. */
   license?: string
   source?: string
+}
+
+export type EditForm = {
+  alt: string
+  adultOnly: boolean
+  license: string
+  source: string
+}
+
+/**
+ * The fields that differ between what the form started from and what it holds
+ * now. Sending only these means a save cannot overwrite a field the user never
+ * touched with the stale value the form was opened with.
+ */
+export function diffItemChanges(
+  baseline: BluemojiItemView,
+  form: EditForm,
+): ItemChanges {
+  const changes: ItemChanges = {}
+  if (form.alt.trim() !== (baseline.alt ?? '').trim()) changes.alt = form.alt
+  if (form.adultOnly !== !!baseline.adultOnly)
+    changes.adultOnly = form.adultOnly
+
+  const license = form.license.trim()
+    ? normalizeLicense(form.license.trim())
+    : ''
+  if (license !== (baseline.license ?? '')) changes.license = form.license
+
+  const source = form.source.trim()
+  const sameSource =
+    (safeHref(source) ?? source) ===
+    (safeHref(baseline.source) ?? baseline.source ?? '')
+  if (!sameSource) changes.source = form.source
+  return changes
 }
 
 /** The record key (last path segment) of an item's AT-URI. */
@@ -24,22 +58,36 @@ export const rkeyOfItem = (uri: string) => uri.slice(uri.lastIndexOf('/') + 1)
  * renaming would orphan every post that uses the old name, and changing the
  * image would change what old posts show. Both are better done as a new emoji.
  *
- * Reads the current record and writes it back with only those fields changed,
- * pinned to the CID that was read so a concurrent edit from another device is
- * refused rather than overwritten. Blobs and anything this app does not know
+ * Reads the current record and writes it back with only those fields changed.
+ * Two guards against overwriting another device's edit: `expectedCid` (the
+ * version the form was opened on) must still be current, and the write itself
+ * is pinned to the version just read. Blobs and anything this app does not know
  * about are carried through untouched.
+ *
+ * Note a metadata edit changes the record's CID but not its images, so it must
+ * not break the sticker embeds in old posts; see `stickerMatchesItem`.
  */
 export async function updateItem(
   client: Client,
   did: AtIdentifierString,
   rkey: string,
   changes: ItemChanges,
-): Promise<void> {
+  {expectedCid}: {expectedCid?: string} = {},
+): Promise<{cid: string}> {
   const current = await client.call(com.atproto.repo.getRecord, {
     repo: did,
     collection: BLUEMOJI_ITEM_COLLECTION,
     rkey,
   })
+  /*
+   * The CID of what the form was opened on. Comparing it with the record as it
+   * is *now* is what catches a change made on another device while the form was
+   * open; `swapRecord` below only covers the instant between this read and the
+   * write.
+   */
+  if (expectedCid && current.cid !== expectedCid) {
+    throw new BluemojiUploadError('stale', 'The emoji was changed elsewhere')
+  }
   const record: LexMap = {...current.value}
 
   if (changes.alt !== undefined) {
@@ -69,7 +117,7 @@ export async function updateItem(
     }
   }
 
-  await client.call(com.atproto.repo.putRecord, {
+  const res = await client.call(com.atproto.repo.putRecord, {
     repo: did,
     collection: BLUEMOJI_ITEM_COLLECTION,
     rkey,
@@ -77,6 +125,7 @@ export async function updateItem(
     swapRecord: current.cid,
     record,
   })
+  return {cid: res.cid}
 }
 
 /**

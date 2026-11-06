@@ -49,20 +49,30 @@ export function useEditItem() {
     }: {
       item: BluemojiItemView
       changes: ItemChanges
-    }) => updateItem(client, did!, rkeyOfItem(item.uri), changes),
-    onSuccess: (_data, {item, changes}) =>
+    }) =>
+      // `item.cid` is the version the form was opened on.
+      updateItem(client, did!, rkeyOfItem(item.uri), changes, {
+        expectedCid: item.cid,
+      }),
+    onSuccess: ({cid}, {item, changes}) =>
       patchCollection(items =>
-        items.map(i =>
-          i.uri === item.uri
-            ? {
-                ...i,
-                alt: changes.alt?.trim() || undefined,
-                adultOnly: changes.adultOnly ?? i.adultOnly,
-                license: changes.license?.trim() || undefined,
-                source: changes.source?.trim() || undefined,
-              }
-            : i,
-        ),
+        items.map(i => {
+          if (i.uri !== item.uri) return i
+          // Only what changed; the rest of the cached item is still right. The
+          // new CID matters: it is the baseline the next edit is checked against.
+          const next: BluemojiItemView = {...i, cid}
+          if (changes.alt !== undefined)
+            next.alt = changes.alt.trim() || undefined
+          if (changes.adultOnly !== undefined)
+            next.adultOnly = changes.adultOnly
+          if (changes.license !== undefined) {
+            next.license = changes.license.trim() || undefined
+          }
+          if (changes.source !== undefined) {
+            next.source = changes.source.trim() || undefined
+          }
+          return next
+        }),
       ),
   })
 }

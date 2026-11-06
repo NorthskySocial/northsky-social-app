@@ -9,10 +9,14 @@ import {
   ALL_RIGHTS_RESERVED,
   COMMON_LICENSES,
   isCopyable,
-  licenseError,
   normalizeLicense,
-  sourceError,
 } from './provenance'
+import {
+  ALL_RIGHTS_RESERVED_CHIP,
+  LICENSE_DESCRIPTIONS,
+  licenseProblem,
+  sourceProblem,
+} from './provenanceMessages'
 
 /** Short chip text for the common licenses; the full label is the a11y label. */
 const CHIP: Record<string, string> = {
@@ -34,7 +38,7 @@ const CHIP: Record<string, string> = {
  * what is typed must be well formed.
  */
 export function provenanceProblem(license: string, source: string) {
-  return licenseError(license) ?? sourceError(source)
+  return licenseProblem(license) ?? sourceProblem(source)
 }
 
 /**
@@ -55,11 +59,11 @@ export function ProvenanceFields({
   onSourceChange: (value: string) => void
 }) {
   const t = useTheme()
-  const {t: l} = useLingui()
-  const licenseProblem = licenseError(license)
-  const sourceProblem = sourceError(source)
+  const {t: l, i18n} = useLingui()
+  const licenseMessage = licenseProblem(license)
+  const sourceMessage = sourceProblem(source)
   const current = license.trim() ? normalizeLicense(license.trim()) : ''
-  const blocksCopying = !!current && !licenseProblem && !isCopyable(current)
+  const blocksCopying = !!current && !licenseMessage && !isCopyable(current)
 
   return (
     <View style={[a.gap_md]}>
@@ -68,19 +72,23 @@ export function ProvenanceFields({
           <Trans>License (optional)</Trans>
         </TextField.LabelText>
         <View style={[a.flex_row, a.flex_wrap, a.gap_xs, a.mb_sm]}>
-          {COMMON_LICENSES.map(({id, label}) => (
+          {COMMON_LICENSES.map(({id}) => (
             <Button
               key={id}
-              label={label}
+              label={i18n._(LICENSE_DESCRIPTIONS[id])}
               size="tiny"
               color={current === id ? 'primary' : 'secondary'}
               variant="solid"
               onPress={() => onLicenseChange(current === id ? '' : id)}>
-              <ButtonText>{CHIP[id] ?? id}</ButtonText>
+              <ButtonText>
+                {id === ALL_RIGHTS_RESERVED
+                  ? i18n._(ALL_RIGHTS_RESERVED_CHIP)
+                  : (CHIP[id] ?? id)}
+              </ButtonText>
             </Button>
           ))}
         </View>
-        <TextField.Root isInvalid={!!licenseProblem}>
+        <TextField.Root isInvalid={!!licenseMessage}>
           <TextField.Input
             label={l`License as an SPDX expression`}
             placeholder={l`CC-BY-4.0, or MIT OR Apache-2.0`}
@@ -91,9 +99,9 @@ export function ProvenanceFields({
             maxLength={128}
           />
         </TextField.Root>
-        {licenseProblem ? (
+        {licenseMessage ? (
           <Text style={[a.text_sm, a.mt_xs, {color: t.palette.negative_500}]}>
-            {licenseProblem}
+            {i18n._(licenseMessage)}
           </Text>
         ) : (
           <Text style={[a.text_xs, a.mt_xs, t.atoms.text_contrast_medium]}>
@@ -115,7 +123,7 @@ export function ProvenanceFields({
         <TextField.LabelText>
           <Trans>Source (optional)</Trans>
         </TextField.LabelText>
-        <TextField.Root isInvalid={!!sourceProblem}>
+        <TextField.Root isInvalid={!!sourceMessage}>
           <TextField.Input
             label={l`Where this was originally published`}
             placeholder={l`https://example.com/the-original`}
@@ -127,9 +135,9 @@ export function ProvenanceFields({
             maxLength={2048}
           />
         </TextField.Root>
-        {sourceProblem ? (
+        {sourceMessage ? (
           <Text style={[a.text_sm, a.mt_xs, {color: t.palette.negative_500}]}>
-            {sourceProblem}
+            {i18n._(sourceMessage)}
           </Text>
         ) : null}
       </View>

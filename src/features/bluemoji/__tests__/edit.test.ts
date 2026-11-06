@@ -1,6 +1,7 @@
 import {describe, expect, it, jest} from '@jest/globals'
 
-import {deleteItem, rkeyOfItem, updateItem} from '../edit'
+import {deleteItem, diffItemChanges, rkeyOfItem, updateItem} from '../edit'
+import {type BluemojiItemView} from '../types'
 
 type Call = {method: string; input: Record<string, unknown>}
 
@@ -20,7 +21,7 @@ const STORED = {
   somethingNewer: {kept: true},
 }
 
-function fakeClient() {
+function fakeClient(currentCid = 'bafyrecord') {
   const calls: Call[] = []
   const client = {
     call: jest.fn((def: {$nsid: string}, input: Record<string, unknown>) => {
@@ -28,8 +29,10 @@ function fakeClient() {
       calls.push({method, input})
       return Promise.resolve(
         method === 'getRecord'
-          ? {uri: 'u', cid: 'bafyrecord', value: STORED}
-          : {},
+          ? {uri: 'u', cid: currentCid, value: STORED}
+          : method === 'putRecord'
+            ? {uri: 'u', cid: 'bafynew'}
+            : {},
       )
     }),
   }
@@ -109,6 +112,116 @@ describe('updateItem', () => {
       updateItem(client, DID, 'blobcat', {source: 'javascript:alert(1)'}),
     ).rejects.toMatchObject({code: 'invalid-provenance'})
     expect(calls.some(c => c.method === 'putRecord')).toBe(false)
+  })
+})
+
+describe('stale form saves', () => {
+  it('refuses a save when the record is no longer the version the form opened on', async () => {
+    // Device A opened the form at v1. Device B then saved, so the record is v2.
+    // A's save-time read sees v2; swapRecord alone would happily overwrite it.
+    const {client, calls} = fakeClient('bafyV2')
+    await expect(
+      updateItem(
+        client,
+        DID,
+        'blobcat',
+        {alt: 'from A'},
+        {expectedCid: 'bafyV1'},
+      ),
+    ).rejects.toMatchObject({code: 'stale'})
+    expect(calls.some(c => c.method === 'putRecord')).toBe(false)
+  })
+
+  it('goes ahead when the record is still the version the form opened on', async () => {
+    const {client} = fakeClient('bafyV1')
+    await expect(
+      updateItem(client, DID, 'blobcat', {alt: 'ok'}, {expectedCid: 'bafyV1'}),
+    ).resolves.toEqual({cid: 'bafynew'})
+  })
+
+  it('still works for an item whose view carried no CID', async () => {
+    const {client} = fakeClient('bafyV2')
+    await expect(
+      updateItem(client, DID, 'blobcat', {alt: 'x'}),
+    ).resolves.toBeDefined()
+  })
+})
+
+describe('diffItemChanges', () => {
+  const baseline: BluemojiItemView = {
+    uri: 'at://did:plc:me/blue.moji.collection.item/blobcat',
+    did: DID,
+    name: ':blobcat:',
+    alt: 'a cat',
+    adultOnly: false,
+    license: 'CC-BY-4.0',
+    source: 'https://example.com/art',
+    formats: {},
+  }
+  const same = {
+    alt: 'a cat',
+    adultOnly: false,
+    license: 'CC-BY-4.0',
+    source: 'https://example.com/art',
+  }
+
+  it('is empty when nothing changed', () => {
+    expect(diffItemChanges(baseline, same)).toEqual({})
+  })
+
+  it('does not count tidying (case, spacing, a trailing slash) as a change', () => {
+    expect(
+      diffItemChanges(baseline, {
+        ...same,
+        alt: '  a cat ',
+        license: ' cc-by-4.0 ',
+        source: 'https://example.com/art ',
+      }),
+    ).toEqual({})
+    expect(
+      diffItemChanges(
+        {...baseline, source: 'https://example.com/'},
+        {...same, source: 'https://example.com'},
+      ),
+    ).toEqual({})
+  })
+
+  it('reports only the field that changed, so untouched fields are never rewritten', () => {
+    expect(diffItemChanges(baseline, {...same, license: 'MIT'})).toEqual({
+      license: 'MIT',
+    })
+    expect(diffItemChanges(baseline, {...same, adultOnly: true})).toEqual({
+      adultOnly: true,
+    })
+    expect(diffItemChanges(baseline, {...same, alt: 'a dog'})).toEqual({
+      alt: 'a dog',
+    })
+  })
+
+  it('treats clearing a field as a change', () => {
+    expect(diffItemChanges(baseline, {...same, license: ''})).toEqual({
+      license: '',
+    })
+    expect(diffItemChanges(baseline, {...same, source: ''})).toEqual({
+      source: '',
+    })
+  })
+
+  it('handles an item that started with nothing', () => {
+    const bare: BluemojiItemView = {
+      ...baseline,
+      alt: undefined,
+      license: undefined,
+      source: undefined,
+    }
+    expect(
+      diffItemChanges(bare, {
+        alt: '',
+        adultOnly: false,
+        license: '',
+        source: '',
+      }),
+    ).toEqual({})
   })
 })
 
