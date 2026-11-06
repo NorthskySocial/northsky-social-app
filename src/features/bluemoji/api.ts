@@ -1,5 +1,6 @@
 import {aliasToRkey} from './alias'
 import {BLUEMOJI_APPVIEW} from './constants'
+import {RequestGate} from './requestGate'
 import {
   type BluemojiBlobValue,
   type BluemojiFormats,
@@ -53,6 +54,12 @@ export function pickInlineCid(
   return undefined
 }
 
+const gate = new RequestGate({
+  maxConcurrent: 6,
+  failureThreshold: 5,
+  cooldownMs: 30_000,
+})
+
 async function xrpcGet<T>(
   nsid: string,
   params: Record<string, string | number | undefined>,
@@ -62,12 +69,14 @@ async function xrpcGet<T>(
   for (const [k, v] of Object.entries(params)) {
     if (v !== undefined) qs.set(k, String(v))
   }
-  const res = await fetch(`${BLUEMOJI_APPVIEW}/xrpc/${nsid}?${qs}`, {signal})
-  if (res.status === 404 || res.status === 400) {
-    return {status: res.status, body: undefined}
-  }
-  if (!res.ok) throw new Error(`${nsid} failed: ${res.status}`)
-  return {status: res.status, body: (await res.json()) as T}
+  return gate.run(async () => {
+    const res = await fetch(`${BLUEMOJI_APPVIEW}/xrpc/${nsid}?${qs}`, {signal})
+    if (res.status === 404 || res.status === 400) {
+      return {status: res.status, body: undefined}
+    }
+    if (!res.ok) throw new Error(`${nsid} failed: ${res.status}`)
+    return {status: res.status, body: (await res.json()) as T}
+  })
 }
 
 /**
