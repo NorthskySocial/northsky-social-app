@@ -77,10 +77,19 @@ screens are `screens/Settings/BluemojiPack.tsx` and the Packs section of Setting
   shows verified emoji. A write is learned of from the firehose, so a read right
   after one can lag: queries are re-run after a short delay, and a just-created
   pack is polled for rather than shown as missing.
-- **Create / edit / delete:** edit is read-modify-write so unknown fields survive;
-  delete removes the pack's `packitem` records in the same commit.
+- **Create / edit / delete:** edit is read-modify-write, pinned to the CID it read
+  so a concurrent edit is refused, and unknown fields survive. Delete removes the
+  pack's `packitem` records and then the pack, and asks first. `applyWrites` is
+  capped at 100 writes here, so a large pack is several commits: memberships
+  first, the pack last. A pack small enough for one call is deleted atomically;
+  for a bigger one a failure partway leaves the pack in place with some
+  memberships gone, and deleting again finishes it. It never leaves memberships
+  pointing at a missing pack.
 - **Add your emoji to a pack:** "Add to pack" on any emoji in your collection, or
-  "Add emoji" inside one of your packs (multi-select).
+  "Add emoji" inside one of your packs (multi-select). Memberships are written in
+  `applyWrites` batches (atomic per batch) after checking the whole pack, not just
+  the loaded page, so nothing is added twice. If a later batch fails, the ones that
+  went in are dropped from the selection so a retry does not duplicate them.
 - **Install:** one emoji, with a rename field first (the alias is the record key),
   or the whole pack. Installing copies the bytes into your repo and records
   `copyOf`, so it survives the source account going away. `saveToCollection` on

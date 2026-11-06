@@ -17,31 +17,46 @@ const NAME_MAX = 64
 const DESCRIPTION_MAX = 300
 
 /** Create a pack, or edit one (pass `initial`). */
-export function PackFormDialog({
+export function PackFormDialog<T = void>({
   control,
   initial,
   onSubmit,
+  onDone,
 }: {
   control: Dialog.DialogControlProps
+  /** Pass for editing; it must include the pack's real `adultOnly`. */
   initial?: PackInput
-  onSubmit: (input: PackInput) => Promise<unknown>
+  onSubmit: (input: PackInput) => Promise<T>
+  /**
+   * Called with `onSubmit`'s result after the dialog has closed. Navigate from
+   * here, not from `onSubmit`: moving screens while the dialog is still open
+   * breaks native transitions and focus (AGENTS.md section 10).
+   */
+  onDone?: (result: T) => void
 }) {
   return (
     <Dialog.Outer control={control}>
       <Dialog.Handle />
-      <Body control={control} initial={initial} onSubmit={onSubmit} />
+      <Body
+        control={control}
+        initial={initial}
+        onSubmit={onSubmit}
+        onDone={onDone}
+      />
     </Dialog.Outer>
   )
 }
 
-function Body({
+function Body<T>({
   control,
   initial,
   onSubmit,
+  onDone,
 }: {
   control: Dialog.DialogControlProps
   initial?: PackInput
-  onSubmit: (input: PackInput) => Promise<unknown>
+  onSubmit: (input: PackInput) => Promise<T>
+  onDone?: (result: T) => void
 }) {
   const {t: l} = useLingui()
   const [name, setName] = useState(initial?.name ?? '')
@@ -57,8 +72,8 @@ function Body({
     setBusy(true)
     setError(undefined)
     try {
-      await onSubmit({name, description, adultOnly})
-      control.close()
+      const result = await onSubmit({name, description, adultOnly})
+      control.close(() => onDone?.(result))
     } catch (e) {
       setError(describeError(e))
     } finally {

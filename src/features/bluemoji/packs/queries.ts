@@ -3,19 +3,27 @@ import {
   type InfiniteData,
   useInfiniteQuery,
   useMutation,
+  useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
 
 import {STALE} from '#/state/queries'
 import {createQueryKey} from '#/state/queries/util'
 import {usePdsClient, useSession} from '#/state/session'
+import {com} from '#/lexicons'
 import {normalizeAlias} from '../alias'
 import {getActorPacksPage, getPackPage} from '../api'
 import {useInvalidateBluemoji, useMyBluemoji} from '../queries'
 import {type BluemojiItemView} from '../types'
-import {type PackInput, type PackListPage, type PackPage} from './types'
 import {
-  addToPack,
+  PACK_COLLECTION,
+  type PackInput,
+  type PackListPage,
+  type PackPage,
+  rkeyOf,
+} from './types'
+import {
+  addManyToPack,
   createPack,
   deletePack,
   installItem,
@@ -23,6 +31,9 @@ import {
   removeFromPack,
   updatePack,
 } from './write'
+
+/** Pages of the collection to page through for pack pickers. */
+const MAX_COLLECTION_PAGES = 20
 
 const PACK_ROOT = 'bluemoji-pack'
 const PACKS_ROOT = 'bluemoji-packs'
@@ -62,6 +73,32 @@ export function usePackQuery(uri: string) {
   })
 }
 
+/**
+ * The parts of a pack's record the AppView's view does not carry, read from the
+ * owner's PDS. Needed so editing a pack starts from its real adult flag instead
+ * of a default that would silently clear it.
+ */
+export function usePackRecord(packUri: string, enabled: boolean) {
+  const client = usePdsClient()
+  const did = useSession().currentAccount?.did
+  return useQuery({
+    enabled: enabled && !!did,
+    // Always re-read: the dialog edits what is in the repo right now.
+    gcTime: 0,
+    staleTime: 0,
+    queryKey: createQueryKey('bluemoji-pack-record', {uri: packUri}),
+    queryFn: async () => {
+      const res = await client.call(com.atproto.repo.getRecord, {
+        repo: did!,
+        collection: PACK_COLLECTION,
+        rkey: rkeyOf(packUri),
+      })
+      const value = res.value as {adultOnly?: boolean}
+      return {adultOnly: !!value.adultOnly}
+    },
+  })
+}
+
 /** The signed-in user's packs. */
 export function useMyPacks() {
   const did = useSession().currentAccount?.did
@@ -90,11 +127,14 @@ export function useAllMyBluemoji() {
   const query = useMyBluemoji()
   const {hasNextPage, isFetchingNextPage, fetchNextPage, data} = query
   const pageCount = data?.pages.length ?? 0
+  const failed = query.isFetchNextPageError
+  // A failed page stops the loop: otherwise each failure re-runs this effect
+  // and re-requests, hammering an AppView that is already struggling.
+  const canLoadMore =
+    !!hasNextPage && pageCount < MAX_COLLECTION_PAGES && !failed
   useEffect(() => {
-    if (hasNextPage && !isFetchingNextPage && pageCount < 20) {
-      void fetchNextPage()
-    }
-  }, [hasNextPage, isFetchingNextPage, pageCount, fetchNextPage])
+    if (canLoadMore && !isFetchingNextPage) void fetchNextPage()
+  }, [canLoadMore, isFetchingNextPage, fetchNextPage])
 
   const items = useMemo(() => data?.pages.flatMap(p => p.items) ?? [], [data])
   const aliases = useMemo(() => {
@@ -110,7 +150,8 @@ export function useAllMyBluemoji() {
     items,
     aliases,
     isPending: query.isPending,
-    isLoadingMore: !!hasNextPage,
+    // Only true while more is actually on its way, not once the cap or an error stopped it.
+    isLoadingMore: canLoadMore,
   }
 }
 
@@ -169,12 +210,9 @@ export function useAddToPack() {
   const invalidate = useInvalidatePacks()
   return useMutation({
     mutationFn: ({packUri, itemUris}: {packUri: string; itemUris: string[]}) =>
-      Promise.all(
-        itemUris.map(itemUri =>
-          addToPack(ctx.client, ctx.did, packUri, itemUri),
-        ),
-      ),
-    onSuccess: invalidate,
+      addManyToPack(ctx.client, ctx.did, packUri, itemUris),
+    // A partial failure still wrote some memberships, so refresh either way.
+    onSettled: invalidate,
   })
 }
 

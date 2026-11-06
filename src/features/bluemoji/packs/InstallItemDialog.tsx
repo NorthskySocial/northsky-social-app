@@ -15,6 +15,7 @@ import {type BluemojiItemView} from '../types'
 import {EmojiTile} from './EmojiTile'
 import {describeError} from './errors'
 import {useInstallItem} from './queries'
+import {suggestFreeAlias} from './suggest'
 
 /**
  * Installs one emoji from a pack into the user's collection, with the chance to
@@ -28,13 +29,26 @@ export function InstallItemDialog({
   haveAliases,
 }: {
   control: Dialog.DialogControlProps
-  item: BluemojiItemView
+  /** Undefined until something is chosen; the outer dialog stays mounted regardless. */
+  item: BluemojiItemView | undefined
   haveAliases: ReadonlySet<string>
 }) {
+  /*
+   * `Dialog.Outer` must already be mounted when `control.open()` is called, or
+   * the call is a no-op (the real implementation attaches on mount). So the
+   * outer shell is always rendered and only its contents wait for an item.
+   */
   return (
     <Dialog.Outer control={control}>
       <Dialog.Handle />
-      <Body control={control} item={item} haveAliases={haveAliases} />
+      {item ? (
+        <Body
+          key={item.uri}
+          control={control}
+          item={item}
+          haveAliases={haveAliases}
+        />
+      ) : null}
     </Dialog.Outer>
   )
 }
@@ -51,7 +65,9 @@ function Body({
   const t = useTheme()
   const {t: l} = useLingui()
   const {mutateAsync: install, isPending} = useInstallItem()
-  const [alias, setAlias] = useState(item.name.replace(/^:|:$/g, ''))
+  const [alias, setAlias] = useState(() =>
+    suggestFreeAlias(item.name, haveAliases),
+  )
   const [error, setError] = useState<string>()
 
   let problem: string | undefined

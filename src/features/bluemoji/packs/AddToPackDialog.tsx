@@ -9,25 +9,9 @@ import * as Dialog from '#/components/Dialog'
 import {Loader} from '#/components/Loader'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
-import {getPackPage} from '../api'
 import {type BluemojiItemView} from '../types'
 import {describeError} from './errors'
 import {useAddToPack, useMyPacks} from './queries'
-
-/** Pages to scan when checking whether a pack already holds an emoji. */
-const MAX_PAGES = 10
-
-async function packContains(packUri: string, itemUri: string) {
-  let cursor: string | undefined
-  for (let i = 0; i < MAX_PAGES; i++) {
-    const page = await getPackPage({uri: packUri, cursor})
-    if (!page) return false
-    if (page.items.some(it => it.subject.uri === itemUri)) return true
-    cursor = page.cursor
-    if (!cursor) return false
-  }
-  return false
-}
 
 /** Puts an emoji from the user's collection into one of their packs. */
 export function AddToPackDialog({
@@ -35,12 +19,14 @@ export function AddToPackDialog({
   item,
 }: {
   control: Dialog.DialogControlProps
-  item: BluemojiItemView
+  /** Undefined until something is chosen; the outer dialog stays mounted regardless. */
+  item: BluemojiItemView | undefined
 }) {
+  // Always mounted so `control.open()` works on the very first press.
   return (
     <Dialog.Outer control={control}>
       <Dialog.Handle />
-      <Body control={control} item={item} />
+      {item ? <Body key={item.uri} control={control} item={item} /> : null}
     </Dialog.Outer>
   )
 }
@@ -65,14 +51,13 @@ function Body({
     setBusy(packUri)
     setError(undefined)
     try {
-      // The AppView ignores duplicate memberships, but they would still be
-      // written to the repo, so skip them here.
-      if (await packContains(packUri, item.uri)) {
-        Toast.show(l`${item.name} is already in ${packName}`)
-      } else {
-        await add({packUri, itemUris: [item.uri]})
-        Toast.show(l`Added ${item.name} to ${packName}`)
-      }
+      // Writes nothing if the pack already holds it (it checks the whole pack).
+      const added = await add({packUri, itemUris: [item.uri]})
+      Toast.show(
+        added.length
+          ? l`Added ${item.name} to ${packName}`
+          : l`${item.name} is already in ${packName}`,
+      )
       control.close()
     } catch (e) {
       setError(describeError(e))

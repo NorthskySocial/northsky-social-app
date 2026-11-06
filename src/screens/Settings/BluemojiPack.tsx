@@ -19,7 +19,9 @@ import {Loader} from '#/components/Loader'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {normalizeAlias} from '#/features/bluemoji/alias'
+import {getAllPackItems} from '#/features/bluemoji/api'
 import {EmojiTile} from '#/features/bluemoji/packs/EmojiTile'
+import {describeError} from '#/features/bluemoji/packs/errors'
 import {InstallItemDialog} from '#/features/bluemoji/packs/InstallItemDialog'
 import {PackFormDialog} from '#/features/bluemoji/packs/PackFormDialog'
 import {PickEmojiDialog} from '#/features/bluemoji/packs/PickEmojiDialog'
@@ -28,6 +30,7 @@ import {
   useDeletePack,
   useInstallPack,
   usePackQuery,
+  usePackRecord,
   useRemoveFromPack,
   useUpdatePack,
 } from '#/features/bluemoji/packs/queries'
@@ -88,6 +91,8 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
   const {mutateAsync: deletePack, isPending: isDeleting} = useDeletePack()
   const {mutateAsync: installAll, isPending: isInstalling} = useInstallPack()
 
+  const isOwnerEarly = currentAccount?.did === did
+  const packRecord = usePackRecord(packUri, isOwnerEarly)
   const installControl = Dialog.useDialogControl()
   const editControl = Dialog.useDialogControl()
   const pickControl = Dialog.useDialogControl()
@@ -96,6 +101,8 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
   const [summary, setSummary] =
     useState<{item: BluemojiItemView; outcome: InstallOutcome}[]>()
   const [error, setError] = useState<string>()
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [truncated, setTruncated] = useState(false)
 
   if (query.isPending) return <Loader size="xl" />
   const first = query.data?.pages[0]
@@ -136,10 +143,19 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
   const onInstallAll = async () => {
     setError(undefined)
     setSummary(undefined)
-    setProgress([0, toInstall.length])
+    setTruncated(false)
     try {
+      /*
+       * The pack may have more pages than this screen has loaded, so read all
+       * of it. Items the user already has go in too, so they are reported as
+       * skipped rather than silently missing from the counts.
+       */
+      const all = await getAllPackItems(packUri)
+      const subjects = all.items.map(i => i.subject)
+      setTruncated(all.truncated)
+      setProgress([0, subjects.length])
       const results = await installAll({
-        items: toInstall,
+        items: subjects,
         haveAliases: mine.aliases,
         onProgress: (done, total) => setProgress([done, total]),
       })
@@ -176,10 +192,12 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
             size="small"
             color="primary"
             variant="solid"
-            disabled={isInstalling || !toInstall.length}
+            disabled={isInstalling || (!query.hasNextPage && !toInstall.length)}
             onPress={onInstallAll}>
             <ButtonText>
-              {toInstall.length ? (
+              {query.hasNextPage ? (
+                <Trans>Add all</Trans>
+              ) : toInstall.length ? (
                 <Trans>Add all ({toInstall.length})</Trans>
               ) : (
                 <Trans>You have them all</Trans>
@@ -228,6 +246,7 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
               size="small"
               color="secondary"
               variant="solid"
+              disabled={!packRecord.data}
               onPress={editControl.open}>
               <ButtonText>
                 <Trans>Edit</Trans>
@@ -239,11 +258,7 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
               color="negative_subtle"
               variant="solid"
               disabled={isDeleting}
-              onPress={async () => {
-                await deletePack(packUri)
-                Toast.show(l`Pack deleted`)
-                navigation.goBack()
-              }}>
+              onPress={() => setConfirmDelete(true)}>
               <ButtonText>
                 <Trans>Delete</Trans>
               </ButtonText>
@@ -252,12 +267,69 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
         ) : null}
       </View>
 
+      {confirmDelete ? (
+        <Admonition type="warning">
+          <Trans>
+            Delete this pack? Its list of emoji is removed too. The emoji
+            themselves stay in your collection, and copies other people made are
+            not affected.
+          </Trans>
+        </Admonition>
+      ) : null}
+      {confirmDelete ? (
+        <View style={[a.flex_row, a.gap_sm]}>
+          <Button
+            label={l`Yes, delete this pack`}
+            size="small"
+            color="negative"
+            variant="solid"
+            disabled={isDeleting}
+            onPress={async () => {
+              setError(undefined)
+              try {
+                await deletePack(packUri)
+                Toast.show(l`Pack deleted`)
+                navigation.goBack()
+              } catch (e) {
+                // A big pack is removed in several commits; if one fails the
+                // pack is still here, and deleting again finishes the job.
+                setError(describeError(e))
+                setConfirmDelete(false)
+              }
+            }}>
+            <ButtonText>
+              <Trans>Delete pack</Trans>
+            </ButtonText>
+            {isDeleting ? <ButtonIcon icon={Loader} /> : null}
+          </Button>
+          <Button
+            label={l`Keep this pack`}
+            size="small"
+            color="secondary"
+            variant="solid"
+            disabled={isDeleting}
+            onPress={() => setConfirmDelete(false)}>
+            <ButtonText>
+              <Trans>Keep it</Trans>
+            </ButtonText>
+          </Button>
+        </View>
+      ) : null}
+
       {progress ? (
         <Text style={t.atoms.text_contrast_medium}>
           <Trans>
             Adding {progress[0]} of {progress[1]}…
           </Trans>
         </Text>
+      ) : null}
+      {truncated ? (
+        <Admonition type="warning">
+          <Trans>
+            This pack is very large, so only part of it was read. Run Add all
+            again to continue.
+          </Trans>
+        </Admonition>
       ) : null}
       {summary ? (
         <Admonition type={failed.length ? 'warning' : 'info'}>
@@ -296,9 +368,18 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
                       <Trans>Remove</Trans>
                     </ButtonText>
                   </Button>
-                ) : !have ? (
+                ) : (
+                  /*
+                   * Offered even when the alias is taken: the dialog suggests a
+                   * free name, so an emoji that clashes can still be added
+                   * under another one.
+                   */
                   <Button
-                    label={l`Add ${subject.name} to my collection`}
+                    label={
+                      have
+                        ? l`Add ${subject.name} to my collection under another name`
+                        : l`Add ${subject.name} to my collection`
+                    }
                     size="tiny"
                     color="secondary"
                     variant="solid"
@@ -307,10 +388,10 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
                       installControl.open()
                     }}>
                     <ButtonText>
-                      <Trans>Add</Trans>
+                      {have ? <Trans>Add as…</Trans> : <Trans>Add</Trans>}
                     </ButtonText>
                   </Button>
-                ) : null}
+                )}
               </EmojiTile>
             )
           })}
@@ -341,21 +422,24 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
         </Button>
       ) : null}
 
-      {target ? (
-        <InstallItemDialog
-          control={installControl}
-          item={target}
-          haveAliases={mine.aliases}
-        />
-      ) : null}
+      <InstallItemDialog
+        control={installControl}
+        item={target}
+        haveAliases={mine.aliases}
+      />
       {isOwner ? (
         <>
           <PackFormDialog
             control={editControl}
-            initial={{
-              name: pack.name,
-              description: pack.description,
-            }}
+            initial={
+              packRecord.data
+                ? {
+                    name: pack.name,
+                    description: pack.description,
+                    adultOnly: packRecord.data.adultOnly,
+                  }
+                : undefined
+            }
             onSubmit={updatePack}
           />
           <PickEmojiDialog

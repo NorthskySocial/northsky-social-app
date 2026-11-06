@@ -84,13 +84,7 @@ export function PacksSection() {
           <Trans>Create a pack</Trans>
         </ButtonText>
       </Button>
-      <PackFormDialog
-        control={createControl}
-        onSubmit={async input => {
-          const uri = await create(input)
-          open(uri)
-        }}
-      />
+      <PackFormDialog control={createControl} onSubmit={create} onDone={open} />
     </View>
   )
 }
