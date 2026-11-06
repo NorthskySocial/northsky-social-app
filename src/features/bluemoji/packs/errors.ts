@@ -9,7 +9,12 @@ export function describeError(e: unknown): string {
     if (e.code === 'alias-taken') {
       return t`You already have an emoji with that name. Pick a different name.`
     }
-    if (e.code === 'invalid-alias') return e.message
+    if (e.code === 'invalid-alias' || e.code === 'invalid-provenance') {
+      return e.message
+    }
+    if (e.code === 'not-copyable') {
+      return t`The creator has not allowed this to be copied.`
+    }
   }
   if (isNetworkError(e)) {
     return t`Could not reach the network. Check your connection.`

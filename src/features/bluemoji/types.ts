@@ -33,6 +33,10 @@ export type BluemojiItemView = {
   formats: BluemojiFormats
   stickerFormats?: Record<string, BluemojiBlobValue>
   adultOnly?: boolean
+  /** SPDX expression. Self-asserted; re-validate with `viewProvenance` before use. */
+  license?: string
+  /** Where it was re-uploaded from. Self-asserted; only ever link `safeHref(source)`. */
+  source?: string
 }
 
 /** `blue.moji.richtext.facet` - self-attested, never render from it directly. */

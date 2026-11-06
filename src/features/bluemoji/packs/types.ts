@@ -7,6 +7,10 @@ export type PackInput = {
   name: string
   description?: string
   adultOnly?: boolean
+  /** SPDX expression for the pack as a curated collection (not its items). */
+  license?: string
+  /** http(s) URL the pack was assembled from. */
+  source?: string
 }
 
 export type PackCreator = {
@@ -23,6 +27,8 @@ export type PackViewBasic = {
   name: string
   description?: string
   itemCount?: number
+  license?: string
+  source?: string
   indexedAt?: string
 }
 
@@ -34,6 +40,8 @@ export type PackView = {
   name: string
   description?: string
   packItemCount?: number
+  license?: string
+  source?: string
   indexedAt: string
 }
 
