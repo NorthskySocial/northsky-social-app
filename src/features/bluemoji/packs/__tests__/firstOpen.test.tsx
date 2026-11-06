@@ -35,6 +35,7 @@ jest.mock('#/components/Loader', () => ({Loader: () => null}))
 jest.mock('#/components/Toast', () => ({show: jest.fn()}))
 jest.mock('#/components/Typography', () => ({Text: () => null}))
 jest.mock('../EmojiTile', () => ({EmojiTile: () => null}))
+jest.mock('../../ProvenanceLine', () => ({ProvenanceLine: () => null}))
 jest.mock('../queries', () => ({
   useInstallItem: () => ({mutateAsync: jest.fn(), isPending: false}),
   useAddToPack: () => ({mutateAsync: jest.fn()}),
