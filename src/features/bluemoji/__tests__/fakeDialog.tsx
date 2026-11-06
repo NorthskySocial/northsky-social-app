@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react'
-import {Text} from 'react-native'
+import {Text, TextInput} from 'react-native'
 
 /**
  * A stand-in for `#/components/Dialog` that keeps the one behaviour the real
@@ -46,6 +46,18 @@ export function fakeDialogModule() {
     ScrollableInner: ({children}: {children?: React.ReactNode}) => (
       <>{children}</>
     ),
-    Input: () => null,
+    Input: (props: {
+      testID?: string
+      value?: string
+      onChangeText?: (v: string) => void
+    }) => (
+      <TextInput
+        accessibilityLabel="Text input field"
+        accessibilityHint="Test stand-in for a dialog text field"
+        testID={props.testID}
+        value={props.value}
+        onChangeText={props.onChangeText}
+      />
+    ),
   }
 }

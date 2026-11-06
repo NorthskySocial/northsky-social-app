@@ -118,8 +118,31 @@ reference implementation (keep it in sync).
   `LicenseRef-All-Rights-Reserved` withholds it. The copy keeps the license and
   source it was shared under. This is a courtesy gate, not enforcement.
 - **Consequence:** emoji uploaded before this existed have no license, so others
-  cannot copy them until the owner adds one. Northsky has no edit screen for an
-  existing emoji yet; moji.blue's collection page does.
+  cannot copy them until the owner adds one (see Editing below).
+
+## Editing
+
+Settings > Bluemoji > Your collection > Edit changes an emoji's description,
+adult flag, license and source (`edit.ts`). The name is the record key and the
+images are what old posts show, so neither can be changed; add a new emoji
+instead. Delete asks twice.
+
+- **Only what changed is written.** The form is compared with the version it was
+  opened on (`diffItemChanges`) and only the differing fields are sent, so a
+  field you never touched is not overwritten with a stale value.
+- **Stale forms are refused.** The form remembers the record CID it was opened on.
+  The save reads the record again and refuses if the CID moved (an edit on another
+  device while the form was open), and the write itself is pinned to what was just
+  read. Blobs and unknown fields are preserved. After a save the cached CID is
+  updated, so editing the same emoji twice in a row is not refused.
+- **Old sticker posts survive an edit.** Any edit changes the record's CID, so a
+  sticker embed cannot be verified by that CID. It is verified by its art instead:
+  the embed's rendition CIDs must still be among the emoji's own
+  (`stickerMatchesItem`), and its strong ref must still point at the same record.
+  Editing metadata keeps old posts rendering; replacing the art under an old post
+  does not.
+- The AppView learns of the write from the firehose a moment later, so the list is
+  patched immediately and refetched after a few seconds.
 
 ## Not done yet
 
