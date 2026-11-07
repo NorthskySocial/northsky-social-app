@@ -42,6 +42,12 @@ import {normalizeTextStyles} from '#/alf/typography'
 import {type Emoji} from '#/components/EmojiPicker'
 import {Portal} from '#/components/Portal'
 import {Text} from '#/components/Typography'
+// northsky: Bluemoji in the editor
+import {BLUEMOJI_NODE} from '#/features/bluemoji/editor/BluemojiNode'
+import {
+  useBluemojiEditor,
+  useHideAdultEmojiInEditor,
+} from '#/features/bluemoji/editor/useBluemojiEditor'
 import {MarkdownDecorator} from '#/features/markdownComposer/MarkdownDecorator'
 import {app} from '#/lexicons'
 import * as bsky from '#/types/bsky'
@@ -70,6 +76,7 @@ export function TextInput({
 
   const [isDropping, setIsDropping] = useState(false)
   const autocompleteRef = useRef<AutocompleteRef>(null)
+  const bluemoji = useBluemojiEditor() // northsky
   // northsky: render complete Markdown ranges until the cursor enters them.
   const markdownDecorator = useMemo(
     () =>
@@ -88,6 +95,7 @@ export function TextInput({
       markdownDecorator,
       LinkDecorator,
       TagDecorator,
+      bluemoji.extension, // northsky: `:alias:` images and completion
       Mention.configure({
         HTMLAttributes: {
           class: 'mention',
@@ -102,7 +110,7 @@ export function TextInput({
       History,
       Hardbreak,
     ],
-    [autocomplete, markdownDecorator, placeholder],
+    [autocomplete, markdownDecorator, placeholder, bluemoji.extension],
   )
 
   useEffect(() => {
@@ -229,7 +237,11 @@ export function TextInput({
 
           if (
             event.code === 'Backspace' &&
-            !(event.metaKey || event.altKey || event.ctrlKey)
+            !(event.metaKey || event.altKey || event.ctrlKey) &&
+            // northsky: an emoji image is one node, not text; the grapheme
+            // logic below would delete the wrong characters, so let
+            // ProseMirror remove the node.
+            view.state.selection.$anchor.nodeBefore?.type.name !== BLUEMOJI_NODE
           ) {
             const isNotSelection = view.state.selection.empty
             if (isNotSelection) {
@@ -304,11 +316,22 @@ export function TextInput({
     [modeClass, markdownDecorator],
   )
 
+  useHideAdultEmojiInEditor(editor) // northsky
+
   const onEmojiInserted = useCallback(
     (emoji: Emoji) => {
+      // northsky: a picked Bluemoji arrives as `:alias: `; insert it as an image
+      const alias = /^:[^\s:]+: $/.test(emoji.native)
+        ? emoji.native.trim()
+        : null
+      const item = alias ? bluemoji.find(alias) : undefined
+      if (editor && item) {
+        editor.chain().focus().insertBluemoji(item).run()
+        return
+      }
       editor?.chain().focus().insertContent(emoji.native).run()
     },
-    [editor],
+    [editor, bluemoji],
   )
   useEffect(() => {
     if (!isActive) {
@@ -331,7 +354,9 @@ export function TextInput({
       const pos = editor?.state.selection.$anchor.pos
       return pos ? editor?.view.coordsAtPos(pos) : undefined
     },
-    maybeClosePopup: () => autocompleteRef.current?.maybeClose() ?? false,
+    // northsky: also closes the Bluemoji completion popup
+    maybeClosePopup: () =>
+      (autocompleteRef.current?.maybeClose() ?? false) || bluemoji.closePopup(),
   }))
 
   const inputStyle = useMemo(() => {
@@ -474,6 +499,9 @@ function editorJsonToText(
     text += json.text || ''
   } else if (json.type === 'mention') {
     text += `@${json.attrs?.id || ''}`
+  } else if (json.type === BLUEMOJI_NODE) {
+    // northsky: serialises to its alias, which becomes a facet when posted
+    text += json.attrs?.name || ''
   }
   return text
 }

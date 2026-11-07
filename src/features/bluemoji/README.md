@@ -66,6 +66,43 @@ Lottie is not rendered.
 Moderation has a Show/Hide row (default Hide) stored on the device. It only
 takes effect with adult content enabled, so it cannot loosen existing settings.
 
+## Composer
+
+The web editor shows an emoji as an image while you write (`editor/`). A
+`BluemojiNode` is an inline atom that serialises to its `:alias:` text, so posting
+is unchanged. Typing `:` plus a non-space character opens a completion popup
+(your emoji first, then Unicode); finishing a `:alias:` that is in your collection
+swaps it for the image. The collection is loaded once and filtered locally, so
+completion does not hit the network per keystroke.
+
+- **Adult-only emoji** follow the same setting as everywhere else (Moderation,
+  and adult content on): hidden ones are left out of completions, a finished
+  `:alias:` stays as text, and if the setting is switched off while the composer
+  is open, any already in the draft go back to their text.
+- **Escape** closes the completion popup first (it is part of the composer's
+  popup-first cancellation, so a second Escape is what offers to discard the
+  draft). It stays closed for the same query and returns when the query changes.
+- **Fresh after a write.** The collection index is invalidated by uploads and
+  edits (now, and again after the AppView has indexed them), and the open
+  composer reloads it, so a just-added emoji works without reopening.
+
+## Load on the AppView
+
+Every lookup (`getItem`) is a request to moji.blue, so the client is deliberately
+frugal, but the larger lever is the edge:
+
+- **Client:** found items are trusted for 2h (in memory), misses for 5m,
+  concurrent requests are capped at 6, and a circuit breaker stops sending after
+  repeated failures for 30s (`requestGate.ts`). Emoji fall back to `:alias:` text
+  meanwhile.
+- **Edge (Cloudflare, not in this repo):** `/img/*` is already cached. The XRPC
+  reads are `cf-cache-status: DYNAMIC` with no `Cache-Control`, so each one reaches
+  the origin. Add a Cache Rule for
+  `/xrpc/blue.moji.collection.getItem` (and `getPack`, `getPacks`,
+  `listCollection` if wanted): eligible for cache, Edge TTL 1h, Browser TTL 5-10m,
+  cache key includes the query string. This also gives repeat page loads a
+  browser-cache hit without any client code. Purge by URL on a takedown.
+
 ## Packs
 
 A pack (`blue.moji.packs.pack`) is a named group of emoji; membership is a
@@ -147,8 +184,6 @@ instead. Delete asks twice.
 ## Not done yet
 
 - Reactions UI.
-- A native emoji picker tab. Upstream has no native emoji picker (the keyboard is
-  used), so there was nothing to add a tab to; `:alias:` typed by hand still works.
 - Drafts: stickers and Bluemoji facets are not saved with drafts.
 - DMs do not create Bluemoji facets.
 - Resizing animations on device (needs a transcoder; the AppView's
