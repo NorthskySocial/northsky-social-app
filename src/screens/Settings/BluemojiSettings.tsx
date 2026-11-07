@@ -22,6 +22,7 @@ import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {aliasToRkey, normalizeAlias} from '#/features/bluemoji/alias'
 import {bluemojiImageUrl, pickInlineCid} from '#/features/bluemoji/api'
+import {EditEmojiDialog} from '#/features/bluemoji/EditEmojiDialog'
 import {AddToPackDialog} from '#/features/bluemoji/packs/AddToPackDialog'
 import {PacksSection} from '#/features/bluemoji/packs/PacksSection'
 import {
@@ -298,6 +299,8 @@ function Collection() {
   } = useMyBluemoji()
   const addToPackControl = Dialog.useDialogControl()
   const [packTarget, setPackTarget] = useState<BluemojiItem>()
+  const editControl = Dialog.useDialogControl()
+  const [editTarget, setEditTarget] = useState<BluemojiItem>()
 
   if (isPending) {
     return (
@@ -354,6 +357,20 @@ function Collection() {
                 </Text>
               ) : null}
               <Button
+                testID={`editEmoji-${item.name}`}
+                label={l`Edit ${item.name}`}
+                size="tiny"
+                color="secondary"
+                variant="solid"
+                onPress={() => {
+                  setEditTarget(item)
+                  editControl.open()
+                }}>
+                <ButtonText>
+                  <Trans>Edit</Trans>
+                </ButtonText>
+              </Button>
+              <Button
                 label={l`Add ${item.name} to a pack`}
                 size="tiny"
                 color="secondary"
@@ -370,6 +387,7 @@ function Collection() {
           )
         })}
       </View>
+      <EditEmojiDialog control={editControl} item={editTarget} />
       <AddToPackDialog control={addToPackControl} item={packTarget} />
       {hasNextPage ? (
         <Button

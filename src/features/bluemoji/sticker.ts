@@ -77,3 +77,32 @@ export function parseStickerEmbed(
   }
   return s
 }
+
+/**
+ * Whether the verified emoji is the one a sticker embed was posted with.
+ *
+ * The embed's strong ref pins a *record version* (uri + cid), but that CID
+ * changes on any edit, including a harmless one to the description or license,
+ * which would turn every old sticker post into plain text. What the author
+ * chose is the art, and the art is content-addressed, so that is what is pinned:
+ * the embed's rendition CIDs must still be among the emoji's own. The ref's URI
+ * must still point at the same record. Replacing the art under an old post
+ * breaks the match (so the post cannot be altered after the fact), while
+ * editing the metadata does not.
+ */
+export function stickerMatchesItem(
+  sticker: StickerEmbed['sticker'],
+  item: BluemojiItemView,
+): boolean {
+  if (sticker.record && sticker.record.uri !== item.uri) return false
+
+  const current = new Set<string>()
+  for (const key of STICKER_STILL_KEYS) {
+    const cid = blobCid(item.stickerFormats?.[key])
+    if (cid) current.add(cid)
+  }
+  return Object.entries(sticker.formats ?? {}).some(
+    ([key, cid]) =>
+      key !== '$type' && typeof cid === 'string' && current.has(cid),
+  )
+}

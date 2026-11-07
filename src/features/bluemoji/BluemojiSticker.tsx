@@ -9,7 +9,7 @@ import {Text} from '#/components/Typography'
 import {useAdultEmojiVisible} from './adultPref'
 import {bluemojiImageUrl} from './api'
 import {useBluemojiItem} from './queries'
-import {parseStickerEmbed, pickStickerCid} from './sticker'
+import {parseStickerEmbed, pickStickerCid, stickerMatchesItem} from './sticker'
 
 const STICKER_DISPLAY_SIZE = 192
 
@@ -42,14 +42,12 @@ function VerifiedSticker({
   const {reduceMotionEnabled} = useA11y()
   const autoplayDisabled = useAutoplayDisabled()
 
-  // The rkey is the alias, so the record at this URI can be rewritten after
-  // posting; comparing the CID pins the sticker the author actually chose.
-  const matchesRef =
-    !sticker.record ||
-    (sticker.record.uri === item?.uri &&
-      (!item?.cid || sticker.record.cid === item.cid))
+  // The rkey is the alias, so the record can be rewritten after posting. Pin the
+  // art the author chose, not the record version: editing a description must
+  // not turn old sticker posts into text (see `stickerMatchesItem`).
+  const matches = !!item && stickerMatchesItem(sticker, item)
   const cid =
-    item && matchesRef
+    item && matches
       ? pickStickerCid(item.stickerFormats, {
           animate: !reduceMotionEnabled && !autoplayDisabled,
         })

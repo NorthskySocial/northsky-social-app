@@ -12,6 +12,9 @@ export function describeError(e: unknown): string {
     if (e.code === 'invalid-alias' || e.code === 'invalid-provenance') {
       return e.message
     }
+    if (e.code === 'stale') {
+      return t`This emoji was changed somewhere else. Close this and open it again to see the latest version.`
+    }
     if (e.code === 'not-copyable') {
       return t`The creator has not allowed this to be copied.`
     }
