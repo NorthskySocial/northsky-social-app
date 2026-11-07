@@ -10,6 +10,7 @@ import * as TextField from '#/components/forms/TextField'
 import * as Toggle from '#/components/forms/Toggle'
 import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
+import {ProvenanceFields, provenanceProblem} from '../ProvenanceFields'
 import {describeError} from './errors'
 import {type PackInput} from './types'
 
@@ -62,17 +63,26 @@ function Body<T>({
   const [name, setName] = useState(initial?.name ?? '')
   const [description, setDescription] = useState(initial?.description ?? '')
   const [adultOnly, setAdultOnly] = useState(initial?.adultOnly ?? false)
+  const [license, setLicense] = useState(initial?.license ?? '')
+  const [source, setSource] = useState(initial?.source ?? '')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string>()
 
-  const canSubmit = !!name.trim() && !busy
+  const canSubmit =
+    !!name.trim() && !provenanceProblem(license, source) && !busy
   const editing = !!initial
 
   const submit = async () => {
     setBusy(true)
     setError(undefined)
     try {
-      const result = await onSubmit({name, description, adultOnly})
+      const result = await onSubmit({
+        name,
+        description,
+        adultOnly,
+        license,
+        source,
+      })
       control.close(() => onDone?.(result))
     } catch (e) {
       setError(describeError(e))
@@ -125,6 +135,12 @@ function Body<T>({
             <Trans>Mark as adult content</Trans>
           </Toggle.LabelText>
         </Toggle.Item>
+        <ProvenanceFields
+          license={license}
+          source={source}
+          onLicenseChange={setLicense}
+          onSourceChange={setSource}
+        />
         {error ? <Admonition type="error">{error}</Admonition> : null}
         <Button
           label={editing ? l`Save pack` : l`Create pack`}

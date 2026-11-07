@@ -101,6 +101,49 @@ screens are `screens/Settings/BluemojiPack.tsx` and the Packs section of Setting
 - **Not done:** pack icons, and pack-level adult labels (items are still gated
   individually by the adult-only emoji preference).
 
+## License and source (RFC 0006)
+
+Items and packs can carry an optional SPDX `license` and a `source` URL. Both are
+the owner's own claim and unverified. `provenance.ts` is a copy of the Bluemoji
+reference implementation (keep it in sync).
+
+- **Write:** the upload form and pack form take both (one-tap common licenses, or
+  any SPDX expression). Values are validated and normalised before anything is
+  uploaded.
+- **Read:** every value is re-validated before it is shown (`ProvenanceLine`), so
+  a `javascript:` source or junk license from a hostile record never becomes a
+  link.
+- **Copying needs a grant.** Installing an emoji from a pack is refused unless it
+  has a license that allows copying: no license is not permission, and
+  `LicenseRef-All-Rights-Reserved` withholds it. The copy keeps the license and
+  source it was shared under. This is a courtesy gate, not enforcement.
+- **Consequence:** emoji uploaded before this existed have no license, so others
+  cannot copy them until the owner adds one (see Editing below).
+
+## Editing
+
+Settings > Bluemoji > Your collection > Edit changes an emoji's description,
+adult flag, license and source (`edit.ts`). The name is the record key and the
+images are what old posts show, so neither can be changed; add a new emoji
+instead. Delete asks twice.
+
+- **Only what changed is written.** The form is compared with the version it was
+  opened on (`diffItemChanges`) and only the differing fields are sent, so a
+  field you never touched is not overwritten with a stale value.
+- **Stale forms are refused.** The form remembers the record CID it was opened on.
+  The save reads the record again and refuses if the CID moved (an edit on another
+  device while the form was open), and the write itself is pinned to what was just
+  read. Blobs and unknown fields are preserved. After a save the cached CID is
+  updated, so editing the same emoji twice in a row is not refused.
+- **Old sticker posts survive an edit.** Any edit changes the record's CID, so a
+  sticker embed cannot be verified by that CID. It is verified by its art instead:
+  the embed's rendition CIDs must still be among the emoji's own
+  (`stickerMatchesItem`), and its strong ref must still point at the same record.
+  Editing metadata keeps old posts rendering; replacing the art under an old post
+  does not.
+- The AppView learns of the write from the firehose a moment later, so the list is
+  patched immediately and refetched after a few seconds.
+
 ## Not done yet
 
 - Reactions UI.
