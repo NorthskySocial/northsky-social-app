@@ -1,11 +1,11 @@
 import {aliasToRkey} from './alias'
 import {BLUEMOJI_APPVIEW} from './constants'
-import {RequestGate} from './requestGate'
 import {
   type PackItemView,
   type PackListPage,
   type PackPage,
 } from './packs/types'
+import {RequestGate} from './requestGate'
 import {
   type BluemojiBlobValue,
   type BluemojiFormats,
