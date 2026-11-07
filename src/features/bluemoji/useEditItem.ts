@@ -7,7 +7,8 @@ import {
 import {usePdsClient, useSession} from '#/state/session'
 import {type BluemojiPage} from './api'
 import {deleteItem, type ItemChanges, rkeyOfItem, updateItem} from './edit'
-import {COLLECTION_ROOT, useInvalidateBluemoji} from './queries'
+import {useInvalidateBluemoji} from './queries'
+import {COLLECTION_ROOT} from './queryKeys'
 import {type BluemojiItemView} from './types'
 
 /** How long the AppView typically needs to learn of a write from the firehose. */
