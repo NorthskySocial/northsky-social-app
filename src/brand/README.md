@@ -38,6 +38,8 @@ upstream sync don't turn into a nightmare.
 1. **Values** - `src/lib/constants.ts` reads URLs/feeds from `BRAND`;
    `app.config.js` reads identity from `brand.json`. Every upstream edit is
    marked `// northsky:`.
+    `BRAND.linkProxyUrl` in `src/brand/config.ts` is an optional full URL prefix.
+    Leave it empty to open external links directly.
 2. **Assets** - swapped in place at the paths upstream already imports
    (`assets/splash/*`, `assets/app-icons/*`, `assets/favicon.png`,
    `bskyweb/static/*`). No loader indirection.

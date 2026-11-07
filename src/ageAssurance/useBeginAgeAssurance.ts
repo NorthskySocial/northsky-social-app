@@ -50,7 +50,7 @@ export function useBeginAgeAssurance() {
           service: appview.url,
           headers: {authorization: `Bearer ${token}`},
         },
-        {includeDeviceSessionHeaders: false},
+        {includeDeviceSessionHeaders: true},
       )
 
       ax.metric('ageAssurance:api:begin', {

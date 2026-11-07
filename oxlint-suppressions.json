@@ -1,4 +1,14 @@
 {
+  "bskylink/src/routes/redirect.ts": {
+    "typescript/no-misused-promises": {
+      "count": 1
+    }
+  },
+  "bskylink/src/routes/safelinkCheck.ts": {
+    "typescript/no-misused-promises": {
+      "count": 1
+    }
+  },
   "modules/bottom-sheet/src/BottomSheetNativeComponent.tsx": {
     "typescript/no-explicit-any": {
       "count": 2
@@ -241,11 +251,6 @@
       "count": 1
     }
   },
-  "src/components/PostControls/ShareMenu/index.tsx": {
-    "typescript/no-floating-promises": {
-      "count": 1
-    }
-  },
   "src/components/ProfileHoverCard/index.web.tsx": {
     "typescript/no-explicit-any": {
       "count": 2
@@ -443,23 +448,7 @@
   },
   "src/components/images/Gallery/index.tsx": {
     "typescript/no-explicit-any": {
-      "count": 5
-    },
-    "typescript/no-unsafe-call": {
       "count": 1
-    },
-    "typescript/no-unsafe-member-access": {
-      "count": 4
-    }
-  },
-  "src/components/images/Gallery/useKeyboardHandlers.ts": {
-    "typescript/no-explicit-any": {
-      "count": 6
-    }
-  },
-  "src/components/images/Gallery/usePointerHandlers.ts": {
-    "typescript/no-explicit-any": {
-      "count": 6
     }
   },
   "src/components/images/ImageLayoutGrid.tsx": {
@@ -882,11 +871,6 @@
     },
     "typescript/no-misused-promises": {
       "count": 1
-    }
-  },
-  "src/screens/Settings/components/ChangePasswordDialog.tsx": {
-    "typescript/no-explicit-any": {
-      "count": 2
     }
   },
   "src/screens/Settings/components/CopyButton.tsx": {

@@ -10,6 +10,7 @@ import identity from './brand.json'
 export const BRAND = {
   ...identity,
   downloadUrl: 'https://northsky.app/download',
+  linkProxyUrl: '' as string,
   pdsServiceUrl: 'https://northsky.social',
   publicAppViewUrl: 'https://api.blacksky.community',
   publicAppViewDid: 'did:web:api.blacksky.community',

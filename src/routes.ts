@@ -20,7 +20,8 @@ export const router = new Router<AllNavigatableRoutes>({
   Moderation: '/moderation',
   ModerationInbox: '/moderation/inbox',
   ModerationInboxSettings: '/moderation/inbox/settings',
-  ModerationInboxReportDetails: '/moderation/inbox/report/details',
+  ModerationInboxReportDetails:
+    '/moderation/inbox/report/:moderationService/:id',
   ModerationInboxNoticeDetails: '/moderation/inbox/notice/details',
   ModerationModlists: '/moderation/modlists',
   ModerationMutedAccounts: '/moderation/muted-accounts',
@@ -72,6 +73,7 @@ export const router = new Router<AllNavigatableRoutes>({
   FindContactsSettings: '/settings/find-contacts',
   AiSettings: '/settings/ai', // northsky: AI preferences screen
   BluemojiSettings: '/settings/bluemoji', // northsky: Bluemoji custom emoji
+  BluemojiPack: '/settings/bluemoji/packs/:name/:rkey', // northsky: Bluemoji pack
   // support
   Support: '/support',
   PrivacyPolicy: '/support/privacy',

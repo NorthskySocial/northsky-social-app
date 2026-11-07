@@ -61,7 +61,12 @@ every open PR at once. Instead:
 git fetch upstream
 git switch main && git pull --ff-only origin main
 git switch -c sync/upstream-YYYY-MM-DD     # dated sync branch
-git merge upstream/main                      # resolve conflicts here, not on main
+asset_state=$(mktemp -d)
+cp scripts/owned-assets.mjs "$asset_state/owned-assets.mjs"
+node "$asset_state/owned-assets.mjs" capture "$asset_state/assets.json" upstream/main
+git merge --no-commit --no-ff upstream/main
+# Run even after conflicts, before completing the merge.
+node "$asset_state/owned-assets.mjs" restore "$asset_state/assets.json"
 pnpm install && pnpm typecheck && pnpm lint && pnpm test
 git push -u origin sync/upstream-YYYY-MM-DD
 # open a PR: "Sync upstream <date> (<upstream short-sha>)" -> review -> merge
@@ -143,7 +148,7 @@ This is exact and zero-maintenance, and it's what the sync workflow relies on.
 | Slingshot/Constellation                                        | `src/lib/slingshot/*`, `src/state/queries/slingshot.ts` | `Post/Embed/index.tsx`, `UserAvatar.tsx`                                                                                        |
 | Profile fields from Microcosm                                  | `src/lib/slingshot/hydrate.ts`, `src/state/queries/slingshot.ts` | `src/state/queries/profile.ts`                                                                                                  |
 | Custom lexicon rendering                                       | `src/features/customRecords/*`                          | `Post/Embed/index.tsx` (`unknown` branch)                                                                                       |
-| Bluemoji custom emoji and stickers | `src/features/bluemoji/*`, `src/screens/Settings/BluemojiSettings.tsx` | `RichText.tsx`, `lib/api/index.ts` (`resolveRT`, `resolveMedia`), `EmojiPicker/*`, `Composer.tsx`, `composer.ts`, `Moderation/index.tsx`, feed/thread post components (sticker), `routes.ts`, `Navigation.tsx`, `Settings.tsx` |
+| Bluemoji custom emoji and stickers | `src/features/bluemoji/*`, `src/screens/Settings/BluemojiSettings.tsx` | `RichText.tsx`, `lib/api/index.ts` (`resolveRT`, `resolveMedia`), `EmojiPicker/*`, `Composer.tsx`, `composer.ts`, `Moderation/index.tsx`, feed/thread post components (sticker), `routes.ts`, `Navigation.tsx`, `Settings.tsx` (packs add `BluemojiPack` to `routes.ts`, `lib/routes/types.ts` and `Navigation.tsx`) |
 | Host-aware takedown/appeal routing                             | `src/brand/moderation.ts`                               | `src/screens/Takendown.tsx`                                                                                                     |
 | App labelers: Northsky moderation on, regional authorities off | `src/brand/moderation.ts` (`APP_LABELER_DIDS`)          | `src/state/session/moderation.ts`                                                                                               |
 | Northsky label refinement in reports                           | `src/features/northskyReportLabels/*`                   | `ReportDialog/{index.tsx,action.ts}`                                                                                            |
@@ -296,6 +301,118 @@ and `<Trans>` for JSX. Use `plural()` for counts. Prefer `i18n.date` over
 `Intl.DateTimeFormat`. Add `comment`/`context` when a string is ambiguous.
 
 ```tsx
+import {Fragment} from 'react'
+import {View} from 'react-native'
+import {Trans} from '@lingui/react/macro'
+
+import {Text} from '#/components/Typography'
+
+function MyComponent({
+  items = [],
+  children,
+}: {
+  items?: string[]
+  children: React.ReactNode
+}) {
+  return (
+    <>
+      <View>
+        <Text>
+          <Trans>Example</Trans>
+        </Text>
+      </View>
+      <View>
+        {items.map((item, index) => (
+          <Fragment key={item}>
+            <Text>{index}</Text>
+            <Text>{item}</Text>
+          </Fragment>
+        ))}
+        {children}
+      </View>
+    </>
+  )
+}
+```
+
+### Dialog Component
+
+Lives in `#/components/Dialog`. Bottom sheet on native, modal on web. Manage
+state with `useDialogControl()`. `Dialog.Handle` renders native-only, `Dialog.Close`
+web-only. CRITICAL: run any post-close action inside the `control.close(() => ...)`
+callback (see Footguns). Compound-component usage; canonical example in any dialog
+under `#/components`.
+
+### Menu Component
+
+Lives in `#/components/Menu`. Dropdown on web, bottom sheet dialog on native.
+`Menu.Divider` is web-only, `Menu.ContainerItem` native-only. Compound API
+(`Menu.Root` / `Menu.Trigger` / `Menu.Outer` / `Menu.Group` / `Menu.Item`); grep
+existing usages across the app for a canonical example.
+
+### Button Component
+
+`import {Button, ButtonText, ButtonIcon} from '#/components/Button'`. Props:
+
+- `color`: `'primary'` | `'secondary'` | `'negative'` | `'primary_subtle'` | `'negative_subtle'` | `'secondary_inverted'`
+- `size`: `'tiny'` | `'small'` | `'large'`
+- `shape`: `'default'` (pill) | `'round'` | `'square'` | `'rectangular'`
+- `variant`: `'solid'` | `'outline'` | `'ghost'` (deprecated, prefer `color`)
+
+### TextField
+
+Compound component at `#/components/forms/TextField` (`TextField.LabelText`,
+`TextField.Root`, `TextField.Icon`, `TextField.Input`). Controlled inputs
+(`value` + `onChangeText`) are fine and are usually what you want - the old
+advice to reach for `defaultValue` was a New Architecture migration concern and
+no longer applies. Reach for `defaultValue` only when nothing outside the input
+needs to read the text.
+
+### Typography
+
+`import {Text, H1, H2, P} from '#/components/Typography'`. The `Text` default style
+is `[a.text_sm, a.leading_snug, t.atoms.text]`. Pass the `emoji` prop to any `Text`
+that may contain emoji - user-generated text (display names etc.) almost always
+does, so only omit it for static, emoji-free strings: `<Text emoji>Hello!</Text>`.
+
+### Haptics
+
+`const haptics = useHaptics()` from `#/lib/haptics`. Call the method that
+describes what happened, not how strong it should feel. Each method maps to the
+matching haptic on each platform: iOS feedback generators, and Android
+`performHapticFeedback` constants with fallbacks for older API levels. Haptics
+do nothing on web or when the user has disabled them.
+
+- `tap()` - light acknowledgement of a tap (like, reply, opening a card)
+- `confirm()` - the user committed a change (follow, pin, send a message)
+- `longPress()` - a long-press did something (opened a menu or share sheet)
+- `toggle(on)` - a switch, checkbox or radio changed; pass the new value
+- `selection()` - the highlighted option changed (segmented control, drag slot)
+- `threshold()` - a gesture crossed its activation point (swipe-to-reply)
+- `dragStart()` - an item was picked up to be dragged
+- `success()` / `error()` - something the user was waiting on finished
+
+Only reach for `haptics.platform({ios, android})` when no intent fits, and never
+import `expo-haptics` directly. In worklets, destructure the method you need
+(`const {threshold} = useHaptics()`) and pass it to `scheduleOnRN`; don't
+capture the whole object. The emulator/simulator can't play haptics, so test on
+a physical device via the haptics section of the Storybook.
+
+## Internationalization (i18n)
+
+All user-facing strings must be wrapped for translation using Lingui. Include `comment` and/or `context` props when necessary to avoid ambiguity, e.g., “Post” as a noun vs a verb.
+
+Do not mark debug-only strings as translatable. This includes anything only
+developers or internal testers see: debug menus, dev-only screens, logs, and all
+strings in Storybook (`src/view/screens/Storybook`). Use plain string literals
+there.
+
+Prefer using `t` via `import {useLingui} '@lingui/react/macro'` vs `_` via `import {useLingui} from '@lingui/react'`. Alias `t` to `l` to avoid collisions with `const t = useTheme()`. Refactor existing uses of ``_(msg`foo`)`` to use `` l`foo` ``.
+
+Prefer Unicode punctuation over keyboard punctuation, e.g., `“quote”` over `"quote"`. Prefer en dashes preceded by a non-breaking space over em dashes, e.g., `one – two` over `one—two`.
+
+```tsx
+import {plural} from '@lingui/core/macro'
 import {Trans, useLingui} from '@lingui/react/macro'
 const {t: l} = useLingui()
 const title = l`Settings`
@@ -320,7 +437,7 @@ const title = l`Settings`
   from `#/env`.
 - **Dialog close callback (critical):** always use `control.close(() => …)` when
   navigating, opening another dialog/menu, or doing state updates after closing.
-- Prefer `defaultValue` over `value` for `TextInput` (old architecture perf).
+- Use controlled inputs when other UI depends on their current value.
 - **React Compiler is enabled** — do NOT add `useMemo`/`useCallback`
   proactively; only when a value feeds an effect dep array or a non-React lib
   needs referential stability.

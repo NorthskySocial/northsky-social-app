@@ -36,5 +36,32 @@ export const Bot_Filled = createTablerIcon({
   ],
 })
 
-export const Bot_Stroke2_Corner0_Rounded = Bot_Stroke
-export const Bot_Filled_Corner0_Rounded = Bot_Filled
+/** Tabler: robot (outline) */
+export const Bot_Stroke2_Corner0_Rounded = createTablerIcon({
+  paths: [
+    'M6 6a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2l0 -4',
+    'M12 2v2',
+    'M9 12v9',
+    'M15 12v9',
+    'M5 16l4 -2',
+    'M15 14l4 2',
+    'M9 18h6',
+    'M10 8v.01',
+    'M14 8v.01',
+  ],
+})
+
+/** Tabler: robot (outline) */
+export const Bot_Filled_Corner0_Rounded = createTablerIcon({
+  paths: [
+    'M6 6a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2l0 -4',
+    'M12 2v2',
+    'M9 12v9',
+    'M15 12v9',
+    'M5 16l4 -2',
+    'M15 14l4 2',
+    'M9 18h6',
+    'M10 8v.01',
+    'M14 8v.01',
+  ],
+})

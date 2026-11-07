@@ -39,6 +39,42 @@
     },
     "ArrowBottom_Stroke2_Corner0_Rounded": {
       "tabler": "arrow-down"
+    },
+    "ArrowBoxLeft_Stroke2_Corner0_Rounded": {
+      "tabler": "logout"
+    },
+    "ArrowBoxLeft_Stroke2_Corner2_Rounded": {
+      "tabler": "logout"
+    },
+    "ArrowBoxRight_Stroke2_Corner3_Rounded": {
+      "tabler": "login-2"
+    },
+    "ArrowCornerDownRight_Stroke2_Corner2_Rounded": {
+      "tabler": "corner-down-right"
+    },
+    "ArrowCornerDownRight_Stroke2_Corner3_Rounded": {
+      "tabler": "corner-down-right"
+    },
+    "ArrowOutOfBox_Stroke2_Corner0_Rounded": {
+      "tabler": "arrow-down-from-arc"
+    },
+    "ArrowOutOfBoxModified_Stroke2_Corner2_Rounded": {
+      "tabler": "arrow-down-from-arc"
+    },
+    "ArrowRotateClockwise_Stroke2_Corner0_Rounded": {
+      "tabler": "rotate-clockwise"
+    },
+    "ArrowRotateCounterClockwise_Stroke2_Corner0_Rounded": {
+      "tabler": "rotate"
+    },
+    "ArrowShareRight_Stroke2_Corner2_Rounded": {
+      "tabler": "share-3"
+    },
+    "ArrowTopCircle_Stroke2_Corner0_Rounded": {
+      "tabler": "circle-arrow-up"
+    },
+    "ArrowTriangleBottom_Stroke2_Corner1_Rounded": {
+      "tabler": "caret-down"
     }
   },
   "ArrowBoxLeft.tsx": {
@@ -148,6 +184,30 @@
     "Bell_Filled_Corner0_Rounded": {
       "tabler": "bell",
       "variant": "filled"
+    },
+    "Bell2_Filled_Corner0_Rounded": {
+      "tabler": "bell",
+      "variant": "filled"
+    },
+    "Bell2_Stroke2_Corner0_Rounded": {
+      "tabler": "bell"
+    },
+    "Bell2Off_Filled_Corner0_Rounded": {
+      "tabler": "bell-x",
+      "variant": "filled"
+    },
+    "Bell2Off_Stroke2_Corner0_Rounded": {
+      "tabler": "bell-x"
+    },
+    "BellPlus_Stroke2_Corner0_Rounded": {
+      "tabler": "bell-plus"
+    },
+    "BellRinging_Filled_Corner0_Rounded": {
+      "tabler": "bell-ringing",
+      "variant": "filled"
+    },
+    "BellRinging_Stroke2_Corner0_Rounded": {
+      "tabler": "bell-ringing"
     }
   },
   "Bell2.tsx": {
@@ -195,6 +255,16 @@
     },
     "BookmarkDeleteLarge": {
       "tabler": "bookmark-off"
+    },
+    "Bookmark_Filled_Corner0_Rounded": {
+      "tabler": "bookmark",
+      "variant": "filled"
+    },
+    "Bookmark_Stroke2_Corner0_Rounded": {
+      "tabler": "bookmark"
+    },
+    "BookmarkDelete_Stroke2_Corner0_Rounded_Large": {
+      "tabler": "bookmark-off"
     }
   },
   "Bot.tsx": {
@@ -202,6 +272,12 @@
       "tabler": "robot"
     },
     "Bot_Filled": {
+      "tabler": "robot"
+    },
+    "Bot_Filled_Corner0_Rounded": {
+      "tabler": "robot"
+    },
+    "Bot_Stroke2_Corner0_Rounded": {
       "tabler": "robot"
     }
   },
@@ -225,6 +301,13 @@
     },
     "BubbleSmile_Stroke2_Corner2_Rounded_Large": {
       "tabler": "message-chatbot"
+    },
+    "Bubble_Filled_Stroke2_Corner2_Rounded": {
+      "tabler": "message",
+      "variant": "filled"
+    },
+    "BubbleInfo_Stroke2_Corner2_Rounded": {
+      "tabler": "message-2-question"
     }
   },
   "BubbleInfo.tsx": {
@@ -257,6 +340,12 @@
   "Calendar.tsx": {
     "Calendar_Stroke2_Corner0_Rounded": {
       "tabler": "calendar"
+    },
+    "CalendarClock_Stroke2_Corner0_Rounded": {
+      "tabler": "calendar-clock"
+    },
+    "CalendarDays_Stroke2_Corner0_Rounded": {
+      "tabler": "calendar-month"
     }
   },
   "CalendarClock.tsx": {
@@ -328,6 +417,27 @@
   "Circle.tsx": {
     "Circle_Stroke2_Corner0_Rounded": {
       "tabler": "circle"
+    },
+    "CircleAndSquare_Stroke1_Corner0_Rounded_Filled": {
+      "tabler": "circle-square"
+    },
+    "CircleBanSign_Stroke2_Corner0_Rounded": {
+      "tabler": "ban"
+    },
+    "CircleCheck_Stroke2_Corner0_Rounded": {
+      "tabler": "circle-check"
+    },
+    "CircleInfo_Stroke2_Corner0_Rounded": {
+      "tabler": "info-circle"
+    },
+    "CirclePlus_Stroke2_Corner0_Rounded": {
+      "tabler": "circle-plus"
+    },
+    "CircleQuestion_Stroke2_Corner2_Rounded": {
+      "tabler": "help-circle"
+    },
+    "CircleX_Stroke2_Corner0_Rounded": {
+      "tabler": "circle-x"
     }
   },
   "CircleAndSquare.tsx": {
@@ -378,6 +488,15 @@
   "Code.tsx": {
     "Code_Stroke2_Corner2_Rounded": {
       "tabler": "code"
+    },
+    "CodeBrackets_Stroke2_Corner0_Rounded": {
+      "tabler": "brackets"
+    },
+    "CodeBrackets_Stroke2_Corner2_Rounded": {
+      "tabler": "brackets"
+    },
+    "CodeLines_Stroke2_Corner2_Rounded": {
+      "tabler": "source-code"
     }
   },
   "CodeBrackets.tsx": {
@@ -465,6 +584,9 @@
     },
     "Envelope_Stroke2_Corner2_Rounded": {
       "tabler": "mail"
+    },
+    "EnvelopeOpen_Stroke2_Corner0_Rounded": {
+      "tabler": "mail-opened"
     }
   },
   "EnveopeOpen.tsx": {
@@ -483,6 +605,9 @@
     },
     "Eye_Stroke2_Corner2_Rounded": {
       "tabler": "eye"
+    },
+    "EyeSlash_Stroke2_Corner0_Rounded": {
+      "tabler": "eye-off"
     }
   },
   "EyeSlash.tsx": {
@@ -493,6 +618,9 @@
   "Filter.tsx": {
     "Filter_Stroke2_Corner0_Rounded": {
       "tabler": "filter"
+    },
+    "FilterTimeline_Stroke2_Corner0_Rounded": {
+      "tabler": "filter-2-down"
     }
   },
   "FilterTimeline.tsx": {
@@ -614,6 +742,13 @@
     "Home_Filled_Corner0_Rounded": {
       "tabler": "home",
       "variant": "filled"
+    },
+    "HomeOpen_Filled_Corner0_Rounded": {
+      "tabler": "home-2",
+      "variant": "filled"
+    },
+    "HomeOpen_Stroke2_Corner0_Rounded": {
+      "tabler": "home-2"
     }
   },
   "HomeOpen.tsx": {
@@ -882,6 +1017,13 @@
     "Pin_Filled_Corner0_Rounded": {
       "tabler": "pin",
       "variant": "filled"
+    },
+    "PinLocation_Stroke2_Corner0_Rounded": {
+      "tabler": "map-pin"
+    },
+    "PinLocationFilled_Stroke2_Corner0_Rounded": {
+      "tabler": "map-pin",
+      "variant": "filled"
     }
   },
   "PinLocation.tsx": {
@@ -961,6 +1103,9 @@
       "tabler": "message-circle-plus"
     },
     "ReplyFilled": {
+      "tabler": "message-circle-plus"
+    },
+    "Reply_Stroke2_Corner0_Rounded": {
       "tabler": "message-circle-plus"
     }
   },
@@ -1168,6 +1313,184 @@
   "Zap.tsx": {
     "Zap_Stroke2_Corner0_Rounded": {
       "tabler": "bolt"
+    }
+  },
+  "Notification.tsx": {
+    "NotificationActivitySmall_Filled_Corner0_Rounded": {
+      "tabler": "bell",
+      "variant": "filled"
+    },
+    "NotificationFollowSmall_Filled_Corner0_Rounded": {
+      "tabler": "user-plus"
+    },
+    "NotificationLikeSmall_Filled_Corner0_Rounded": {
+      "tabler": "heart",
+      "variant": "filled"
+    },
+    "NotificationMentionSmall_Filled_Corner0_Rounded": {
+      "tabler": "at"
+    },
+    "NotificationQuoteSmall_Filled_Corner0_Rounded": {
+      "tabler": "quote",
+      "variant": "filled"
+    },
+    "NotificationReplySmall_Filled_Corner0_Rounded": {
+      "tabler": "message",
+      "variant": "filled"
+    },
+    "NotificationRepostSmall_Filled_Corner0_Rounded": {
+      "garden": "arrow-retweet-stroke-12",
+      "variant": "filled"
+    },
+    "NotificationStarterPackSmall_Filled_Corner0_Rounded": {
+      "tabler": "circle-square"
+    },
+    "NotificationVerifiedSmall_Filled_Corner0_Rounded": {
+      "tabler": "check"
+    }
+  },
+  "Bars3.tsx": {
+    "Bars3_Stroke2_Corner0_Rounded": {
+      "tabler": "menu-2"
+    }
+  },
+  "Flip.tsx": {
+    "FlipHorizontal_Stroke2_Corner0_Rounded": {
+      "tabler": "flip-horizontal"
+    },
+    "FlipVertical_Stroke2_Corner0_Rounded": {
+      "tabler": "flip-vertical"
+    }
+  },
+  "List.tsx": {
+    "ListMagnifyingGlass_Stroke2_Corner0_Rounded": {
+      "tabler": "list-search"
+    },
+    "ListPlus_Stroke2_Corner0_Rounded": {
+      "tabler": "list"
+    },
+    "ListSparkle_Stroke2_Corner0_Rounded": {
+      "tabler": "filter-2-spark"
+    }
+  },
+  "Bubbles.tsx": {
+    "Bubbles_Stroke2_Corner2_Rounded": {
+      "tabler": "messages"
+    }
+  },
+  "Page.tsx": {
+    "PageText_Stroke2_Corner0_Rounded": {
+      "tabler": "file-text"
+    },
+    "PageX_Stroke2_Corner0_Rounded_Large": {
+      "tabler": "file-x"
+    }
+  },
+  "TinyChevronBottom.tsx": {
+    "TinyChevronBottom_Stroke2_Corner0_Rounded": {
+      "tabler": "chevron-down"
+    }
+  },
+  "Unlock.tsx": {
+    "Unlock_Stroke2_Corner2_Rounded": {
+      "tabler": "lock-open"
+    }
+  },
+  "Group3.tsx": {
+    "Group3_Stroke2_Corner0_Rounded": {
+      "tabler": "users-group"
+    }
+  },
+  "RaisingHand4Finger.tsx": {
+    "RaisingHand4Finger_Stroke2_Corner0_Rounded": {
+      "tabler": "hand-stop"
+    },
+    "RaisingHand4Finger_Stroke2_Corner2_Rounded": {
+      "tabler": "hand-stop"
+    }
+  },
+  "OpenQuote.tsx": {
+    "OpenQuote_Filled_Stroke2_Corner0_Rounded": {
+      "tabler": "quote",
+      "variant": "filled",
+      "rotate": 180
+    },
+    "OpenQuote_Stroke2_Corner0_Rounded": {
+      "tabler": "quote",
+      "rotate": 180
+    }
+  },
+  "Settings.tsx": {
+    "SettingsGear2_Filled_Corner0_Rounded": {
+      "tabler": "settings",
+      "variant": "filled"
+    },
+    "SettingsGear2_Stroke2_Corner0_Rounded": {
+      "tabler": "settings"
+    },
+    "SettingsSliderVertical_Stroke2_Corner0_Rounded": {
+      "tabler": "adjustments"
+    }
+  },
+  "Square.tsx": {
+    "SquareArrowTopRight_Stroke2_Corner0_Rounded": {
+      "tabler": "external-link"
+    },
+    "SquareBehindSquare_Stroke2_Corner2_Rounded": {
+      "tabler": "copy"
+    },
+    "SquareBehindSquare4_Stroke2_Corner0_Rounded": {
+      "tabler": "copy"
+    }
+  },
+  "Earth.tsx": {
+    "Earth_Stroke2_Corner0_Rounded": {
+      "tabler": "world"
+    },
+    "Earth_Stroke2_Corner2_Rounded": {
+      "tabler": "world"
+    }
+  },
+  "CloseQuote.tsx": {
+    "CloseQuote_Filled_Stroke2_Corner0_Rounded": {
+      "tabler": "quote",
+      "variant": "filled"
+    },
+    "CloseQuote_Stroke2_Corner0_Rounded": {
+      "tabler": "quote"
+    },
+    "CloseQuote_Stroke2_Corner1_Rounded": {
+      "tabler": "quote"
+    }
+  },
+  "TimesLarge.tsx": {
+    "TimesLarge_Stroke2_Corner0_Rounded": {
+      "tabler": "x"
+    }
+  },
+  "LikeRepost.tsx": {
+    "LikeRepost_Stroke2_Corner2_Rounded": {
+      "tabler": "heart"
+    }
+  },
+  "SpeakerVolumeFull.tsx": {
+    "SpeakerVolumeFull_Stroke2_Corner0_Rounded": {
+      "tabler": "volume"
+    }
+  },
+  "Megaphone.tsx": {
+    "Megaphone_Filled_Corner0_Rounded": {
+      "tabler": "speakerphone"
+    }
+  },
+  "ExclamationCircle.tsx": {
+    "ExclamationCircle_Stroke2_Corner0_Rounded": {
+      "tabler": "info-circle"
+    }
+  },
+  "TriangleExclamation.tsx": {
+    "TriangleExclamation_Stroke2_Corner2_Rounded": {
+      "tabler": "alert-triangle"
     }
   }
 }

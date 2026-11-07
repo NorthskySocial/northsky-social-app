@@ -336,8 +336,8 @@ describe('buildChatClient', () => {
      */
     expect(headers.get('atproto-proxy')).toBe(CHAT_PROXY_SERVICE)
     expect(headers.get('authorization')).toBe('Bearer access-jwt')
-    expect(headers.get('x-atproto-device-id')).toBeNull()
-    expect(headers.get('x-atproto-session-id')).toBeNull()
+    expect(headers.get('x-atproto-device-id')).toBe('device-123')
+    expect(headers.get('x-atproto-session-id')).toBe('session-456')
   })
 
   it('emits a global app labeler once, redacted', async () => {

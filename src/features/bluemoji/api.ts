@@ -2,6 +2,11 @@ import {aliasToRkey} from './alias'
 import {BLUEMOJI_APPVIEW} from './constants'
 import {RequestGate} from './requestGate'
 import {
+  type PackItemView,
+  type PackListPage,
+  type PackPage,
+} from './packs/types'
+import {
   type BluemojiBlobValue,
   type BluemojiFormats,
   type BluemojiItemView,
@@ -60,7 +65,7 @@ const gate = new RequestGate({
   cooldownMs: 30_000,
 })
 
-async function xrpcGet<T>(
+export async function xrpcGet<T>(
   nsid: string,
   params: Record<string, string | number | undefined>,
   signal?: AbortSignal,
@@ -138,4 +143,68 @@ export async function listBluemoji({
         signal,
       )
   return body ?? {items: []}
+}
+
+/** One page of a pack's items, via `blue.moji.packs.getPack`. */
+export async function getPackPage({
+  uri,
+  cursor,
+  limit = 100,
+  signal,
+}: {
+  uri: string
+  cursor?: string
+  limit?: number
+  signal?: AbortSignal
+}): Promise<PackPage | null> {
+  const {body} = await xrpcGet<PackPage>(
+    'blue.moji.packs.getPack',
+    {pack: uri, cursor, limit},
+    signal,
+  )
+  return body ?? null
+}
+
+/** One page of a user's packs, via `blue.moji.packs.getActorPacks`. */
+export async function getActorPacksPage({
+  actor,
+  cursor,
+  limit = 50,
+  signal,
+}: {
+  actor: string
+  cursor?: string
+  limit?: number
+  signal?: AbortSignal
+}): Promise<PackListPage> {
+  const {body} = await xrpcGet<PackListPage>(
+    'blue.moji.packs.getActorPacks',
+    {actor, cursor, limit},
+    signal,
+  )
+  return body ?? {packs: []}
+}
+
+/** Pages to read when gathering a whole pack; a guard against a runaway cursor. */
+const MAX_PACK_PAGES = 30
+
+/**
+ * Every item in a pack, across pages. Both "Add all" and the duplicate checks
+ * need the whole pack, not whichever pages a screen happens to have loaded.
+ * `truncated` is set if the page cap was hit.
+ */
+export async function getAllPackItems(
+  uri: string,
+  signal?: AbortSignal,
+): Promise<{items: PackItemView[]; truncated: boolean}> {
+  const items: PackItemView[] = []
+  let cursor: string | undefined
+  for (let i = 0; i < MAX_PACK_PAGES; i++) {
+    const page = await getPackPage({uri, cursor, signal})
+    if (!page) break
+    items.push(...page.items)
+    cursor = page.cursor
+    if (!cursor) return {items, truncated: false}
+  }
+  return {items, truncated: !!cursor}
 }

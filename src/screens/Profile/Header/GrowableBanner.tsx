@@ -21,6 +21,7 @@ import {RQKEY_ROOT as LIST_RQKEY_ROOT} from '#/state/queries/profile-lists'
 import {usePagerHeaderContext} from '#/view/com/pager/PagerHeaderContext'
 import {atoms as a} from '#/alf'
 import {IS_IOS} from '#/env'
+import {PROFILE_BANNER_HEIGHT} from './layout'
 
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView)
 
@@ -118,8 +119,17 @@ function GrowableBannerInner({
 
   const animatedSpinnerStyle = useAnimatedStyle(() => {
     const scrollYValue = scrollY.get()
+    /*
+     * Return the same style while the header isn't overscrolled, so Reanimated
+     * skips the update. Otherwise every scroll frame commits this hidden view,
+     * and Yoga never cleans the dirty flags of a `display: none` subtree, so
+     * each commit re-runs layout over the whole tree.
+     */
+    if (scrollYValue >= 0) {
+      return {display: 'none'}
+    }
     return {
-      display: scrollYValue < 0 ? 'flex' : 'none',
+      display: 'flex',
       opacity: interpolate(
         scrollYValue,
         [-60, -15],
@@ -149,7 +159,7 @@ function GrowableBannerInner({
         style={[
           a.absolute,
           {left: 0, right: 0, bottom: 0},
-          {height: 150},
+          {height: PROFILE_BANNER_HEIGHT},
           {transformOrigin: 'bottom'},
           animatedStyle,
         ]}>

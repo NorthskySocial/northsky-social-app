@@ -87,10 +87,24 @@ jobs:
 
           git switch -C "$SYNC_BRANCH" "origin/$BASE_BRANCH"
 
+          # Capture both policy and executor before upstream can change either.
+          ASSET_STATE=$(mktemp -d)
+          echo "asset_state=$ASSET_STATE" >> "$GITHUB_OUTPUT"
+          cp scripts/owned-assets.mjs "$ASSET_STATE/owned-assets.mjs"
+          node "$ASSET_STATE/owned-assets.mjs" capture "$ASSET_STATE/assets.json" "upstream/$UPSTREAM_BRANCH"
+
           # Attempt the merge; don't abort on conflicts.
           set +e
           git merge --no-ff --no-commit "upstream/$UPSTREAM_BRANCH"
+          MERGE_STATUS=$?
           set -e
+          if [ "$MERGE_STATUS" -ne 0 ] && { [ "$MERGE_STATUS" -ne 1 ] || [ -z "$(git ls-files -u)" ]; }; then
+            echo "Fatal upstream merge failure (exit $MERGE_STATUS); preservation and publication stopped." >&2
+            exit "$MERGE_STATUS"
+          fi
+
+          # Clean edits, deletions and renames need restoration too.
+          node "$ASSET_STATE/owned-assets.mjs" restore "$ASSET_STATE/assets.json"
 
           # Always keep our .github/ - the token can't push workflow changes
           # and our CI diverges from upstream's. reset+checkout+clean rather
@@ -160,6 +174,16 @@ jobs:
 
       # Best-effort verification - token-created PRs don't trigger normal CI.
       # continue-on-error throughout: a failure still opens the PR.
+      - name: Check owned icon compatibility
+        id: assets
+        if: steps.check.outputs.proceed == 'true'
+        continue-on-error: true
+        env:
+          ASSET_STATE: ${{ steps.merge.outputs.asset_state }}
+        run: |
+          set -euo pipefail
+          node "$ASSET_STATE/owned-assets.mjs" check "$ASSET_STATE/assets.json" 2>&1 | tee "$ASSET_STATE/compatibility.txt"
+
       - name: Install deps
         id: install
         if: steps.check.outputs.proceed == 'true'
@@ -206,6 +230,8 @@ jobs:
           LOCK_REGENERATED: ${{ steps.merge.outputs.lock_regenerated }}
           CONFLICTS: ${{ steps.merge.outputs.conflicts }}
           GITHUB_DIR_SKIPPED: ${{ steps.merge.outputs.github_dir_skipped }}
+          ASSET_STATE: ${{ steps.merge.outputs.asset_state }}
+          ASSETS_OUTCOME: ${{ steps.assets.outcome }}
           INSTALL_OUTCOME: ${{ steps.install.outcome }}
           I18N_OUTCOME: ${{ steps.i18n.outcome }}
           TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
@@ -251,6 +277,13 @@ jobs:
             fi
             echo
             echo "### Verification (best-effort)"
+            echo "- Owned icon compatibility: $(mark "$ASSETS_OUTCOME")"
+            echo
+            echo "### Owned icon diagnostics for sync reviewers"
+            echo '```text'
+            cat "$ASSET_STATE/compatibility.txt"
+            echo '```'
+            echo
             echo "- Install: $(mark "$INSTALL_OUTCOME")"
             echo "- Compile i18n: $(mark "$I18N_OUTCOME")"
             echo "- Typecheck: $(mark "$TYPECHECK_OUTCOME")"

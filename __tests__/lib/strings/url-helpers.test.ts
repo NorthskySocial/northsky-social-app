@@ -3,6 +3,7 @@ import {describe, expect, it} from '@jest/globals'
 import {
   BSKY_APP_HOST,
   createBskyAppAbsoluteUrl,
+  createProxiedUrl,
   getChatInviteCodeFromUrl,
   isBskyAppUrl,
   isBskyPostUrl,
@@ -234,6 +235,13 @@ describe('brand URL minting', () => {
     expect(createBskyAppAbsoluteUrl('/profile/bob.test')).toEqual(
       'https://northsky.app/profile/bob.test',
     )
+  })
+})
+
+describe('createProxiedUrl', () => {
+  it('returns the original URL when the proxy prefix is empty', () => {
+    const url = 'https://example.com/page'
+    expect(createProxiedUrl(url)).toEqual(url)
   })
 })
 
