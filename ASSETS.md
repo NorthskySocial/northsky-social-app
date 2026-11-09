@@ -31,6 +31,7 @@ you must keep them there.
 | -----------------------| --------------------------------------------| --------------------------| --------------------------------------------------|
 | Tabler Icons          | `src/assets/tabler`                        | MIT, (c) Pawel Kuna      | `src/assets/tabler/LICENSE`                      |
 | Zendesk Garden icons  | `src/assets/gardenSvg`                     | Apache 2.0               | `src/assets/gardenSvg/LICENSE`                   |
+| Streamline icons      | `src/assets/streamline`                    | CC BY 4.0, (c) Streamline | `src/assets/streamline/LICENSE.md`              |
 | Inter typeface        | `assets/fonts/inter`                       | SIL OFL 1.1              | `assets/fonts/inter/OFL.txt`                     |
 | Geist typeface        | `assets/fonts/geist`                       | SIL OFL 1.1              | `assets/fonts/geist/Geist-OFL.txt`               |
 | MuseoModerno typeface | `assets/fonts/museomoderno`                | SIL OFL 1.1              | `assets/fonts/museomoderno/MuseoModerno-OFL.txt` |
@@ -53,8 +54,11 @@ See `NOTICE.md` for the consolidated attribution text.
 Upstream's interface glyphs come from a commercial icon system licensed to Bluesky for
 Bluesky's own products. We replaced the set.
 
-179 mapped modules in `src/components/icons` are generated from openly licensed
-sources: Tabler for almost everything, and Zendesk Garden for the repost mark.
+180 mapped modules in `src/components/icons` are generated from openly licensed
+sources: Tabler for almost everything, Zendesk Garden for the repost mark, and
+Streamline for the Bluemoji sticker mark. Streamline is CC BY 4.0, which requires
+attribution: `src/assets/streamline/LICENSE.md` carries it, and the glyph keeps
+the `https://streamlinehq.com` link in its own `<desc>`.
 
 **Use the asset map as your guide when replacing icons.**
 

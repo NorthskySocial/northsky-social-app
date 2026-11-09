@@ -21,6 +21,7 @@ import {
   Repost_Stroke2_Corner2_Rounded,
   RepostStrike_Stroke2_Corner0_Rounded,
 } from '#/components/icons/Repost'
+import {Sticker_Stroke2_Corner2_Rounded} from '#/components/icons/Sticker'
 import {
   createTablerFilledIcon,
   createTablerIcon,
@@ -107,14 +108,70 @@ describe('createTablerIcon', () => {
     const Icon = createTablerIcon({
       paths: PATHS,
       strokeWidth: 1.5,
-      viewBox: '0 0 32 32',
+      viewBox: '0 0 24 24',
     })
     const tree = render(<Icon />)
 
     expect(Icon.svgStrokeWidth).toBe(1.5)
-    expect(propsOf(tree.UNSAFE_getAllByType(Svg)[0]).viewBox).toBe('0 0 32 32')
+    expect(propsOf(tree.UNSAFE_getAllByType(Svg)[0]).viewBox).toBe('0 0 24 24')
     for (const path of tree.UNSAFE_getAllByType(Path)) {
       expect(propsOf(path).strokeWidth).toBe(1.5)
+    }
+  })
+})
+
+describe('stroke width across canvases', () => {
+  it('scales the stroke of a glyph drawn on a larger canvas', () => {
+    /* 3 units on a 48 unit canvas is the same line as 1.5 on a 24 unit one. */
+    const Icon = createTablerIcon({
+      paths: PATHS,
+      viewBox: '0 0 48 48',
+      strokeWidth: 3,
+    })
+    const tree = render(<Icon />)
+
+    expect(Icon.svgStrokeWidth).toBe(1.5)
+    expect(propsOf(tree.UNSAFE_getAllByType(Svg)[0]).viewBox).toBe('0 0 48 48')
+    for (const path of tree.UNSAFE_getAllByType(Path)) {
+      expect(propsOf(path).strokeWidth).toBe(1.5)
+    }
+  })
+
+  it('leaves a 24 unit canvas alone', () => {
+    const Icon = createTablerIcon({
+      paths: PATHS,
+      viewBox: '0 0 24 24',
+      strokeWidth: 2,
+    })
+
+    expect(Icon.svgStrokeWidth).toBe(2)
+  })
+
+  it('scales a heavy source weight down to an app weight', () => {
+    /* 3 of 48 is a thin line once the canvas is scaled to 24. It draws lighter
+     * than the app default, as a glyph drawn at that thickness should. */
+    const StreamlineLike = createTablerIcon({
+      paths: PATHS,
+      viewBox: '0 0 48 48',
+      strokeWidth: 3,
+    })
+    const TablerLike = createTablerIcon({paths: PATHS})
+
+    expect(StreamlineLike.svgStrokeWidth).toBeLessThan(
+      TablerLike.svgStrokeWidth,
+    )
+  })
+
+  it('still lets a call site override the scaled width', () => {
+    const Icon = createTablerIcon({
+      paths: PATHS,
+      viewBox: '0 0 48 48',
+      strokeWidth: 3,
+    })
+    const tree = render(<Icon strokeWidth={2} />)
+
+    for (const path of tree.UNSAFE_getAllByType(Path)) {
+      expect(propsOf(path).strokeWidth).toBe(2)
     }
   })
 })
@@ -186,6 +243,76 @@ describe('createTablerFilledIcon', () => {
   })
 })
 
+describe('scale', () => {
+  it('shrinks the glyph about the centre of the view box', () => {
+    const Icon = createTablerIcon({paths: PATHS, scale: 0.5})
+    const tree = render(<Icon />)
+
+    expect(propsOf(tree.UNSAFE_getAllByType(G)[0]).transform).toBe(
+      'translate(12 12) scale(0.5) translate(-12 -12)',
+    )
+  })
+
+  it('leaves the glyph alone at its drawn size', () => {
+    const Icon = createTablerIcon({paths: PATHS, scale: 1})
+    const tree = render(<Icon />)
+
+    expect(propsOf(tree.UNSAFE_getAllByType(G)[0]).transform).toBeUndefined()
+  })
+
+  it('does not change the stroke weight', () => {
+    /* Scale is about how much of the box the glyph fills. A glyph that is too
+     * large needs to shrink without its line going thin. */
+    const scaled = createTablerIcon({paths: PATHS, scale: 0.5})
+    const drawn = createTablerIcon({paths: PATHS})
+
+    expect(scaled.svgStrokeWidth).toBe(drawn.svgStrokeWidth)
+  })
+
+  it('combines with a rotation about the same centre', () => {
+    const Icon = createTablerIcon({paths: PATHS, rotate: 180, scale: 0.75})
+    const tree = render(<Icon />)
+
+    expect(propsOf(tree.UNSAFE_getAllByType(G)[0]).transform).toBe(
+      'rotate(180 12 12) translate(12 12) scale(0.75) translate(-12 -12)',
+    )
+  })
+})
+
+describe('density', () => {
+  it('widens the stroke of a sparse glyph', () => {
+    /* A glyph made of a few long strokes covers less ink than a busy one at
+     * the same width, so it reads thin unless the line is widened. */
+    const sparse = createTablerIcon({paths: PATHS, density: 0.5})
+    const average = createTablerIcon({paths: PATHS})
+
+    expect(sparse.svgStrokeWidth).toBeGreaterThan(average.svgStrokeWidth)
+  })
+
+  it('scales the stroke by the square root of the density', () => {
+    const sparse = createTablerIcon({paths: PATHS, density: 0.25})
+
+    expect(sparse.svgStrokeWidth).toBeCloseTo(DEFAULT_STROKE_WIDTH * 2, 5)
+  })
+
+  it('leaves an average glyph alone', () => {
+    const Icon = createTablerIcon({paths: PATHS, density: 1})
+
+    expect(Icon.svgStrokeWidth).toBe(DEFAULT_STROKE_WIDTH)
+  })
+
+  it('stacks with the canvas scale rather than replacing it', () => {
+    const Icon = createTablerIcon({
+      paths: PATHS,
+      viewBox: '0 0 48 48',
+      strokeWidth: 4,
+      density: 0.5,
+    })
+
+    expect(Icon.svgStrokeWidth).toBeCloseTo(4 * 0.5 * Math.SQRT2, 5)
+  })
+})
+
 describe('rotation', () => {
   it('turns the glyph about the centre of the view box', () => {
     const Icon = createTablerIcon({paths: PATHS, rotate: 180})
@@ -245,7 +372,15 @@ describe('rotation', () => {
 describe('icon mapping', () => {
   const entries = Object.entries(mapping) as [
     string,
-    Record<string, {tabler?: string; garden?: string; strokeWidth?: number}>,
+    Record<
+      string,
+      {
+        tabler?: string
+        garden?: string
+        streamline?: string
+        strokeWidth?: number
+      }
+    >,
   ][]
 
   it('covers every listed module with at least one export', () => {
@@ -258,7 +393,7 @@ describe('icon mapping', () => {
   it('names exactly one vendored icon for every export', () => {
     for (const [file, exports] of entries) {
       for (const [name, spec] of Object.entries(exports)) {
-        const named = [spec.tabler, spec.garden].filter(
+        const named = [spec.tabler, spec.garden, spec.streamline].filter(
           icon => icon !== undefined,
         )
         expect(`${file}:${name}:${named.join(',')}`).toMatch(
@@ -312,6 +447,35 @@ describe('generated icon modules', () => {
     expect(Repost_Stroke2_Corner2_Rounded.svgViewBox).toBe('0 0 12 12')
     expect(Repost_Stroke2_Corner2_Rounded.svgStrokeWidth).toBe(0)
     expect(RepostStrike_Stroke2_Corner0_Rounded.svgViewBox).toBe('0 0 24 24')
+  })
+
+  it('draws the Streamline sticker on its own canvas', () => {
+    expect(Sticker_Stroke2_Corner2_Rounded.svgViewBox).toBe('0 0 48 48')
+    expect(Sticker_Stroke2_Corner2_Rounded.svgPaths).toHaveLength(5)
+  })
+
+  it('draws the Streamline sticker heavy enough to read solid', () => {
+    /* The composer toolbar puts it next to the photo and GIF marks. The glyph
+     * is sparse, so it needs a heavier line than theirs to carry the same
+     * weight to the eye. `svgStrokeWidth` is the weight before the glyph's own
+     * scale and density, so the rendered width folds both back in. */
+    const scale = 0.88
+    const density = 0.5
+    const rendered =
+      (Sticker_Stroke2_Corner2_Rounded.svgStrokeWidth * scale) /
+      Math.sqrt(density)
+
+    expect(rendered).toBeGreaterThan(DEFAULT_STROKE_WIDTH)
+    expect(rendered).toBeLessThan(DEFAULT_STROKE_WIDTH * 2.5)
+  })
+
+  it('scales the Streamline sticker into the box its neighbours fill', () => {
+    /* Streamline draws to the edge of its canvas where Tabler leaves an
+     * eighth free, so the raw glyph reads larger than the photo mark. */
+    const tree = render(<Sticker_Stroke2_Corner2_Rounded size="lg" />)
+    const transform = propsOf(tree.UNSAFE_getAllByType(G)[0]).transform
+
+    expect(transform).toBe('translate(24 24) scale(0.88) translate(-24 -24)')
   })
 
   it('gives Globe and Earth different glyphs', () => {

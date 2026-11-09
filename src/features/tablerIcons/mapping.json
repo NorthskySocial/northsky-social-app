@@ -1492,5 +1492,13 @@
     "TriangleExclamation_Stroke2_Corner2_Rounded": {
       "tabler": "alert-triangle"
     }
+  },
+  "Sticker.tsx": {
+    "Sticker_Stroke2_Corner2_Rounded": {
+      "streamline": "user-sticker-square",
+      "strokeWidth": 4,
+      "scale": 0.88,
+      "density": 0.5
+    }
   }
 }
