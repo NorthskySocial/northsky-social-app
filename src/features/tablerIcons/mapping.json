@@ -574,6 +574,12 @@
       "tabler": "mood-heart"
     }
   },
+  "EnvelopeNotification.tsx": {
+    "EnvelopeNotification_Filled_Corner2_Rounded": {
+      "tabler": "mail-dot",
+      "variant": "filled"
+    }
+  },
   "Envelope.tsx": {
     "Envelope_Stroke2_Corner0_Rounded": {
       "tabler": "mail"
