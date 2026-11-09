@@ -48,6 +48,17 @@ Copyright 2022 The Noto Project Authors (https://github.com/notofonts/thai)
 
 The OG card build downloads Noto Sans Arabic, Hebrew, HK, JP, KR, SC, TC, and Thai from Fontsource. All are licensed under OFL 1.1. The CJK families reserve the name "Source."
 
+## Streamline icons
+
+**Path:** `src/assets/streamline/`
+**License:** Creative Commons Attribution 4.0 International (CC BY 4.0) — full text at [`src/assets/streamline/LICENSE.md`](./src/assets/streamline/LICENSE.md)
+
+```
+Streamline icons — https://streamlinehq.com
+```
+
+The Bluemoji sticker mark is drawn from Streamline's free icon library and redistributed under CC BY 4.0. Creative Commons requires attribution for the material and a link to the license; the credit above and the LICENSE.md beside the glyph provide both.
+
 ## country-flag-icons
 
 **Path:** `assets/icons/flags/`

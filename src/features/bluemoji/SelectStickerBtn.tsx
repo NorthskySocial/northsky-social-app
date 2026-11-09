@@ -4,7 +4,7 @@ import {useLingui} from '@lingui/react/macro'
 import {atoms as a, useTheme} from '#/alf'
 import {Button} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
-import {Image_Stroke2_Corner2_Rounded as StickerIcon} from '#/components/icons/Image'
+import {Sticker_Stroke2_Corner2_Rounded as StickerIcon} from '#/components/icons/Sticker'
 import {StickerPickerDialog} from './StickerPickerDialog'
 import {type BluemojiItemView} from './types'
 
