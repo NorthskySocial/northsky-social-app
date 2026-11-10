@@ -81,9 +81,12 @@ function PickerBody({onSelect}: {onSelect: (item: BluemojiItemView) => void}) {
                     t.atoms.bg_contrast_25,
                     {width: TILE, height: TILE},
                   ]}>
+                  {/* An image is not interactive, so a hint would only repeat the label. */}
+                  {/* oxlint-disable-next-line react-native-a11y/has-accessibility-hint */}
                   <Image
                     source={{uri: bluemojiImageUrl(item.did, cid)}}
                     alt={item.alt || item.name}
+                    accessibilityLabel={item.alt || item.name}
                     accessibilityIgnoresInvertColors
                     contentFit="contain"
                     style={{width: TILE - 8, height: TILE - 8}}

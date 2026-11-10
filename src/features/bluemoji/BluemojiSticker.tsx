@@ -71,9 +71,11 @@ function VerifiedSticker({
 
   return (
     <View style={[a.mt_xs, a.align_start]}>
+      {/* oxlint-disable-next-line react-native-a11y/has-accessibility-hint */}
       <Image
         source={{uri: bluemojiImageUrl(item.did, cid)}}
         alt={item.alt || l`Sticker ${item.name}`}
+        accessibilityLabel={item.alt || l`Sticker ${item.name}`}
         accessibilityIgnoresInvertColors
         contentFit="contain"
         cachePolicy="memory-disk"

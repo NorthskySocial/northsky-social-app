@@ -42,9 +42,11 @@ export function EmojiTile({
         {width: TILE_WIDTH},
       ]}>
       {cid ? (
+        // oxlint-disable-next-line react-native-a11y/has-accessibility-hint
         <Image
           source={{uri: bluemojiImageUrl(item.did, cid)}}
           alt={item.alt || item.name}
+          accessibilityLabel={item.alt || item.name}
           accessibilityIgnoresInvertColors
           contentFit="contain"
           style={{width: 48, height: 48}}

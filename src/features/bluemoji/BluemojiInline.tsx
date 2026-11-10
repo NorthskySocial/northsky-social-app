@@ -44,9 +44,11 @@ export function BluemojiInline({
   if (!item || !cid) return <>{fallbackText}</>
 
   return (
+    // oxlint-disable-next-line react-native-a11y/has-accessibility-hint
     <Image
       source={{uri: bluemojiImageUrl(item.did, cid)}}
       alt={item.alt || item.name}
+      accessibilityLabel={item.alt || item.name}
       contentFit="contain"
       cachePolicy="memory-disk"
       style={[{width: size, height: size}, web({verticalAlign: 'middle'})]}
