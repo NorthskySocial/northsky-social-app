@@ -14,7 +14,11 @@ import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
 import * as TextField from '#/components/forms/TextField'
 import * as Toggle from '#/components/forms/Toggle'
+import {Album_Stroke2_Corner2_Rounded as AlbumIcon} from '#/components/icons/Album'
+import {Apps_Stroke2_Corner0_Rounded as AppsIcon} from '#/components/icons/Apps'
+import {EditImagePhoto_Stroke2_Corner0_Rounded as EditImageIcon} from '#/components/icons/EditImagePhoto'
 import {EmojiArc_Stroke2_Corner0_Rounded as EmojiIcon} from '#/components/icons/Emoji'
+import {Pencil_Stroke2_Corner0_Rounded as PencilIcon} from '#/components/icons/Pencil'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import * as Layout from '#/components/Layout'
 import {Loader} from '#/components/Loader'
@@ -61,7 +65,7 @@ export function BluemojiSettingsScreen({}: Props) {
           </SettingsList.Group>
           <SettingsList.Divider />
           <SettingsList.Group contentContainerStyle={[a.gap_md]}>
-            <SettingsList.ItemIcon icon={EmojiIcon} />
+            <SettingsList.ItemIcon icon={AppsIcon} />
             <SettingsList.ItemText>
               <Trans>Packs</Trans>
             </SettingsList.ItemText>
@@ -69,7 +73,7 @@ export function BluemojiSettingsScreen({}: Props) {
           </SettingsList.Group>
           <SettingsList.Divider />
           <SettingsList.Group contentContainerStyle={[a.gap_md]}>
-            <SettingsList.ItemIcon icon={EmojiIcon} />
+            <SettingsList.ItemIcon icon={AlbumIcon} />
             <SettingsList.ItemText>
               <Trans>Your collection</Trans>
             </SettingsList.ItemText>
@@ -175,12 +179,12 @@ function UploadForm() {
       <View style={[a.flex_row, a.align_center, a.gap_md]}>
         <Button
           label={picked ? l`Choose a different image` : l`Choose an image`}
-          size="small"
-          color="secondary"
+          size="large"
+          color="primary"
           variant="solid"
           onPress={onPick}
           disabled={isPending}>
-          <ButtonIcon icon={PlusIcon} />
+          <ButtonIcon icon={EditImageIcon} />
           <ButtonText>
             {picked ? <Trans>Change image</Trans> : <Trans>Choose image</Trans>}
           </ButtonText>
@@ -356,33 +360,31 @@ function Collection() {
                   {l`sticker`}
                 </Text>
               ) : null}
-              <Button
-                testID={`editEmoji-${item.name}`}
-                label={l`Edit ${item.name}`}
-                size="tiny"
-                color="secondary"
-                variant="solid"
-                onPress={() => {
-                  setEditTarget(item)
-                  editControl.open()
-                }}>
-                <ButtonText>
-                  <Trans>Edit</Trans>
-                </ButtonText>
-              </Button>
-              <Button
-                label={l`Add ${item.name} to a pack`}
-                size="tiny"
-                color="secondary"
-                variant="solid"
-                onPress={() => {
-                  setPackTarget(item)
-                  addToPackControl.open()
-                }}>
-                <ButtonText>
-                  <Trans>Add to pack</Trans>
-                </ButtonText>
-              </Button>
+              <View style={[a.flex_row, a.gap_xs]}>
+                <Button
+                  testID={`editEmoji-${item.name}`}
+                  label={l`Edit ${item.name}`}
+                  size="tiny"
+                  color="secondary"
+                  variant="solid"
+                  onPress={() => {
+                    setEditTarget(item)
+                    editControl.open()
+                  }}>
+                  <ButtonIcon icon={PencilIcon} />
+                </Button>
+                <Button
+                  label={l`Add ${item.name} to a pack`}
+                  size="tiny"
+                  color="secondary"
+                  variant="solid"
+                  onPress={() => {
+                    setPackTarget(item)
+                    addToPackControl.open()
+                  }}>
+                  <ButtonIcon icon={PlusIcon} />
+                </Button>
+              </View>
             </View>
           )
         })}

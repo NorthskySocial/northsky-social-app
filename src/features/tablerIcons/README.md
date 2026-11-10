@@ -134,6 +134,19 @@ so its `LICENSE.md` must travel with any glyph copied from
 to `currentColor` in the vendored file, because the generator refuses to emit a
 glyph that cannot inherit the icon colour.
 
+Streamline also supplies `EditImagePhoto`, which marks "choose an image". Tabler
+draws that scene with a dot where the small image is, which disappears at the
+16px most buttons use, so the glyph comes from a set that draws it larger. Its
+canvas is 14 units, where `SOURCE_CANVAS` assumes 48: the mapping entry declares
+`strokeWidth: 1` to keep the line at the source weight and a `scale` of 1.05 to
+bring the artwork out to Tabler's footprint.
+
+Set a `density` where a glyph must read as heavy as its neighbours, and only
+there. The generated tree leaves it unset so every icon draws at the default
+stroke; `DEFAULT_STROKE_WIDTH` is the single knob. The usual reason to set one
+is an icon-only button, whose glyph has no text beside it to carry weight: the
+Bluemoji sticker and choose-image buttons are the cases so far.
+
 Garden draws on a 12 unit view box where Tabler draws on 24, so the generator
 reads the view box out of each SVG and writes it into the module whenever it
 differs from Tabler's. Garden's stroke-styled icons are drawn as fills, so they

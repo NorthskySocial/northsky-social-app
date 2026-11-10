@@ -1,9 +1,9 @@
 /**
- * Generated from Streamline icons. Do not edit by hand.
+ * Generated from Streamline and Tabler icons. Do not edit by hand.
  *
  * Regenerate with scripts/generate-tabler-icons.mjs.
  */
-// northsky: upstream glyphs replaced with Streamline icons
+// northsky: upstream glyphs replaced with Streamline and Tabler icons
 import {createTablerIcon} from '#/features/tablerIcons/createTablerIcon'
 
 /** Streamline: user-sticker-square (outline) */
@@ -19,4 +19,12 @@ export const Sticker_Stroke2_Corner2_Rounded = createTablerIcon({
   strokeWidth: 4,
   scale: 0.88,
   density: 0.5,
+})
+
+/** Tabler: sticker (outline) */
+export const StickerOutline_Stroke2_Corner2_Rounded = createTablerIcon({
+  paths: [
+    'M20 12l-2 .5a6 6 0 0 1 -6.5 -6.5l.5 -2l8 8',
+    'M20 12a8 8 0 1 1 -8 -8',
+  ],
 })

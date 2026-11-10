@@ -14,6 +14,11 @@ import {atoms as a, useTheme} from '#/alf'
 import {Admonition} from '#/components/Admonition'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
+import {Copy_Stroke2_Corner2_Rounded as CopyIcon} from '#/components/icons/Copy'
+import {Pencil_Stroke2_Corner0_Rounded as PencilIcon} from '#/components/icons/Pencil'
+import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
+import {SquareArrowTopRight_Stroke2_Corner0_Rounded as ShareIcon} from '#/components/icons/SquareArrowTopRight'
+import {Trash_Stroke2_Corner0_Rounded as TrashIcon} from '#/components/icons/Trash'
 import * as Layout from '#/components/Layout'
 import {Loader} from '#/components/Loader'
 import * as Toast from '#/components/Toast'
@@ -204,6 +209,7 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
             variant="solid"
             disabled={isInstalling || (!query.hasNextPage && !toInstall.length)}
             onPress={onInstallAll}>
+            <ButtonIcon icon={PlusIcon} />
             <ButtonText>
               {query.hasNextPage ? (
                 <Trans>Add all</Trans>
@@ -225,6 +231,7 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
             await Clipboard.setStringAsync(shareUrl)
             Toast.show(l`Link copied`)
           }}>
+          <ButtonIcon icon={CopyIcon} />
           <ButtonText>
             <Trans>Copy link</Trans>
           </ButtonText>
@@ -235,6 +242,7 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
           color="secondary"
           variant="solid"
           onPress={() => openComposer({text: `${pack.name}\n${shareUrl}`})}>
+          <ButtonIcon icon={ShareIcon} />
           <ButtonText>
             <Trans>Post it</Trans>
           </ButtonText>
@@ -247,6 +255,7 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
               color="secondary"
               variant="solid"
               onPress={pickControl.open}>
+              <ButtonIcon icon={PlusIcon} />
               <ButtonText>
                 <Trans>Add emoji</Trans>
               </ButtonText>
@@ -258,6 +267,7 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
               variant="solid"
               disabled={!packRecord.data}
               onPress={editControl.open}>
+              <ButtonIcon icon={PencilIcon} />
               <ButtonText>
                 <Trans>Edit</Trans>
               </ButtonText>
@@ -269,6 +279,7 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
               variant="solid"
               disabled={isDeleting}
               onPress={() => setConfirmDelete(true)}>
+              <ButtonIcon icon={TrashIcon} />
               <ButtonText>
                 <Trans>Delete</Trans>
               </ButtonText>
@@ -379,9 +390,7 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
                     color="secondary"
                     variant="solid"
                     onPress={() => removeItem(uri)}>
-                    <ButtonText>
-                      <Trans>Remove</Trans>
-                    </ButtonText>
+                    <ButtonIcon icon={TrashIcon} />
                   </Button>
                 ) : copyable ? (
                   /*
@@ -402,6 +411,7 @@ function PackBody({did, rkey}: {did: string; rkey: string}) {
                       setTarget(subject)
                       installControl.open()
                     }}>
+                    <ButtonIcon icon={PlusIcon} />
                     <ButtonText>
                       {have ? <Trans>Add as…</Trans> : <Trans>Add</Trans>}
                     </ButtonText>
