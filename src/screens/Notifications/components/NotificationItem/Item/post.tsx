@@ -37,6 +37,7 @@ import {ProfileHoverCard} from '#/components/ProfileHoverCard'
 import {RichText} from '#/components/RichText'
 import {SubtleHover} from '#/components/SubtleHover'
 import {Text} from '#/components/Typography'
+import {BluemojiSticker} from '#/features/bluemoji/BluemojiSticker' // northsky: Bluemoji sticker
 import {app} from '#/lexicons'
 import * as bsky from '#/types/bsky'
 import {makePostLink} from '../links'
@@ -335,6 +336,8 @@ export function PostBody({post}: {post: PostView}) {
           viewContext={PostEmbedViewContext.Feed}
         />
       )}
+      {/* northsky: Bluemoji sticker, as in every other post renderer */}
+      <BluemojiSticker post={post} />
     </ContentHider>
   )
 }
