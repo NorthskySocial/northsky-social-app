@@ -22,9 +22,12 @@ export function StickerDraftPreview({
   return (
     <View style={[a.mt_lg, a.align_start]}>
       <View style={[a.relative, a.rounded_md, a.p_sm, t.atoms.bg_contrast_25]}>
+        {/* An image is not interactive, so a hint would only repeat the label. */}
+        {/* oxlint-disable-next-line react-native-a11y/has-accessibility-hint */}
         <Image
           source={{uri: bluemojiImageUrl(item.did, cid)}}
           alt={item.alt || item.name}
+          accessibilityLabel={item.alt || item.name}
           accessibilityIgnoresInvertColors
           contentFit="contain"
           style={{width: 160, height: 160}}

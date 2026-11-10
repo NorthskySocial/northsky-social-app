@@ -245,9 +245,11 @@ function Glyph({entry}: {entry: EmojiSuggestion}) {
   }
   const cid = pickInlineCid(entry.item.formats, {animate: false})
   return cid ? (
+    // oxlint-disable-next-line react-native-a11y/has-accessibility-hint
     <Image
       source={{uri: bluemojiImageUrl(entry.item.did, cid)}}
       alt={entry.item.alt || entry.item.name}
+      accessibilityLabel={entry.item.alt || entry.item.name}
       contentFit="contain"
       style={{width: 24, height: 24}}
     />
