@@ -4,8 +4,9 @@ import {Trans, useLingui} from '@lingui/react/macro'
 
 import {atoms as a, useTheme} from '#/alf'
 import {Admonition} from '#/components/Admonition'
-import {Button, ButtonText} from '#/components/Button'
+import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
+import {Apps_Stroke2_Corner0_Rounded as AppsIcon} from '#/components/icons/Apps'
 import {Loader} from '#/components/Loader'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
@@ -90,6 +91,7 @@ function Body({
               size="large"
               disabled={!!busy}
               onPress={() => onChoose(pack.uri, pack.name)}>
+              <ButtonIcon icon={AppsIcon} />
               <ButtonText>{pack.name}</ButtonText>
               {busy === pack.uri ? <Loader size="sm" /> : null}
             </Button>

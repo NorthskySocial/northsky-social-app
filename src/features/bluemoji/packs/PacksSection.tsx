@@ -6,8 +6,10 @@ import {type NavigationProp} from '#/lib/routes/types'
 import {useSession} from '#/state/session'
 import {atoms as a, useTheme} from '#/alf'
 import {Admonition} from '#/components/Admonition'
-import {Button, ButtonText} from '#/components/Button'
+import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
+import {Apps_Stroke2_Corner0_Rounded as AppsIcon} from '#/components/icons/Apps'
+import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
 import {PackFormDialog} from './PackFormDialog'
@@ -55,6 +57,7 @@ export function PacksSection() {
             variant="solid"
             size="large"
             onPress={() => open(pack.uri)}>
+            <ButtonIcon icon={AppsIcon} />
             <ButtonText>
               {pack.name}
               {pack.itemCount != null ? ` (${pack.itemCount})` : ''}
@@ -80,6 +83,7 @@ export function PacksSection() {
         color="primary"
         variant="solid"
         onPress={createControl.open}>
+        <ButtonIcon icon={PlusIcon} />
         <ButtonText>
           <Trans>Create a pack</Trans>
         </ButtonText>

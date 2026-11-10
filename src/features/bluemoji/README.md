@@ -138,6 +138,19 @@ screens are `screens/Settings/BluemojiPack.tsx` and the Packs section of Setting
 - **Not done:** pack icons, and pack-level adult labels (items are still gated
   individually by the adult-only emoji preference).
 
+## Icons
+
+Buttons in the Bluemoji screens carry a glyph as well as their label, so the
+screens read without latching onto text. Two of them are Bluemoji's own:
+`StickerOutline` in `components/icons/Sticker.tsx` marks an emoji pack (Tabler's
+`sticker`, distinct from the Streamline `Sticker` on the composer's sticker
+button) and `EditImagePhoto` marks "choose an image". Both were added for these
+screens and are recorded in `features/tablerIcons/mapping.json`, which is where
+an icon's source set and weight are decided; see that README before adding
+another. Everything else reuses an icon the app already ships: `Album` for the
+collection, `Apps` for packs, plus `Plus`, `Pencil`, `Trash`, `Copy` and
+`SquareArrowTopRight`.
+
 ## License and source (RFC 0006)
 
 Items and packs can carry an optional SPDX `license` and a `source` URL. Both are
