@@ -2,6 +2,7 @@
   "roots": [
     "src/assets/tabler",
     "src/assets/gardenSvg",
+    "src/assets/streamline",
     "assets/fonts/inter",
     "assets/fonts/geist",
     "assets/fonts/museomoderno",

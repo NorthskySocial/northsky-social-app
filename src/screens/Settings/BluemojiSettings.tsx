@@ -11,9 +11,14 @@ import {isNetworkError} from '#/lib/strings/errors'
 import {atoms as a, useTheme} from '#/alf'
 import {Admonition} from '#/components/Admonition'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
+import * as Dialog from '#/components/Dialog'
 import * as TextField from '#/components/forms/TextField'
 import * as Toggle from '#/components/forms/Toggle'
+import {Album_Stroke2_Corner2_Rounded as AlbumIcon} from '#/components/icons/Album'
+import {Apps_Stroke2_Corner0_Rounded as AppsIcon} from '#/components/icons/Apps'
+import {EditImagePhoto_Stroke2_Corner0_Rounded as EditImageIcon} from '#/components/icons/EditImagePhoto'
 import {EmojiArc_Stroke2_Corner0_Rounded as EmojiIcon} from '#/components/icons/Emoji'
+import {Pencil_Stroke2_Corner0_Rounded as PencilIcon} from '#/components/icons/Pencil'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import * as Layout from '#/components/Layout'
 import {Loader} from '#/components/Loader'
@@ -21,7 +26,15 @@ import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {aliasToRkey, normalizeAlias} from '#/features/bluemoji/alias'
 import {bluemojiImageUrl, pickInlineCid} from '#/features/bluemoji/api'
+import {EditEmojiDialog} from '#/features/bluemoji/EditEmojiDialog'
+import {AddToPackDialog} from '#/features/bluemoji/packs/AddToPackDialog'
+import {PacksSection} from '#/features/bluemoji/packs/PacksSection'
+import {
+  ProvenanceFields,
+  provenanceProblem,
+} from '#/features/bluemoji/ProvenanceFields'
 import {useMyBluemoji} from '#/features/bluemoji/queries'
+import {type BluemojiItemView as BluemojiItem} from '#/features/bluemoji/types'
 import {BluemojiUploadError} from '#/features/bluemoji/upload'
 import {useUploadBluemoji} from '#/features/bluemoji/useUploadBluemoji'
 import * as SettingsList from './components/SettingsList'
@@ -52,7 +65,15 @@ export function BluemojiSettingsScreen({}: Props) {
           </SettingsList.Group>
           <SettingsList.Divider />
           <SettingsList.Group contentContainerStyle={[a.gap_md]}>
-            <SettingsList.ItemIcon icon={EmojiIcon} />
+            <SettingsList.ItemIcon icon={AppsIcon} />
+            <SettingsList.ItemText>
+              <Trans>Packs</Trans>
+            </SettingsList.ItemText>
+            <PacksSection />
+          </SettingsList.Group>
+          <SettingsList.Divider />
+          <SettingsList.Group contentContainerStyle={[a.gap_md]}>
+            <SettingsList.ItemIcon icon={AlbumIcon} />
             <SettingsList.ItemText>
               <Trans>Your collection</Trans>
             </SettingsList.ItemText>
@@ -74,6 +95,8 @@ function UploadForm() {
   const [alt, setAlt] = useState('')
   const [asSticker, setAsSticker] = useState(false)
   const [adultOnly, setAdultOnly] = useState(false)
+  const [license, setLicense] = useState('')
+  const [sourceUrl, setSourceUrl] = useState('')
   const [error, setError] = useState<string>()
 
   let aliasError: string | undefined
@@ -85,7 +108,9 @@ function UploadForm() {
       aliasError = e instanceof Error ? e.message : l`Invalid name`
     }
   }
-  const canSubmit = !!picked && !!alias.trim() && !aliasError && !isPending
+  const provenanceBad = !!provenanceProblem(license, sourceUrl)
+  const canSubmit =
+    !!picked && !!alias.trim() && !aliasError && !provenanceBad && !isPending
 
   const onPick = async () => {
     setError(undefined)
@@ -110,6 +135,8 @@ function UploadForm() {
         alt,
         asSticker,
         adultOnly,
+        license,
+        sourceUrl,
       })
       Toast.show(
         animationDropped
@@ -121,6 +148,8 @@ function UploadForm() {
       setAlt('')
       setAsSticker(false)
       setAdultOnly(false)
+      setLicense('')
+      setSourceUrl('')
     } catch (e) {
       if (e instanceof BluemojiUploadError) {
         setError(
@@ -150,12 +179,12 @@ function UploadForm() {
       <View style={[a.flex_row, a.align_center, a.gap_md]}>
         <Button
           label={picked ? l`Choose a different image` : l`Choose an image`}
-          size="small"
-          color="secondary"
+          size="large"
+          color="primary"
           variant="solid"
           onPress={onPick}
           disabled={isPending}>
-          <ButtonIcon icon={PlusIcon} />
+          <ButtonIcon icon={EditImageIcon} />
           <ButtonText>
             {picked ? <Trans>Change image</Trans> : <Trans>Choose image</Trans>}
           </ButtonText>
@@ -236,6 +265,13 @@ function UploadForm() {
         </Toggle.LabelText>
       </Toggle.Item>
 
+      <ProvenanceFields
+        license={license}
+        source={sourceUrl}
+        onLicenseChange={setLicense}
+        onSourceChange={setSourceUrl}
+      />
+
       {error ? <Admonition type="error">{error}</Admonition> : null}
 
       <Button
@@ -265,6 +301,10 @@ function Collection() {
     fetchNextPage,
     isFetchingNextPage,
   } = useMyBluemoji()
+  const addToPackControl = Dialog.useDialogControl()
+  const [packTarget, setPackTarget] = useState<BluemojiItem>()
+  const editControl = Dialog.useDialogControl()
+  const [editTarget, setEditTarget] = useState<BluemojiItem>()
 
   if (isPending) {
     return (
@@ -320,10 +360,37 @@ function Collection() {
                   {l`sticker`}
                 </Text>
               ) : null}
+              <View style={[a.flex_row, a.gap_xs]}>
+                <Button
+                  testID={`editEmoji-${item.name}`}
+                  label={l`Edit ${item.name}`}
+                  size="tiny"
+                  color="secondary"
+                  variant="solid"
+                  onPress={() => {
+                    setEditTarget(item)
+                    editControl.open()
+                  }}>
+                  <ButtonIcon icon={PencilIcon} />
+                </Button>
+                <Button
+                  label={l`Add ${item.name} to a pack`}
+                  size="tiny"
+                  color="secondary"
+                  variant="solid"
+                  onPress={() => {
+                    setPackTarget(item)
+                    addToPackControl.open()
+                  }}>
+                  <ButtonIcon icon={PlusIcon} />
+                </Button>
+              </View>
             </View>
           )
         })}
       </View>
+      <EditEmojiDialog control={editControl} item={editTarget} />
+      <AddToPackDialog control={addToPackControl} item={packTarget} />
       {hasNextPage ? (
         <Button
           label={l`Load more`}

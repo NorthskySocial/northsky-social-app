@@ -4,6 +4,11 @@
       "tabler": "accessible"
     }
   },
+  "Album.tsx": {
+    "Album_Stroke2_Corner2_Rounded": {
+      "tabler": "album"
+    }
+  },
   "Alien.tsx": {
     "Alien_Stroke2_Corner0_Rounded": {
       "tabler": "alien"
@@ -22,6 +27,11 @@
   "AppleLogo.tsx": {
     "AppleLogo": {
       "tabler": "brand-apple"
+    }
+  },
+  "Apps.tsx": {
+    "Apps_Stroke2_Corner0_Rounded": {
+      "tabler": "apps"
     }
   },
   "Arrow.tsx": {
@@ -572,6 +582,12 @@
     },
     "EmojiHeartEyes_Stroke2_Corner0_Rounded": {
       "tabler": "mood-heart"
+    }
+  },
+  "EnvelopeNotification.tsx": {
+    "EnvelopeNotification_Filled_Corner2_Rounded": {
+      "tabler": "mail-dot",
+      "variant": "filled"
     }
   },
   "Envelope.tsx": {
@@ -1496,6 +1512,17 @@
   "TriangleExclamation.tsx": {
     "TriangleExclamation_Stroke2_Corner2_Rounded": {
       "tabler": "alert-triangle"
+    }
+  },
+  "Sticker.tsx": {
+    "Sticker_Stroke2_Corner2_Rounded": {
+      "streamline": "user-sticker-square",
+      "strokeWidth": 4,
+      "scale": 0.88,
+      "density": 0.5
+    },
+    "StickerOutline_Stroke2_Corner2_Rounded": {
+      "tabler": "sticker"
     }
   }
 }

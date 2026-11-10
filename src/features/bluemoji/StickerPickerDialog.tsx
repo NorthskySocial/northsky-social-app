@@ -3,8 +3,9 @@ import {Image} from 'expo-image'
 import {Trans, useLingui} from '@lingui/react/macro'
 
 import {atoms as a, useTheme} from '#/alf'
-import {Button, ButtonText} from '#/components/Button'
+import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
+import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {Loader} from '#/components/Loader'
 import {Text} from '#/components/Typography'
 import {useAdultEmojiVisible} from './adultPref'
@@ -107,6 +108,7 @@ function PickerBody({onSelect}: {onSelect: (item: BluemojiItemView) => void}) {
             color="secondary"
             variant="solid"
             onPress={() => fetchNextPage()}>
+            <ButtonIcon icon={PlusIcon} />
             <ButtonText>
               <Trans>Load more</Trans>
             </ButtonText>

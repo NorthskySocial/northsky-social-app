@@ -11,7 +11,9 @@
  *
  * The mapping of export name to icon lives in
  * src/features/tablerIcons/mapping.json. Each entry names its icon under the
- * key of the set it comes from, either "tabler" or "garden".
+ * key of the set it comes from: "tabler", "garden" or "streamline". It may also
+ * give a stroke width, a rotation, a scale that fits a glyph to the box its
+ * source draws it in, or a density that compensates for a sparse one.
  *
  * The generator refuses to write a file unless the mapping covers every export
  * that file currently has. Dropping an export breaks its import sites, and a
@@ -45,12 +47,37 @@ const MAPPING = JSON.parse(readFileSync(MAPPING_FILE, 'utf8'))
 const SOURCES = {
   tabler: {dir: join(ASSETS_DIR, 'tabler'), label: 'Tabler'},
   garden: {dir: join(ASSETS_DIR, 'gardenSvg'), label: 'Garden'},
+  streamline: {dir: join(ASSETS_DIR, 'streamline'), label: 'Streamline'},
 }
 
 const VARIANTS = ['outline', 'filled']
 
-/** The view box `createTablerIcon` assumes when a module declares none. */
+/** The view box the icon helpers assume when a module declares none. */
 const DEFAULT_VIEW_BOX = '0 0 24 24'
+
+/**
+ * The canvas and stroke weight each source draws with, where they differ from
+ * the 24 unit, app-weight default. `createStrokeIcon` scales a larger canvas,
+ * and the stroke on it, down to the weight the rest of the app draws at.
+ */
+const SOURCE_CANVAS = {
+  streamline: {viewBox: '0 0 48 48', strokeWidth: 3},
+}
+
+/** The view box a source draws on when its SVGs declare none. */
+function defaultViewBox(source) {
+  return SOURCE_CANVAS[source]?.viewBox ?? DEFAULT_VIEW_BOX
+}
+
+/** The stroke width a source draws at, in its own canvas units. */
+function defaultStrokeWidth(source) {
+  return SOURCE_CANVAS[source]?.strokeWidth
+}
+
+/** The stroke width a mapping entry asks for, in its own canvas units. */
+function strokeWidthOf(icon, spec) {
+  return spec.strokeWidth ?? defaultStrokeWidth(icon.source)
+}
 
 /** Resolves a mapping entry to the file that holds its glyph. */
 function iconOf(spec) {
@@ -111,7 +138,13 @@ function vendorMissingIcons() {
 
 vendorMissingIcons()
 
-/** Reads the path data and view box out of a vendored SVG, in document order. */
+/**
+ * Reads the path data and view box out of a vendored SVG, in document order.
+ *
+ * Streamline's exported SVG paints its strokes black. The app recolours every
+ * icon from its props instead, so a painted black is a mistake worth catching
+ * before it lands in a component that ignores it.
+ */
 function glyphOf(icon) {
   const svg = readFileSync(iconPath(icon), 'utf8')
   const paths = [...svg.matchAll(/<path[^>]*\sd="([^"]+)"/g)].map(m => m[1])
@@ -122,6 +155,11 @@ function glyphOf(icon) {
   if (others) {
     throw new Error(
       `${icon.name}.svg uses ${others.join(', ')}, which the generator cannot emit`,
+    )
+  }
+  if (icon.source === 'streamline' && /stroke="#(?!none)/.test(svg)) {
+    throw new Error(
+      `${icon.name}.svg paints its stroke; it must inherit the icon colour`,
     )
   }
   const viewBox = svg.match(/viewBox="([^"]+)"/)
@@ -157,24 +195,32 @@ function render(entries) {
 
       const glyph = glyphOf(icon)
       const paths = glyph.paths.map(p => `    ${JSON.stringify(p)},`).join('\n')
-      /* The helpers assume the Tabler view box, so only a different one is
-       * worth writing out. */
+      /* Every canvas but the 24 unit one must be declared: the helper reads
+       * the canvas to scale the stroke, so it cannot infer a larger one. */
       const box =
         glyph.viewBox === DEFAULT_VIEW_BOX
           ? ''
           : `\n  viewBox: ${JSON.stringify(glyph.viewBox)},`
-      /* A filled icon has no stroke, so a stroke width there is a mistake. */
+      /* A filled icon has no stroke, so a stroke width there is a mistake. A
+       * module always declares a source weight: the helper scales it by the
+       * canvas and knows nothing about which set the glyph came from. */
+      const sourceWeight = defaultStrokeWidth(icon.source)
       const width =
-        icon.variant === 'filled' || spec.strokeWidth === undefined
+        icon.variant === 'filled'
           ? ''
-          : `\n  strokeWidth: ${spec.strokeWidth},`
+          : strokeWidthOf(icon, spec) === sourceWeight && !sourceWeight
+            ? ''
+            : `\n  strokeWidth: ${strokeWidthOf(icon, spec)},`
       const rotate =
         spec.rotate === undefined ? '' : `\n  rotate: ${spec.rotate},`
+      const scale = spec.scale === undefined ? '' : `\n  scale: ${spec.scale},`
+      const ink =
+        spec.density === undefined ? '' : `\n  density: ${spec.density},`
 
       return (
         `/** ${SOURCES[icon.source].label}: ${icon.name} (${icon.variant}) */\n` +
         `export const ${name} = ${helper}({\n` +
-        `  paths: [\n${paths}\n  ],${box}${width}${rotate}\n})`
+        `  paths: [\n${paths}\n  ],${box}${width}${rotate}${scale}${ink}\n})`
       )
     })
     .join('\n\n')

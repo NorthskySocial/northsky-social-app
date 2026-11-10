@@ -1,0 +1,481 @@
+// northsky: view, share and install a Bluemoji pack, and manage your own
+import {useState} from 'react'
+import {View} from 'react-native'
+import * as Clipboard from 'expo-clipboard'
+import {Trans, useLingui} from '@lingui/react/macro'
+import {useNavigation} from '@react-navigation/native'
+import {type NativeStackScreenProps} from '@react-navigation/native-stack'
+
+import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
+import {type CommonNavigatorParams} from '#/lib/routes/types'
+import {useResolveDidQuery} from '#/state/queries/resolve-uri'
+import {useSession} from '#/state/session'
+import {atoms as a, useTheme} from '#/alf'
+import {Admonition} from '#/components/Admonition'
+import {Button, ButtonIcon, ButtonText} from '#/components/Button'
+import * as Dialog from '#/components/Dialog'
+import {Copy_Stroke2_Corner2_Rounded as CopyIcon} from '#/components/icons/Copy'
+import {Pencil_Stroke2_Corner0_Rounded as PencilIcon} from '#/components/icons/Pencil'
+import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
+import {SquareArrowTopRight_Stroke2_Corner0_Rounded as ShareIcon} from '#/components/icons/SquareArrowTopRight'
+import {Trash_Stroke2_Corner0_Rounded as TrashIcon} from '#/components/icons/Trash'
+import * as Layout from '#/components/Layout'
+import {Loader} from '#/components/Loader'
+import * as Toast from '#/components/Toast'
+import {Text} from '#/components/Typography'
+import {normalizeAlias} from '#/features/bluemoji/alias'
+import {getAllPackItems} from '#/features/bluemoji/api'
+import {EmojiTile} from '#/features/bluemoji/packs/EmojiTile'
+import {describeError} from '#/features/bluemoji/packs/errors'
+import {InstallItemDialog} from '#/features/bluemoji/packs/InstallItemDialog'
+import {PackFormDialog} from '#/features/bluemoji/packs/PackFormDialog'
+import {PickEmojiDialog} from '#/features/bluemoji/packs/PickEmojiDialog'
+import {
+  useAllMyBluemoji,
+  useDeletePack,
+  useInstallPack,
+  usePackQuery,
+  usePackRecord,
+  useRemoveFromPack,
+  useUpdatePack,
+} from '#/features/bluemoji/packs/queries'
+import {packShareUrl, packUriFor} from '#/features/bluemoji/packs/types'
+import {type InstallOutcome} from '#/features/bluemoji/packs/write'
+import {isCopyable, viewProvenance} from '#/features/bluemoji/provenance'
+import {ProvenanceLine} from '#/features/bluemoji/ProvenanceLine'
+import {type BluemojiItemView} from '#/features/bluemoji/types'
+
+/** Whether the creator's license lets this be copied (RFC 0006). */
+function canCopy(item: BluemojiItemView) {
+  return isCopyable(viewProvenance(item.license, item.source).license)
+}
+
+type Props = NativeStackScreenProps<CommonNavigatorParams, 'BluemojiPack'>
+
+export function BluemojiPackScreen({route}: Props) {
+  const {name, rkey} = route.params
+  const isDid = name.startsWith('did:')
+  const {data: resolved, isError: resolveFailed} = useResolveDidQuery(
+    isDid ? undefined : name,
+  )
+  const did = isDid ? name : resolved
+
+  return (
+    <Layout.Screen>
+      <Layout.Header.Outer>
+        <Layout.Header.BackButton />
+        <Layout.Header.Content>
+          <Layout.Header.TitleText>
+            <Trans>Emoji pack</Trans>
+          </Layout.Header.TitleText>
+        </Layout.Header.Content>
+        <Layout.Header.Slot />
+      </Layout.Header.Outer>
+      <Layout.Content>
+        <View style={[a.p_xl, a.gap_lg]}>
+          {did ? (
+            <PackBody did={did} rkey={rkey} />
+          ) : resolveFailed ? (
+            <Admonition type="error">
+              <Trans>Could not find that account.</Trans>
+            </Admonition>
+          ) : (
+            <Loader size="xl" />
+          )}
+        </View>
+      </Layout.Content>
+    </Layout.Screen>
+  )
+}
+
+function PackBody({did, rkey}: {did: string; rkey: string}) {
+  const t = useTheme()
+  const {t: l} = useLingui()
+  const {currentAccount} = useSession()
+  const {openComposer} = useOpenComposer()
+  const navigation = useNavigation()
+  const packUri = packUriFor(did, rkey)
+
+  const query = usePackQuery(packUri)
+  const mine = useAllMyBluemoji()
+  const {mutateAsync: removeItem} = useRemoveFromPack()
+  const {mutateAsync: updatePack} = useUpdatePack(packUri)
+  const {mutateAsync: deletePack, isPending: isDeleting} = useDeletePack()
+  const {mutateAsync: installAll, isPending: isInstalling} = useInstallPack()
+
+  const isOwnerEarly = currentAccount?.did === did
+  const packRecord = usePackRecord(packUri, isOwnerEarly)
+  const installControl = Dialog.useDialogControl()
+  const editControl = Dialog.useDialogControl()
+  const pickControl = Dialog.useDialogControl()
+  const [target, setTarget] = useState<BluemojiItemView>()
+  const [progress, setProgress] = useState<[number, number]>()
+  const [summary, setSummary] =
+    useState<{item: BluemojiItemView; outcome: InstallOutcome}[]>()
+  const [error, setError] = useState<string>()
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [truncated, setTruncated] = useState(false)
+
+  if (query.isPending) return <Loader size="xl" />
+  const first = query.data?.pages[0]
+  if (query.isError) {
+    return (
+      <Admonition type="error">
+        <Trans>Could not load this pack.</Trans>
+      </Admonition>
+    )
+  }
+  if (!first) {
+    // Not indexed yet (a new pack) or not a pack; usePackQuery polls briefly.
+    return (
+      <View style={[a.gap_sm]}>
+        <Loader size="xl" />
+        <Text style={t.atoms.text_contrast_medium}>
+          <Trans>Looking for this pack…</Trans>
+        </Text>
+      </View>
+    )
+  }
+
+  const {pack} = first
+  const items = query.data.pages.flatMap(p => p?.items ?? [])
+  const isOwner = currentAccount?.did === pack.creator.did
+  const shareUrl = packShareUrl(did, rkey)
+  const inPackUris = new Set(items.map(i => i.subject.uri))
+  const toInstall = items
+    .map(i => i.subject)
+    .filter(s => {
+      try {
+        return !mine.aliases.has(normalizeAlias(s.name)) && canCopy(s)
+      } catch {
+        return false
+      }
+    })
+
+  const onInstallAll = async () => {
+    setError(undefined)
+    setSummary(undefined)
+    setTruncated(false)
+    try {
+      /*
+       * The pack may have more pages than this screen has loaded, so read all
+       * of it. Items the user already has go in too, so they are reported as
+       * skipped rather than silently missing from the counts.
+       */
+      const all = await getAllPackItems(packUri)
+      const subjects = all.items.map(i => i.subject)
+      setTruncated(all.truncated)
+      setProgress([0, subjects.length])
+      const results = await installAll({
+        items: subjects,
+        haveAliases: mine.aliases,
+        onProgress: (done, total) => setProgress([done, total]),
+      })
+      setSummary(results)
+      const added = results.filter(r => r.outcome.status === 'installed').length
+      Toast.show(l`Added ${added} emoji to your collection`)
+    } catch {
+      setError(l`Something went wrong adding this pack.`)
+    } finally {
+      setProgress(undefined)
+    }
+  }
+
+  const failed = summary?.filter(r => r.outcome.status === 'failed') ?? []
+  const countOf = (status: InstallOutcome['status']) =>
+    summary?.filter(r => r.outcome.status === status).length ?? 0
+
+  return (
+    <>
+      <View style={[a.gap_xs]}>
+        <Text style={[a.text_2xl, a.font_bold]}>{pack.name}</Text>
+        <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
+          <Trans>
+            by @{pack.creator.handle} · {items.length} emoji
+          </Trans>
+        </Text>
+        {pack.description ? (
+          <Text style={[a.text_md, a.mt_sm]}>{pack.description}</Text>
+        ) : null}
+        <ProvenanceLine license={pack.license} source={pack.source} />
+      </View>
+
+      <View style={[a.flex_row, a.flex_wrap, a.gap_sm]}>
+        {!isOwner ? (
+          <Button
+            label={l`Add all to my collection`}
+            size="small"
+            color="primary"
+            variant="solid"
+            disabled={isInstalling || (!query.hasNextPage && !toInstall.length)}
+            onPress={onInstallAll}>
+            <ButtonIcon icon={PlusIcon} />
+            <ButtonText>
+              {query.hasNextPage ? (
+                <Trans>Add all</Trans>
+              ) : toInstall.length ? (
+                <Trans>Add all ({toInstall.length})</Trans>
+              ) : (
+                <Trans>Nothing more to add</Trans>
+              )}
+            </ButtonText>
+            {isInstalling ? <ButtonIcon icon={Loader} /> : null}
+          </Button>
+        ) : null}
+        <Button
+          label={l`Copy link to this pack`}
+          size="small"
+          color="secondary"
+          variant="solid"
+          onPress={async () => {
+            await Clipboard.setStringAsync(shareUrl)
+            Toast.show(l`Link copied`)
+          }}>
+          <ButtonIcon icon={CopyIcon} />
+          <ButtonText>
+            <Trans>Copy link</Trans>
+          </ButtonText>
+        </Button>
+        <Button
+          label={l`Share this pack in a post`}
+          size="small"
+          color="secondary"
+          variant="solid"
+          onPress={() => openComposer({text: `${pack.name}\n${shareUrl}`})}>
+          <ButtonIcon icon={ShareIcon} />
+          <ButtonText>
+            <Trans>Post it</Trans>
+          </ButtonText>
+        </Button>
+        {isOwner ? (
+          <>
+            <Button
+              label={l`Add emoji to this pack`}
+              size="small"
+              color="secondary"
+              variant="solid"
+              onPress={pickControl.open}>
+              <ButtonIcon icon={PlusIcon} />
+              <ButtonText>
+                <Trans>Add emoji</Trans>
+              </ButtonText>
+            </Button>
+            <Button
+              label={l`Edit this pack`}
+              size="small"
+              color="secondary"
+              variant="solid"
+              disabled={!packRecord.data}
+              onPress={editControl.open}>
+              <ButtonIcon icon={PencilIcon} />
+              <ButtonText>
+                <Trans>Edit</Trans>
+              </ButtonText>
+            </Button>
+            <Button
+              label={l`Delete this pack`}
+              size="small"
+              color="negative_subtle"
+              variant="solid"
+              disabled={isDeleting}
+              onPress={() => setConfirmDelete(true)}>
+              <ButtonIcon icon={TrashIcon} />
+              <ButtonText>
+                <Trans>Delete</Trans>
+              </ButtonText>
+            </Button>
+          </>
+        ) : null}
+      </View>
+
+      {confirmDelete ? (
+        <Admonition type="warning">
+          <Trans>
+            Delete this pack? Its list of emoji is removed too. The emoji
+            themselves stay in your collection, and copies other people made are
+            not affected.
+          </Trans>
+        </Admonition>
+      ) : null}
+      {confirmDelete ? (
+        <View style={[a.flex_row, a.gap_sm]}>
+          <Button
+            label={l`Yes, delete this pack`}
+            size="small"
+            color="negative"
+            variant="solid"
+            disabled={isDeleting}
+            onPress={async () => {
+              setError(undefined)
+              try {
+                await deletePack(packUri)
+                Toast.show(l`Pack deleted`)
+                navigation.goBack()
+              } catch (e) {
+                // A big pack is removed in several commits; if one fails the
+                // pack is still here, and deleting again finishes the job.
+                setError(describeError(e))
+                setConfirmDelete(false)
+              }
+            }}>
+            <ButtonText>
+              <Trans>Delete pack</Trans>
+            </ButtonText>
+            {isDeleting ? <ButtonIcon icon={Loader} /> : null}
+          </Button>
+          <Button
+            label={l`Keep this pack`}
+            size="small"
+            color="secondary"
+            variant="solid"
+            disabled={isDeleting}
+            onPress={() => setConfirmDelete(false)}>
+            <ButtonText>
+              <Trans>Keep it</Trans>
+            </ButtonText>
+          </Button>
+        </View>
+      ) : null}
+
+      {progress ? (
+        <Text style={t.atoms.text_contrast_medium}>
+          <Trans>
+            Adding {progress[0]} of {progress[1]}…
+          </Trans>
+        </Text>
+      ) : null}
+      {truncated ? (
+        <Admonition type="warning">
+          <Trans>
+            This pack is very large, so only part of it was read. Run Add all
+            again to continue.
+          </Trans>
+        </Admonition>
+      ) : null}
+      {summary ? (
+        <Admonition type={failed.length ? 'warning' : 'info'}>
+          <Trans>
+            Added {countOf('installed')}, skipped {countOf('exists')} you
+            already have, {countOf('not-copyable')} that can&apos;t be copied
+            and {failed.length} that failed. Add skipped ones one at a time to
+            give them a new name.
+          </Trans>
+        </Admonition>
+      ) : null}
+      {error ? <Admonition type="error">{error}</Admonition> : null}
+
+      {items.length ? (
+        <View style={[a.flex_row, a.flex_wrap, a.gap_md]}>
+          {items.map(({uri, subject}) => {
+            let have = false
+            try {
+              have = mine.aliases.has(normalizeAlias(subject.name))
+            } catch {}
+            const copyable = canCopy(subject)
+            return (
+              <EmojiTile
+                key={uri}
+                item={subject}
+                badge={
+                  !isOwner && have
+                    ? l`In your collection`
+                    : !isOwner && !copyable
+                      ? l`Copying not allowed`
+                      : undefined
+                }>
+                {isOwner ? (
+                  <Button
+                    label={l`Remove ${subject.name} from this pack`}
+                    size="tiny"
+                    color="secondary"
+                    variant="solid"
+                    onPress={() => removeItem(uri)}>
+                    <ButtonIcon icon={TrashIcon} />
+                  </Button>
+                ) : copyable ? (
+                  /*
+                   * Offered even when the alias is taken: the dialog suggests a
+                   * free name, so an emoji that clashes can still be added
+                   * under another one.
+                   */
+                  <Button
+                    label={
+                      have
+                        ? l`Add ${subject.name} to my collection under another name`
+                        : l`Add ${subject.name} to my collection`
+                    }
+                    size="tiny"
+                    color="secondary"
+                    variant="solid"
+                    onPress={() => {
+                      setTarget(subject)
+                      installControl.open()
+                    }}>
+                    <ButtonIcon icon={PlusIcon} />
+                    <ButtonText>
+                      {have ? <Trans>Add as…</Trans> : <Trans>Add</Trans>}
+                    </ButtonText>
+                  </Button>
+                ) : null}
+              </EmojiTile>
+            )
+          })}
+        </View>
+      ) : (
+        <Text style={t.atoms.text_contrast_medium}>
+          {isOwner ? (
+            <Trans>
+              This pack is empty. Add some emoji from your collection.
+            </Trans>
+          ) : (
+            <Trans>This pack is empty.</Trans>
+          )}
+        </Text>
+      )}
+
+      {query.hasNextPage ? (
+        <Button
+          label={l`Load more`}
+          size="small"
+          color="secondary"
+          variant="solid"
+          disabled={query.isFetchingNextPage}
+          onPress={() => query.fetchNextPage()}>
+          <ButtonText>
+            <Trans>Load more</Trans>
+          </ButtonText>
+        </Button>
+      ) : null}
+
+      <InstallItemDialog
+        control={installControl}
+        item={target}
+        haveAliases={mine.aliases}
+      />
+      {isOwner ? (
+        <>
+          <PackFormDialog
+            control={editControl}
+            initial={
+              packRecord.data
+                ? {
+                    name: pack.name,
+                    description: pack.description,
+                    adultOnly: packRecord.data.adultOnly,
+                    license: pack.license,
+                    source: pack.source,
+                  }
+                : undefined
+            }
+            onSubmit={updatePack}
+          />
+          <PickEmojiDialog
+            control={pickControl}
+            packUri={packUri}
+            inPackUris={inPackUris}
+          />
+        </>
+      ) : null}
+    </>
+  )
+}
