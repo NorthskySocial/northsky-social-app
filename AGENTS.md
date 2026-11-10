@@ -198,7 +198,7 @@ record, not to this app.
 Cross-platform (iOS, Android, Web) social app built on React Native + Expo,
 connecting to the AT Protocol.
 
-**Tech stack:** React 19.1, React Native 0.81 + Expo 54, TypeScript 6, React
+**Tech stack:** React 19.3, React Native 0.88 + Expo 58, TypeScript 7, React
 Navigation 7, TanStack Query, Lingui 5 for i18n, and the ALF design system.
 Prefer the latest features of each library (exact versions in `package.json`),
 e.g. `@lingui/react/macro` over `@lingui/react`.
@@ -220,8 +220,8 @@ pnpm prettier           # prettier --check .
 # DO NOT run intl:extract / intl:compile — handled by a nightly CI job
 ```
 
-Note: this repo pins pnpm 11.21.0 and node >=24.19.0 via `devEngines` /
-`engines`. Use `corepack pnpm@11.21.0 ...` if the system pnpm is older, and
+Note: this repo pins pnpm 11.28.5 and node >=24.22.1 via `devEngines` /
+`engines`. Use `corepack pnpm@11.28.5 ...` if the system pnpm is older, and
 install with `--frozen-lockfile`. On an older node, `npx` refuses to run at
 all; call the binary in `node_modules/.bin/` instead.
 

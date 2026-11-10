@@ -1487,15 +1487,18 @@ func TestBuildPostJSONLD_VideoNameFallback(t *testing.T) {
 
 func TestBuildPostJSONLD_VideoNameFallbackHandleInvalid(t *testing.T) {
 	// handle.invalid + no alt -> generic fallback.
-	pv := makePostView("handle.invalid", "did:plc:alice", "abc123", "x",
+	pv := makePostView("handle.invalid", "did:plc:alice", "abc123", "",
 		withVideoFull(videoEmbedOpts{
 			playlist: "https://video.bsky.app/p.m3u8",
 		}))
 	out, _ := buildPostJSONLD(pv, nil, "u", "", hideEmbedLabels, hideReplyLabels)
 	main := unmarshalLD(t, out)["mainEntity"].(map[string]any)
 	video := main["video"].(map[string]any)
-	if video["name"] != "Video on Bluesky" {
+	if video["name"] != "Video on Northsky" {
 		t.Errorf("name fallback = %v, want generic", video["name"])
+	}
+	if video["description"] != "Video on Northsky" {
+		t.Errorf("description fallback = %v, want branded name", video["description"])
 	}
 }
 

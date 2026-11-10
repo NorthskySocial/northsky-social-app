@@ -326,7 +326,7 @@ func buildVideoObject(pv *appbsky.FeedDefs_PostView, embedURL, postText string, 
 	case pv.Author != nil && pv.Author.Handle != "" && pv.Author.Handle != "handle.invalid":
 		vo.Name = "Video by @" + pv.Author.Handle
 	default:
-		vo.Name = "Video on Bluesky"
+		vo.Name = "Video on " + brand.AppName
 	}
 	if postText != "" {
 		vo.Description = postText

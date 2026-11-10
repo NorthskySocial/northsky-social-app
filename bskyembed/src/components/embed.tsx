@@ -2,6 +2,7 @@ import {app} from '@bsky/sdk/lexicons'
 import {ComponentChildren, h} from 'preact'
 import {useMemo} from 'preact/hooks'
 
+import {BRAND} from '#/brand'
 import {Link} from '#/components/link'
 import {VerificationCheck} from '#/components/verification-check'
 import {Globe} from '#/icons/Globe'
@@ -536,7 +537,7 @@ function getStarterPackImage(
   starterPack: app.bsky.graph.defs.StarterPackViewBasic,
 ) {
   const rkey = getRkey({uri: starterPack.uri})
-  return `https://ogcard.cdn.bsky.app/start/${starterPack.creator.did}/${rkey}`
+  return `${BRAND.ogcardServiceUrl}/start/${starterPack.creator.did}/${rkey}`
 }
 
 function getStarterPackHref(
