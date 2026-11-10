@@ -298,7 +298,7 @@ function Snippet({
 }
 
 function toShareUrl(path: string) {
-  return `https://bsky.app${path}?ref_src=embed`
+  return `${BRAND.baseUrl}${path}?ref_src=embed`
 }
 
 /**

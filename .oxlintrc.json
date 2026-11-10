@@ -435,7 +435,9 @@
         "bskyogcard/**/*.{js,jsx,ts,tsx}",
         "dev-env/**/*.{js,jsx,ts,tsx}",
         "scripts/post-embed-build.js",
-        "scripts/post-web-build.js"
+        "scripts/post-web-build.js",
+        "__tests__/branding-assets.test.ts",
+        "__tests__/widget-branding.test.ts"
       ],
       "rules": {
         "import/no-nodejs-modules": "off"

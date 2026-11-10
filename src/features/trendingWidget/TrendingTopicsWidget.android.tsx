@@ -51,7 +51,7 @@ function TrendingTopicsWidget(
   const secondaryTextColor = isDark ? '#AEBBC9' : '#536471'
   const borderColor = isDark ? '#2E4052' : '#E5E7EB'
   // Explore, tagged for `trendingWidget:explore:click` (see links.ts)
-  const rootDestination = 'https://bsky.app/search?ref_src=widget'
+  const rootDestination = 'https://northsky.app/search?ref_src=widget'
 
   return (
     <Column
@@ -67,7 +67,7 @@ function TrendingTopicsWidget(
           modifiers={[fillMaxWidth(), padding(0, 0, 0, 6)]}>
           <Image
             source={{uri: 'notification_icon'}}
-            tint="#0085FF"
+            tint="#9A45EC"
             modifiers={[size(16, 16)]}
           />
           <Spacer modifiers={[width(6)]} />
@@ -75,7 +75,7 @@ function TrendingTopicsWidget(
             color={textColor}
             maxLines={1}
             style={{fontSize: 15, fontWeight: 'bold'}}>
-            {props.title ?? 'Trending on Bluesky'}
+            {props.title ?? 'Trending on Northsky'}
           </Text>
         </Row>
       </Button>
@@ -128,7 +128,7 @@ function TrendingTopicsWidget(
               color={secondaryTextColor}
               maxLines={3}
               style={{fontSize: 13}}>
-              {props.emptyMessage ?? 'Open Bluesky to load trending topics.'}
+              {props.emptyMessage ?? 'Open Northsky to load trending topics.'}
             </Text>
             {/* the whole card opens the app, this just makes that obvious */}
             {props.topics ? null : (
@@ -137,14 +137,14 @@ function TrendingTopicsWidget(
                 <Row
                   modifiers={[
                     cornerRadius(16),
-                    background('#0085FF'),
+                    background('#9A45EC'),
                     padding(14, 7, 14, 7),
                   ]}>
                   <Text
                     color="#FFFFFF"
                     maxLines={1}
                     style={{fontSize: 13, fontWeight: 'bold'}}>
-                    Open Bluesky
+                    Open Northsky
                   </Text>
                 </Row>
               </Column>

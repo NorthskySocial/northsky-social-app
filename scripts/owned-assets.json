@@ -23,6 +23,7 @@
     "bskyweb/embedr-static/apple-touch-icon.png",
     "bskyweb/embedr-static/safari-pinned-tab.svg",
     "bskyembed/assets/logo.svg",
+    "bskyembed/assets/logo_full_name.svg",
     "src/brand/assets/Logo.tsx",
     "src/brand/assets/Logotype.tsx",
     "src/view/icons/Logo.tsx",
@@ -31,6 +32,7 @@
     "scripts/generate-tabler-icons.mjs",
     "scripts/owned-assets.json",
     "scripts/owned-assets.mjs",
-    "scripts/icons/generate.mts"
+    "scripts/icons/generate.mts",
+    "modules/TrendingTopicsWidget/ios/WidgetAssets.xcassets/BlueskyButterfly.imageset/butterfly.svg"
   ]
 }

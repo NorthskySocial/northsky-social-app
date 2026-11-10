@@ -1,3 +1,5 @@
+import {BRAND} from '#/brand/config'
+
 /*
  * Links in the widget carry these params so the app can log a
  * `trendingTopic:click` (topics) or `trendingWidget:explore:click` (everything
@@ -20,7 +22,7 @@ export function createWidgetTopicUrl(
   link: string,
   {rank, recId}: {rank: number; recId?: string},
 ): string {
-  const url = new URL(link, 'https://bsky.app')
+  const url = new URL(link, BRAND.baseUrl)
   url.searchParams.set(PARAMS.src, REF_SRC)
   url.searchParams.set(PARAMS.rank, String(rank))
   if (recId) {

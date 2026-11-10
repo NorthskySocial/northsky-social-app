@@ -7,6 +7,6 @@
   <color name="trending_topics_widget_preview_border">#E5E7EB</color>
   <color name="trending_topics_widget_preview_title_bar">#D4DBE3</color>
   <color name="trending_topics_widget_preview_description_bar">#EBEEF2</color>
-  <color name="trending_topics_widget_preview_accent">#0085FF</color>
-  <string name="trending_topics_widget_preview_title">Trending on Bluesky</string>
+  <color name="trending_topics_widget_preview_accent">#9A45EC</color>
+  <string name="trending_topics_widget_preview_title">Trending on Northsky</string>
 </resources>

@@ -311,7 +311,7 @@ module.exports = function (_config) {
               {
                 name: 'TrendingTopicsWidget',
                 displayName: 'Trending Topics',
-                description: 'See what people are talking about on Bluesky.',
+                description: `See what people are talking about on ${brand.appName}.`,
                 ios: {
                   contentMarginsDisabled: true,
                   supportedFamilies: [
