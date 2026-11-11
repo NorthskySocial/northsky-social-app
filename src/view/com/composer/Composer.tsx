@@ -120,7 +120,7 @@ import {SubtitleDialogBtn} from '#/view/com/composer/videos/SubtitleDialog'
 import {VideoPreview} from '#/view/com/composer/videos/VideoPreview'
 import {VideoTranscodeProgress} from '#/view/com/composer/videos/VideoTranscodeProgress'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
-import {atoms as a, native, useBreakpoints, useTheme, web} from '#/alf'
+import {atoms as a, native, useTheme, web} from '#/alf'
 import {Admonition} from '#/components/Admonition'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import * as EmojiPicker from '#/components/EmojiPicker'
@@ -2154,7 +2154,6 @@ function ComposerFooter({
 }) {
   const t = useTheme()
   const {t: l} = useLingui()
-  const {gtPhone} = useBreakpoints()
   /*
    * Once we've allowed a certain type of asset to be selected, we don't allow
    * other types of media to be selected.
@@ -2287,8 +2286,10 @@ function ComposerFooter({
                 onSelectSticker={onSelectSticker}
                 disabled={!!media || !!post.embed.quote}
               />
-              {IS_WEB && gtPhone ? (
-                // northsky: `bluemoji` adds the Bluemoji tab to the picker
+              {IS_WEB ? (
+                // northsky: shown at phone width too (upstream hides it there), so
+                // the PWA on a phone can reach the picker and the Bluemoji tab.
+                // `bluemoji` adds the Bluemoji tab to the picker
                 <EmojiPicker.Root nextFocusRef={textInputRef} bluemoji>
                   <EmojiPicker.Trigger label={l`Open emoji picker`}>
                     {({props}) => (
