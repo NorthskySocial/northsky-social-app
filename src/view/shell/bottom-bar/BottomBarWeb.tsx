@@ -23,7 +23,7 @@ import {Link} from '#/view/com/util/Link'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
 import {Logo} from '#/view/icons/Logo'
 import {Logotype} from '#/view/icons/Logotype'
-import {atoms as a, useTheme} from '#/alf'
+import {atoms as a, useTheme, web} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import {useDialogControl} from '#/components/Dialog'
 import {SwitchAccountDialog} from '#/components/dialogs/SwitchAccount'
@@ -100,6 +100,14 @@ export function BottomBarWeb() {
             ? {borderColor: t.atoms.bg.backgroundColor}
             : t.atoms.border_contrast_low,
           footerMinimalShellTransform,
+          // northsky: keep the bar clear of the home indicator (e.g. iOS web
+          // clips, Android gesture bar). Placed last so it beats the base
+          // padding; borderBottomWidth is pinned to zero to mirror the
+          // borderTop shorthand so browsers honour the override.
+          web({
+            paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+            borderBottomWidth: 0,
+          }),
         ]}
         onLayout={event => footerHeight.set(event.nativeEvent.layout.height)}>
         {hasSession ? (
