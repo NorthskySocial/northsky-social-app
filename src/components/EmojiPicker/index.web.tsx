@@ -12,6 +12,7 @@ import {
 } from '#/features/bluemoji/pickerData'
 import * as Menu from '../Menu'
 import {useWebPreloadEmoji} from './preload'
+import {shouldAutoFocusSearch} from './searchFocus'
 import {
   type Emoji,
   type PickerProps,
@@ -138,7 +139,9 @@ export function Picker({keepOpenWhenShiftHeld = true}: PickerProps) {
           onWheel={evt => evt.stopPropagation()}
           style={flatten([!reduceMotionEnabled && a.zoom_fade_in])}>
           <EmojiPicker
-            autoFocus
+            // northsky: not on touch devices, where focusing the search raises the
+            // keyboard and pushes the popover into a corner. See `searchFocus`.
+            autoFocus={shouldAutoFocusSearch()}
             // northsky: Bluemoji tab, present only once the user has some
             custom={category ? [category] : undefined}
             categoryIcons={
