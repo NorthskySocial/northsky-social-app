@@ -4,6 +4,7 @@ import {useWebMediaQueries} from '#/lib/hooks/useWebMediaQueries'
 import {clamp} from '#/lib/numbers'
 import {useSession} from '#/state/session'
 import {useShellLayout} from '#/state/shell/shell-layout'
+import {useBreakpoints} from '#/alf'
 import {IS_WEB} from '#/env'
 
 /** Bar content height, excluding safe area padding. */
@@ -13,6 +14,7 @@ const NATIVE_MAX_EXTRA = 15
 
 export function useBottomBarOffset(modifier: number = 0) {
   const {isTabletOrDesktop} = useWebMediaQueries()
+  const {gtPhone} = useBreakpoints()
   const {bottom: bottomInset} = useSafeAreaInsets()
   const {hasSession} = useSession()
   const {footerHeight} = useShellLayout()
@@ -21,7 +23,7 @@ export function useBottomBarOffset(modifier: number = 0) {
   // northsky: the web bar pads with env(safe-area-inset-bottom), which the
   // hook cannot read (insets are 0 in browsers). Measure the rendered bar
   // instead so content clears it; fall back when no bar is on screen.
-  if (IS_WEB) {
+  if (IS_WEB && !gtPhone) {
     const measured = footerHeight.get()
     return (measured > 0 ? measured : BAR_HEIGHT) + modifier
   }

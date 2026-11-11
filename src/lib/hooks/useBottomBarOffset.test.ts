@@ -1,9 +1,13 @@
 const mockIsTabletOrDesktop = {value: false}
+const mockGtPhone = {value: false}
 const mockBottomInset = {value: 0}
 const mockHasSession = {value: true}
 const mockFooterHeight = {value: 0}
 
 jest.mock('#/env', () => ({IS_WEB: true}))
+jest.mock('#/alf', () => ({
+  useBreakpoints: () => ({gtPhone: mockGtPhone.value}),
+}))
 jest.mock('#/lib/hooks/useWebMediaQueries', () => ({
   useWebMediaQueries: () => ({
     isTabletOrDesktop: mockIsTabletOrDesktop.value,
@@ -35,6 +39,7 @@ function offset(modifier?: number) {
 
 beforeEach(() => {
   mockIsTabletOrDesktop.value = false
+  mockGtPhone.value = false
   mockBottomInset.value = 0
   mockHasSession.value = true
   mockFooterHeight.value = 0
@@ -55,6 +60,14 @@ describe('useBottomBarOffset', () => {
 
   it('falls back to the bar content height before a layout is measured', () => {
     expect(offset()).toBe(60)
+  })
+
+  it('reserves nothing on wider web layouts without a bottom bar', () => {
+    mockGtPhone.value = true
+    mockIsTabletOrDesktop.value = true
+    mockFooterHeight.value = 94
+    mockBottomInset.value = 34
+    expect(offset()).toBe(0)
   })
 
   it('ignores native insets on web', () => {
