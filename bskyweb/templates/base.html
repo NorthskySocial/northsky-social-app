@@ -140,6 +140,8 @@
   <!-- northsky: brand accent -->
   <link rel="mask-icon" href="{{ staticCDNHost }}/static/safari-pinned-tab.svg" color="#9A45EC">
   <meta name="theme-color">
+  <!-- northsky: web app manifest, so a home-screen install opens standalone (no browser bar). Same-origin on purpose: a manifest must be. -->
+  <link rel="manifest" href="/static/manifest.json">
   <meta name="application-name" content="{{ appName }}">
   <meta name="generator" content="bskyweb">
   {% if noindex %}<meta name="robots" content="noindex{% if nofollow %}, nofollow{% endif %}">{% endif %}
