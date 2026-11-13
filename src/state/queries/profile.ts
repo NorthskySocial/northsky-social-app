@@ -255,6 +255,9 @@ export function useProfileUpdateMutation() {
           if ('links' in updates) {
             next.links = updates.links
           }
+          if ('pronouns' in updates) {
+            next.pronouns = updates.pronouns || undefined
+          }
         }
         if (newUserAvatarPromise) {
           const res = await newUserAvatarPromise
@@ -303,6 +306,12 @@ export function useProfileUpdateMutation() {
                 (updates.links ?? []).map(ref => ref.cid).join()
             ) {
               // links come from separate records, so compare those too
+              return false
+            }
+            if (
+              'pronouns' in updates &&
+              (fresh.pronouns || undefined) !== (updates.pronouns || undefined)
+            ) {
               return false
             }
             return (

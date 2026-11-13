@@ -19,6 +19,8 @@ import {Admonition} from '#/components/Admonition'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
 import * as TextField from '#/components/forms/TextField'
+import {Pencil_Stroke2_Corner2_Rounded as PencilIcon} from '#/components/icons/Pencil'
+import {PlusSmall_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {InlineLinkText} from '#/components/Link'
 import {Loader} from '#/components/Loader'
 import * as Prompt from '#/components/Prompt'
@@ -36,9 +38,21 @@ import {
   useSetOwnProfileLinksCache,
   useWriteProfileLinks,
 } from '#/features/profileLinks'
+import {
+  PILL_DASHED_BORDER,
+  PILL_LEFT,
+  PILL_RIGHT_GRIP,
+  PILL_RIGHT_TEXT,
+  PILL_VERTICAL,
+} from '#/features/profileLinks/pillSize'
 import {type app} from '#/lexicons'
+<<<<<<< HEAD
 // northsky: pronouns field helpers
 import {MAX_PRONOUNS, normalizePronouns} from './pronouns'
+=======
+import {PRONOUN_SUGGESTIONS, PronounsDialog} from './PronounsDialog'
+import {describePronounsChange} from './pronounSuggestions'
+>>>>>>> upstream/main
 
 export function EditProfileDialog({
   profile,
@@ -108,7 +122,7 @@ function DialogInner({
   setDirty: (dirty: boolean) => void
   onPressCancel: () => void
 }) {
-  const {_} = useLingui()
+  const {_, i18n} = useLingui()
   const t = useTheme()
   const ax = useAnalytics()
   const control = Dialog.useDialogContext()
@@ -123,16 +137,28 @@ function DialogInner({
     mutateAsync: updateProfileMutation,
     error: updateProfileError,
     isError: isUpdateProfileError,
-    isPending: isUpdatingProfile,
   } = useProfileUpdateMutation()
+  /*
+   * Covers the whole save, not just the profile mutation: links are written
+   * first, and a second save started meanwhile would create every new link's
+   * record again. The ref catches a second press before the re-render.
+   */
+  const [isSaving, setIsSaving] = useState(false)
+  const isSavingRef = useRef(false)
   const [imageError, setImageError] = useState('')
   const initialDisplayName = profile.displayName || ''
   const [displayName, setDisplayName] = useState(initialDisplayName)
   const initialDescription = profile.description || ''
   const [description, setDescription] = useState(initialDescription)
+<<<<<<< HEAD
   // northsky: pronouns
   const initialPronouns = profile.pronouns || ''
   const [pronouns, setPronouns] = useState(initialPronouns)
+=======
+  const initialPronouns = profile.pronouns || ''
+  const [pronouns, setPronouns] = useState(initialPronouns)
+  const pronounsControl = Dialog.useDialogControl()
+>>>>>>> upstream/main
   const [userBanner, setUserBanner] = useState<string | undefined | null>(
     profile.banner,
   )
@@ -175,7 +201,11 @@ function DialogInner({
   const profileDirty =
     displayName !== initialDisplayName ||
     description !== initialDescription ||
+<<<<<<< HEAD
     pronouns !== initialPronouns || // northsky: pronouns
+=======
+    pronouns !== initialPronouns ||
+>>>>>>> upstream/main
     userAvatar !== profile.avatar ||
     userBanner !== profile.banner
   const linksDirty =
@@ -225,6 +255,9 @@ function DialogInner({
   )
 
   const onPressSave = useCallback(async () => {
+    if (isSavingRef.current) return
+    isSavingRef.current = true
+    setIsSaving(true)
     setImageError('')
     try {
       const nextLinks = linksDirty ? editedLinks : undefined
@@ -237,7 +270,11 @@ function DialogInner({
         updates: {
           displayName: displayName.trimEnd(),
           description: description.trimEnd(),
+<<<<<<< HEAD
           pronouns: normalizePronouns(pronouns), // northsky: pronouns
+=======
+          ...(pronouns !== initialPronouns && {pronouns: pronouns.trim()}),
+>>>>>>> upstream/main
           ...(written && {
             links: written.refs.length ? written.refs : undefined,
           }),
@@ -245,6 +282,14 @@ function DialogInner({
         newUserAvatar,
         newUserBanner,
       })
+      const pronounsChange = describePronounsChange(
+        initialPronouns,
+        pronouns,
+        PRONOUN_SUGGESTIONS.map(s => i18n._(s)),
+      )
+      if (pronounsChange) {
+        ax.metric('profile:pronouns:save', pronounsChange)
+      }
       if (nextLinks && written) {
         logProfileLinkChanges(
           ax,
@@ -258,6 +303,9 @@ function DialogInner({
       Toast.show(_(msg({message: 'Profile updated', context: 'toast'})))
     } catch (e: any) {
       logger.error('Failed to update user profile', {message: String(e)})
+      // left set on success, so Save stays off while the dialog closes
+      isSavingRef.current = false
+      setIsSaving(false)
     }
   }, [
     updateProfileMutation,
@@ -266,11 +314,17 @@ function DialogInner({
     control,
     displayName,
     description,
+<<<<<<< HEAD
     pronouns, // northsky: pronouns
+=======
+    pronouns,
+    initialPronouns,
+>>>>>>> upstream/main
     newUserAvatar,
     newUserBanner,
     setImageError,
     _,
+    i18n,
     editedLinks,
     linksDirty,
     storedLinks,
@@ -317,11 +371,15 @@ function DialogInner({
         label={_(msg`Save`)}
         onPress={onPressSave}
         disabled={
+<<<<<<< HEAD
           !dirty ||
           isUpdatingProfile ||
           displayNameTooLong ||
           descriptionTooLong ||
           pronounsTooLong // northsky: pronouns
+=======
+          !dirty || isSaving || displayNameTooLong || descriptionTooLong
+>>>>>>> upstream/main
         }
         size="small"
         color="primary"
@@ -331,7 +389,7 @@ function DialogInner({
         <ButtonText style={[a.text_md, !dirty && t.atoms.text_contrast_low]}>
           <Trans>Save</Trans>
         </ButtonText>
-        {isUpdatingProfile && <ButtonIcon icon={Loader} />}
+        {isSaving && <ButtonIcon icon={Loader} />}
       </Button>
     ),
     [
@@ -339,7 +397,7 @@ function DialogInner({
       t,
       dirty,
       onPressSave,
-      isUpdatingProfile,
+      isSaving,
       displayNameTooLong,
       descriptionTooLong,
       pronounsTooLong, // northsky: pronouns
@@ -394,13 +452,13 @@ function DialogInner({
       <View style={[a.mt_4xl, a.px_xl, a.gap_xl]}>
         <View>
           <TextField.LabelText>
-            <Trans>Display name</Trans>
+            <Trans>Name</Trans>
           </TextField.LabelText>
           <TextField.Root isInvalid={displayNameTooLong}>
             <Dialog.Input
               value={displayName}
               onChangeText={setDisplayName}
-              label={_(msg`Display name`)}
+              label={_(msg`Name`)}
               placeholder={_(msg`e.g. Alice Lastname`)}
               testID="editProfileDisplayNameInput"
             />
@@ -415,7 +473,7 @@ function DialogInner({
               ]}>
               <Plural
                 value={MAX_DISPLAY_NAME}
-                other="Display name is too long. The maximum number of characters is #."
+                other="Name is too long. The maximum number of characters is #."
               />
             </Text>
           )}
@@ -444,14 +502,14 @@ function DialogInner({
 
         <View>
           <TextField.LabelText>
-            <Trans>Description</Trans>
+            <Trans>Bio</Trans>
           </TextField.LabelText>
           <TextField.Root isInvalid={descriptionTooLong}>
             <Dialog.Input
               value={description}
               onChangeText={setDescription}
               multiline
-              label={_(msg`Description`)}
+              label={_(msg`Bio`)}
               placeholder={_(msg`Tell us a bit about yourself`)}
               testID="editProfileDescriptionInput"
             />
@@ -466,17 +524,21 @@ function DialogInner({
               ]}>
               <Plural
                 value={MAX_DESCRIPTION}
-                other="Description is too long. The maximum number of characters is #."
+                other="Bio is too long. The maximum number of characters is #."
               />
             </Text>
           )}
         </View>
 
+<<<<<<< HEAD
         {/* northsky: pronouns */}
+=======
+>>>>>>> upstream/main
         <View>
           <TextField.LabelText>
             <Trans>Pronouns</Trans>
           </TextField.LabelText>
+<<<<<<< HEAD
           <TextField.Root isInvalid={pronounsTooLong}>
             <Dialog.Input
               defaultValue={pronouns}
@@ -501,6 +563,72 @@ function DialogInner({
             </Text>
           )}
         </View>
+=======
+          {/*
+           * A pill that opens a sheet, rather than a full field, so pronouns
+           * stay optional and out of the way. It matches the link pills.
+           */}
+          <View style={[a.flex_row]}>
+            <Button
+              testID="editProfilePronounsBtn"
+              label={
+                pronouns
+                  ? _(msg`Edit pronouns: ${pronouns}`)
+                  : _(msg`Add pronouns`)
+              }
+              size="small"
+              color="secondary"
+              // unset, it matches the dashed "Add link" pill
+              variant={pronouns ? 'solid' : 'outline'}
+              onPress={() => pronounsControl.open()}
+              style={
+                pronouns
+                  ? {
+                      paddingVertical: PILL_VERTICAL,
+                      // starts with text, ends in a pencil sized like the drag grip
+                      paddingLeft: PILL_RIGHT_TEXT,
+                      paddingRight: PILL_RIGHT_GRIP,
+                    }
+                  : {
+                      // the outline variant draws a hairline on native; this wants a full point
+                      borderStyle: 'dashed',
+                      borderWidth: PILL_DASHED_BORDER,
+                      borderColor: t.palette.contrast_600,
+                      // less the border, so it's the same size as the solid pills
+                      paddingVertical: PILL_VERTICAL - PILL_DASHED_BORDER,
+                      paddingLeft: PILL_LEFT - PILL_DASHED_BORDER,
+                      paddingRight: PILL_RIGHT_TEXT - PILL_DASHED_BORDER,
+                    }
+              }>
+              {pronouns ? (
+                <>
+                  <ButtonText emoji numberOfLines={1} style={t.atoms.text}>
+                    {pronouns}
+                  </ButtonText>
+                  {/* sized and colored like the drag grip on the link pills */}
+                  <PencilIcon
+                    width={14}
+                    style={[{marginLeft: -2}, t.atoms.text_contrast_low]}
+                  />
+                </>
+              ) : (
+                <>
+                  <ButtonIcon icon={PlusIcon} />
+                  <ButtonText style={{marginLeft: -2}}>
+                    <Trans>Add pronouns</Trans>
+                  </ButtonText>
+                </>
+              )}
+            </Button>
+          </View>
+          <PronounsDialog
+            control={pronounsControl}
+            pronouns={pronouns}
+            onSave={setPronouns}
+          />
+        </View>
+
+>>>>>>> upstream/main
         {linksEnabled && links && (
           <ProfileLinksEditor
             did={profile.did}

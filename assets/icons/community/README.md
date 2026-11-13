@@ -2,11 +2,19 @@ The icons in this directory are the marks of third-party services that appear in
 
 | Icon | Rights holder |
 |---|---|
+<<<<<<< HEAD
 | `attie-cloud.svg` | [Attie](https://attie.site) |
 | `leaflet.svg` | [Leaflet](https://leaflet.pub) |
 | `offprint.svg` | [Offprint](https://offprint.net) |
 | `pckt.svg`, `pckt-full.svg` | [pckt](https://pckt.blog) |
 | `standard-site.svg` | [Standard.site](https://standard.site) |
+=======
+| `Leaflet.svg` | [Leaflet](https://leaflet.pub) |
+| `Grain.svg` | [Grain](https://grain.social) |
+| `Offprint.svg` | [Offprint](https://offprint.net) |
+| `Pckt.svg`, `PcktFull.svg` | [pckt](https://pckt.blog) |
+| `StandardSite.svg` | [Standard.site](https://standard.site) |
+>>>>>>> upstream/main
 | `germ_logo.webp` | [Germ Network](https://germnetwork.com) |
 | `BigCartel.svg` | [Big Cartel](https://www.bigcartel.com) |
 | `Boosty.svg` | [Boosty](https://boosty.to) |
