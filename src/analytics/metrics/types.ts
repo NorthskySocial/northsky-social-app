@@ -1576,12 +1576,31 @@ export type Events = {
     profileDid: string
     linkCount: number
     supportLinkCount: number
+    /**
+     * The `app.bsky.actor.link` records of the links shown, in display order,
+     * including any folded behind "+N". The per-link denominator for tap rate.
+     */
+    linkUris: string[]
     isOwnProfile: boolean
   }
   /**
    * Edit Profile was opened, from any profile header.
    */
   'profile:edit:open': {}
+  /**
+   * Edit Profile saved a change to the profile's pronouns. Never includes the
+   * pronouns themselves.
+   */
+  'profile:pronouns:save':
+    | {action: 'remove'}
+    | {
+        action: 'add' | 'edit'
+        /**
+         * How the saved pronouns were entered: one suggestion, several
+         * suggestions combined, or custom text.
+         */
+        source: 'preset' | 'combined' | 'custom'
+      }
   /**
    * Edit Profile was opened with the Links section available.
    */
