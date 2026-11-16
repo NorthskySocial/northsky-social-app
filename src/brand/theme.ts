@@ -1,12 +1,13 @@
 /**
- * Built with ALF's `createTheme` directly from the three brand palettes,
+ * Built with ALF's `createTheme` directly from the brand palettes,
  * rather than upstream's `createThemes` (which forces `dark =
  * invertPalette(light)` and can't express purple-in-light / mint-in-dark).
  * `src/alf/themes.ts` re-points at `brandThemes` so all consumers pick it up.
  */
-import {createTheme, type Theme, utils} from '@bsky.app/alf'
+import {createTheme, type Theme, type ThemeName, utils} from '@bsky.app/alf'
 
 import {
+  NORTHSKY_BLACK_PALETTE,
   NORTHSKY_DARK_PALETTE,
   NORTHSKY_DIM_PALETTE,
   NORTHSKY_LIGHT_PALETTE,
@@ -103,12 +104,50 @@ const dim = applyShadows(
   0.55,
 )
 
-/** Shape matches upstream `createThemes`'s output, so consumers need no changes. */
+/**
+ * Black keeps the ALF name `dark`. Every upstream `t.name === 'dark'` check
+ * and `select(t.name, ...)` call then treats it as the dark theme it is. The
+ * app root swaps it in through `ThemeProvider`'s `themesOverride`.
+ */
+const black = applyShadows(
+  createTheme({
+    scheme: 'dark',
+    name: 'dark',
+    palette: NORTHSKY_BLACK_PALETTE,
+  }) as NorthskyTheme,
+  NORTHSKY_BLACK_PALETTE.black,
+  0.4,
+  0.55,
+)
+
+/**
+ * Shape matches upstream `createThemes`'s output, so consumers need no
+ * changes. `black` is extra and is not a `ThemeName`.
+ */
 export const brandThemes = {
   light,
   dark,
   dim,
+  black,
   lightPalette: light.palette,
   darkPalette: dark.palette,
   dimPalette: dim.palette,
+  blackPalette: black.palette,
+}
+
+/** `themesOverride` that renders the `dark` theme as black. */
+export const BLACK_THEMES_OVERRIDE = {
+  dark: black,
+  darkPalette: black.palette,
+}
+
+/**
+ * Whether the app shows the black theme: the user chose Black and the color
+ * mode resolved to a dark theme.
+ */
+export function isBlackTheme(
+  themeName: ThemeName,
+  darkTheme: 'dim' | 'dark' | 'black' | undefined,
+) {
+  return themeName === 'dark' && darkTheme === 'black'
 }

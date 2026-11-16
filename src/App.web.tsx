@@ -74,10 +74,12 @@ import {
 import {getDeviceId} from '#/analytics/identifiers'
 import {useSessionActivity} from '#/analytics/useSessionActivity'
 import {brandThemes} from '#/brand' // northsky: document background sync
+import {BLACK_THEMES_OVERRIDE} from '#/brand/theme' // northsky: black theme
 import {
   prefetchLiveEvents,
   Provider as LiveEventsProvider,
 } from '#/features/liveEvents/context'
+import {useIsBlackTheme} from '#/features/northskyAppearance/blackTheme' // northsky: black theme
 import * as Geo from '#/geolocation'
 import {Splash} from '#/Splash'
 import {Provider as HideBottomBarBorderProvider} from './lib/hooks/useHideBottomBarBorder'
@@ -97,6 +99,7 @@ function InnerApp() {
   const {currentAccount} = useSession()
   const {resumeSession} = useSessionApi()
   const theme = useColorModeTheme()
+  const isBlack = useIsBlackTheme() // northsky: black theme
   const {t: l} = useLingui()
   const hasCheckedLanding = useLandingEntry()
 
@@ -130,16 +133,20 @@ function InnerApp() {
   // the document taller than the shell, so without this the browser-default
   // white body shows through below the fold with a non-white brand background.
   useEffect(() => {
-    const bg = brandThemes[theme]?.atoms.bg.backgroundColor
+    const bg = (isBlack ? brandThemes.black : brandThemes[theme])?.atoms.bg
+      .backgroundColor
     if (bg) {
       document.documentElement.style.backgroundColor = bg
       document.body.style.backgroundColor = bg
     }
-  }, [theme])
+  }, [theme, isBlack])
 
   return (
-    <Alf theme={theme}>
-      <ThemeProvider theme={theme}>
+    <Alf
+      theme={theme}
+      // northsky: black renders as `dark` with the black palette
+      themesOverride={isBlack ? BLACK_THEMES_OVERRIDE : undefined}>
+      <ThemeProvider theme={theme} black={isBlack}>
         <ContextMenuProvider>
           <Splash isReady={isReady && hasCheckedLanding}>
             <VideoVolumeProvider>

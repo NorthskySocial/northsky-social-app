@@ -1,8 +1,9 @@
 /**
- * The three ALF `Palette` objects (light/dark/dim), hand-authored to the
+ * The ALF `Palette` objects (light/dark/dim/black), hand-authored to the
  * Northsky design language. Dark is authored pre-inverted (`contrast_0` is
  * the background) since these feed `createTheme` directly, not
- * `invertPalette`; dim is a distinct softer dark, not a copy of dark.
+ * `invertPalette`; dim is a distinct softer dark, not a copy of dark. Black
+ * is dark on a true-black background.
  *
  * `positive_*` and the static keys (white/black/pink/yellow/like) are pulled
  * live from the package (`DEFAULT_PALETTE`/`DEFAULT_SUBDUED_PALETTE`/
@@ -224,4 +225,28 @@ export const NORTHSKY_DIM_PALETTE: NorthskyPalette = {
   negative_900: '#FADCDD',
   negative_950: '#FCECEC',
   negative_975: '#FEF6F6',
+}
+
+/**
+ * True-black dark, for OLED screens and people who want the darkest option.
+ * Only the background end of each ramp differs from dark: the surfaces are
+ * purple-tinted near-blacks on #000. Borders (`contrast_100`/`200`) reuse
+ * dark's values, which sit at ~1.6:1 and ~2:1 on black - the brand ink
+ * (#1F0B35) is only ~1.16:1 and made hairline frames vanish. The mint accent
+ * and every ramp step from 300 up are shared with dark.
+ */
+export const NORTHSKY_BLACK_PALETTE: NorthskyPalette = {
+  ...NORTHSKY_DARK_PALETTE,
+
+  contrast_0: '#000000',
+  contrast_25: '#0D0716',
+  contrast_50: '#1A0F2B', // raised surface
+  contrast_100: '#3A2559', // borders, same as dark
+  contrast_200: '#4A366B', // same as dark
+
+  // mint blended into the near-black surface, for tinted backgrounds
+  primary_25: '#0C141C',
+  primary_50: '#0D1E23',
+  primary_100: '#103734',
+  primary_200: '#155C4D',
 }

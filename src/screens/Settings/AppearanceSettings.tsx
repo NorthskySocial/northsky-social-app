@@ -54,7 +54,7 @@ export function AppearanceSettingsScreen({}: Props) {
   )
 
   const onChangeDarkTheme = useCallback(
-    (value: 'dim' | 'dark') => {
+    (value: 'dim' | 'dark' | 'black') => {
       setDarkTheme(value)
     },
     [setDarkTheme],
@@ -124,6 +124,11 @@ export function AppearanceSettingsScreen({}: Props) {
                     {
                       label: _(msg`Dark`),
                       name: 'dark',
+                    },
+                    // northsky: true-black dark theme
+                    {
+                      label: _(msg({message: `Black`, context: 'theme'})),
+                      name: 'black',
                     },
                   ]}
                   value={darkTheme ?? 'dim'}
