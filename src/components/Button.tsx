@@ -25,6 +25,7 @@ import {atoms as a, flatten, select, tokens, useTheme, web} from '#/alf'
 import {GradientFill} from '#/components/GradientFill' // northsky: primary-CTA gradient
 import {type Props as SVGIconProps} from '#/components/icons/common'
 import {Text} from '#/components/Typography'
+import {CALM_ACCENT, CALM_ACCENT_HOVER, useIsLively} from '#/brand/accents' // northsky: calm accents setting
 import {PRIMARY_GRADIENT_CSS} from '#/brand/gradients' // northsky: web CSS gradient fill (no per-button expo LinearGradient node)
 import {SquishyPressable} from '#/brand/motion' // northsky: spring press feedback
 import {IS_WEB} from '#/env' // northsky: native-only GradientFill gate
@@ -177,6 +178,9 @@ export const Button = forwardRef<React.ComponentRef<typeof View>, ButtonProps>(
     // (GradientFill under the children) instead of a flat primary_500 fill.
     const isSolidPrimaryFill =
       variant === 'solid' && color === 'primary' && !disabled
+    // northsky: calm accents paint a flat purple instead of the gradient
+    const lively = useIsLively()
+    const isGradientFill = isSolidPrimaryFill && lively
 
     const t = useTheme()
     const [state, setState] = useState({
@@ -258,11 +262,17 @@ export const Button = forwardRef<React.ComponentRef<typeof View>, ButtonProps>(
       if (variant === 'solid') {
         if (color === 'primary') {
           if (!disabled) {
-            // northsky: no flat backgroundColor - the brand gradient is painted
-            // by a GradientFill rendered under the children (see render). Clip it
-            // to the pill with overflow_hidden. Hover feedback is the
-            // SquishyPressable scale, so there is no hover backgroundColor.
-            baseStyles.push(a.overflow_hidden)
+            // northsky: lively has no flat backgroundColor - the brand gradient
+            // is painted by a GradientFill rendered under the children (see
+            // render). Clip it to the pill with overflow_hidden. Hover feedback
+            // is the SquishyPressable scale, so there is no hover
+            // backgroundColor. Calm paints the solid style-guide purple.
+            if (lively) {
+              baseStyles.push(a.overflow_hidden)
+            } else {
+              baseStyles.push({backgroundColor: CALM_ACCENT})
+              hoverStyles.push({backgroundColor: CALM_ACCENT_HOVER})
+            }
           } else {
             baseStyles.push({
               backgroundColor: t.palette.primary_200,
@@ -577,7 +587,7 @@ export const Button = forwardRef<React.ComponentRef<typeof View>, ButtonProps>(
         baseStyles,
         hoverStyles,
       }
-    }, [t, variant, color, size, shape, disabled])
+    }, [t, variant, color, size, shape, disabled, lively])
 
     const context = useMemo<ButtonContext>(
       () => ({
@@ -629,7 +639,7 @@ export const Button = forwardRef<React.ComponentRef<typeof View>, ButtonProps>(
           // northsky: web paints the primary-CTA gradient as a CSS backgroundImage
           // (clipped by the pill's border-radius) - no expo LinearGradient DOM node
           // or onLayout double-render per button. web() no-ops on native.
-          isSolidPrimaryFill && web({backgroundImage: PRIMARY_GRADIENT_CSS}),
+          isGradientFill && web({backgroundImage: PRIMARY_GRADIENT_CSS}),
           style,
           ...(state.hovered || state.pressed
             ? [hoverStyles, hoverStyleProp]
@@ -647,7 +657,7 @@ export const Button = forwardRef<React.ComponentRef<typeof View>, ButtonProps>(
             above) so high-cardinality lists (Follow buttons) add no extra DOM node
             or onLayout re-render per button - matching the node-free CSS trick used
             for menus/dialogs/nav. */}
-        {isSolidPrimaryFill && !IS_WEB && (
+        {isGradientFill && !IS_WEB && (
           <GradientFill
             gradient={tokens.gradients.primary}
             style={{zIndex: -1}}
@@ -665,6 +675,7 @@ Button.displayName = 'Button'
 export function useSharedButtonTextStyles() {
   const t = useTheme()
   const {color, variant, disabled, size} = useButtonContext()
+  const lively = useIsLively() // northsky: calm accents need no text scrim
   return useMemo(() => {
     const baseStyles: TextStyle[] = []
 
@@ -682,12 +693,17 @@ export function useSharedButtonTextStyles() {
           // stop is ~3.3:1, both below the 4.5:1 AA threshold for these
           // normal-weight labels, so add a soft ink text-shadow scrim to keep
           // white legible across the whole gradient.
-          baseStyles.push({
-            color: t.palette.white,
-            textShadowColor: 'rgba(31, 11, 53, 0.45)',
-            textShadowOffset: {width: 0, height: 1},
-            textShadowRadius: 3,
-          })
+          // Calm's solid purple already gives white ~4.7:1, so no scrim.
+          baseStyles.push(
+            lively
+              ? {
+                  color: t.palette.white,
+                  textShadowColor: 'rgba(31, 11, 53, 0.45)',
+                  textShadowOffset: {width: 0, height: 1},
+                  textShadowRadius: 3,
+                }
+              : {color: t.palette.white},
+          )
         } else {
           baseStyles.push({
             color: select(t.name, {
@@ -849,7 +865,7 @@ export function useSharedButtonTextStyles() {
     }
 
     return flatten(baseStyles)
-  }, [t, variant, color, size, disabled])
+  }, [t, variant, color, size, disabled, lively])
 }
 
 export function ButtonText({children, style, ...rest}: ButtonTextProps) {

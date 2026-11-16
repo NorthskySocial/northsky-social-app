@@ -3,6 +3,7 @@ import {Platform} from 'react-native'
 import {tokens} from '#/alf'
 import {darkPalette, dimPalette, lightPalette} from '#/alf/themes'
 import {fontWeight} from '#/alf/tokens'
+import {brandThemes} from '#/brand/theme' // northsky: black theme
 import {colors} from './styles'
 import {type Theme} from './ThemeContext'
 
@@ -300,6 +301,21 @@ export const darkTheme: Theme = {
       textInverted: darkPalette.white,
       link: lightPalette.primary_500,
       border: lightPalette.contrast_100,
+    },
+  },
+}
+
+// northsky: legacy theme for the true-black dark theme
+const blackPalette = brandThemes.black.palette
+export const blackTheme: Theme = {
+  ...darkTheme,
+  palette: {
+    ...darkTheme.palette,
+    default: {
+      ...darkTheme.palette.default,
+      background: blackPalette.contrast_0,
+      backgroundLight: blackPalette.contrast_25,
+      border: blackPalette.contrast_100,
     },
   },
 }

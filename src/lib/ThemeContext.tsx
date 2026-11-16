@@ -3,7 +3,7 @@ import {createContext, useContext} from 'react'
 import {type TextStyle, type ViewStyle} from 'react-native'
 import {type ThemeName} from '@bsky.app/alf'
 
-import {darkTheme, defaultTheme, dimTheme} from './themes'
+import {blackTheme, darkTheme, defaultTheme, dimTheme} from './themes' // northsky: black theme
 
 export type ColorScheme = 'light' | 'dark'
 
@@ -80,6 +80,8 @@ export interface Theme {
 export interface ThemeProviderProps {
   children?: ReactNode
   theme: ThemeName
+  /** northsky: render the `dark` theme as true black */
+  black?: boolean
 }
 
 export const ThemeContext = createContext<Theme>(defaultTheme)
@@ -102,9 +104,10 @@ function getTheme(theme: ThemeName) {
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   theme,
+  black, // northsky: black theme
   children,
 }) => {
-  const themeValue = getTheme(theme)
+  const themeValue = black && theme === 'dark' ? blackTheme : getTheme(theme)
 
   return (
     <ThemeContext.Provider value={themeValue}>{children}</ThemeContext.Provider>

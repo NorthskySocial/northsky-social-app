@@ -16,6 +16,7 @@ import {
 import {useSetThemePrefs, useThemePrefs} from '#/state/shell'
 import {type Alf, atoms as a, native, useAlf, useTheme} from '#/alf'
 import * as SegmentedControl from '#/components/forms/SegmentedControl'
+import {ColorPalette_Stroke2_Corner0_Rounded as ColorPaletteIcon} from '#/components/icons/ColorPalette' // northsky: icon for the "Accents" setting
 import {type Props as SVGIconProps} from '#/components/icons/common'
 import {Moon_Stroke2_Corner0_Rounded as MoonIcon} from '#/components/icons/Moon'
 import {Phone_Stroke2_Corner0_Rounded as PhoneIcon} from '#/components/icons/Phone'
@@ -25,6 +26,8 @@ import {TextSize_Stroke2_Corner0_Rounded as TextSize} from '#/components/icons/T
 import {TitleCase_Stroke2_Corner0_Rounded as Aa} from '#/components/icons/TitleCase'
 import * as Layout from '#/components/Layout'
 import {Text} from '#/components/Typography'
+// northsky: the "Accents" setting, brand gradient vs calm solid colour
+import {useAccents, useSetAccents} from '#/features/northskyAppearance'
 // northsky: the "They're called" setting, post wording vs skeet wording
 import {usePostNaming, useSetPostNaming} from '#/features/postVocabulary'
 import * as SettingsList from './components/SettingsList'
@@ -39,6 +42,9 @@ export function AppearanceSettingsScreen({}: Props) {
   // northsky: the "They're called" setting
   const postNaming = usePostNaming()
   const setPostNaming = useSetPostNaming()
+  // northsky: the "Accents" setting
+  const accents = useAccents()
+  const setAccents = useSetAccents()
 
   const onChangeAppearance = useCallback(
     (value: 'light' | 'system' | 'dark') => {
@@ -48,7 +54,7 @@ export function AppearanceSettingsScreen({}: Props) {
   )
 
   const onChangeDarkTheme = useCallback(
-    (value: 'dim' | 'dark') => {
+    (value: 'dim' | 'dark' | 'black') => {
       setDarkTheme(value)
     },
     [setDarkTheme],
@@ -119,6 +125,11 @@ export function AppearanceSettingsScreen({}: Props) {
                       label: _(msg`Dark`),
                       name: 'dark',
                     },
+                    // northsky: true-black dark theme
+                    {
+                      label: _(msg({message: `Black`, context: 'theme'})),
+                      name: 'black',
+                    },
                   ]}
                   value={darkTheme ?? 'dim'}
                   onChange={onChangeDarkTheme}
@@ -127,6 +138,24 @@ export function AppearanceSettingsScreen({}: Props) {
             )}
 
             <Animated.View layout={native(LinearTransition)}>
+              {/* northsky: the "Accents" setting */}
+              <AppearanceToggleButtonGroup
+                title={_(msg`Accents`)}
+                icon={ColorPaletteIcon}
+                items={[
+                  {
+                    label: _(msg({message: `Lively`, context: 'accents'})),
+                    name: 'lively',
+                  },
+                  {
+                    label: _(msg({message: `Calm`, context: 'accents'})),
+                    name: 'calm',
+                  },
+                ]}
+                value={accents}
+                onChange={setAccents}
+              />
+
               <SettingsList.Divider />
 
               <AppearanceToggleButtonGroup
