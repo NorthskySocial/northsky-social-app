@@ -109,7 +109,7 @@ import {Text} from '#/components/Typography'
 import {useAgeAssurance} from '#/ageAssurance'
 import {useAnalytics} from '#/analytics'
 import {type Events} from '#/analytics/metrics/types'
-import {navItemHoverWash} from '#/brand/gradients' // northsky: nav hover wash
+import {useNavHoverWash} from '#/brand/accents' // northsky: nav hover wash
 import {IS_IOS, IS_NATIVE, IS_WEB} from '#/env'
 import {isFollowingV2HomeDotEnabled} from '#/features/followingV2/eligibility'
 import {useActorStatus} from '#/features/liveNow'
@@ -454,6 +454,7 @@ function NavItem({
 }: NavItemProps) {
   const t = useTheme()
   const {t: l} = useLingui()
+  const navHoverWash = useNavHoverWash() // northsky: follows the accents setting
   const accessibilityLabel = beta ? l`${label}, Beta` : label
   const ax = useAnalytics()
   const {currentAccount} = useSession()
@@ -518,7 +519,7 @@ function NavItem({
       ]}
       // northsky: low-emphasis brand gradient wash on hover (pill-shaped via the
       // item's own rounded_full) in place of the flat bg_contrast_25 tint.
-      hoverStyle={navItemHoverWash}
+      hoverStyle={navHoverWash}
       // @ts-expect-error the function signature differs on web -prf
       onPress={onPressWrapped}
       href={href}

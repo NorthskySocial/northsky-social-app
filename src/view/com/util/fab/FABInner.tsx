@@ -15,6 +15,7 @@ import {useMinimalShellFabTransform} from '#/lib/hooks/useMinimalShellTransform'
 import {clamp} from '#/lib/numbers'
 import {atoms as a, ios, tokens, useBreakpoints} from '#/alf'
 import {GradientFill} from '#/components/GradientFill' // northsky: primary-CTA gradient
+import {CALM_ACCENT, useIsLively} from '#/brand/accents' // northsky: calm accents setting
 import {IS_WEB} from '#/env'
 
 /**
@@ -35,6 +36,7 @@ export function FABInner({testID, icon, onPress, style, ...props}: FABProps) {
   const haptics = useHaptics()
   const pressInHapticAt = useRef(0)
   const fabMinimalShellTransform = useMinimalShellFabTransform()
+  const lively = useIsLively() // northsky: calm accents setting
 
   const size = gtMobile ? styles.sizeLarge : styles.sizeRegular
 
@@ -78,13 +80,17 @@ export function FABInner({testID, icon, onPress, style, ...props}: FABProps) {
           a.overflow_hidden,
           a.align_center,
           a.justify_center,
+          // northsky: calm accents paint the solid style-guide purple
+          !lively && {backgroundColor: CALM_ACCENT},
           style,
         ]}
         {...props}>
-        <GradientFill
-          gradient={tokens.gradients.primary}
-          style={{zIndex: -1}}
-        />
+        {lively && (
+          <GradientFill
+            gradient={tokens.gradients.primary}
+            style={{zIndex: -1}}
+          />
+        )}
         {icon}
       </PressableScale>
     </Animated.View>

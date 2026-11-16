@@ -26,7 +26,7 @@ import {
 } from '#/components/Menu/types'
 import {Portal} from '#/components/Portal'
 import {Text} from '#/components/Typography'
-import {gradientBorderWeb} from '#/brand/gradients' // northsky: gradient-ring dropdown
+import {useBrandBorderWeb} from '#/brand/accents' // northsky: brand-ring dropdown
 
 export {type DialogControlProps as MenuControlProps} from '#/components/Dialog'
 
@@ -180,6 +180,10 @@ export function Trigger({
 export function Outer({children, style, onCloseAutoFocus}: OuterProps) {
   const t = useTheme()
   const {reduceMotionEnabled} = useA11y()
+  // northsky: brand ring frame (gradient, or hairline under calm accents)
+  const brandFrame = useBrandBorderWeb(
+    (t.name === 'light' ? t.atoms.bg : t.atoms.bg_contrast_25).backgroundColor,
+  )
 
   return (
     <DropdownMenu.Portal>
@@ -195,13 +199,10 @@ export function Outer({children, style, onCloseAutoFocus}: OuterProps) {
             a.rounded_lg, // northsky: 20px dropdown corners
             a.p_xs,
             // northsky: 2px magenta->mint gradient ring in place of the hairline
-            // border (padding-box fill + border-box gradient). No extra DOM node,
-            // so Radix's positioning/measure of Content is untouched. Interior
-            // radius resolves to 18 (20 outer - 2 ring).
-            gradientBorderWeb(
-              (t.name === 'light' ? t.atoms.bg : t.atoms.bg_contrast_25)
-                .backgroundColor,
-            ),
+            // border (padding-box fill + border-box gradient), or a hairline
+            // under calm accents. No extra DOM node, so Radix's
+            // positioning/measure of Content is untouched.
+            brandFrame,
             t.atoms.shadow_md,
             a.overflow_auto,
             !reduceMotionEnabled && a.zoom_fade_in,

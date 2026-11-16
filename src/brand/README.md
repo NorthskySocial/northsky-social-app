@@ -25,6 +25,10 @@ upstream sync don't turn into a nightmare.
   re-tints shadows to the brand shadow language. Exports `brandThemes`.
 - `gradients.ts` - the Northsky gradient spectrum, same shape/keys as
   upstream so consumers need no changes.
+- `accents.ts` - how brand accents look under the "Accents" setting
+  (`#/features/northskyAppearance`): the gradient when lively, the style
+  guide's solid purple and hairline rings when calm. `GradientRing`/
+  `GradientPill` follow the setting on their own.
 - `fonts.ts` - Geist replaces Inter; MuseoModerno italic display opts in via
   the `NS_DISPLAY_FONT` sentinel that `src/alf/fonts.ts` resolves.
 - `typography.tsx` - `DisplayText`, the brand display component.

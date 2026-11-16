@@ -113,8 +113,13 @@ export function gradientBorderWeb(bgColor: string, width = 2) {
 }
 
 const navWashStops = gradients.primary.values
+/** Flat fallback under the nav wash, and the whole wash under calm accents. */
+export const NAV_WASH_TINT: string = utils.alpha(
+  NORTHSKY_LIGHT_PALETTE.primary_500,
+  0.1,
+)
 export const navItemHoverWash = {
-  backgroundColor: utils.alpha(NORTHSKY_LIGHT_PALETTE.primary_500, 0.1),
+  backgroundColor: NAV_WASH_TINT,
   ...web({
     backgroundImage: `linear-gradient(135deg, ${utils.alpha(
       navWashStops[0][1],

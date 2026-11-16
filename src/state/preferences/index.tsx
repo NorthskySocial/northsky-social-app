@@ -1,4 +1,6 @@
 // northsky: the "They're called" setting, post wording vs skeet wording
+// northsky: the "Accents" setting, brand gradient vs calm solid colour
+import {Provider as AccentsProvider} from '#/features/northskyAppearance'
 import {Provider as PostVocabularyProvider} from '#/features/postVocabulary'
 import {Provider as AltTextRequiredProvider} from './alt-text-required'
 import {Provider as AutoplayProvider} from './autoplay'
@@ -42,7 +44,9 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
                       <SubtitlesProvider>
                         <TrendingSettingsProvider>
                           <PostVocabularyProvider>
-                            <KawaiiProvider>{children}</KawaiiProvider>
+                            <AccentsProvider>
+                              <KawaiiProvider>{children}</KawaiiProvider>
+                            </AccentsProvider>
                           </PostVocabularyProvider>
                         </TrendingSettingsProvider>
                       </SubtitlesProvider>

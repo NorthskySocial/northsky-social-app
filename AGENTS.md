@@ -152,6 +152,7 @@ This is exact and zero-maintenance, and it's what the sync workflow relies on.
 | Host-aware takedown/appeal routing                             | `src/brand/moderation.ts`                               | `src/screens/Takendown.tsx`                                                                                                     |
 | App labelers: Northsky moderation on, regional authorities off | `src/brand/moderation.ts` (`APP_LABELER_DIDS`)          | `src/state/session/moderation.ts`                                                                                               |
 | Northsky label refinement in reports                           | `src/features/northskyReportLabels/*`                   | `ReportDialog/{index.tsx,action.ts}`                                                                                            |
+| Accents setting (Lively / Calm)                                | `src/features/northskyAppearance/*`, `src/brand/accents.ts` | `storage/schema.ts`, `state/preferences/index.tsx`, `AppearanceSettings.tsx`, `Button.tsx`, `FABInner.tsx`, `Menu/index.web.tsx`, `PostInteractionSettingsDialog.tsx`, `LeftNav.tsx` |
 
 #### App labelers grant server-side redaction
 
