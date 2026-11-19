@@ -142,7 +142,7 @@ export function LINK_FAVICON_PROXY() {
   return IS_DEV ? STAGING_LINK_FAVICON_PROXY : PROD_LINK_FAVICON_PROXY
 }
 
-export const STATUS_PAGE_URL = 'https://status.bsky.app/'
+export const STATUS_PAGE_URL = BRAND.statusPageUrl // northsky: brand override
 
 // Hitslop constants
 export const createHitslop = (size: number): Insets => ({
