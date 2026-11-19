@@ -22,6 +22,7 @@ export const BRAND = {
   copyrightPolicyUrl: 'https://bsky.social/about/support/copyright',
   communityGuidelinesUrl: 'https://northskysocial.ca/community-guidelines/',
   supportPageUrl: 'https://tally.so/r/yPN6k6',
+  statusPageUrl: 'https://status.northsky.social',
   nciiReportFormUrl: 'https://forms.bsky.app/f/ncii',
   aboutUrl: 'https://northskysocial.ca/about/',
   blogUrl: 'https://northskysocial.ca/',
