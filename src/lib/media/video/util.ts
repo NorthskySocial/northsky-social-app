@@ -23,9 +23,13 @@ export const createVideoEndpointUrl = (
  * one - is allowed to preset. Mirrors the scoped client in
  * `#/ageAssurance/useBeginAgeAssurance`.
  */
-export function createVideoServiceClient(token: string) {
+// northsky: authenticate and poll against the service handling this upload.
+export function createVideoServiceClient(
+  token: string,
+  service = VIDEO_SERVICE,
+) {
   return createLexClient({
-    service: VIDEO_SERVICE,
+    service,
     headers: {authorization: `Bearer ${token}`},
   })
 }
@@ -34,8 +38,8 @@ export function createVideoServiceClient(token: string) {
  * An unauthenticated lex {@link Client} scoped to the video service, for public
  * reads like `getJobStatus` polling.
  */
-export function createTokenlessVideoServiceClient() {
-  return createLexClient({service: VIDEO_SERVICE})
+export function createTokenlessVideoServiceClient(service = VIDEO_SERVICE) {
+  return createLexClient({service})
 }
 
 export function mimeToExt(mimeType: SupportedMimeTypes | (string & {})) {

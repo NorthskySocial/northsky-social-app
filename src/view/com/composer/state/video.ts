@@ -14,6 +14,7 @@ import {uploadVideo} from '#/lib/media/video/upload'
 import {createTokenlessVideoServiceClient} from '#/lib/media/video/util'
 import {isNetworkError} from '#/lib/strings/errors'
 import {logger} from '#/logger'
+import {type MediaFallbackSession} from '#/features/mediaFallback/session'
 import {app} from '#/lexicons'
 import {
   advanceVideoProgress,
@@ -291,6 +292,8 @@ export async function processVideo(
   dispatch: (action: VideoAction) => void,
   client: Client,
   dispatchUrl: string | URL,
+  did: string,
+  mediaSession: MediaFallbackSession,
   signal: AbortSignal,
   i18n: I18n,
   telemetry: VideoTelemetry,
@@ -333,13 +336,15 @@ export async function processVideo(
     signal,
   })
 
-  let uploadResponse: app.bsky.video.defs.JobStatus | undefined
+  let uploadResponse: Awaited<ReturnType<typeof uploadVideo>>
   try {
     telemetry.uploadStarted(video.size)
     uploadResponse = await uploadVideo({
       video,
       client,
       dispatchUrl,
+      mediaSession,
+      did,
       signal,
       i18n,
       setProgress: p => {
@@ -368,13 +373,14 @@ export async function processVideo(
     signal,
   })
 
+  // northsky: job IDs are scoped to the accepting transcoder.
+  const videoClient = createTokenlessVideoServiceClient(uploadResponse.service)
   let pollFailures = 0
   while (true) {
     if (signal.aborted) {
       return // Exit async loop
     }
 
-    const videoClient = createTokenlessVideoServiceClient()
     let status: app.bsky.video.defs.JobStatus | undefined
     let blob: BlobRef | undefined
     try {

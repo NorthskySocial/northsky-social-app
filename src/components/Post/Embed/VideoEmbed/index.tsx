@@ -18,6 +18,8 @@ import {useThrottledValue} from '#/components/hooks/useThrottledValue'
 import {ConstrainedImage} from '#/components/images/AutoSizedImage'
 import {PlayButtonIcon} from '#/components/video/PlayButtonIcon'
 import {useAnalytics} from '#/analytics'
+// northsky: recover a rejected video thumbnail independently of playback.
+import {useMediaFallback} from '#/features/mediaFallback/useMediaFallback'
 import {type app} from '#/lexicons'
 import {GifPresentationControls} from './GifPresentationControls'
 import {VideoEmbedInnerNative} from './VideoEmbedInner/VideoEmbedInnerNative'
@@ -73,6 +75,7 @@ export function VideoEmbed({embed, post}: Props) {
 }
 
 function InnerWrapper({embed, post}: Props) {
+  const thumbnail = useMediaFallback(embed.thumbnail ?? '')
   const {_} = useLingui()
   const ax = useAnalytics()
   const ref = useRef<{togglePlayback: () => void}>(null)
@@ -197,7 +200,9 @@ function InnerWrapper({embed, post}: Props) {
         ref={ref}
       />
       <ImageBackground
-        source={{uri: embed.thumbnail}}
+        source={{uri: thumbnail.uri || undefined}}
+        onLoad={thumbnail.loaded}
+        onError={thumbnail.retry}
         accessibilityIgnoresInvertColors
         style={[
           a.absolute,

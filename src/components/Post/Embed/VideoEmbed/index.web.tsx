@@ -26,6 +26,8 @@ import {
 } from '#/components/Post/Embed/VideoEmbed/VideoEmbedInner/VideoEmbedInnerWeb'
 import {useAnalytics} from '#/analytics'
 import {IS_WEB_FIREFOX} from '#/env'
+// northsky: recover a rejected video thumbnail independently of playback.
+import {useMediaFallback} from '#/features/mediaFallback/useMediaFallback'
 import {type app} from '#/lexicons'
 import {useActiveVideoWeb} from './ActiveVideoWebContext'
 import * as VideoFallback from './VideoEmbedInner/VideoFallback'
@@ -177,6 +179,7 @@ export function VideoEmbed({
     aspectRatio < 1 / 2 ||
     (containerWidth > 0 && cardWidth < MIN_CARD_WIDTH)
 
+  const thumbnail = useMediaFallback(embed.thumbnail ?? '')
   const contents = (
     <div
       ref={ref}
@@ -186,12 +189,21 @@ export function VideoEmbed({
         cursor: 'default',
         position: 'relative',
         backgroundColor: t.palette.black,
-        backgroundImage: `url(${embed.thumbnail})`,
+        backgroundImage: `url(${thumbnail.uri})`,
         backgroundSize: 'contain',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
       }}
       onClick={evt => evt.stopPropagation()}>
+      {embed.thumbnail && (
+        <img
+          hidden
+          src={thumbnail.uri}
+          onLoad={thumbnail.loaded}
+          onError={thumbnail.retry}
+          alt=""
+        />
+      )}
       {fullBleed && embed.thumbnail && (
         <>
           {/* blurred backdrop fills the bars when the video is boxed */}
@@ -200,7 +212,7 @@ export function VideoEmbed({
             style={{
               position: 'absolute',
               inset: 0,
-              backgroundImage: `url(${embed.thumbnail})`,
+              backgroundImage: `url(${thumbnail.uri})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               filter: 'blur(32px)',
@@ -214,7 +226,7 @@ export function VideoEmbed({
             style={{
               position: 'absolute',
               inset: 0,
-              backgroundImage: `url(${embed.thumbnail})`,
+              backgroundImage: `url(${thumbnail.uri})`,
               backgroundSize: 'contain',
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
@@ -229,6 +241,7 @@ export function VideoEmbed({
         <OnlyNearScreen>
           <VideoEmbedInnerWeb
             embed={embed}
+            poster={thumbnail.uri}
             active={active}
             setActive={setActive}
             onScreen={onScreen}

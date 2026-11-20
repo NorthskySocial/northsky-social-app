@@ -4,7 +4,6 @@ import Animated, {
   type AnimatedRef,
   useAnimatedRef,
 } from 'react-native-reanimated'
-import {Image} from 'expo-image'
 import {utils} from '@bsky.app/alf'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
@@ -19,6 +18,8 @@ import {Text} from '#/components/Typography'
 // northsky: size-independent press feedback
 import {PRESS_SHRINK_PX, useMeasuredScale} from '#/brand'
 import {IS_NATIVE} from '#/env'
+// northsky: retry public post media on its alternate CDN.
+import {PostImage} from '#/features/mediaFallback/PostImage'
 import {type app} from '#/lexicons'
 
 export function ConstrainedImage({
@@ -143,10 +144,10 @@ export function AutoSizedImage({
       ref={containerRef}
       collapsable={false}
       style={[{flex: 1}, t.atoms.bg_contrast_25]}>
-      <Image
+      <PostImage
         contentFit={isContain ? 'contain' : 'cover'}
         style={[a.w_full, a.h_full]}
-        source={image.thumb}
+        uri={image.thumb}
         accessible={true} // Must set for `accessibilityLabel` to work
         accessibilityIgnoresInvertColors
         accessibilityLabel={image.alt}

@@ -1,6 +1,6 @@
 import {Pressable, type StyleProp, View, type ViewStyle} from 'react-native'
 import Animated, {type AnimatedRef} from 'react-native-reanimated'
-import {Image, type ImageStyle} from 'expo-image'
+import {type ImageStyle} from 'expo-image'
 import {utils} from '@bsky.app/alf'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
@@ -13,6 +13,8 @@ import {MediaInsetBorder} from '#/components/MediaInsetBorder'
 import {ImageContextMenu} from '#/components/Post/Embed/ImageContextMenu'
 import {type PostEmbedViewContext} from '#/components/Post/Embed/types'
 import {Text} from '#/components/Typography'
+// northsky: retry public post media on its alternate CDN.
+import {PostImage} from '#/features/mediaFallback/PostImage'
 import {type app} from '#/lexicons'
 
 type EventFunction = (index: number) => void
@@ -93,8 +95,8 @@ export function GalleryItem({
           accessibilityRole="button"
           accessibilityLabel={image.alt || _(msg`Image`)}
           accessibilityHint="">
-          <Image
-            source={{uri: image.thumb}}
+          <PostImage
+            uri={image.thumb}
             style={[a.flex_1]}
             accessible={true}
             accessibilityLabel={image.alt}

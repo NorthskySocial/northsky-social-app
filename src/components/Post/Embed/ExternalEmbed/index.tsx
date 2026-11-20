@@ -1,6 +1,5 @@
 import {useMemo} from 'react'
 import {type StyleProp, View, type ViewStyle} from 'react-native'
-import {Image} from 'expo-image'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 
@@ -19,6 +18,8 @@ import {Earth_Stroke2_Corner0_Rounded as Globe} from '#/components/icons/Globe'
 import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
 import {IS_NATIVE} from '#/env'
+// northsky: retry public preview images on load failure.
+import {PostImage} from '#/features/mediaFallback/PostImage'
 import {type app} from '#/lexicons'
 import {ExternalGif} from './ExternalGif'
 import {ExternalPlayer} from './ExternalPlayer'
@@ -110,9 +111,9 @@ export const ExternalEmbed = ({
               : t.atoms.border_contrast_low,
           ]}>
           {imageUri && !embedPlayerParams ? (
-            <Image
+            <PostImage
               style={[a.aspect_card]}
-              source={{uri: imageUri}}
+              uri={imageUri}
               accessibilityIgnoresInvertColors
               loading="lazy"
               useAppleWebpCodec

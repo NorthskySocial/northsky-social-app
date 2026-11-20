@@ -2,6 +2,8 @@ import {type app} from '#/lexicons'
 
 export type VideoEmbedInnerWebProps = {
   embed: app.bsky.embed.video.View
+  // northsky: allow the thumbnail to recover independently of the stream.
+  poster?: string
   active: boolean
   setActive: () => void
   onScreen: boolean

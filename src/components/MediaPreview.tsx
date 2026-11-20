@@ -1,5 +1,4 @@
 import {type StyleProp, StyleSheet, View, type ViewStyle} from 'react-native'
-import {Image} from 'expo-image'
 import {Trans, useLingui} from '@lingui/react/macro'
 
 import {shareImageModal} from '#/lib/media/manip'
@@ -12,6 +11,8 @@ import {MediaInsetBorder} from '#/components/MediaInsetBorder'
 import * as PeekMenu from '#/components/PeekMenu'
 import {Text} from '#/components/Typography'
 import {PlayButtonIcon} from '#/components/video/PlayButtonIcon'
+// northsky: retry public thumbnails on load failure.
+import {PostImage} from '#/features/mediaFallback/PostImage'
 import {app} from '#/lexicons'
 import * as bsky from '#/types/bsky'
 
@@ -161,9 +162,9 @@ export function ImageItem({
 
   return (
     <View style={[a.flex_grow, a.relative, a.aspect_square, {maxWidth}]}>
-      <Image
+      <PostImage
         key={thumbnail}
-        source={{uri: thumbnail}}
+        uri={thumbnail}
         alt={alt}
         style={[a.flex_1, a.rounded_xs, t.atoms.bg_contrast_25]}
         contentFit="cover"

@@ -20,8 +20,9 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated'
 import {scheduleOnRN} from 'react-native-worklets'
-import {Image} from 'expo-image'
 
+// northsky: retry public post media on its alternate CDN.
+import {PostImage} from '#/features/mediaFallback/PostImage'
 import {
   type Dimensions as ImageDimensions,
   type ImageSource,
@@ -407,9 +408,9 @@ const ImageItem = ({
           )}
           <Animated.View style={imageCropStyle}>
             <Animated.View style={imageStyle}>
-              <Image
+              <PostImage
                 contentFit="contain"
-                source={{uri: imageSrc.uri}}
+                uri={imageSrc.uri}
                 placeholderContentFit="contain"
                 placeholder={{uri: imageSrc.thumbUri}}
                 accessibilityLabel={imageSrc.alt}
