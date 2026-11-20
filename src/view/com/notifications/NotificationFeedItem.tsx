@@ -15,6 +15,7 @@ import {
   type ModerationDecision,
   type ModerationOpts,
 } from '@bsky/sdk/moderation'
+import {RichText as RichTextAPI} from '@bsky/sdk/richtext'
 import {plural} from '@lingui/core/macro'
 import {Plural, Trans, useLingui} from '@lingui/react/macro'
 import {useNavigation} from '@react-navigation/native'
@@ -1134,7 +1135,11 @@ function ExpandedAuthorProfileCard({
   )
 }
 
-function AdditionalPostText({post}: {post?: app.bsky.feed.defs.PostView}) {
+export function AdditionalPostText({
+  post,
+}: {
+  post?: app.bsky.feed.defs.PostView
+}) {
   const t = useTheme()
   if (post && bsky.isType(app.bsky.feed.post, post?.record)) {
     const text = post.record.text
@@ -1145,8 +1150,11 @@ function AdditionalPostText({post}: {post?: app.bsky.feed.defs.PostView}) {
           // northsky: render emphasis so markers do not show as literal text.
           // Code stays literal and links stay inert, to keep the preview light
           // and to avoid a pressable inside the row's own link.
+          // northsky: pass the record's facets. A plain string would have them
+          // re-detected from the text alone, which loses Bluemoji facets and
+          // shows a custom emoji as its `:alias:`.
           <RichText
-            value={text}
+            value={new RichTextAPI({text, facets: post.record.facets})}
             enableEmphasis
             disableLinks
             style={[a.text_sm, t.atoms.text_contrast_medium]}
