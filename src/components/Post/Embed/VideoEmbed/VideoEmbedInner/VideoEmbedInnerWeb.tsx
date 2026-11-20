@@ -16,6 +16,7 @@ import {atoms as a} from '#/alf'
 import {AltBadgeWithDialog} from '#/components/AltBadgeWithDialog'
 import {useFullscreen} from '#/components/hooks/useFullscreen'
 import {useReportDialogMetadataContext} from '#/components/moderation/ReportDialog/ReportDialogMetadataContext'
+import {useMediaFallback} from '#/features/mediaFallback/useMediaFallback'
 import * as BandwidthEstimate from './bandwidth-estimate'
 import {loadHls} from './loadHls'
 import {
@@ -34,6 +35,7 @@ export {
 
 export function VideoEmbedInnerWeb({
   embed,
+  poster = embed.thumbnail,
   active,
   setActive,
   onScreen,
@@ -49,6 +51,8 @@ export function VideoEmbedInnerWeb({
   const [hasSubtitleTrack, setHasSubtitleTrack] = useState(false)
   const [hlsLoading, setHlsLoading] = useState(false)
   const figId = useId()
+  // northsky: try the matching Blacksky stream after a player failure.
+  const media = useMediaFallback(embed.playlist)
   const {t: l} = useLingui()
   const [isFullscreen] = useFullscreen(containerRef)
   const isGif = embed.presentation === 'gif'
@@ -61,10 +65,20 @@ export function VideoEmbedInnerWeb({
     throw error
   }
 
+  const handleError = useNonReactiveCallback((err: Error | null) => {
+    if (
+      (err instanceof VideoNotFoundError ||
+        (err instanceof HLSFatalError && err.type === 'networkError')) &&
+      media.retry()
+    )
+      return
+    setError(err)
+  })
+
   const {hlsRef, loop, updateCuePositions} = useHLS({
-    playlist: embed.playlist,
+    playlist: media.uri,
     setHasSubtitleTrack,
-    setError,
+    setError: handleError,
     videoRef,
     setHlsLoading,
   })
@@ -84,7 +98,7 @@ export function VideoEmbedInnerWeb({
         <figure style={{margin: 0, position: 'absolute', inset: 0}}>
           <video
             ref={videoRef}
-            poster={embed.thumbnail}
+            poster={poster}
             style={{width: '100%', height: '100%', objectFit: 'contain'}}
             playsInline
             preload="none"
@@ -114,6 +128,7 @@ export function VideoEmbedInnerWeb({
             onPause={() => onPlaybackStateChange('paused')}
             onWaiting={() => onPlaybackStateChange('buffering')}
             onCanPlay={() => {
+              media.loaded()
               if (!videoRef.current?.paused) {
                 onPlaybackStateChange('playing')
               }

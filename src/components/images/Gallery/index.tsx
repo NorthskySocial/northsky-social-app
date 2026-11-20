@@ -4,7 +4,6 @@ import Animated, {
   type AnimatedRef,
   useAnimatedRef,
 } from 'react-native-reanimated'
-import {Image} from 'expo-image'
 import {utils} from '@bsky.app/alf'
 import {Trans, useLingui} from '@lingui/react/macro'
 import debounce from 'lodash.debounce'
@@ -29,6 +28,8 @@ import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 // northsky: size-independent press feedback
 import {PRESS_SHRINK_PX, scaleForDelta} from '#/brand/motionScale'
+// northsky: retry public post media on its alternate CDN.
+import {PostImage} from '#/features/mediaFallback/PostImage'
 import {type app} from '#/lexicons'
 
 export * from './const'
@@ -332,8 +333,8 @@ function GalleryImage({
               },
             ]),
           ]}>
-          <Image
-            source={{uri: image.thumb}}
+          <PostImage
+            uri={image.thumb}
             contentFit="cover"
             accessible={true}
             accessibilityLabel={image.alt}

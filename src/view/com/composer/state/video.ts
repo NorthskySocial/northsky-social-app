@@ -4,16 +4,22 @@ import {type I18n} from '@lingui/core'
 import {msg} from '@lingui/core/macro'
 
 import {AbortError} from '#/lib/async/cancelable'
-import {VIDEO_MAX_SIZE_MB} from '#/lib/constants'
+import {VIDEO_MAX_SIZE_MB, VIDEO_SERVICE} from '#/lib/constants'
 import {compressVideo} from '#/lib/media/video/compress'
 import {UploadLimitError, VideoTooLargeError} from '#/lib/media/video/errors'
 import {MultipartUploadError} from '#/lib/media/video/multipart/api'
 import {type VideoTelemetry} from '#/lib/media/video/telemetry'
 import {type CompressedVideo} from '#/lib/media/video/types'
-import {uploadVideo} from '#/lib/media/video/upload'
+import {type UploadOptions, uploadVideo} from '#/lib/media/video/upload'
 import {createTokenlessVideoServiceClient} from '#/lib/media/video/util'
 import {isNetworkError} from '#/lib/strings/errors'
 import {logger} from '#/logger'
+import {isAccessDenial} from '#/features/mediaFallback/routing'
+import {type MediaFallbackSession} from '#/features/mediaFallback/session'
+import {
+  FallbackVideoUploadError,
+  uploadToBlacksky,
+} from '#/features/mediaFallback/uploadToBlacksky'
 import {app} from '#/lexicons'
 import {
   advanceVideoProgress,
@@ -25,7 +31,7 @@ type CaptionsTrack = {lang: string; file: File}
 
 export type VideoAction =
   | {
-      type: 'compressing_to_uploading'
+      type: 'start_uploading'
       video: CompressedVideo
       compressionSkipped: boolean
       signal: AbortSignal
@@ -205,8 +211,8 @@ export function videoReducer(
       ...state,
       captions: action.updater(state.captions),
     }
-  } else if (action.type === 'compressing_to_uploading') {
-    if (state.status === 'compressing') {
+  } else if (action.type === 'start_uploading') {
+    if (state.status === 'compressing' || state.status === 'processing') {
       return {
         status: 'uploading',
         progress: videoProgressForPhase(
@@ -291,6 +297,8 @@ export async function processVideo(
   dispatch: (action: VideoAction) => void,
   client: Client,
   dispatchUrl: string | URL,
+  did: string,
+  mediaSession: MediaFallbackSession,
   signal: AbortSignal,
   i18n: I18n,
   telemetry: VideoTelemetry,
@@ -326,26 +334,37 @@ export async function processVideo(
   } else {
     telemetry.compressCompleted({size: video.size, mimeType: video.mimeType})
   }
+  const options: UploadOptions = {
+    video,
+    client,
+    dispatchUrl,
+    mediaSession,
+    did,
+    signal,
+    i18n,
+    setProgress: p => dispatch({type: 'update_progress', progress: p, signal}),
+  }
+  await submitAndProcessVideo(options, dispatch, telemetry, uploadVideo)
+}
+
+async function submitAndProcessVideo(
+  options: UploadOptions,
+  dispatch: (action: VideoAction) => void,
+  telemetry: VideoTelemetry,
+  submit: typeof uploadVideo,
+): Promise<void> {
+  const {video, signal, i18n} = options
+  if (signal.aborted) return
   dispatch({
-    type: 'compressing_to_uploading',
+    type: 'start_uploading',
     video,
     compressionSkipped: didSkipVideoCompression(video.passthroughReason),
     signal,
   })
-
-  let uploadResponse: app.bsky.video.defs.JobStatus | undefined
+  let uploadResponse: Awaited<ReturnType<typeof uploadVideo>>
   try {
     telemetry.uploadStarted(video.size)
-    uploadResponse = await uploadVideo({
-      video,
-      client,
-      dispatchUrl,
-      signal,
-      i18n,
-      setProgress: p => {
-        dispatch({type: 'update_progress', progress: p, signal})
-      },
-    })
+    uploadResponse = await submit(options)
   } catch (e) {
     const message = getUploadErrorMessage(e, i18n)
     if (message !== null) {
@@ -368,13 +387,14 @@ export async function processVideo(
     signal,
   })
 
+  // northsky: job IDs are scoped to the accepting transcoder.
+  const videoClient = createTokenlessVideoServiceClient(uploadResponse.service)
   let pollFailures = 0
   while (true) {
     if (signal.aborted) {
       return // Exit async loop
     }
 
-    const videoClient = createTokenlessVideoServiceClient()
     let status: app.bsky.video.defs.JobStatus | undefined
     let blob: BlobRef | undefined
     try {
@@ -393,7 +413,26 @@ export async function processVideo(
         throw new Error(status.error ?? 'Job failed to process')
       }
     } catch (e) {
-      if (!status) {
+      if (signal.aborted) return
+      // northsky: a job can be accepted before the primary service denies processing.
+      const denied =
+        isAccessDenial(e) ||
+        (status?.state === 'JOB_STATE_FAILED' &&
+          (isAccessDenial(status) ||
+            isAccessDenial({error: status.failureCode})))
+      if (
+        denied &&
+        options.mediaSession.enabled &&
+        uploadResponse.service === VIDEO_SERVICE
+      ) {
+        return submitAndProcessVideo(
+          options,
+          dispatch,
+          telemetry,
+          uploadToBlacksky,
+        )
+      }
+      if (!status && !denied) {
         pollFailures++
         if (pollFailures < 50) {
           await new Promise(resolve => setTimeout(resolve, 5000))
@@ -507,6 +546,8 @@ function getUploadErrorMessage(e: unknown, i18n: I18n): string | null {
   if (e instanceof AbortError) {
     return null
   }
+  if (e instanceof FallbackVideoUploadError)
+    return i18n._(msg`Failed to upload video`)
   if (e instanceof MultipartUploadError || e instanceof UploadLimitError) {
     // https://github.com/bluesky-social/tango/blob/lumi/lumi/worker/permissions.go#L77
     switch (e.message) {

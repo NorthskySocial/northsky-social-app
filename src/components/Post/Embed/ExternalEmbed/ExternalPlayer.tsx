@@ -14,7 +14,6 @@ import Animated, {
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {WebView} from 'react-native-webview'
 import {scheduleOnRN} from 'react-native-worklets'
-import {Image} from 'expo-image'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 import {useNavigation} from '@react-navigation/native'
@@ -35,6 +34,8 @@ import {KeepAwake} from '#/components/KeepAwake'
 import {PlayButtonIcon} from '#/components/video/PlayButtonIcon'
 import {useAnalytics} from '#/analytics'
 import {IS_NATIVE} from '#/env'
+// northsky: retry public preview images on load failure.
+import {PostImage} from '#/features/mediaFallback/PostImage'
 import {type app} from '#/lexicons'
 
 interface ShouldStartLoadRequest {
@@ -250,9 +251,9 @@ export function ExternalPlayer({
         style={[aspect, a.overflow_hidden]}>
         {link.thumb && (!isPlayerActive || isLoading) ? (
           <>
-            <Image
+            <PostImage
               style={[a.flex_1]}
-              source={{uri: link.thumb}}
+              uri={link.thumb}
               accessibilityIgnoresInvertColors
               loading="lazy"
             />
