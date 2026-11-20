@@ -28,7 +28,10 @@ export async function uploadVideo(options: UploadOptions) {
     throw new AbortError()
   }
   // northsky: Blacksky accepts a binary upload and owns the resulting job.
-  if (options.mediaSession.preferBlackskyUploads)
+  if (
+    options.mediaSession.enabled &&
+    options.mediaSession.preferBlackskyUploads
+  )
     return uploadToBlacksky(options)
   try {
     await getVideoUploadLimits(client, i18n)
@@ -36,9 +39,7 @@ export async function uploadVideo(options: UploadOptions) {
     return {jobId: job.jobId, service: VIDEO_SERVICE}
   } catch (error) {
     if (signal.aborted) throw new AbortError()
-    if (!isAccessDenial(error)) throw error
+    if (!options.mediaSession.enabled || !isAccessDenial(error)) throw error
   }
-  const result = await uploadToBlacksky(options)
-  options.mediaSession.preferBlackskyUploads = true
-  return result
+  return uploadToBlacksky(options)
 }

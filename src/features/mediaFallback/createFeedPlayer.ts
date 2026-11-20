@@ -1,6 +1,5 @@
 import {createVideoPlayer} from 'expo-video'
 
-import {fallbackMediaUrl} from './routing'
 import {type MediaFallbackSession} from './session'
 
 export function createFeedPlayer(
@@ -23,7 +22,7 @@ export function createFeedPlayer(
       session.rememberRead(retry.primary)
       retry = undefined
     }
-    const alternate = status === 'error' && fallbackMediaUrl(source)
+    const alternate = status === 'error' && session.alternateUrl(source)
     if (alternate) {
       retry = {primary: source, alternate}
       source = alternate

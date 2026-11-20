@@ -9,6 +9,7 @@ import {
 } from '#/lib/media/video/upload.shared'
 import {sendVideo} from './sendVideo'
 import {MediaFallbackSession} from './session'
+import {FallbackVideoUploadError} from './uploadToBlacksky'
 
 jest.mock('#/lib/media/video/multipart/upload', () => ({
   uploadVideoMultipart: jest.fn(),
@@ -21,7 +22,7 @@ jest.mock('#/lib/media/video/upload.shared', () => ({
 jest.mock('./sendVideo', () => ({sendVideo: jest.fn()}))
 
 const options = {
-  mediaSession: new MediaFallbackSession(),
+  mediaSession: new MediaFallbackSession('alice', true),
   client: {} as Client,
   i18n: {} as I18n,
   did: 'did:plc:alice' as const,
@@ -33,7 +34,7 @@ const options = {
 
 beforeEach(() => {
   jest.resetAllMocks()
-  options.mediaSession = new MediaFallbackSession()
+  options.mediaSession = new MediaFallbackSession('alice', true)
 })
 
 it.each(['limits', 'multipart'])(
@@ -101,3 +102,23 @@ it('keeps accepted uploads and ambiguous failures on the primary service', async
   await expect(uploadVideo(options)).rejects.toThrow('Network request failed')
   expect(sendVideo).not.toHaveBeenCalled()
 })
+
+it('keeps a rejected upload on Bluesky when the AppView is ineligible', async () => {
+  options.mediaSession = new MediaFallbackSession('alice', false)
+  const error = new Error('User is not allowed to upload videos')
+  jest.mocked(getVideoUploadLimits).mockRejectedValueOnce(error)
+  await expect(uploadVideo(options)).rejects.toBe(error)
+  expect(sendVideo).not.toHaveBeenCalled()
+})
+
+it.each(['{}', '<html>Unavailable</html>', '{"error":"InternalError"}'])(
+  'reports unusable fallback responses as a typed error (%s)',
+  async body => {
+    jest.mocked(getVideoUploadLimits).mockRejectedValueOnce({status: 403})
+    jest.mocked(sendVideo).mockResolvedValue({status: 503, headers: {}, body})
+    await expect(uploadVideo(options)).rejects.toBeInstanceOf(
+      FallbackVideoUploadError,
+    )
+    expect(options.mediaSession.preferBlackskyUploads).toBe(false)
+  },
+)

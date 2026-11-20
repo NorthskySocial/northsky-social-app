@@ -9,7 +9,7 @@ const video = 'https://video.bsky.app/watch/did:plc:alice/blob/playlist.m3u8'
 
 it('shares working routes within the active account and retires them on switch or logout', () => {
   const {result, rerender} = renderHook(
-    ({did}: {did: string | undefined}) => useAccountMediaSession(did),
+    ({did}: {did: string | undefined}) => useAccountMediaSession(did, true),
     {initialProps: {did: 'alice'}},
   )
   const first = result.current
@@ -36,5 +36,19 @@ it('shares working routes within the active account and retires them on switch o
   rerender({did: undefined})
   expect(result.current.preferredUrl(image)).toBe(image)
   rerender({did: 'alice'})
+  expect(result.current.preferredUrl(image)).toBe(image)
+})
+
+it('retires preferences when the same account changes AppView', () => {
+  const {result, rerender} = renderHook(
+    ({enabled}: {enabled: boolean}) => useAccountMediaSession('alice', enabled),
+    {initialProps: {enabled: true}},
+  )
+  result.current.rememberRead(image)
+  rerender({enabled: false})
+  expect(result.current.alternateUrl(image)).toBeUndefined()
+  expect(result.current.alternateUrl(video)).toBeUndefined()
+  expect(result.current.preferredUrl(image)).toBe(image)
+  rerender({enabled: true})
   expect(result.current.preferredUrl(image)).toBe(image)
 })

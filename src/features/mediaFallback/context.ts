@@ -1,18 +1,24 @@
-import {createContext, useContext, useMemo, useState} from 'react'
+import {createContext, useContext, useState} from 'react'
 
 import {MediaFallbackSession} from './session'
 
-export const MediaFallbackContext = createContext<MediaFallbackSession | null>(
-  null,
+export const MediaFallbackContext = createContext(
+  new MediaFallbackSession(undefined, false),
 )
 
 export function useMediaFallbackSession() {
-  const session = useContext(MediaFallbackContext)
-  const [local] = useState(() => session ?? new MediaFallbackSession())
-  return session ?? local
+  return useContext(MediaFallbackContext)
 }
 
-/** Retire the old preference object so late transfers can only update their own session. */
-export function useAccountMediaSession(did: string | undefined) {
-  return useMemo(() => new MediaFallbackSession(did), [did])
+export function useAccountMediaSession(
+  did: string | undefined,
+  enabled: boolean,
+) {
+  const [session, setSession] = useState(
+    () => new MediaFallbackSession(did, enabled),
+  )
+  if (session.did === did && session.enabled === enabled) return session
+  const next = new MediaFallbackSession(did, enabled)
+  setSession(next)
+  return next
 }

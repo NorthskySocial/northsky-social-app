@@ -16,7 +16,7 @@ import * as persisted from '#/state/persisted'
 import {useCloseAllActiveElements} from '#/state/util'
 import {useGlobalDialogsControlContext} from '#/components/dialogs/Context'
 import {AnalyticsContext, useAnalyticsBase, utils} from '#/analytics'
-import {type AppView} from '#/brand/appview'
+import {type AppView, BLACKSKY_APPVIEW} from '#/brand/appview'
 import {IS_WEB} from '#/env'
 import {
   MediaFallbackContext,
@@ -696,7 +696,10 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
   }, [bundle])
 
   // northsky: a token refresh keeps the active account's media preferences.
-  const mediaFallback = useAccountMediaSession(state.currentBundleState.did)
+  const mediaFallback = useAccountMediaSession(
+    state.currentBundleState.did,
+    bundle.appview.did === BLACKSKY_APPVIEW.did,
+  )
   const currentBundleRef = useRef(bundle)
   /*
    * Disposal is deferred to this post-commit effect deliberately: components may

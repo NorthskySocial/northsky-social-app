@@ -1,29 +1,29 @@
-import {useMemo, useState} from 'react'
+import {useState} from 'react'
 
 import {useMediaFallbackSession} from './context'
-import {fallbackMediaUrl} from './routing'
 import {type MediaFallbackSession} from './session'
 
-export function useMediaFallback(uri: string) {
+function initialRoute(primary: string, session: MediaFallbackSession) {
+  return {primary, session, uri: session.preferredUrl(primary)}
+}
+
+export function useMediaFallback(primary: string) {
   const session = useMediaFallbackSession()
-  // Keep an already playing stream stable when another view discovers a fallback.
-  const initial = useMemo(() => session.preferredUrl(uri), [uri, session])
-  const [failed, setFailed] = useState<{
-    uri: string
-    session: MediaFallbackSession
-  }>()
-  const alternate = fallbackMediaUrl(uri)
-  const usingFallback =
-    ((failed?.uri === uri && failed.session === session) || initial !== uri) &&
-    !!alternate
+  const [selected, setSelected] = useState(() => initialRoute(primary, session))
+  let route = selected
+  if (route.primary !== primary || route.session !== session) {
+    route = initialRoute(primary, session)
+    setSelected(route)
+  }
   return {
-    uri: usingFallback ? alternate : uri,
+    uri: route.uri,
     loaded() {
-      if (usingFallback) session.rememberRead(uri)
+      if (route.uri !== primary) session.rememberRead(primary)
     },
     retry() {
-      if (!alternate || usingFallback) return false
-      setFailed({uri, session})
+      const alternate = session.alternateUrl(primary)
+      if (!alternate || route.uri === alternate) return false
+      setSelected({primary, session, uri: alternate})
       return true
     },
   }

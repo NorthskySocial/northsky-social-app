@@ -19,6 +19,14 @@ export function isAccessDenial(error: unknown) {
   if (!error || typeof error !== 'object') return false
   if ('status' in error && (error.status === 403 || error.status === 401))
     return true
+  if (
+    'error' in error &&
+    typeof error.error === 'string' &&
+    /^(?:forbidden|unauthorized|authrequired|permission[_ -]?denied|access[_ -]?denied)$/i.test(
+      error.error,
+    )
+  )
+    return true
   return ['error', 'message'].some(key =>
     /account[ _-]*(?:is |has been )?(taken?[ _-]*down|suspended)|user is not allowed to upload videos/i.test(
       String(Reflect.get(error, key)),

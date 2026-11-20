@@ -247,9 +247,12 @@ describe('image gallery adapter', () => {
   it('retries the failed thumbnail on Coffeencode once', () => {
     const path = '/img/feed_thumbnail/plain/did:plc:alice/blob@jpeg'
     render(
-      <Gallery
-        images={[image(0, {thumb: `https://cdn.bsky.app${path}`}), image(1)]}
-      />,
+      <MediaFallbackContext.Provider
+        value={new MediaFallbackSession('alice', true)}>
+        <Gallery
+          images={[image(0, {thumb: `https://cdn.bsky.app${path}`}), image(1)]}
+        />
+      </MediaFallbackContext.Provider>,
     )
     for (let attempt = 0; attempt < 2; attempt++) {
       act(() => callProp(thumbs()[0], 'onError', {}))
@@ -261,7 +264,7 @@ describe('image gallery adapter', () => {
   })
 
   it('starts the next gallery on the CDN that loaded a previous image', () => {
-    const session = new MediaFallbackSession('alice')
+    const session = new MediaFallbackSession('alice', true)
     function gallery(cid: string) {
       return (
         <MediaFallbackContext.Provider value={session}>

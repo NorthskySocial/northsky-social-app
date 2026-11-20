@@ -11,8 +11,11 @@ import {mimeToExt} from '#/lib/media/video/util'
 import {BRAND} from '#/brand/config'
 import {sendVideo} from './sendVideo'
 
+export class FallbackVideoUploadError extends Error {}
+
 export async function uploadToBlacksky({
   client,
+  mediaSession,
   i18n,
   dispatchUrl,
   video,
@@ -20,6 +23,7 @@ export async function uploadToBlacksky({
   signal,
   setProgress,
 }: UploadOptions) {
+  if (signal.aborted) throw new AbortError()
   await getVideoUploadLimits(
     client,
     i18n,
@@ -46,17 +50,19 @@ export async function uploadToBlacksky({
     signal,
     headers: {Authorization: 'Bearer ' + token, 'Content-Type': video.mimeType},
   })
-  const result = JSON.parse(response.body) as {
-    jobId?: string
-    error?: string
-    message?: string
-  } | null
+  let result: {jobId?: string; error?: string} | null
+  try {
+    result = JSON.parse(response.body)
+  } catch (cause) {
+    throw new FallbackVideoUploadError(undefined, {cause})
+  }
   if (
     typeof result?.jobId !== 'string' ||
     !result.jobId ||
     (response.status >= 400 && result.error !== 'already_exists')
   ) {
-    throw new Error(result?.message || result?.error || 'Video upload failed')
+    throw new FallbackVideoUploadError()
   }
+  mediaSession.preferBlackskyUploads = true
   return {jobId: result.jobId, service: BRAND.fallbackVideoService}
 }
