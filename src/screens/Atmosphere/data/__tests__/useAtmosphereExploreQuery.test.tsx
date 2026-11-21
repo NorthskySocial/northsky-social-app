@@ -1,19 +1,38 @@
 import {type PropsWithChildren} from 'react'
+import {Platform} from 'react-native'
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {act, renderHook, waitFor} from '@testing-library/react-native'
 
 import {useLanguagePrefs} from '#/state/preferences/languages'
+import {usePreferencesQuery} from '#/state/queries/preferences'
 import {useAppviewClient} from '#/state/session'
 import {useAtmosphereExploreQuery} from '#/screens/Atmosphere/data/useAtmosphereExploreQuery'
 import {app} from '#/lexicons'
+import {device} from '#/storage'
 
 jest.mock('#/state/preferences/languages', () => ({
   useLanguagePrefs: jest.fn(),
 }))
 
+jest.mock('#/state/queries/preferences', () => ({
+  usePreferencesQuery: jest.fn(),
+}))
+
 jest.mock('#/state/session', () => ({
   useAppviewClient: jest.fn(),
 }))
+
+jest.mock('#/state/cache/profile-shadow', () => ({
+  useApplyProfileShadow: () => (profile: unknown) => profile,
+}))
+
+jest.mock('#/env', () => ({IS_WEB: false}))
+jest.mock('#/storage', () => ({device: {get: jest.fn()}}))
+
+const defaultHeaders = {
+  'x-atproto-bsky-platform': Platform.OS,
+  'x-atproto-bsky-topics': '',
+}
 
 const data: app.bsky.unspecced.getAtmosphereExploreTab.$OutputBody = {
   articles: {items: []},
@@ -27,6 +46,12 @@ function setLanguages(contentLanguages: string[]) {
   jest
     .mocked(useLanguagePrefs)
     .mockReturnValue({contentLanguages} as ReturnType<typeof useLanguagePrefs>)
+}
+
+function setInterests(tags: string[], updatedAt?: string) {
+  jest.mocked(usePreferencesQuery).mockReturnValue({
+    data: {interests: {tags, updatedAt}},
+  } as ReturnType<typeof usePreferencesQuery>)
 }
 
 function setup(
@@ -48,6 +73,10 @@ function setup(
 
 beforeEach(() => {
   jest.clearAllMocks()
+  jest.mocked(device.get).mockReset()
+  jest.mocked(usePreferencesQuery).mockReturnValue({
+    data: undefined,
+  } as ReturnType<typeof usePreferencesQuery>)
 })
 
 describe('useAtmosphereExploreQuery', () => {
@@ -58,14 +87,14 @@ describe('useAtmosphereExploreQuery', () => {
     const {result} = renderHook(() => useAtmosphereExploreQuery(), {wrapper})
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
-    expect(result.current.data).toBe(data)
+    expect(result.current.data).toEqual(data)
     expect(client.call).toHaveBeenCalledTimes(1)
     expect(client.call).toHaveBeenCalledWith(
       app.bsky.unspecced.getAtmosphereExploreTab,
       {langs: ['en']},
       {
         signal: expect.any(AbortSignal),
-        headers: {'Accept-Language': 'en'},
+        headers: {...defaultHeaders, 'Accept-Language': 'en'},
       },
     )
   })
@@ -89,7 +118,7 @@ describe('useAtmosphereExploreQuery', () => {
         languages.length ? {langs: languages} : {},
         {
           signal: expect.any(AbortSignal),
-          headers: {'Accept-Language': header},
+          headers: {...defaultHeaders, 'Accept-Language': header},
         },
       )
     },
@@ -114,7 +143,106 @@ describe('useAtmosphereExploreQuery', () => {
       {langs: ['fr', 'en']},
       {
         signal: expect.any(AbortSignal),
-        headers: {'Accept-Language': 'fr,en'},
+        headers: {...defaultHeaders, 'Accept-Language': 'fr,en'},
+      },
+    )
+    expect(queryClient.getQueryCache().getAll()).toHaveLength(2)
+  })
+
+  it('sends the Discover platform, service geo, and timestamped topics headers', async () => {
+    const {client, wrapper} = setup()
+    client.call.mockResolvedValue(data)
+    setLanguages(['en', 'fr'])
+    setInterests(['animals', 'music'], '2026-09-03T17:00:00.000Z')
+    jest.mocked(device.get).mockReturnValue({
+      countryCode: 'JP',
+      regionCode: '13',
+      city: '東京',
+      ip: '2001:db8::1',
+    })
+
+    const {result} = renderHook(() => useAtmosphereExploreQuery(), {wrapper})
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+
+    expect(client.call).toHaveBeenCalledWith(
+      app.bsky.unspecced.getAtmosphereExploreTab,
+      {langs: ['en', 'fr']},
+      {
+        signal: expect.any(AbortSignal),
+        headers: {
+          'Accept-Language': 'en,fr',
+          'x-atproto-bsky-platform': Platform.OS,
+          'x-atproto-bsky-topics': 'animals,music;2026-09-03T17:00:00.000Z',
+          'x-atproto-bsky-geo-country': 'JP',
+          'x-atproto-bsky-geo-region': '13',
+          'x-atproto-bsky-geo-city': '%E6%9D%B1%E4%BA%AC',
+          'x-atproto-bsky-geo-ip': '2001:db8::1',
+        },
+      },
+    )
+    expect(device.get).toHaveBeenCalledWith(['geolocationServiceResponse'])
+  })
+
+  it('reads updated service geolocation on refetch, including when logged out', async () => {
+    const {client, wrapper} = setup()
+    jest
+      .mocked(useAppviewClient)
+      .mockReturnValue({...client, did: undefined} as never)
+    client.call.mockResolvedValue(data)
+    jest
+      .mocked(device.get)
+      .mockReturnValue({countryCode: 'JP', regionCode: '13'})
+
+    const {result} = renderHook(() => useAtmosphereExploreQuery(), {wrapper})
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+
+    jest
+      .mocked(device.get)
+      .mockReturnValue({countryCode: 'US', regionCode: undefined})
+    await act(async () => {
+      await result.current.refetch()
+    })
+
+    expect(client.call).toHaveBeenCalledTimes(2)
+    expect(client.call).toHaveBeenLastCalledWith(
+      app.bsky.unspecced.getAtmosphereExploreTab,
+      {langs: ['en']},
+      {
+        signal: expect.any(AbortSignal),
+        headers: {
+          ...defaultHeaders,
+          'Accept-Language': 'en',
+          'x-atproto-bsky-geo-country': 'US',
+        },
+      },
+    )
+  })
+
+  it('refetches with an interests-specific key when preferences change', async () => {
+    const {client, queryClient, wrapper} = setup()
+    client.call.mockResolvedValue(data)
+    setInterests(['music'])
+
+    const {result, rerender} = renderHook(() => useAtmosphereExploreQuery(), {
+      wrapper,
+    })
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+
+    setInterests(['animals'], '2026-09-03T17:00:00.000Z')
+    rerender({})
+
+    await waitFor(() => expect(client.call).toHaveBeenCalledTimes(2))
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(client.call).toHaveBeenLastCalledWith(
+      app.bsky.unspecced.getAtmosphereExploreTab,
+      {langs: ['en']},
+      {
+        signal: expect.any(AbortSignal),
+        headers: {
+          ...defaultHeaders,
+          'Accept-Language': 'en',
+          'x-atproto-bsky-topics': 'animals;2026-09-03T17:00:00.000Z',
+        },
       },
     )
     expect(queryClient.getQueryCache().getAll()).toHaveLength(2)
@@ -134,7 +262,7 @@ describe('useAtmosphereExploreQuery', () => {
     const {result} = renderHook(() => useAtmosphereExploreQuery(), {wrapper})
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
-    expect(result.current.data).toBe(response)
+    expect(result.current.data).toEqual(response)
     expect(queryClient.getQueryCache().getAll()[0].state.data).toBe(response)
     expect(result.current.data?.articles.recIdStr).toBe('18446744073709551615')
   })
@@ -183,7 +311,7 @@ describe('useAtmosphereExploreQuery', () => {
       timeout: 3000,
     })
 
-    expect(result.current.data).toBe(data)
+    expect(result.current.data).toEqual(data)
     expect(result.current.isError).toBe(false)
     expect(client.call).toHaveBeenCalledTimes(2)
   })
@@ -203,7 +331,7 @@ describe('useAtmosphereExploreQuery', () => {
     await result.current.refetch()
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
-    expect(result.current.data).toBe(data)
+    expect(result.current.data).toEqual(data)
     expect(client.call).toHaveBeenCalledTimes(3)
   })
 
@@ -248,7 +376,7 @@ describe('useAtmosphereExploreQuery', () => {
       await waitFor(() => expect(result.current[0].isSuccess).toBe(true))
 
       expect(client.call).toHaveBeenCalledTimes(1)
-      expect(result.current[1].data).toBe(data)
+      expect(result.current[1].data).toEqual(data)
     })
 
     it('shows cached data and refetches on remount', async () => {
@@ -260,7 +388,7 @@ describe('useAtmosphereExploreQuery', () => {
       first.unmount()
 
       const second = renderHook(() => useAtmosphereExploreQuery(), {wrapper})
-      expect(second.result.current.data).toBe(data)
+      expect(second.result.current.data).toEqual(data)
       await waitFor(() => expect(client.call).toHaveBeenCalledTimes(2))
       expect(queryClient.getQueryCache().getAll()).toHaveLength(1)
     })

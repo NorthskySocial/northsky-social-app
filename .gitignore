@@ -142,5 +142,9 @@ docs/superpowers/
 # pnpm
 .pnpm-store/
 
+<<<<<<< HEAD
 # Workspace paths
 .rommie
+=======
+.argent
+>>>>>>> upstream/main

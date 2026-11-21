@@ -109,7 +109,13 @@ export function useSubmitReportMutation() {
         case 'list':
         case 'feed':
         case 'starterPack':
-        case 'profileLink': {
+        case 'profileLink':
+        case 'article':
+        case 'photo':
+        case 'publication':
+        case 'gallery':
+        case 'livestream':
+        case 'record': {
           report = {
             reasonType,
             reason, // northsky:

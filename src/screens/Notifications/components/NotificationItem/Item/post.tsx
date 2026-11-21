@@ -20,27 +20,31 @@ import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {type ParentPost} from '#/state/queries/notifications/grouped/types'
 import {useSlingshotRecordQuery} from '#/state/queries/slingshot'
 import {useSession} from '#/state/session'
-import {TimeElapsed} from '#/view/com/util/TimeElapsed'
-import {UserAvatar} from '#/view/com/util/UserAvatar'
-import {atoms as a, useTheme, web} from '#/alf'
+import {atoms as a, tokens, useTheme, web} from '#/alf'
 import {ArrowCornerDownRight_Stroke2_Corner2_Rounded as ArrowCornerDownRight} from '#/components/icons/Arrow'
 import {type Props as SVGIconProps} from '#/components/icons/common'
-import {Link, WebOnlyInlineLinkText} from '#/components/Link'
+import {WebOnlyInlineLinkText} from '#/components/Link'
 import {ContentHider} from '#/components/moderation/ContentHider'
 import {PostAlerts} from '#/components/moderation/PostAlerts'
+<<<<<<< HEAD
 // northsky: notifications share custom embeds, moderation and quote recovery.
 import {Embed, PostEmbedViewContext} from '#/components/Post/Embed'
+=======
+import {Embed} from '#/components/Post/Embed'
+>>>>>>> upstream/main
 import {ShowMoreTextButton} from '#/components/Post/ShowMoreTextButton'
 import {PostControls} from '#/components/PostControls'
 import {ProfileBadges} from '#/components/ProfileBadges'
 import {ProfileHoverCard} from '#/components/ProfileHoverCard'
 import {RichText} from '#/components/RichText'
-import {SubtleHover} from '#/components/SubtleHover'
 import {Text} from '#/components/Typography'
 import {app} from '#/lexicons'
 import * as bsky from '#/types/bsky'
+<<<<<<< HEAD
 import {makePostLink} from '../links'
 import {Card, InlineImages} from './media'
+=======
+>>>>>>> upstream/main
 import {Strong, useDisplayName} from './text'
 
 type PostView = app.bsky.feed.defs.PostView
@@ -277,9 +281,9 @@ function ReplyContextPost({
 }
 
 /**
- * A post's text and a compact preview of its embed, behind the usual
- * moderation hider. Images stand in for the text when there isn't any. Long
- * text is cut short with a "Show more" button, as in feeds.
+ * A post's text and its embed, behind the usual moderation hider. The embed
+ * renders as it does in a feed. Long text is cut short with a "Show more"
+ * button, as in feeds.
  */
 export function PostBody({post}: {post: PostView}) {
   const moderationOpts = useModerationOpts()
@@ -301,6 +305,10 @@ export function PostBody({post}: {post: PostView}) {
   const moderation = moderationOpts
     ? moderatePost(post, moderationOpts)
     : undefined
+<<<<<<< HEAD
+=======
+  const hasEmbed = post.embed ? rendersEmbed(post.embed) : false
+>>>>>>> upstream/main
 
   const onPressShowMore = (event: GestureResponderEvent) => {
     // Keep the press from reaching the row, which on web would follow its link
@@ -336,6 +344,7 @@ export function PostBody({post}: {post: PostView}) {
           )}
         </View>
       )}
+<<<<<<< HEAD
       {post.embed && (
         <Embed
           embed={post.embed}
@@ -343,12 +352,33 @@ export function PostBody({post}: {post: PostView}) {
           moderation={moderation}
           viewContext={PostEmbedViewContext.Feed}
         />
+=======
+      {hasEmbed && (
+        /*
+         * Embeds bring their own top margin, for the text above them in a
+         * post, which the hider's gap already gives. Without text they sit
+         * 8px from the header rather than the row's usual 4px, and they get
+         * 4px more before the timestamp, as a feed post's embed does.
+         */
+        <View
+          style={[
+            a.mb_xs,
+            {
+              marginTop: richText
+                ? -tokens.space.sm
+                : -tokens.space.sm + tokens.space.xs,
+            },
+          ]}>
+          <Embed embed={post.embed} moderation={moderation} post={post} />
+        </View>
+>>>>>>> upstream/main
       )}
     </ContentHider>
   )
 }
 
 /**
+<<<<<<< HEAD
  * Compact preview of a quoted post: author, time and the start of its text.
  * Pressing it opens the quoted post. Blocked, deleted and detached quotes
  * collapse to a short muted line, and other record embeds render nothing.
@@ -574,6 +604,36 @@ function QuoteCardPost({
         )}
       </Link>
     </ContentHider>
+=======
+ * Whether `Embed` renders anything for an embed. Labelers and unknown embeds
+ * render nothing, so they shouldn't take up space in the row.
+ */
+function rendersEmbed(embed: NonNullable<PostView['embed']>) {
+  const {type} = bsky.post.parseEmbed(embed)
+  return type !== 'labeler' && type !== 'unknown'
+}
+
+/**
+ * A record embed on its own, rendered by the same `Embed` that feeds use: a
+ * quoted post (or its blocked, deleted or detached placeholder), or a shared
+ * feed, list or starter pack. Labelers and unknown records render nothing.
+ */
+export function RecordCard({embed}: {embed: app.bsky.embed.record.View}) {
+  const {type} = bsky.post.parseEmbedRecordView(embed)
+  if (type === 'labeler' || type === 'unknown') return null
+
+  return (
+    /*
+     * `Embed` gives records a top margin, for the post text above them, which
+     * the row's own spacing already covers.
+     */
+    <View style={{marginTop: -tokens.space.sm}}>
+      <Embed
+        // Inside `recordWithMedia` the record view isn't typed
+        embed={{...embed, $type: 'app.bsky.embed.record#view'}}
+      />
+    </View>
+>>>>>>> upstream/main
   )
 }
 

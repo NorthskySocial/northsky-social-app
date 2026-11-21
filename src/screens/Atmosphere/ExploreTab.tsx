@@ -2,30 +2,39 @@ import {useState} from 'react'
 import {RefreshControl, View} from 'react-native'
 import {useLingui} from '@lingui/react/macro'
 
+import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {ErrorMessage} from '#/view/com/util/error/ErrorMessage'
+import {EXPLORE_SECTION_PADDING} from '#/screens/Atmosphere/const'
 import {
   getAtmosphereAnnouncementBanner,
   getAtmosphereArticles,
+  getAtmosphereExploreApps,
   getAtmosphereLivestreams,
   getAtmospherePhotos,
   getAtmospherePublications,
 } from '#/screens/Atmosphere/data/exploreData'
 import {useAtmosphereExploreQuery} from '#/screens/Atmosphere/data/useAtmosphereExploreQuery'
 import {atoms as a, useTheme} from '#/alf'
+import * as Gallery from '#/components/Gallery'
 import * as Layout from '#/components/Layout'
 import {Loader} from '#/components/Loader'
 import {AnnouncementBanner} from './components/AnnouncementBanner'
 import {AtmosphereNux} from './components/AtmosphereNux'
-import {ExploreGalleryBleed} from './components/ExploreGallery'
+import {FeaturedApps} from './components/FeaturedApps'
 import {FeaturedArticles} from './components/FeaturedArticles'
 import {FeaturedLivestreams} from './components/FeaturedLivestreams'
 import {FeaturedPhotos} from './components/FeaturedPhotos'
 import {FeaturedPublications} from './components/FeaturedPublications'
 
-export function AtmosphereExploreTab() {
+export function AtmosphereExploreTab({
+  onPressSeeMoreApps,
+}: {
+  onPressSeeMoreApps?: () => void
+}) {
   const t = useTheme()
   const {t: l} = useLingui()
   const {data, isError, isPending, refetch} = useAtmosphereExploreQuery()
+  const moderationOpts = useModerationOpts()
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   async function onRefresh() {
@@ -85,21 +94,31 @@ export function AtmosphereExploreTab() {
       alwaysBounceVertical
       refreshControl={refreshControl}
       contentContainerStyle={[a.pb_xl]}>
-      <ExploreGalleryBleed>
-        <View style={[a.gap_lg, a.px_lg, a.py_lg]}>
-          {isError ? errorMessage : undefined}
+      <Gallery.Bleed>
+        <View style={[a.gap_lg, a.py_lg]}>
+          {isError ? (
+            <View style={{paddingHorizontal: EXPLORE_SECTION_PADDING}}>
+              {errorMessage}
+            </View>
+          ) : undefined}
           <AtmosphereNux />
           {announcementBanner ? (
             <AnnouncementBanner banner={announcementBanner} />
           ) : undefined}
-          <FeaturedArticles articles={getAtmosphereArticles(data)} />
-          <FeaturedPublications
-            publications={getAtmospherePublications(data)}
+          <FeaturedApps
+            apps={getAtmosphereExploreApps(data)}
+            onPressSeeMore={onPressSeeMoreApps}
+          />
+          <FeaturedArticles
+            articles={getAtmosphereArticles(data, moderationOpts)}
           />
           <FeaturedLivestreams livestreams={getAtmosphereLivestreams(data)} />
-          <FeaturedPhotos photos={getAtmospherePhotos(data)} />
+          <FeaturedPhotos photos={getAtmospherePhotos(data, moderationOpts)} />
+          <FeaturedPublications
+            publications={getAtmospherePublications(data, moderationOpts)}
+          />
         </View>
-      </ExploreGalleryBleed>
+      </Gallery.Bleed>
     </Layout.Content>
   )
 }
