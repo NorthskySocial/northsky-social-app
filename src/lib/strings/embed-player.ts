@@ -168,6 +168,7 @@ export function parseEmbedPlayerFromUrl(
 
   // northsky: resolve registered animated images before falling back to a card.
   for (const [source, provider] of animatedImageProviders) {
+    if (!provider.matches(urlp)) continue
     const playerUri = provider.getImageUri(urlp)
     if (playerUri) {
       return {type: 'animated_image_gif', source, playerUri, isGif: true}

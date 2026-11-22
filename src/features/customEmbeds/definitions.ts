@@ -1,3 +1,7 @@
+import {
+  getGifdexImageUri,
+  isGifdexUrl,
+} from '#/features/customEmbeds/gifdex/detect'
 import {isTangledStringUrl} from '#/features/customEmbeds/tangledString/detect'
 
 /**
@@ -12,7 +16,8 @@ export const customLinkEmbeds = {
   gifdex: {
     presentation: 'animatedImage',
     label: 'Gifdex',
-    getImageUri: parseGifdexUrl,
+    matches: isGifdexUrl,
+    getImageUri: getGifdexImageUri,
   },
 } as const
 
@@ -32,16 +37,3 @@ export const animatedImageProviders = Object.entries(customLinkEmbeds).filter(
   (entry): entry is [AnimatedImageSource, AnimatedImageProvider] =>
     entry[1].presentation === 'animatedImage',
 )
-
-function parseGifdexUrl(url: URL) {
-  if (url.protocol !== 'https:' || url.hostname !== 'gifdex.net') return
-
-  // The share URL contains the owner DID and the GIF's blob CID.
-  const match = url.pathname.match(
-    /^\/profile\/(did:plc:[a-z2-7]{24})\/post\/[a-z2-7]{13}:(baf[a-z2-7]+)\/?$/,
-  )
-  if (!match) return
-
-  const [, did, cid] = match
-  return `https://media.gifdex.net/media/gif/${did}/${cid}.webp`
-}
