@@ -2,6 +2,7 @@ import {Dimensions} from 'react-native'
 
 import {BRAND} from '#/brand/config' // northsky: brand host for the native iframe player
 import {IS_WEB} from '#/env'
+import {parseGifdexUrl} from '#/features/gifdex/parseGifdexUrl' // northsky: Gifdex links
 
 /*
  * northsky: on web, load the iframe trampoline from our own origin. bskyweb
@@ -24,6 +25,7 @@ export const embedPlayerSources = [
   'appleMusic',
   'vimeo',
   'giphy',
+  'gifdex', // northsky: Gifdex animated images
   'tenor',
   'klipy',
   'flickr',
@@ -47,6 +49,7 @@ export type EmbedPlayerType =
   | 'apple_music_song'
   | 'vimeo_video'
   | 'giphy_gif'
+  | 'gifdex_gif' // northsky: Gifdex animated images
   | 'tenor_gif'
   | 'klipy_gif'
   | 'flickr_album'
@@ -84,6 +87,7 @@ export const externalEmbedLabels: Record<EmbedPlayerSource, string> = {
   vimeo: 'Vimeo',
   twitch: 'Twitch',
   giphy: 'GIPHY',
+  gifdex: 'Gifdex', // northsky: external media consent
   tenor: 'Tenor',
   klipy: 'KLIPY',
   spotify: 'Spotify',
@@ -151,6 +155,10 @@ export function parseEmbedPlayerFromUrl(
   } catch (e) {
     return undefined
   }
+
+  // northsky: recognize Gifdex post links before falling back to a link card.
+  const gifdex = parseGifdexUrl(urlp)
+  if (gifdex) return gifdex
 
   // youtube
   if (urlp.hostname === 'youtu.be') {

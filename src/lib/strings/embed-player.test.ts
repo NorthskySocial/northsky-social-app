@@ -85,6 +85,29 @@ it.each(['freemix.fm', 'www.freemix.fm', 'staging.freemix.fm.example.com'])(
   },
 )
 
+describe('Gifdex embeds', () => {
+  const path =
+    '/profile/did:plc:cxa4dtjjujwfa7g2cgeemtw7/post/3n2spd7mofc5b:bafkreicoszafrn3nukia3jifkp6x2sugpfmgt7vzdigmpstrt277sssfqi'
+
+  it('resolves a post to its animated image', () => {
+    expect(parseEmbedPlayerFromUrl(`https://gifdex.net${path}`)).toMatchObject({
+      source: 'gifdex',
+      isGif: true,
+      playerUri:
+        'https://media.gifdex.net/media/gif/did:plc:cxa4dtjjujwfa7g2cgeemtw7/bafkreicoszafrn3nukia3jifkp6x2sugpfmgt7vzdigmpstrt277sssfqi.webp',
+    })
+  })
+
+  it('rejects other hosts and malformed paths', () => {
+    expect(
+      parseEmbedPlayerFromUrl(`https://gifdex.net.evil.example${path}`),
+    ).toBeUndefined()
+    expect(
+      parseEmbedPlayerFromUrl('https://gifdex.net/profile/invalid/post/foo'),
+    ).toBeUndefined()
+  })
+})
+
 describe('getEmbedPlayerMediaType', () => {
   it.each<
     readonly [EmbedPlayerType, ReturnType<typeof getEmbedPlayerMediaType>]

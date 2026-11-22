@@ -109,6 +109,7 @@ const schema = z.object({
   externalEmbeds: z
     .object({
       giphy: z.enum(externalEmbedOptions).optional(),
+      gifdex: z.enum(externalEmbedOptions).optional(), // northsky: Gifdex consent
       tenor: z.enum(externalEmbedOptions).optional(),
       klipy: z.enum(externalEmbedOptions).optional(),
       youtube: z.enum(externalEmbedOptions).optional(),
