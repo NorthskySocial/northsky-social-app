@@ -4,6 +4,7 @@ import {Image} from 'expo-image'
 import {msg} from '@lingui/core/macro'
 import {useLingui} from '@lingui/react'
 
+import {type EmbedPlayerParams} from '#/lib/strings/embed-player'
 import {useAutoplayDisabled, useExternalEmbedsPrefs} from '#/state/preferences'
 import {atoms as a, useTheme} from '#/alf'
 import {useDialogControl} from '#/components/Dialog'
@@ -14,13 +15,13 @@ import {GifPresentationControls} from '#/components/Post/Embed/VideoEmbed/GifPre
 import {IS_WEB} from '#/env'
 import {type app} from '#/lexicons'
 
-export function GifdexEmbed({
+export function AnimatedImageEmbed({
   link,
-  uri,
+  params,
   style,
 }: {
   link: app.bsky.embed.external.ViewExternal
-  uri: string
+  params: EmbedPlayerParams
   style?: StyleProp<ViewStyle>
 }) {
   const t = useTheme()
@@ -33,7 +34,7 @@ export function GifdexEmbed({
   const [playing, setPlaying] = useState(!autoplayDisabled)
   const [loaded, setLoaded] = useState(false)
   const [ratio, setRatio] = useState(1)
-  const allowed = prefs?.gifdex === 'show' || active
+  const allowed = prefs?.[params.source] === 'show' || active
   const onPress = () => {
     if (!allowed) {
       consent.open()
@@ -52,7 +53,7 @@ export function GifdexEmbed({
     <View style={style}>
       <EmbedConsentDialog
         control={consent}
-        source="gifdex"
+        source={params.source}
         onAccept={() => setActive(true)}
       />
       <ConstrainedImage
@@ -67,7 +68,7 @@ export function GifdexEmbed({
           ]}>
           <Image
             ref={image}
-            source={allowed && playing ? uri : link.thumb}
+            source={allowed && playing ? params.playerUri : link.thumb}
             style={a.flex_1}
             contentFit="contain"
             autoplay={playing}

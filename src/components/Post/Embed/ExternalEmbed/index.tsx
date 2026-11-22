@@ -19,7 +19,7 @@ import {Earth_Stroke2_Corner0_Rounded as Globe} from '#/components/icons/Globe'
 import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
 import {IS_NATIVE} from '#/env'
-import {GifdexEmbed} from '#/features/gifdex/GifdexEmbed' // northsky: standalone GIF presentation
+import {AnimatedImageEmbed} from '#/features/customEmbeds/AnimatedImageEmbed' // northsky: standalone GIF presentation
 import {type app} from '#/lexicons'
 import {ExternalGif} from './ExternalGif'
 import {ExternalPlayer} from './ExternalPlayer'
@@ -68,12 +68,12 @@ export const ExternalEmbed = ({
       }
     : undefined
 
-  // northsky: Gifdex serves animated images rather than video streams.
-  if (embedPlayerParams?.source === 'gifdex') {
+  // northsky: animated image providers share the standalone GIF player.
+  if (embedPlayerParams?.type === 'animated_image_gif') {
     return (
-      <GifdexEmbed
+      <AnimatedImageEmbed
         link={link}
-        uri={embedPlayerParams.playerUri}
+        params={embedPlayerParams}
         style={style}
       />
     )
