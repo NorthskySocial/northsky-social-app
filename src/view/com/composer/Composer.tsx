@@ -147,6 +147,7 @@ import {SelectStickerBtn} from '#/features/bluemoji/SelectStickerBtn' // northsk
 import {StickerDraftPreview} from '#/features/bluemoji/StickerDraftPreview' // northsky: Bluemoji sticker
 import {type BluemojiItemView} from '#/features/bluemoji/types' // northsky: Bluemoji sticker
 import {type Gif} from '#/features/gifPicker/types'
+import {useMediaFallbackSession} from '#/features/mediaFallback/context'
 // northsky: wording follows the "They're called" setting
 import {usePostVocabulary} from '#/features/postVocabulary'
 import {app, chat} from '#/lexicons'
@@ -283,6 +284,9 @@ export const ComposePost = ({
    * that seeds the session's PDS routing, so the audience always matches the host
    * the upload actually reaches; a mismatch would 401 the upload.
    */
+  // northsky: the binary upload endpoint requires the uploader DID.
+  const mediaSession = useMediaFallbackSession()
+  const uploadDid = currentAccount!.did
   const currentDispatchUrl = currentAccount!.pdsUrl ?? currentAccount!.service
   const {closeComposer} = useComposerControls()
   const {t: l, i18n} = useLingui()
@@ -476,12 +480,23 @@ export const ComposePost = ({
         },
         pdsClient,
         currentDispatchUrl,
+        uploadDid,
+        mediaSession,
         abortController.signal,
         i18n,
         telemetry,
       )
     },
-    [l, i18n, pdsClient, currentDispatchUrl, composerDispatch, ax.metric],
+    [
+      l,
+      i18n,
+      pdsClient,
+      currentDispatchUrl,
+      uploadDid,
+      mediaSession,
+      composerDispatch,
+      ax.metric,
+    ],
   )
 
   const onInitVideo = useNonReactiveCallback(() => {
@@ -647,6 +662,8 @@ export const ComposePost = ({
           },
           pdsClient,
           currentDispatchUrl,
+          uploadDid,
+          mediaSession,
           abortController.signal,
           i18n,
           telemetry,
@@ -658,7 +675,16 @@ export const ComposePost = ({
         })
       }
     },
-    [l, i18n, pdsClient, currentDispatchUrl, composerDispatch, ax.metric],
+    [
+      l,
+      i18n,
+      pdsClient,
+      currentDispatchUrl,
+      uploadDid,
+      mediaSession,
+      composerDispatch,
+      ax.metric,
+    ],
   )
 
   const handleSelectDraft = useCallback(

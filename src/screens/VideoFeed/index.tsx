@@ -20,9 +20,9 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context'
 import {useEvent, useEventListener} from 'expo'
-import {Image, type ImageStyle} from 'expo-image'
+import {type ImageStyle} from 'expo-image'
 import {LinearGradient} from 'expo-linear-gradient'
-import {createVideoPlayer, type VideoPlayer, VideoView} from 'expo-video'
+import {type VideoPlayer, VideoView} from 'expo-video'
 import {AtUri} from '@atproto/syntax'
 import {type ModerationDecision} from '@bsky/sdk/moderation'
 import {RichText as RichTextAPI} from '@bsky/sdk/richtext'
@@ -107,12 +107,18 @@ import {Text} from '#/components/Typography'
 import {useAnalytics} from '#/analytics'
 import {IS_ANDROID} from '#/env'
 import {usePostFeedQuery as useFollowingV2PostFeedQuery} from '#/features/followingV2/home/queries/postFeed'
+import {useMediaFallbackSession} from '#/features/mediaFallback/context'
+import {createFeedPlayer} from '#/features/mediaFallback/createFeedPlayer'
+// northsky: retry failed public media on pooled players and their placeholders.
+import {PostImage} from '#/features/mediaFallback/PostImage'
+import {type MediaFallbackSession} from '#/features/mediaFallback/session'
 import {app} from '#/lexicons'
 import * as bsky from '#/types/bsky'
 import {Scrubber, VIDEO_PLAYER_BOTTOM_INSET} from './components/Scrubber'
 
 function createThreeVideoPlayers(
-  sources?: [string, string, string],
+  sources: [string, string, string],
+  mediaSession: MediaFallbackSession,
 ): [VideoPlayer, VideoPlayer, VideoPlayer] {
   // android is typically slower and can't keep up with a 0.1 interval
   const eventInterval = platform({
@@ -120,13 +126,13 @@ function createThreeVideoPlayers(
     android: 0.5,
     default: 0.2,
   })
-  const p1 = createVideoPlayer(sources?.[0] ?? '')
+  const p1 = createFeedPlayer(sources[0], mediaSession)
   p1.loop = true
   p1.timeUpdateEventInterval = eventInterval
-  const p2 = createVideoPlayer(sources?.[1] ?? '')
+  const p2 = createFeedPlayer(sources[1], mediaSession)
   p2.loop = true
   p2.timeUpdateEventInterval = eventInterval
-  const p3 = createVideoPlayer(sources?.[2] ?? '')
+  const p3 = createFeedPlayer(sources[2], mediaSession)
   p3.loop = true
   p3.timeUpdateEventInterval = eventInterval
   return [p1, p2, p3]
@@ -192,6 +198,7 @@ type VideoItem = {
 }
 
 function Feed() {
+  const mediaSession = useMediaFallbackSession()
   const {params} = useRoute<RouteProp<CommonNavigatorParams, 'VideoFeed'>>()
   const isFocused = useIsFocused()
   const {hasSession} = useSession()
@@ -344,7 +351,10 @@ function Feed() {
         if (prevVideo) args[(index + 2) % 3] = prevVideo
         if (currVideo) args[index % 3] = currVideo
         if (nextVideo) args[(index + 1) % 3] = nextVideo
-        const [player1, player2, player3] = createThreeVideoPlayers(args)
+        const [player1, player2, player3] = createThreeVideoPlayers(
+          args,
+          mediaSession,
+        )
 
         setPlayers([player1, player2, player3])
 
@@ -360,13 +370,13 @@ function Feed() {
         const nextPlayer = [player1, player2, player3][(index + 1) % 3]
 
         if (prevVideo && prevVideo !== prevPlayerCurrentSource?.source) {
-          prevPlayer.replace(prevVideo)
+          prevPlayer.replace(mediaSession.preferredUrl(prevVideo))
         }
         prevPlayer.pause()
 
         if (currVideo) {
           if (currVideo !== currPlayerCurrentSource?.source) {
-            currPlayer.replace(currVideo)
+            currPlayer.replace(mediaSession.preferredUrl(currVideo))
           }
           if (
             currVideoModeration &&
@@ -380,7 +390,7 @@ function Feed() {
         }
 
         if (nextVideo && nextVideo !== nextPlayerCurrentSource?.source) {
-          nextPlayer.replace(nextVideo)
+          nextPlayer.replace(mediaSession.preferredUrl(nextVideo))
         }
         nextPlayer.pause()
       }
@@ -411,7 +421,7 @@ function Feed() {
         setCurrentSources(updatedSources)
       }
     },
-    [videos, currentSources, players],
+    [videos, currentSources, players, mediaSession],
   )
 
   const updateVideoStateInitially = useNonReactiveCallback(() => {
@@ -1203,9 +1213,9 @@ function VideoItemPlaceholder({
     contentFit = 'cover' as const
   }
   return src ? (
-    <Image
+    <PostImage
       accessibilityIgnoresInvertColors
-      source={{uri: src}}
+      uri={src}
       style={[
         a.absolute,
         blur

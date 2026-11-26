@@ -11,6 +11,8 @@ import {
   useGalleryBleed,
 } from '#/components/images/Gallery'
 import {PostEmbedViewContext} from '#/components/Post/Embed/types'
+import {MediaFallbackContext} from '#/features/mediaFallback/context'
+import {MediaFallbackSession} from '#/features/mediaFallback/session'
 
 /*
  * These tests cover the image adapter's contract: sizing, lightbox arguments,
@@ -239,6 +241,53 @@ describe('image gallery adapter', () => {
     expect(thumbs().map(t => (t.props.source as {uri: string}).uri)).toEqual(
       three.map(i => i.thumb),
     )
+  })
+
+  // northsky: retry only the failed slide and stop after the alternate fails.
+  it('retries the failed thumbnail on Coffeencode once', () => {
+    const path = '/img/feed_thumbnail/plain/did:plc:alice/blob@jpeg'
+    render(
+      <MediaFallbackContext.Provider
+        value={new MediaFallbackSession('alice', true)}>
+        <Gallery
+          images={[image(0, {thumb: `https://cdn.bsky.app${path}`}), image(1)]}
+        />
+      </MediaFallbackContext.Provider>,
+    )
+    for (let attempt = 0; attempt < 2; attempt++) {
+      act(() => callProp(thumbs()[0], 'onError', {}))
+      expect(thumbs()[0].props.source).toEqual({
+        uri: 'https://cdn.coffeencode.cc' + path,
+      })
+      expect(thumbs()[1].props.source).toEqual({uri: image(1).thumb})
+    }
+  })
+
+  it('starts the next gallery on the CDN that loaded a previous image', () => {
+    const session = new MediaFallbackSession('alice', true)
+    function gallery(cid: string) {
+      return (
+        <MediaFallbackContext.Provider value={session}>
+          <Gallery
+            key={cid}
+            images={[
+              image(0, {
+                thumb: `https://cdn.bsky.app/img/feed_thumbnail/plain/did:plc:alice/${cid}@jpeg`,
+              }),
+              image(1),
+            ]}
+          />
+        </MediaFallbackContext.Provider>
+      )
+    }
+    const view = render(gallery('first'))
+    act(() => callProp(thumbs()[0], 'onError', {}))
+    loadThumb(0, 100, 100)
+    view.unmount()
+    render(gallery('next'))
+    expect(thumbs()[0].props.source).toEqual({
+      uri: 'https://cdn.coffeencode.cc/img/feed_thumbnail/plain/did:plc:alice/next@jpeg',
+    })
   })
 
   it('loads the first image eagerly and the others lazily', () => {

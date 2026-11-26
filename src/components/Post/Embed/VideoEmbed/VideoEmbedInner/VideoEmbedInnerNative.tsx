@@ -17,6 +17,7 @@ import {KeepAwake} from '#/components/KeepAwake'
 import {MediaInsetBorder} from '#/components/MediaInsetBorder'
 import {useReportDialogMetadataContext} from '#/components/moderation/ReportDialog/ReportDialogMetadataContext'
 import {useVideoMuteState} from '#/components/Post/Embed/VideoEmbed/VideoVolumeContext'
+import {useMediaFallback} from '#/features/mediaFallback/useMediaFallback'
 import {type app} from '#/lexicons'
 import {GifPresentationControls} from '../GifPresentationControls'
 import {TimeIndicator} from './TimeIndicator'
@@ -44,6 +45,8 @@ export function VideoEmbedInnerNative({
    */
   onError?: (error: string) => void
 }) {
+  // northsky: try the matching Blacksky stream after a player failure.
+  const media = useMediaFallback(embed.playlist)
   const {t: l} = useLingui()
   const videoRef = useRef<BlueskyVideoView>(null)
   const autoplayDisabled = useAutoplayDisabled()
@@ -73,7 +76,8 @@ export function VideoEmbedInnerNative({
   return (
     <View style={[a.flex_1, a.relative]}>
       <BlueskyVideoView
-        url={embed.playlist}
+        key={media.uri}
+        url={media.uri}
         autoplay={autoplay}
         beginMuted={isGif || (autoplayDisabled ? false : muted)}
         style={[a.rounded_sm]}
@@ -89,6 +93,7 @@ export function VideoEmbedInnerNative({
           }
         }}
         onStatusChange={e => {
+          if (e.nativeEvent.status === 'playing') media.loaded()
           setStatus(e.nativeEvent.status)
           setIsPlaying(e.nativeEvent.status === 'playing')
         }}
@@ -121,6 +126,7 @@ export function VideoEmbedInnerNative({
           }
         }}
         onError={e => {
+          if (media.retry()) return
           onError?.(e.nativeEvent.error)
           setError(e.nativeEvent.error)
         }}

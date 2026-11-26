@@ -128,6 +128,7 @@ import {
   type SessionBundle,
 } from '#/state/session/session-core'
 import {type SessionApiContext} from '#/state/session/types'
+import {type AppView, resolveAppViewForService} from '#/brand/appview'
 
 const DID = 'did:plc:example123'
 const SERVICE = 'https://bsky.social/'
@@ -152,13 +153,14 @@ function makeAccount(overrides: Partial<SessionAccount> = {}): SessionAccount {
 }
 
 /*
- * The provider only ever reads `bundle.agent` (for context) and
+ * The provider reads the routed appview, `bundle.agent` (for context) and
  * `bundle.session.destroyed` / `bundle.session.session` (for the cross-tab
  * token comparison), and otherwise treats a bundle as an opaque identity. A
  * literal with those fields is enough, and keeps a real PasswordSession - with
  * its network and refresh machinery - out of a suite about provider dispatch.
  */
 type FakeBundle = {
+  appview: AppView
   session: {destroyed: boolean; session: SessionData}
   agent: object
   service: URL
@@ -178,6 +180,7 @@ function makeBundle(account: SessionAccount): FakeBundle {
         service: account.service,
       },
     },
+    appview: resolveAppViewForService(account.service),
     agent: {},
     service: new URL(account.service),
   }

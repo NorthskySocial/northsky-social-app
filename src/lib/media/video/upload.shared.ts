@@ -3,9 +3,10 @@ import {type NsidString} from '@atproto/syntax'
 import {type I18n} from '@lingui/core'
 import {msg} from '@lingui/core/macro'
 
-import {VIDEO_SERVICE_DID} from '#/lib/constants'
+import {VIDEO_SERVICE, VIDEO_SERVICE_DID} from '#/lib/constants'
 import {UploadLimitError} from '#/lib/media/video/errors'
 import {getServiceAuthAudFromUrl} from '#/lib/strings/url-helpers'
+import {isAccessDenial} from '#/features/mediaFallback/routing'
 import {app, com} from '#/lexicons'
 import {createVideoServiceClient} from './util'
 
@@ -84,17 +85,24 @@ function toIntegerExp(exp: number) {
   return Math.floor(exp)
 }
 
-export async function getVideoUploadLimits(client: Client, i18n: I18n) {
+export async function getVideoUploadLimits(
+  client: Client,
+  i18n: I18n,
+  service = VIDEO_SERVICE,
+  aud = VIDEO_SERVICE_DID,
+) {
   const token = await getServiceAuthToken({
     client,
     lxm: 'app.bsky.video.getUploadLimits',
-    aud: VIDEO_SERVICE_DID,
+    aud,
   })
-  const videoClient = createVideoServiceClient(token)
+  const videoClient = createVideoServiceClient(token, service)
   const limits = await videoClient
     .call(app.bsky.video.getUploadLimits)
     .catch(err => {
       if (err instanceof Error) {
+        // northsky: preserve service denials for fallback selection.
+        if (isAccessDenial(err)) throw err
         throw new UploadLimitError(err.message)
       } else {
         throw err
@@ -102,6 +110,10 @@ export async function getVideoUploadLimits(client: Client, i18n: I18n) {
     })
 
   if (!limits.canUpload) {
+    if (isAccessDenial(limits))
+      throw new UploadLimitError(
+        [limits.error, limits.message].filter(Boolean).join(' '),
+      )
     if (limits.message) {
       throw new UploadLimitError(limits.message)
     } else {

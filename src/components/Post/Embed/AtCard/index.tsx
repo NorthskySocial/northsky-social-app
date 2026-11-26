@@ -1,5 +1,4 @@
 import {type StyleProp, View, type ViewStyle} from 'react-native'
-import {Image} from 'expo-image'
 import {moderateProfile} from '@bsky/sdk/moderation'
 import {useLingui} from '@lingui/react/macro'
 
@@ -14,6 +13,8 @@ import {Divider} from '#/components/Divider'
 import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
 import {IS_NATIVE} from '#/env'
+// northsky: retry public preview images on load failure.
+import {PostImage} from '#/features/mediaFallback/PostImage'
 import {type app} from '#/lexicons'
 import {getAtCardProvider} from './providers'
 
@@ -104,9 +105,9 @@ export function AtCard({
             hovered || focused || pressed ? t.atoms.bg_contrast_25 : t.atoms.bg,
           ]}>
           {view.thumb && (
-            <Image
+            <PostImage
               style={a.aspect_card}
-              source={{uri: view.thumb}}
+              uri={view.thumb}
               accessibilityIgnoresInvertColors
               loading="lazy"
               useAppleWebpCodec

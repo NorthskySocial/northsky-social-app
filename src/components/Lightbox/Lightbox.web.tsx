@@ -1,6 +1,5 @@
 import {useCallback, useEffect, useRef, useState} from 'react'
 import {Pressable, ScrollView, StyleSheet, View} from 'react-native'
-import {Image} from 'expo-image'
 import {Trans, useLingui} from '@lingui/react/macro'
 import * as FocusGuards from '@radix-ui/react-focus-guards'
 import * as FocusScope from '@radix-ui/react-focus-scope'
@@ -33,6 +32,8 @@ import {Loader} from '#/components/Loader'
 import * as Menu from '#/components/Menu'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
+// northsky: retry public post media on its alternate CDN.
+import {PostImage} from '#/features/mediaFallback/PostImage'
 
 export function Lightbox() {
   const {activeLightbox} = useLightbox()
@@ -413,8 +414,8 @@ function LightboxGalleryItem({
       break
     case 'image':
       image = (
-        <Image
-          source={{uri: source}}
+        <PostImage
+          uri={source}
           alt={alt}
           style={[a.w_full, a.h_full, zoomInWhenReady]}
           onLoad={handleLoad}

@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
 import {memo, useState} from 'react'
 import {ActivityIndicator, StyleSheet} from 'react-native'
 import {
@@ -28,7 +27,6 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context'
 import {scheduleOnRN} from 'react-native-worklets'
-import {Image} from 'expo-image'
 import {
   ScrollEdgeEffect,
   ScrollEdgeEffectProvider,
@@ -38,6 +36,8 @@ import {
 import {mergeRefs} from '#/lib/merge-refs'
 import {atoms as a} from '#/alf'
 import {IS_LIQUID_GLASS} from '#/env'
+// northsky: retry public post media on its alternate CDN.
+import {PostImage} from '#/features/mediaFallback/PostImage'
 import {
   type Dimensions as ImageDimensions,
   type ImageSource,
@@ -261,9 +261,9 @@ const ImageItemContent = ({
           )}
           <Animated.View style={[imageCropStyle, imageLayoutStyle]}>
             <Animated.View style={[imageStyle, imageLayoutStyle]}>
-              <Image
+              <PostImage
                 contentFit="contain"
-                source={{uri: imageSrc.uri}}
+                uri={imageSrc.uri}
                 placeholderContentFit="contain"
                 placeholder={{uri: imageSrc.thumbUri}}
                 style={{flex: 1, borderRadius}}
