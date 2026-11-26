@@ -2,6 +2,11 @@ import {Dimensions} from 'react-native'
 
 import {BRAND} from '#/brand/config' // northsky: brand host for the native iframe player
 import {IS_WEB} from '#/env'
+// northsky: provider definitions for custom animated images.
+import {
+  animatedImageProviders,
+  type AnimatedImageSource,
+} from '#/features/customEmbeds/definitions'
 
 /*
  * northsky: on web, load the iframe trampoline from our own origin. bskyweb
@@ -29,6 +34,7 @@ export const embedPlayerSources = [
   'flickr',
   'bandcamp',
   'freemix',
+  ...animatedImageProviders.map(([source]) => source), // northsky
 ] as const
 
 export type EmbedPlayerSource = (typeof embedPlayerSources)[number]
@@ -47,6 +53,7 @@ export type EmbedPlayerType =
   | 'apple_music_song'
   | 'vimeo_video'
   | 'giphy_gif'
+  | 'animated_image_gif' // northsky: shared animated image player
   | 'tenor_gif'
   | 'klipy_gif'
   | 'flickr_album'
@@ -92,6 +99,13 @@ export const externalEmbedLabels: Record<EmbedPlayerSource, string> = {
   flickr: 'Flickr',
   bandcamp: 'Bandcamp',
   freemix: 'FreeMix',
+  // northsky: registered providers appear in external media settings.
+  ...(Object.fromEntries(
+    animatedImageProviders.map(([source, provider]) => [
+      source,
+      provider.label,
+    ]),
+  ) as Record<AnimatedImageSource, string>),
 }
 
 /**
@@ -150,6 +164,15 @@ export function parseEmbedPlayerFromUrl(
     urlp = new URL(url)
   } catch (e) {
     return undefined
+  }
+
+  // northsky: resolve registered animated images before falling back to a card.
+  for (const [source, provider] of animatedImageProviders) {
+    if (!provider.matches(urlp)) continue
+    const playerUri = provider.getImageUri(urlp)
+    if (playerUri) {
+      return {type: 'animated_image_gif', source, playerUri, isGif: true}
+    }
   }
 
   // youtube

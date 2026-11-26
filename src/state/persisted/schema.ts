@@ -5,8 +5,14 @@ import {z} from 'zod'
 import {deviceLanguageCodes, deviceLocales} from '#/locale/deviceLocales'
 import {findSupportedAppLanguage} from '#/locale/helpers'
 import {logger} from '#/logger'
+// northsky: persist consent for registered animated image providers.
+import {
+  animatedImageProviders,
+  type AnimatedImageSource,
+} from '#/features/customEmbeds/definitions'
 
 const externalEmbedOptions = ['show', 'hide'] as const
+const optionalExternalEmbedOption = z.enum(externalEmbedOptions).optional()
 
 /**
  * A account persisted to storage. Stored in the `accounts[]` array. Contains
@@ -109,6 +115,13 @@ const schema = z.object({
   externalEmbeds: z
     .object({
       giphy: z.enum(externalEmbedOptions).optional(),
+      // northsky: new providers need no dedicated schema field.
+      ...(Object.fromEntries(
+        animatedImageProviders.map(([source]) => [
+          source,
+          optionalExternalEmbedOption,
+        ]),
+      ) as Record<AnimatedImageSource, typeof optionalExternalEmbedOption>),
       tenor: z.enum(externalEmbedOptions).optional(),
       klipy: z.enum(externalEmbedOptions).optional(),
       youtube: z.enum(externalEmbedOptions).optional(),
