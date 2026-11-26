@@ -38,6 +38,7 @@ import * as Toast from '#/components/Toast'
 import {useAnalytics} from '#/analytics'
 import {IS_IOS, IS_NATIVE} from '#/env'
 import {InviteFriendsDialog} from '#/features/inviteFriends'
+import {ListeningToProfileStatus} from '#/features/listeningTo'
 import {useActorStatus} from '#/features/liveNow'
 import {ProfileHeaderLinks} from '#/features/profileLinks'
 import {type app} from '#/lexicons'
@@ -140,6 +141,7 @@ let ProfileHeaderStandard = ({
               moderation={moderation}
             />
             <ProfileHeaderHandle profile={profile} />
+            <ListeningToProfileStatus did={profile.did} />
           </View>
           {!isPlaceholderProfile && !isBlockedUser && (
             <View style={a.gap_md}>

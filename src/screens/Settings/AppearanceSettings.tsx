@@ -16,9 +16,11 @@ import {
 import {useSetThemePrefs, useThemePrefs} from '#/state/shell'
 import {type Alf, atoms as a, native, useAlf, useTheme} from '#/alf'
 import * as SegmentedControl from '#/components/forms/SegmentedControl'
+import * as Toggle from '#/components/forms/Toggle'
 import {ColorPalette_Stroke2_Corner0_Rounded as ColorPaletteIcon} from '#/components/icons/ColorPalette' // northsky: icon for the "Accents" setting
 import {type Props as SVGIconProps} from '#/components/icons/common'
 import {Moon_Stroke2_Corner0_Rounded as MoonIcon} from '#/components/icons/Moon'
+import {MusicNote_Stroke2_Corner0_Rounded as MusicNoteIcon} from '#/components/icons/MusicNote'
 import {Phone_Stroke2_Corner0_Rounded as PhoneIcon} from '#/components/icons/Phone'
 // northsky: icon for the "They're called" setting
 import {Speakerphone_Stroke2_Corner0_Rounded as SpeakerphoneIcon} from '#/components/icons/Speakerphone'
@@ -26,6 +28,10 @@ import {TextSize_Stroke2_Corner0_Rounded as TextSize} from '#/components/icons/T
 import {TitleCase_Stroke2_Corner0_Rounded as Aa} from '#/components/icons/TitleCase'
 import * as Layout from '#/components/Layout'
 import {Text} from '#/components/Typography'
+import {
+  useListeningToEnabled,
+  useSetListeningToEnabled,
+} from '#/features/listeningTo'
 // northsky: the "Accents" setting, brand gradient vs calm solid colour
 import {useAccents, useSetAccents} from '#/features/northskyAppearance'
 // northsky: the "They're called" setting, post wording vs skeet wording
@@ -45,6 +51,8 @@ export function AppearanceSettingsScreen({}: Props) {
   // northsky: the "Accents" setting
   const accents = useAccents()
   const setAccents = useSetAccents()
+  const listeningToEnabled = useListeningToEnabled()
+  const setListeningToEnabled = useSetListeningToEnabled()
 
   const onChangeAppearance = useCallback(
     (value: 'light' | 'system' | 'dark') => {
@@ -216,6 +224,26 @@ export function AppearanceSettingsScreen({}: Props) {
                 value={postNaming}
                 onChange={setPostNaming}
               />
+
+              <SettingsList.Divider />
+
+              <SettingsList.Group contentContainerStyle={[a.gap_sm]}>
+                <SettingsList.ItemIcon icon={MusicNoteIcon} />
+                <SettingsList.ItemText>
+                  <Trans>Listening to</Trans>
+                </SettingsList.ItemText>
+                <Toggle.Item
+                  name="listening_to"
+                  label={_(msg`Show listening activity on profiles`)}
+                  value={listeningToEnabled}
+                  onChange={setListeningToEnabled}
+                  style={[a.w_full]}>
+                  <Toggle.LabelText style={[a.flex_1]}>
+                    <Trans>Show listening activity on profiles</Trans>
+                  </Toggle.LabelText>
+                  <Toggle.Platform />
+                </Toggle.Item>
+              </SettingsList.Group>
 
               {/*{IS_NATIVE && IS_INTERNAL && (
                 <>

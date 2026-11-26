@@ -68,6 +68,8 @@ export type Device = {
   postNaming?: 'post' | 'skeet'
   // northsky: brand accent style, chosen in Settings > Appearance
   accents?: 'lively' | 'calm'
+  // northsky: show listening activity on profile headers
+  listeningToEnabled?: boolean
   // northsky: whether adult-only Bluemoji draw as images, set in Moderation
   bluemojiAdultOnly?: 'show' | 'hide'
   inviteFriendsFollowersPromoDismissed?: boolean
