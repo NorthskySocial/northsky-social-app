@@ -1,4 +1,9 @@
-import {getRecordByUri, resolveMiniDoc, SLINGSHOT_SERVICE} from '../client'
+import {
+  getRecordByUri,
+  getTealStatus,
+  resolveMiniDoc,
+  SLINGSHOT_SERVICE,
+} from '../client'
 
 const realFetch = global.fetch
 const fetchMock = jest.fn<Promise<Response>, [string, RequestInit?]>()
@@ -59,6 +64,35 @@ describe('getRecordByUri', () => {
 
     const result = await getRecordByUri('at://did:plc:abc/app.bsky.feed.post/x')
     expect(result).toBeUndefined()
+  })
+})
+
+describe('getTealStatus', () => {
+  it('fetches the literal self status record', async () => {
+    const mockStatus = {
+      uri: 'at://did:plc:abc/fm.teal.actor.status/self',
+      cid: 'bafyrei-status',
+      value: {
+        $type: 'fm.teal.actor.status',
+        time: '2026-11-25T20:00:00Z',
+        expiry: '2026-11-25T20:10:00Z',
+        item: {
+          trackName: 'Test Track',
+          artists: [{artistName: 'Test Artist'}],
+        },
+      },
+    }
+    fetchMock.mockResolvedValueOnce(jsonResponse(mockStatus))
+
+    const result = await getTealStatus('did:plc:abc')
+
+    expect(result).toEqual(mockStatus)
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'at_uri=at%3A%2F%2Fdid%3Aplc%3Aabc%2Ffm.teal.actor.status%2Fself',
+      ),
+      expect.any(Object),
+    )
   })
 })
 

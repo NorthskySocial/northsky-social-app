@@ -270,6 +270,8 @@
     "com.atproto.sync.requestCrawl",
     "com.atproto.sync.subscribeRepos",
     "com.germnetwork.declaration",
+    "fm.teal.actor.status",
+    "fm.teal.feed.defs",
     "tools.ozone.inbox.appealActionedSubject",
     "tools.ozone.inbox.defs",
     "tools.ozone.inbox.getAccountStatus",
@@ -1361,6 +1363,14 @@
     "com.germnetwork.declaration": {
       "uri": "at://did:plc:qyqmmncrm6qx33kpy7vqndik/com.atproto.lexicon.schema/com.germnetwork.declaration",
       "cid": "bafyreickqsspgkujwucg3low5or64ywjryf44eua6xtszd6zsl2yteumoi"
+    },
+    "fm.teal.actor.status": {
+      "uri": "at://did:plc:iwhuynr6mm6xxuh25o4do2tx/com.atproto.lexicon.schema/fm.teal.actor.status",
+      "cid": "bafyreidsm2tt2xvo7oebqcnxmza2y7twxo2m73px576wbbpt7wfevmg6jy"
+    },
+    "fm.teal.feed.defs": {
+      "uri": "at://did:plc:iwhuynr6mm6xxuh25o4do2tx/com.atproto.lexicon.schema/fm.teal.feed.defs",
+      "cid": "bafyreieexapkct6n2yrt73e3l3gfljjv3w4wkj6zcuoufmghigevilemwy"
     },
     "tools.ozone.inbox.appealActionedSubject": {
       "uri": "at://did:plc:33dt5kftu3jq2h5h4jjlqezt/com.atproto.lexicon.schema/tools.ozone.inbox.appealActionedSubject",

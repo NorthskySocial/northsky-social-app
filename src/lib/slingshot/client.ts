@@ -1,4 +1,5 @@
 import {BRAND} from '#/brand/config'
+import {main as tealStatusRecord} from '#/lexicons/fm/teal/actor/status'
 import {type SlingshotMiniDoc, type SlingshotRecord} from './types'
 
 // northsky: service host is configurable via the brand module
@@ -70,4 +71,13 @@ export async function resolveMiniDoc(
   } catch {
     return undefined
   }
+}
+
+export async function getTealStatus(
+  did: string,
+): Promise<SlingshotRecord | undefined> {
+  const record = await getRecordByUri(`at://${did}/fm.teal.actor.status/self`)
+  if (!record || !tealStatusRecord.isTypeOf(record.value)) return undefined
+
+  return record
 }
