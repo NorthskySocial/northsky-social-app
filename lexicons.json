@@ -1366,11 +1366,11 @@
     },
     "fm.teal.actor.status": {
       "uri": "at://did:plc:iwhuynr6mm6xxuh25o4do2tx/com.atproto.lexicon.schema/fm.teal.actor.status",
-      "cid": "bafyreigml4bzz2oepwteezakxaoka6zqbzvbe2x2flxj7yqkmbob5w6gw4"
+      "cid": "bafyreidsm2tt2xvo7oebqcnxmza2y7twxo2m73px576wbbpt7wfevmg6jy"
     },
     "fm.teal.feed.defs": {
       "uri": "at://did:plc:iwhuynr6mm6xxuh25o4do2tx/com.atproto.lexicon.schema/fm.teal.feed.defs",
-      "cid": "bafyreiabceydo5kbi2mzytxuowvf6fb6g7xzxysx5xyevnapjj3x7yao7e"
+      "cid": "bafyreieexapkct6n2yrt73e3l3gfljjv3w4wkj6zcuoufmghigevilemwy"
     },
     "tools.ozone.inbox.appealActionedSubject": {
       "uri": "at://did:plc:33dt5kftu3jq2h5h4jjlqezt/com.atproto.lexicon.schema/tools.ozone.inbox.appealActionedSubject",
