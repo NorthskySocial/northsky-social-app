@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - stratos-staging
   release:
     types:
       - published
@@ -132,6 +133,35 @@ jobs:
           username: 'Github Actions deployment'
           title: 'Northsky Social App staging deployment'
           description: 'staging.northsky.app is rolling out the latest main build.'
+          details: 'Commit: ${{ github.event.head_commit.message }}'
+
+  deploy_stratos_staging:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/stratos-staging'
+    needs: bskyweb-container-ghcr
+    steps:
+      - name: Trigger the staging deployment through webhook
+        uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # v4.0.1
+        with:
+          token: ${{ secrets.DEPLOYMENT_WEBHOOK_TOKEN }}
+          repository: ${{ secrets.DEPLOYMENT_WEBHOOK_REPOSITORY }}
+          event-type: deploy-northsky-social-app-stratos-staging
+
+  notify_stratos_staging:
+    runs-on: ubuntu-latest
+    needs: deploy_stratos_staging
+    steps:
+      - name: Give the rollout time to start
+        run: sleep 30s
+
+      - name: Notify Discord
+        uses: rjstone/discord-webhook-notify@c2597273488aeda841dd1e891321952b51f7996f # v2.2.1
+        with:
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+          severity: info
+          username: 'Github Actions deployment'
+          title: 'Northsky Social App (Stratos) staging deployment'
+          description: 'stratos-staging.northsky.app is rolling out the latest stratos-staging build.'
           details: 'Commit: ${{ github.event.head_commit.message }}'
 
   deploy_production:
